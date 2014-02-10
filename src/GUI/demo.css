@@ -1,0 +1,41 @@
+body {
+
+	margin: 0;
+
+}
+
+div.container {
+
+	border: 2px solid black;
+	margin: auto;
+	//width: 90%;
+}
+
+#wrap {
+
+	border: 2px solid black;
+	padding: 0 1% 2.5% 1%;
+}
+
+#nav {
+	
+	top: 0;
+	
+
+}
+
+#content-wrapper {
+	
+	
+
+}
+
+#console-wrapper {
+	
+	width: 20%;
+	float: right;
+	//margin-right: 4%;
+
+}
+
+
