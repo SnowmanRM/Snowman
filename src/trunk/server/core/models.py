@@ -16,31 +16,54 @@ class Rule(models.Model):
 	ruleSet = models.ForeignKey('RuleSet')
 	ruleClass = models.ForeignKey('RuleClass')
 
-	def __unicode__(self):
-		return str(self.SID)
+	def __repr__(self):
+		return "<Rule SID:%d, Active:%s, Set:%s, Class:%s>" % (self.SID, str(self.active), self.ruleSet.name, self.ruleClass.classtype)
+
+	def __str__(self):
+		return "<Rule SID:%d>" % (self.SID)
 
 class RuleClass(models.Model):
+	"""A ruleclass have a name, and a priority. All Rule objects should
+	be a part of a RuleClass"""
+
 	classtype = models.CharField(max_length=80)
 	description = models.TextField()
 	priority = models.IntegerField()
 	
-	def __unicode__(self):
-		return self.classtype
+	def __repr__(self):
+		return "<RuleClass Type:%s, Description:'%s', Priority:%d>" % (self.classtype, self.description, self.priority)
+
+	def __str__(self):
+		return "<RuleClass Type:%s, Priority:%d>" % (self.classtype, self.priority)
 
 class RuleReference(models.Model):
+	"""A RuleReference contains information on where to find more info
+	about a specific rule. It is of a certain type (which contains an
+	urlPrefix), and a reference."""
+	
 	reference = models.CharField(max_length=80)
 	referenceType = models.ForeignKey('RuleReferenceType')
 	rulerevision = models.ForeignKey('RuleRevision')
 
-	def __unicode__(self):
-		return self.reference
+	def __repr__(self):
+		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
+
+	def __str__(self):
+		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
 
 class RuleReferenceType(models.Model):
+	""" RuleReferenceType is the different types a certain rulereference
+	might be. It contains a name, which we find in the raw rules, and a
+	urlPrefix """
+
 	name = models.CharField(max_length=30)
 	urlPrefix = models.CharField(max_length=80)
 
-	def __unicode__(self):
-		return self.name
+	def __repr__(self):
+		return "<RuleReferenceType name:%s, urlPrefix:'%s'>" % (self.name, self.urlPrefix)
+
+	def __str__(self):
+		return "<RuleReferenceType name:%s, urlPrefix:'%s'>" % (self.name, self.urlPrefix)
 
 class RuleRevision(models.Model):
 	"""This class should represent a single revision of a rule. Every
@@ -56,8 +79,11 @@ class RuleRevision(models.Model):
 	raw = models.TextField()
 	msg = models.TextField()
 
-	def __unicode__(self):
-		return "SID:" + str(self.rule.SID) + " rev:" + str(self.rev)
+	def __repr__(self):
+		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)
+
+	def __str__(self):
+		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)
 
 class RuleSet(models.Model):
 	"""A RuleSet, is a set of rules. Alle Rule objects should have
@@ -66,12 +92,18 @@ class RuleSet(models.Model):
 	wheter it should be active or not."""
 
 	name = models.CharField(max_length=30)
-	parent = models.ForeignKey('RuleSet')
+	parent = models.ForeignKey('RuleSet', null=True)
 	description = models.TextField()
 	active = models.BooleanField()
 
-	def __unicode__(self):
-		return self.name
+	def __repr__(self):
+		if(self.parent):
+			return "<RuleSet name:%s, parent:%s, active:%s description:'%s'>" % (self.name, self.parent.name, str(self.active), self.description)
+		else:
+			return "<RuleSet name:%s, parent:None, active:%s description:'%s'>" % (self.name, str(self.active), self.description)
+
+	def __str__(self):
+		return "<RuleSet name:%s>" % (self.name)
 
 class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
@@ -84,5 +116,11 @@ class Sensor(models.Model):
 	secret = models.CharField(max_length=30)
 	ruleSets = models.ManyToManyField('RuleSet')
 
-	def __unicode__(self):
-		return self.name
+	def __repr__(self):
+		if(self.parent):
+			return "<Sensor name:%s, parent:%s, active:%s, ipAddress:'%s', secret:%s>" % (self.name, self.parent.name, str(self.active), self.ipAddress, self.secret)
+		else:
+			return "<Sensor name:%s, parent:None, active:%s, ipAddress:'%s', secret:%s>" % (self.name, str(self.active), self.ipAddress, self.secret)
+
+	def __str__(self):
+		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
