@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 
 """This python-model contains the data-models for the core
@@ -21,6 +23,32 @@ class Rule(models.Model):
 
 	def __str__(self):
 		return "<Rule SID:%d>" % (self.SID)
+	
+	def updateRule(self, raw, rev = None, active = None, msg = None):
+		"""This method recieves a rule, and if needed, creates a new RuleRevision object, and inserts into
+		the list of revisions belonging to this rule. If the rev on the new rule is equal, or smaller than
+		the last in revisions, nothing is done.
+		
+		If rev/active/msg is not supplied, they will be extracted from the raw string"""
+
+		logger = logging.getLogger(__name__)
+
+		# TODO: Parse raw for arguments that is not supplied by caller.
+		
+		# Try to grab the latest revision from the database
+		try:
+			lastRev = self.revisions.latest(field_name = 'rev')
+		except RuleRevision.DoesNotExist:
+			lastRev = None
+		
+		# If no revisions are found, or the last revision is smaller than the new one,
+		#   add the new revision to the database.
+		if(lastRev == None or int(lastRev.rev) < int(rev)):
+			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=active, msg=msg, raw=raw)
+			logger.debug("Updated rule-revision:" + str(rev))
+			return rev
+		
+		return None
 
 class RuleClass(models.Model):
 	"""A ruleclass have a name, and a priority. All Rule objects should
@@ -73,7 +101,7 @@ class RuleRevision(models.Model):
 	want to use. When a Rule is fetched, the revision with the highest
 	rev that is active is selected as the correct rule to use."""
 
-	rule = models.ForeignKey('Rule')
+	rule = models.ForeignKey('Rule', related_name="revisions")
 	active = models.BooleanField(default=True)
 	rev = models.IntegerField()
 	raw = models.TextField()
