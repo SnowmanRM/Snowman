@@ -1,6 +1,5 @@
 import re
 import logging
-import MySQLdb
 
 from django.db import models
 
@@ -17,7 +16,7 @@ class RuleChanges(models.Model):
 	rule = models.ForeignKey(Rule)
 	originalSet = models.ForeignKey(RuleSet, related_name="rulechangeoriginal")
 	newSet = models.ForeignKey(RuleSet, related_name="rulechangenew")
-	update = models.ForeignKey('Update')
+	update = models.ForeignKey('Update', related_name="pendingChanges")
 	moved = models.BooleanField()
 	
 	def __repr__(self):
@@ -48,7 +47,7 @@ class Update(models.Model):
 	it have a source, and a link to all the RuleRevisions that got updated."""
 	
 	time = models.DateField()
-	source = models.ForeignKey('Source')
+	source = models.ForeignKey('Source', related_name="updates")
 	ruleRevisions = models.ManyToManyField(RuleRevision)
 	
 	def __repr__(self):
@@ -64,8 +63,10 @@ class Update(models.Model):
 		logger = logging.getLogger(__name__)
 		result = {}
 		
-		# If we use a MySQL-Database, we can ask it directly for the data.
+		# If we use a MySQL-Database, we can ask it directly for the data, to optimize the queries a bit.
 		if(DATABASES['default']['ENGINE'] == "django.db.backends.mysql"):
+			# To prevent warnings about missing mysql-libraries, only include them when we actually need it. 
+			import MySQLdb
 			logger.debug("Collecting all SID/rev pairs from the database, using MySQL directly.")
 			dbHost = DATABASES['default']['HOST']
 			
@@ -101,9 +102,13 @@ class Update(models.Model):
 			# Close the database-connection.
 			dbCursor.close()
 			dbConnection.close()
+		
+		# If we use any other type of database, collect the data using the django models.
 		else:
 			logger.debug("Collectiong all SID/rev pairs from the database, using the django-models")
-			# TODO: Implement generic method for this...
+			
+			for rule in Rule.objects.all():
+				result[rule.SID] = rule.revisions.latest(field_name = 'rev').rev
 		
 		return result
 	
@@ -131,9 +136,7 @@ class Update(models.Model):
 		
 		logger = logging.getLogger(__name__)
 		
-		#####################################################################################
-		# TODO: Add support for rules where ruleset is not yed defined.
-		#####################################################################################
+		# TODO: Add support for rules where ruleset is not defined.
 		
 		# Construct a regex, so that we can extract all the interesting parametres from the raw rulestring.
 		matchPattern = r"(.*)alert(?=.*sid:(\d+))(?=.*rev:(\d+))"
@@ -202,7 +205,7 @@ class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
 
 	name = models.CharField(max_length=40)
-	update = models.ForeignKey('Update')
+	update = models.ForeignKey('Update', related_name="files")
 	checksum = models.CharField(max_length=80)
 	
 	def __repr__(self):

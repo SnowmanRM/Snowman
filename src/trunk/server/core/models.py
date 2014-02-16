@@ -15,8 +15,8 @@ class Rule(models.Model):
 
 	SID = models.IntegerField()
 	active = models.BooleanField()
-	ruleSet = models.ForeignKey('RuleSet')
-	ruleClass = models.ForeignKey('RuleClass')
+	ruleSet = models.ForeignKey('RuleSet', related_name='rules')
+	ruleClass = models.ForeignKey('RuleClass', related_name='rules')
 
 	def __repr__(self):
 		return "<Rule SID:%d, Active:%s, Set:%s, Class:%s>" % (self.SID, str(self.active), self.ruleSet.name, self.ruleClass.classtype)
@@ -70,8 +70,8 @@ class RuleReference(models.Model):
 	urlPrefix), and a reference."""
 	
 	reference = models.CharField(max_length=80)
-	referenceType = models.ForeignKey('RuleReferenceType')
-	rulerevision = models.ForeignKey('RuleRevision')
+	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
+	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 
 	def __repr__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
@@ -120,7 +120,7 @@ class RuleSet(models.Model):
 	wheter it should be active or not."""
 
 	name = models.CharField(max_length=30)
-	parent = models.ForeignKey('RuleSet', null=True)
+	parent = models.ForeignKey('RuleSet', null=True, related_name='childSets')
 	description = models.TextField()
 	active = models.BooleanField()
 
@@ -142,7 +142,7 @@ class Sensor(models.Model):
 	active = models.BooleanField(default=True)
 	ipAddress = models.CharField(max_length=38)
 	secret = models.CharField(max_length=30)
-	ruleSets = models.ManyToManyField('RuleSet')
+	ruleSets = models.ManyToManyField('RuleSet', related_name='sensors')
 
 	def __repr__(self):
 		if(self.parent):
