@@ -5,8 +5,8 @@ from core.models import Rule, Sensor
 class RuleModifier(models.Model):
 	"""The RuleModifier let us modifiy if a rule should be present on
 	a sensor or not, regardless of what the ruleset says."""
-	rule = models.ForeignKey(Rule)
-	sensor = models.ForeignKey(Sensor)
+	rule = models.ForeignKey(Rule, related_name = 'modifiers')
+	sensor = models.ForeignKey(Sensor, related_name = 'ruleModifiers')
 	active = models.NullBooleanField()
 	
 	def __repr__(self):
@@ -25,8 +25,8 @@ class Supress(models.Model):
 	SOURCE = 1
 	DESTINATION = 2
 	
-	rule = models.ForeignKey(Rule)
-	sensor = models.ForeignKey(Sensor)
+	rule = models.ForeignKey(Rule, related_name = 'supress')
+	sensor = models.ForeignKey(Sensor, related_name = 'supress')
 	comment = models.TextField()
 	track = models.IntegerField()
 	
@@ -40,7 +40,7 @@ class SupressAddress(models.Model):
 	"""SupressAddress is simply a container for an address that is
 	assigned to a Supress"""
 	
-	supress = models.ForeignKey('Supress')
+	supress = models.ForeignKey('Supress', related_name = 'addresses')
 	ipAddress = models.CharField(max_length = 38)
 	
 	def __repr__(self):
@@ -64,8 +64,8 @@ class Threshold(models.Model):
 	SOURCE = 1
 	DESTINATION = 2
 	
-	rule = models.ForeignKey(Rule)
-	sensor = models.ForeignKey(Sensor)
+	rule = models.ForeignKey(Rule, related_name = 'thresholds')
+	sensor = models.ForeignKey(Sensor, related_name = 'thresholds')
 	comment = models.TextField()
 	thresholdType = models.IntegerField()
 	track = models.IntegerField()
