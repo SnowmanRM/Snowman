@@ -2,6 +2,7 @@ from core.models import *
 from tuning.models import *
 from update.models import *
 
+
 # Data for core
 sensor = Sensor.objects.create(name="MySensorName", active=True, ipAddress="127.0.0.1", secret="abcd")
 generator = Generator.objects.create(GID=1, alertID=1, message="Generic SNORT rule")

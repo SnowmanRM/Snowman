@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import logging
+
 from util.config import Config
+
 
 def initialize():
 	messages = []

@@ -2,6 +2,7 @@ from django.db import models
 
 from core.models import Rule, Sensor
 
+
 class RuleModifier(models.Model):
 	"""The RuleModifier let us modifiy if a rule should be present on
 	a sensor or not, regardless of what the ruleset says."""

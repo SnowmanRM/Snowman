@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from ConfigParser import ConfigParser
 
+
 class Config:
 	"""A very simple configuration class for the SRM client. It relies heavily on the
 	ConfigParser from python, and makes the method get easily accessible.

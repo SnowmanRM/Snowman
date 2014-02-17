@@ -2,6 +2,7 @@ from core.models import *
 from tuning.models import *
 from update.models import *
 
+
 # Tests for core
 sensor = Sensor.objects.first()
 ruleset = RuleSet.objects.first()
