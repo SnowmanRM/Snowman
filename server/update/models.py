@@ -4,7 +4,7 @@ import logging
 from django.db import models
 
 from srm.settings import DATABASES
-from core.models import Rule, RuleSet, RuleRevision, RuleClass
+from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass
 
 
 class RuleChanges(models.Model):
@@ -29,12 +29,14 @@ class RuleChanges(models.Model):
 
 class Source(models.Model):
 	"""A Source-object represents the different places we might get rule-updates from. If we have
-	a stable url, we can even schedule regular updates from this source."""
+	a stable url, we can even schedule regular updates from this source.
+	
+	The schedule is a cron-style string (30 0 * * 0 = 0:30 every sunday)"""
 	
 	name = models.CharField(max_length=40)
-	schedule = models.TimeField()
 	url = models.CharField(max_length=80)
 	lastMd5 = models.CharField(max_length=80)
+	schedule = models.CharField(max_length=40)
 	
 	def __repr__(self):
 		return "<Source name:%s, schedule:%s, url:%s, lastMd5:%s>" % (self.name, str(self.schedule), self.url, self.lastMd5)
@@ -46,7 +48,7 @@ class Update(models.Model):
 	"""An Update-object is representing a single update of rules. This update happened at a time,
 	it have a source, and a link to all the RuleRevisions that got updated."""
 	
-	time = models.DateField()
+	time = models.DateTimeField()
 	source = models.ForeignKey('Source', related_name="updates")
 	ruleRevisions = models.ManyToManyField(RuleRevision)
 	
@@ -117,13 +119,14 @@ class Update(models.Model):
 		database with the new rules."""
 		rs = {}
 		rc = {}
+		gen = {}
 		currentRules = self.getRuleVersions()
 		
 		rulefile = open(path, "r")
 		for line in rulefile:
-			self.updateRule(line, currentRules, rs, rc)
+			self.updateRule(line, currentRules, rs, rc, gen)
 	
-	def updateRule(self, raw, currentRules = {}, rulesets = {}, ruleclasses = {}):
+	def updateRule(self, raw, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method takes a raw rule-string, parses it, and if it is a new rule, we 
 		update the database.
 		
@@ -158,6 +161,7 @@ class Update(models.Model):
 			ruleSetName = result.group(4)
 			ruleMessage = result.group(5)
 			ruleClassName = result.group(6)
+			ruleGID = 1
 			
 			# If the rule is new, or is a newer version of a rule we already have:
 			if(int(ruleSID) not in currentRules or int(ruleRev) > currentRules[int(ruleSID)]):
@@ -183,16 +187,28 @@ class Update(models.Model):
 						logger.info("Created new ruleclass (" + str(ruleclass) + ") while importing rule")
 					ruleclasses[ruleClassName] = ruleclass
 					
+				# Grab the correct generator from cache/db, or create a new one if doesnt exist.
+				try:
+					generator = generators[ruleGID]
+				except KeyError:
+					try:
+						generator = Generator.objects.get(GID=ruleGID)
+					except RuleClass.DoesNotExist:
+						generator = Generator.objects.create(GID=ruleGID, alertID=1, message="Automaticly created during update")
+						logger.info("Created new generator (" + str(generator) + ") while importing rule")
+					ruleclasses[ruleClassName] = ruleclass
+					
 				# Grab the rule-object, or create a new one if it doesnt exist.
 				try:
 					rule = Rule.objects.get(SID=ruleSID)
 					rule.active = ruleActive
 					# TODO: Handle logic moving rule to new set
 					rule.ruleClass = ruleclass
+					rule.generator = generator
 					rule.save()
 					logger.info("Updated rule:" + str(rule))
 				except Rule.DoesNotExist:
-					rule = Rule.objects.create(SID=int(ruleSID), active=ruleActive, ruleSet=ruleset, ruleClass=ruleclass)
+					rule = Rule.objects.create(SID=int(ruleSID), generator=generator, active=ruleActive, ruleSet=ruleset, ruleClass=ruleclass)
 					logger.info("Created a new rule: " + str(rule))
 				
 				rev = rule.updateRule(raw, ruleRev, ruleActive, ruleMessage)
