@@ -1,10 +1,9 @@
-import re
-import logging
-
 from django.db import models
+import logging
+import re
 
-from srm.settings import DATABASES
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass
+from srm.settings import DATABASES
 
 
 class RuleChanges(models.Model):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import os
 import logging
+import os
 
 
 if __name__ == "__main__":

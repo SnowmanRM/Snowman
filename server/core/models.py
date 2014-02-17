@@ -1,10 +1,10 @@
-import logging
-
-from django.db import models
-
 """This python-model contains the data-models for the core
 data. This includes the Rules and revisions, Rulesets, RuleClasses,
 RuleReferences and Sensors."""
+
+from django.db import models
+import logging
+
 
 class Generator(models.Model):
 	"""The Generator class is to hold the data of gen-msg.conf. Generators,
