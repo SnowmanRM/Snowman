@@ -4,10 +4,11 @@ from update.models import *
 
 # Data for core
 sensor = Sensor.objects.create(name="MySensorName", active=True, ipAddress="127.0.0.1", secret="abcd")
+generator = Generator.objects.create(GID=1, alertID=1, message="Generic SNORT rule")
 ruleset = RuleSet.objects.create(name="MyRuleSet", description="My first ruleset.", active=True)
 rulereferencetype = RuleReferenceType.objects.create(name="url", urlPrefix="http://")
 ruleclass = RuleClass.objects.create(classtype="default", description="The default Rule-class", priority=4)
-rule = Rule.objects.create(SID=1, active=True, ruleSet=ruleset, ruleClass=ruleclass)
+rule = Rule.objects.create(SID=1, generator=generator, active=True, ruleSet=ruleset, ruleClass=ruleclass)
 rulerevision = RuleRevision.objects.create(rule=rule, rev=1, active=True, msg="Message", raw="The raw snort-rule")
 rulereference = RuleReference.objects.create(reference="foo.bar/123", referenceType=rulereferencetype, rulerevision=rulerevision)
 

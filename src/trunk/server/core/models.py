@@ -6,6 +6,20 @@ from django.db import models
 data. This includes the Rules and revisions, Rulesets, RuleClasses,
 RuleReferences and Sensors."""
 
+class Generator(models.Model):
+	"""The Generator class is to hold the data of gen-msg.conf. Generators,
+	AlertID's and messages."""
+
+	GID = models.IntegerField()
+	alertID = models.IntegerField()
+	message = models.TextField()
+	
+	def __repr__(self):
+		return "<Generator GID:%d, alertID:%d, message:\"%s\">" % (self.GID, self.alertID, self.message)
+	
+	def __str__(self):
+		return "<Generator GID:%d, alertID:%d>" % (self.GID, self.alertID)
+
 class Rule(models.Model):
 	"""The Rule class contains only some meta-info about a specific
 	rule. The SID, if the rule should be active, and to which ruleset
@@ -15,11 +29,13 @@ class Rule(models.Model):
 
 	SID = models.IntegerField()
 	active = models.BooleanField()
+	generator = models.ForeignKey('Generator', related_name='rules')
 	ruleSet = models.ForeignKey('RuleSet', related_name='rules')
 	ruleClass = models.ForeignKey('RuleClass', related_name='rules')
 
 	def __repr__(self):
-		return "<Rule SID:%d, Active:%s, Set:%s, Class:%s>" % (self.SID, str(self.active), self.ruleSet.name, self.ruleClass.classtype)
+		return "<Rule SID:%d, Active:%s, Set:%s, Class:%s>" % (self.SID, 
+					str(self.active), self.ruleSet.name, self.ruleClass.classtype)
 
 	def __str__(self):
 		return "<Rule SID:%d>" % (self.SID)
@@ -74,10 +90,12 @@ class RuleReference(models.Model):
 	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 
 	def __repr__(self):
-		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
+		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
+					self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
 
 	def __str__(self):
-		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
+		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
+					self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
 
 class RuleReferenceType(models.Model):
 	""" RuleReferenceType is the different types a certain rulereference
@@ -140,8 +158,9 @@ class Sensor(models.Model):
 	parent = models.ForeignKey('Sensor', null=True)
 	name = models.CharField(max_length=30)
 	active = models.BooleanField(default=True)
-	ipAddress = models.CharField(max_length=38)
-	secret = models.CharField(max_length=30)
+	autonomous = models.BooleanField(default=False)
+	ipAddress = models.CharField(max_length=38, default="")
+	secret = models.CharField(max_length=30, default="")
 	ruleSets = models.ManyToManyField('RuleSet', related_name='sensors')
 
 	def __repr__(self):
