@@ -35,10 +35,11 @@ class Rule(models.Model):
 	generator = models.ForeignKey('Generator', related_name='rules')
 	ruleSet = models.ForeignKey('RuleSet', related_name='rules')
 	ruleClass = models.ForeignKey('RuleClass', related_name='rules')
+	priority = models.IntegerField(null=True)
 
 	def __repr__(self):
-		return "<Rule SID:%d, Active:%s, Set:%s, Class:%s>" % (self.SID, 
-					str(self.active), self.ruleSet.name, self.ruleClass.classtype)
+		return "<Rule SID:%d, Active:%s, Set:%s, Class:%s Priority:%s>" % (self.SID, 
+					str(self.active), self.ruleSet.name, self.ruleClass.classtype, str(self.priority))
 
 	def __str__(self):
 		return "<Rule SID:%d>" % (self.SID)
