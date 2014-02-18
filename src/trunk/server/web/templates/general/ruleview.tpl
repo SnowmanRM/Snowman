@@ -1,8 +1,53 @@
 {% extends "general/index.tpl" %}
 
+
 {% block content %}
-<ul id="rule-list" class="container">
-	<li class="first"><input type="checkbox"><b>ATTACKS</b> - Attack Execution or Backtrace Rules</li>
+<div id="manipulator" class="col-xs-2 col-sm-2 col-md-2">
+	<div class="button-container">
+		<button type="button" class="btn btn-success btn-block">Enable</button>
+		<button type="button" class="btn btn-danger btn-block">Diable</button>
+		<button type="button" class="btn btn-warning btn-block">Treshold</button>
+		<button type="button" class="btn btn-warning btn-block">Suppress</button>
+		<button type="button" class="btn btn-primary btn-block">Comment</button>
+	</div>
+</div>
+<div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
+{% if rules %}
+    
+<ul class="list-group">
+	{% for r in rules %}
+        <li class="list-group-item">{{ r.rule.SID }}</li>
+        <li class="sub-list list-group-item" style="display: none">{{ r.rev.raw }}</li>
+    {% endfor %}
+	
+</ul>
+{% else %}
+    <p>No rules are available.</p>
+{% endif %}
+
+
+
+</div>
+<div class="pull-right clear">
+	<ul id="paginator" count="{{ pagecount }}" class="pagination">
+		
+	</ul>
+
+	<!--<ul class="pagination">
+		<li><a href="#">&laquo;</a></li>
+		<li><a href="#">1</a></li>
+		<li><a href="#">2</a></li>
+		<li><a href="#">3</a></li>
+		<li><a href="#">4</a></li>
+		<li><a href="#">5</a></li>
+		<li><a href="#">&raquo;</a></li>
+	</ul>-->
+</div>
+
+
+{% endblock %}
+
+<li class="first"><input type="checkbox"><b>ATTACKS</b> - Attack Execution or Backtrace Rules</li>
 	<li><input type="checkbox"><b>DOS</b> - Denial of Service Rules</li>
 	<li class="selected"><input type="checkbox"><b>POLICY</b> - Enterprise Policy Violation Rules</li>
 	<li class="sub">
@@ -22,26 +67,3 @@
 		</ul>
 	</li>
 	<li class="last"><input type="checkbox"><b>SQL</b> - Database Service Rules</li>
-</ul>
-
-{% if rule_list %}
-    <ul>
-    {% for rulerev in rule_list %}
-        <li><a href="#">{{ rulerev.rule.SID }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No rules are available.</p>
-{% endif %}
-
-{% endblock %}
-
-{% block manipulator %}
-<ul>
-	<li><a href="#" class="selected">Enable</a></li>
-	<li><a href="#">Disable</a></li>
-	<li><a href="#">Treshold</a></li>
-	<li><a href="#">Suppress</a></li>
-	<li><a href="#">Comment</a></li>
-</ul>
-{% endblock %}

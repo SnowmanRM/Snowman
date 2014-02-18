@@ -2,6 +2,7 @@ body {
 
 	margin: 0;
 	padding: 0;
+	margin-bottom: 20px;
 
 }
 
@@ -12,39 +13,34 @@ div.container {
 	//width: 90%;
 	//clear: both;
 }
-
+/*
 #wrap {
 
 	//border: 2px solid black;
 	border-top: 0;
 	padding: 0 1% 0 1%;
-	height: 100%;
-	max-height: 100%;
+	//height: 100%;
+	//max-height: 100%;
 
 }
+*/
 
-
-#content-wrapper {
+#wrap {
 	
 	border: 5px solid grey;
-	border-radius: 0 0 0 10px;
+	border-radius: 0 0 10px 10px;
 	background-color: lightgrey;
 	border-top: 0;
 	//float: left;
-	
+	margin-bottom: 20px;
 	margin: auto;
 
 }
 
-#content-manipulator-wrap {
+#content-wrap {
 
 	clear: both;
 	padding: 0 2% 1% 2%;
-	display: -webkit-box;
-	display: -moz-box;
-	display: -ms-flexbox;
-	display: -webkit-flex;
-	display: flex;
 }
 
 #content {
@@ -52,13 +48,18 @@ div.container {
 	//clear: both;
 	//padding: 5% 2% 2% 2%;
 	//border: 5px solid grey;
-	border-radius: 10px;
+	//border-radius: 10px;
 	//padding: 5px;
 	//margin-right: 2%;
 	//width: 90%;
 	//float: left;
-	flex: 1 1 70%;
+	//flex: 1 1 70%;
 
+}
+
+#content .list-group {
+
+	margin: auto;
 }
 
 #manipulator {
@@ -67,20 +68,29 @@ div.container {
 	//clear: both;
 	//width: 5%;
 	//float: left;
-	margin-top: 5%;
-	flex: 0 1 auto;
+	//margin-top: auto;
+	//flex: 0 1 auto;
+	position: relative;
+	//top: 0;
 	
 	
 }
 
-#manipulator ul {
+#manipulator.affix {
+    position: fixed;
+    top:0;
+  }
+
+
+#manipulator .button-container {
 
 	list-style-type: none;
-	margin: 0;
-	padding: 0;
+	margin-right: 5px;
+	padding: 5px;
 	border: 5px solid grey;
-	border-right: 0;
-	border-radius: 10px 0 0 10px;
+	//border-right: 0;
+	border-radius: 10px;
+	//float: right;
 	
 }
 
@@ -198,7 +208,7 @@ div.container {
 	//float: left;
 }
 
-#rule-list.container {
+#rule-list.list-container {
 
 	border: 5px solid grey;
 	border-radius: 10px 10px 10px 10px;
@@ -214,6 +224,7 @@ div.container {
 	//float: left;
 	background-color: lightgrey;
 	border-bottom: 1px solid grey;
+
 }
 
 #rule-list li.sub {
@@ -263,7 +274,16 @@ div.container {
 
 .clear {
 
-	clear: both;
-	padding-top: 10px;
+	clear: both !important;
+}
+
+.no-padding {
+
+	padding: 0 !important;
+}
+
+.no-radius {
+
+	border-radius: 0 !important;
 }
 
