@@ -1,3 +1,16 @@
+#!/usr/bin/python
+import os
+import sys
+
+# Add the parent folder of the script to the path
+scriptpath = os.path.realpath(__file__)
+scriptdir = os.path.dirname(scriptpath)
+parentdir = os.path.dirname(scriptdir)
+sys.path.append(parentdir)
+
+# Tell where to find the DJANGO settings.
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
+
 from core.models import *
 from tuning.models import *
 from update.models import *
