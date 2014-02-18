@@ -56,70 +56,14 @@ class Update(models.Model):
 
 	def __str__(self):
 		return "<Update source:%s, time:%s>" % (self.source.name, str(self.time))
-	
-	def getRuleVersions(self):
-		"""This method creates a dictionary where the key is the SID, and the data is the rev of the newest rule.
-		Useful for efficient comparing of the SID/rev with the new rules, without collecting all the rule-data
-		from the database."""
-		logger = logging.getLogger(__name__)
-		result = {}
-		
-		# If we use a MySQL-Database, we can ask it directly for the data, to optimize the queries a bit.
-		if(DATABASES['default']['ENGINE'] == "django.db.backends.mysql"):
-			# To prevent warnings about missing mysql-libraries, only include them when we actually need it. 
-			import MySQLdb
-			logger.debug("Collecting all SID/rev pairs from the database, using MySQL directly.")
-			dbHost = DATABASES['default']['HOST']
-			
-			# If the host is not listed in the configfile, use localhost.
-			if(len(dbHost) == 0):
-				dbHost = "localhost"
-				
-			dbConnection = MySQLdb.connect(host=dbHost, user=DATABASES['default']['USER'],
-										passwd=DATABASES['default']['PASSWORD'], 
-										db=DATABASES['default']['NAME'])
-			dbCursor = dbConnection.cursor()
-			
-			# Grab all SID's from the database
-			dbCursor.execute("SELECT id,SID FROM core_rule")
-			sid = dbCursor.fetchall()
-			
-			# Grab all the latest rev-numbers from the database,
-			dbCursor.execute("SELECT DISTINCT rule_id, rev FROM core_rulerevision ORDER BY ID DESC")
-			rev = dbCursor.fetchall()
-			
-			# Add the revs to a dictionary, where the key is the rule_id.
-			revs = {}
-			for r in rev:
-				revs[int(r[0])] = int(r[1])
-			
-			# Match all the SID's with their corresponding rev's.
-			for s in sid:
-				try:
-					result[int(s[1])] = revs[int(s[0])]
-				except KeyError:
-					logger.debug("SID %d has no rev." % int(s[1]))
-			
-			# Close the database-connection.
-			dbCursor.close()
-			dbConnection.close()
-		
-		# If we use any other type of database, collect the data using the django models.
-		else:
-			logger.debug("Collectiong all SID/rev pairs from the database, using the django-models")
-			
-			for rule in Rule.objects.all():
-				result[rule.SID] = rule.revisions.latest(field_name = 'rev').rev
-		
-		return result
-	
+
 	def parseRuleFile(self, path):
 		"""This method opens a rule-file, and parses it for all the found rules, and updated the
 		database with the new rules."""
 		rs = {}
 		rc = {}
 		gen = {}
-		currentRules = self.getRuleVersions()
+		currentRules = Rule.getRuleRevisions()
 		
 		rulefile = open(path, "r")
 		for line in rulefile:
