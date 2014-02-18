@@ -1,10 +1,16 @@
+from django.contrib.auth.models import User
+
 from core.models import *
 from tuning.models import *
 from update.models import *
 
+# User for the sensor we are going to create later..
+user = User.objects.create(username = "MySensorName", first_name = "MySensorName", last_name = "Sensor")
+user.set_password("123")
+user.save()
 
 # Data for core
-sensor = Sensor.objects.create(name="MySensorName", active=True, ipAddress="127.0.0.1", secret="abcd")
+sensor = Sensor.objects.create(name="MySensorName", user=user, active=True, ipAddress="127.0.0.1", secret="abcd")
 generator = Generator.objects.create(GID=1, alertID=1, message="Generic SNORT rule")
 ruleset = RuleSet.objects.create(name="MyRuleSet", description="My first ruleset.", active=True)
 rulereferencetype = RuleReferenceType.objects.create(name="url", urlPrefix="http://")
