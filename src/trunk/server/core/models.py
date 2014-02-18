@@ -1,10 +1,11 @@
+import logging
+
+from django.db import models
+from django.contrib.auth.models import User
+
 """This python-model contains the data-models for the core
 data. This includes the Rules and revisions, Rulesets, RuleClasses,
 RuleReferences and Sensors."""
-
-from django.db import models
-import logging
-
 
 class Generator(models.Model):
 	"""The Generator class is to hold the data of gen-msg.conf. Generators,
@@ -155,19 +156,19 @@ class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
 	contains name, address and the secret used for authentication."""
 
-	parent = models.ForeignKey('Sensor', null=True)
+	parent = models.ForeignKey('Sensor', null=True, related_name='childSensors')
 	name = models.CharField(max_length=30)
+	user = models.ForeignKey(User, related_name='sensor')
 	active = models.BooleanField(default=True)
 	autonomous = models.BooleanField(default=False)
 	ipAddress = models.CharField(max_length=38, default="")
-	secret = models.CharField(max_length=30, default="")
 	ruleSets = models.ManyToManyField('RuleSet', related_name='sensors')
 
 	def __repr__(self):
 		if(self.parent):
-			return "<Sensor name:%s, parent:%s, active:%s, ipAddress:'%s', secret:%s>" % (self.name, self.parent.name, str(self.active), self.ipAddress, self.secret)
+			return "<Sensor name:%s, parent:%s, active:%s, ipAddress:'%s', user:%s>" % (self.name, self.parent.name, str(self.active), self.ipAddress, self.user.username)
 		else:
-			return "<Sensor name:%s, parent:None, active:%s, ipAddress:'%s', secret:%s>" % (self.name, str(self.active), self.ipAddress, self.secret)
+			return "<Sensor name:%s, parent:None, active:%s, ipAddress:'%s', user:%s>" % (self.name, str(self.active), self.ipAddress, self.user.username)
 
 	def __str__(self):
 		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
