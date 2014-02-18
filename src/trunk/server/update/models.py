@@ -3,7 +3,7 @@ import logging
 import re
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass
-from srm.settings import DATABASES
+from update.exceptions import BadFormatError
 
 
 class RuleChanges(models.Model):
@@ -45,7 +45,7 @@ class Source(models.Model):
 	
 class Update(models.Model):
 	"""An Update-object is representing a single update of rules. This update happened at a time,
-	it have a source, and a link to all the RuleRevisions that got updated."""
+	it has a source, and a link to all the RuleRevisions that were updated."""
 	
 	time = models.DateTimeField()
 	source = models.ForeignKey('Source', related_name="updates")
@@ -60,14 +60,14 @@ class Update(models.Model):
 	def parseRuleFile(self, path):
 		"""This method opens a rule-file, and parses it for all the found rules, and updated the
 		database with the new rules."""
-		rs = {}
-		rc = {}
-		gen = {}
+		rulesets = {}
+		ruleclasses = {}
+		generators = {}
 		currentRules = Rule.getRuleRevisions()
 		
 		rulefile = open(path, "r")
 		for line in rulefile:
-			self.updateRule(line, currentRules, rs, rc, gen)
+			self.updateRule(line, currentRules, rulesets, ruleclasses, generators)
 	
 	def updateRule(self, raw, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method takes a raw rule-string, parses it, and if it is a new rule, we 
@@ -84,7 +84,7 @@ class Update(models.Model):
 		
 		# TODO: Add support for rules where ruleset is not defined.
 		
-		# Construct a regex, so that we can extract all the interesting parametres from the raw rulestring.
+		# Construct a regex, so that we can extract all the interesting parameters from the raw rulestring.
 		matchPattern = r"(.*)alert(?=.*sid:(\d+))(?=.*rev:(\d+))"
 		matchPattern += r"(?=.*ruleset (.*?)[,;])"
 		matchPattern += r"(?=.*msg:\"(.*?)\";)"
@@ -108,7 +108,7 @@ class Update(models.Model):
 			
 			# If the rule is new, or is a newer version of a rule we already have:
 			if(int(ruleSID) not in currentRules or int(ruleRev) > currentRules[int(ruleSID)]):
-				# Grab the correct ruleset from cache/db, or create a new one if it doesnt exist.
+				# Grab the correct ruleset from cache/db, or create a new one if it doesn't exist.
 				try:
 					ruleset = rulesets[ruleSetName]
 				except KeyError:
@@ -119,7 +119,7 @@ class Update(models.Model):
 						logger.info("Created new ruleset (" + str(ruleset) + ") while importing rule")
 					rulesets[ruleSetName] = ruleset
 						
-				# Grab the correct ruleclass from cache/db, or create a new one if doesnt exist.
+				# Grab the correct ruleclass from cache/db, or create a new one if doesn't exist.
 				try:
 					ruleclass = ruleclasses[ruleClassName]
 				except KeyError:
@@ -130,7 +130,7 @@ class Update(models.Model):
 						logger.info("Created new ruleclass (" + str(ruleclass) + ") while importing rule")
 					ruleclasses[ruleClassName] = ruleclass
 					
-				# Grab the correct generator from cache/db, or create a new one if doesnt exist.
+				# Grab the correct generator from cache/db, or create a new one if doesn't exist.
 				try:
 					generator = generators[ruleGID]
 				except KeyError:
@@ -141,7 +141,7 @@ class Update(models.Model):
 						logger.info("Created new generator (" + str(generator) + ") while importing rule")
 					ruleclasses[ruleClassName] = ruleclass
 					
-				# Grab the rule-object, or create a new one if it doesnt exist.
+				# Grab the rule-object, or create a new one if it doesn't exist.
 				try:
 					rule = Rule.objects.get(SID=ruleSID)
 					rule.active = ruleActive
@@ -159,7 +159,53 @@ class Update(models.Model):
 					self.ruleRevisions.add(rev)
 			else:
 				logger.debug("Rule %s/%s is already up to date" % (ruleSID, ruleRev))
-
+				
+	def parseClassificationFile(self, path):
+		"""Method for parsing classification.config. File is read line by line
+		and classifications are updated in the database."""
+		
+		logger = logging.getLogger(__name__)
+				
+		classificationFile = open(path, "r")
+		for i,line in enumerate(classificationFile):
+			try:
+				self.updateClassification(line)
+			except BadFormatError, e:
+				# Log exception message, file name and line number
+				logger.error("%s in file '%s', line " % (str(e), path, str(i+1)))
+			
+	def updateClassification(self, raw):
+		"""Method for updating the database with a new classification.
+		Classification data consists of three comma-separated strings which are
+		extracted with a regex, and split up in the three respective parts:
+		classtype, description and priority. The classtype is looked up in the
+		database and if found, the object is overwritten with the new data. Else,
+		a new classification object is inserted into the database."""
+		
+		# Regex: Match "config classification: " (group 0),
+		# and everything that comes after (group 1), which is the classification data. 
+		matchPattern = "config classification: (.*)"
+		pattern = re.compile(matchPattern)
+		result = pattern.match(raw)
+		
+		if(result):
+			# Split the data and store as separate strings
+			classification = result.group(1).split(",")
+			
+			try:
+				try:
+					# Update existing classification
+					ruleclassification = RuleClass.objects.get(classtype=classification[0])
+					ruleclassification.description = classification[1]
+					ruleclassification.priority = classification[2]
+					ruleclassification.save()
+				except RuleClass.DoesNotExist:
+					# Add new classification
+					RuleClass.objects.create(classtype=classification[0], description=classification[1], priority=classification[2])
+			except IndexError:
+				# If one or more indexes are invalid, the classification is badly formatted
+				raise BadFormatError("Badly formatted rule classification")
+				
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
 
