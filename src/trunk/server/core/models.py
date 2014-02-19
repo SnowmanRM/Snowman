@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 
 from srm.settings import DATABASES
 
+import json
+
 """This python-model contains the data-models for the core
 data. This includes the Rules and revisions, Rulesets, RuleClasses,
 RuleReferences and Sensors."""
@@ -43,6 +45,9 @@ class Rule(models.Model):
 
 	def __str__(self):
 		return "<Rule SID:%d>" % (self.SID)
+	
+	def getJson(self):		
+		return {'SID': self.SID, 'Active': str(self.active), 'Set': self.ruleSet.name, 'Class': self.ruleClass.classtype, 'Priority': str(self.priority)}
 	
 	def updateRule(self, raw, rev = None, active = None, msg = None):
 		"""This method recieves a rule, and if needed, creates a new RuleRevision object, and inserts into
@@ -193,6 +198,9 @@ class RuleRevision(models.Model):
 
 	def __str__(self):
 		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)
+	
+	def getJson(self):		
+		return {'SID': self.rule.SID, 'rev': self.rev, 'active': str(self.active), 'raw': self.raw, 'msg': self.msg}
 
 class RuleSet(models.Model):
 	"""A RuleSet, is a set of rules. Alle Rule objects should have
