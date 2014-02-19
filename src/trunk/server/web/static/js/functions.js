@@ -1,8 +1,20 @@
 
 $(document).ready(function(){
-	$('.list-group li').click(function(event){
+
+	var pagecount = $('#paginator').attr('count');
+	foo = new Page(10, 2, 2, 2);
+	//alert(foo.getNr());
+	
+	$(".ruleswitch").bootstrapSwitch();
+	
+	$('.list-group li.odd').click(function(event){
 		//event.preventDefault();
-		$(this).next().toggle("fast","linear");
+		if($(event.target).is('.bootstrap-switch span')){
+            event.preventDefault();
+            return false;
+        }
+		$(this).toggleClass("active");
+		$(this).next().slideToggle("fast","linear");
 		//$(this).addClass('selected');	
 		//$('#nav li a').addClass('selected');
 	
@@ -16,7 +28,7 @@ $(document).ready(function(){
 	});
 	
 	
-	var pagecount = $('#paginator').attr('count');
+	
 	var options = {
 		currentPage: 1,
 		totalPages: pagecount,
