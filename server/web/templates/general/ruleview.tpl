@@ -20,7 +20,7 @@
     
 <ul class="list-group">
 	{% for r in rules %}
-        <li class="list-group-item odd">{{ r.rule.SID }}<input type="checkbox" {% if r.rule.active %} checked {% endif %}id="{{ r.rule.SID }}" class="ruleswitch" data-on-color="success" data-off-color="danger"></li>
+        <li class="list-group-item odd">{{ r.rule.SID }}<span class="pull-right"><input type="checkbox" {% if r.rule.active %} checked {% endif %}id="{{ r.rule.SID }}" class="ruleswitch" data-size="mini" data-on-color="success" data-off-color="danger"></span></li>
         <li class="sub-list list-group-item list-group-item-warning even" style="display: none">{{ r.rev.raw }}</li>
     {% endfor %}
 	

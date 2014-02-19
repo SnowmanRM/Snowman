@@ -2,7 +2,7 @@
 $(document).ready(function(){
 
 	var pagecount = $('#paginator').attr('count');
-	foo = new Page(10, 2, 2, 2);
+	foo = new Page(1, 0, 100, 2);
 	//alert(foo.getNr());
 	
 	$(".ruleswitch").bootstrapSwitch();
