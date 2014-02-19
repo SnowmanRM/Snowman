@@ -2,8 +2,12 @@
 
 
 {% block content %}
+{% load staticfiles %}
+<script type="text/javascript" src="{% static 'js/classes.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/functions.js' %}"></script>
+
 <div id="manipulator" class="col-xs-2 col-sm-2 col-md-2">
-	<div class="button-container">
+	<div class="button-container well">
 		<button type="button" class="btn btn-success btn-block">Enable</button>
 		<button type="button" class="btn btn-danger btn-block">Diable</button>
 		<button type="button" class="btn btn-warning btn-block">Treshold</button>
@@ -16,8 +20,8 @@
     
 <ul class="list-group">
 	{% for r in rules %}
-        <li class="list-group-item">{{ r.rule.SID }}</li>
-        <li class="sub-list list-group-item" style="display: none">{{ r.rev.raw }}</li>
+        <li class="list-group-item odd">{{ r.rule.SID }}<input type="checkbox" {% if r.rule.active %} checked {% endif %}id="{{ r.rule.SID }}" class="ruleswitch" data-on-color="success" data-off-color="danger"></li>
+        <li class="sub-list list-group-item list-group-item-warning even" style="display: none">{{ r.rev.raw }}</li>
     {% endfor %}
 	
 </ul>
