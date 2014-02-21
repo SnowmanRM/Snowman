@@ -58,13 +58,11 @@ class Update(models.Model):
 	def __str__(self):
 		return "<Update source:%s, time:%s>" % (self.source.name, str(self.time))
 
-	def parseRuleFile(self, path):
+	def parseRuleFile(self, path, currentRules = None, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method opens a rule-file, and parses it for all the found rules, and updated the
 		database with the new rules."""
-		rulesets = {}
-		ruleclasses = {}
-		generators = {}
-		currentRules = Rule.getRuleRevisions()
+		if(not currentRules):
+			currentRules = Rule.getRuleRevisions()
 		
 		rulefile = open(path, "r")
 		for line in rulefile:
