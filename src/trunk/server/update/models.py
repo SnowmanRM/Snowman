@@ -171,6 +171,32 @@ class Update(models.Model):
 		and generators are updated in the database."""		
 		self.parseFile(self.updateGenerator, path)()
 		
+	def parseReferenceConfig(self, path):
+		"""Method for parsing reference.config which contains all ruleReferenceTypes.
+		File is read line by line and generators are updated in the database."""
+		self.parseFile(self.updateReference, path)()
+		
+	def updateReference(self, raw):
+		logger = logging.getLogger(__name__)
+		
+		matchPattern = r"config reference: (.*) (http(s)?://.*)"
+		pattern = re.compile(matchPattern)
+		result = pattern.match(raw)
+		
+		if result:
+			referenceType = result.group(1).strip()
+			urlPrefix = result.group(2).strip()
+			
+			# Update or create:
+			try:
+				reference = RuleReferenceType.objects.get(name=referenceType)
+				reference.urlPrefix = urlPrefix
+				reference.save
+			except RuleReferenceType.DoesNotExist:
+				reference = RuleReferenceType.objects.create(name=referenceType, urlPrefix=urlPrefix)
+				logger.debug("Created new ruleReferenceType: "+str(reference))
+				
+		
 	def parseSidMsgFile(self, path):
 		logger = logging.getLogger(__name__)
 		
@@ -179,39 +205,56 @@ class Update(models.Model):
 			updatedSIDs = {int(Rule.objects.get(id=x.rule_id).SID): x.id for x in self.ruleRevisions.all()}
 			self.parseFile(self.updateSidMsg, path, updatedRules=updatedSIDs)()		
 		except Rule.DoesNotExist:
-			logger.error("Unexpected error: rule lookup failed!");
+			logger.error("Unexpected error: rule lookup failed!")
 		
 	def updateSidMsg(self, raw, updatedRules=None):
-		# Regex: Match a generator definition: sid || message (|| reference)*
-		# sid is stored in group(1), and "message (|| reference)*" in group(2)
+		"""The sid-msg.map file contains mappings between ruleSIDs, rule messages and ruleReferences.
+		This method parses one line of this file (raw), and checks if the SID corresponds to a ruleRevision
+		in this update. If this is the case, it updates the message in the ruleRevision and creates all ruleReferences.
+		
+		updatedRules is a dictionary with {SID:referenceID} entries. This is needed because rules are referenced
+		by SID in sid-msg.map and by revisionID in Update.ruleRevisions."""
+		
+		logger = logging.getLogger(__name__)
+		
+		# Regex: Match a generator definition: SID || message (|| reference)*
+		# SID is stored in group(1), and "message (|| reference)*" in group(2)
 		matchPattern = r"(\d+) \|\| ((.*\|\|)* .*)"
 		pattern = re.compile(matchPattern)
 		result = pattern.match(raw)
 		
-		# TODO: OR config.always update sidmsg
 		# If we have a match AND the SID is in updatedRules (rule was updated):
 		if result:
+			# We have a valid line, fetch the SID
 			ruleSID = result.group(1)
-			print ruleSID
 			
+			# If updatedRules exist and this SID exists in updatedRules:
 			if updatedRules and (int(ruleSID) in updatedRules):
 				revisionID = updatedRules[int(ruleSID)]
-				RuleReference.objects.filter(rulerevision_id=revisionID).delete()
 				
-				data = result.group(2).split(" || ")
+				# Get message and ruleReferences, if any
+				data = result.group(2).split(" || ")				
 				dataiter = iter(data)
-				message = next(dataiter)
-				RuleRevision.objects.get(id=revisionID).msg = message
 				
-				for reference in dataiter:
-					referenceData = reference.split(",")
-					referenceType = referenceData[0]
-					referenceValue = referenceData[1]
+				try:
+					# Rule message is always the first element
+					message = next(dataiter)
+					RuleRevision.objects.get(id=revisionID).msg = message
 					
-					referenceTypeID = RuleReferenceType.objects.get(name=referenceType).id
-					RuleReference.objects.create(reference=referenceValue, referenceType_id=referenceTypeID,rulerevision_id=revisionID)
+					# Any succeeding elements are ruleReferences, formatted
+					# with referenceType,referenceValue:
+					for reference in dataiter:
+						referenceData = reference.split(",")
+						referenceType = referenceData[0]
+						referenceValue = referenceData[1]
+						
+						referenceTypeID = RuleReferenceType.objects.get(name=referenceType).id
+						RuleReference.objects.create(reference=referenceValue, referenceType_id=referenceTypeID,rulerevision_id=revisionID)
+				except (StopIteration, IndexError):
+					raise BadFormatError("Badly formatted sid-msg")
+				except RuleReferenceType.DoesNotExist:
+					logger.error("referenceType %s does not exist! RuleReference was not created." % referenceType)
 
-			
 	def updateClassification(self, raw):
 		"""Method for updating the database with a new classification.
 		Classification data consists of three comma-separated strings which are
