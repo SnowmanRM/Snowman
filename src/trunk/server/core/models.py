@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 
 from srm.settings import DATABASES
 
-import json
-
 """This python-model contains the data-models for the core
 data. This includes the Rules and revisions, Rulesets, RuleClasses,
 RuleReferences and Sensors."""
@@ -46,7 +44,21 @@ class Rule(models.Model):
 	def __str__(self):
 		return "<Rule SID:%d>" % (self.SID)
 	
-	def getJson(self):		
+	def natural_key(self):
+		"""This method is used by serializers when use_natural_key is set in their method call to serialize another object.
+		If that object has a reference to this object by foreign key, the serialization will also include this return string.
+		
+		This return string is a dictionary of the Rule variables; SID, Active, Set, Class and Priority.
+		"""
+		
+		return {'SID': self.SID, 'Active': str(self.active), 'Set': self.ruleSet.name, 'Class': self.ruleClass.classtype, 'Priority': str(self.priority)}
+	
+	def json(self):	
+		"""This method returns a string ready to be json-ified. It is for testing purposes only.
+		
+		REMOVE IF NOT NEEDED ANYMORE
+		"""
+			
 		return {'SID': self.SID, 'Active': str(self.active), 'Set': self.ruleSet.name, 'Class': self.ruleClass.classtype, 'Priority': str(self.priority)}
 	
 	def updateRule(self, raw, rev = None, active = None, msg = None):
@@ -199,7 +211,11 @@ class RuleRevision(models.Model):
 	def __str__(self):
 		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)
 	
-	def getJson(self):		
+	def json(self):
+		"""This method returns a string ready to be json-ified. It is for testing purposes only.
+		
+		REMOVE IF NOT NEEDED ANYMORE
+		"""	
 		return {'SID': self.rule.SID, 'rev': self.rev, 'active': str(self.active), 'raw': self.raw, 'msg': self.msg}
 
 class RuleSet(models.Model):

@@ -9,10 +9,10 @@ import json
 
 
 def index(request):
-	ruleviewlistmax = 10
+	
 	context = {}
 	
-	context['pagecount'] =RuleRevision.objects.count() / ruleviewlistmax
+	context['pagecount'] =RuleRevision.objects.count()
 	
 	try:
 		rule_list = Rule.objects.all()[:10]
@@ -51,16 +51,15 @@ def getRuleListRange(request, minrange, maxrange):
 	
 	try:
 		rule_list = RuleRevision.objects.all()[minrange:maxrange]
-		
 	except RuleRevision.DoesNotExist:
 		raise Http404
 	
-	context = []
+	#context = []
 	
-	for r in rule_list: 
-		context.append({'rev':r.getJson(),'rule':r.rule.getJson()})
+	#for r in rule_list: 
+		#context.append({'rev':r.json(),'rule':r.rule.json()})
 	
-	return HttpResponse(json.dumps(context), content_type="application/json")
+	return render(request, 'general/ruleviewlist.tpl', {'rule_list':rule_list})
 	
 	
 	

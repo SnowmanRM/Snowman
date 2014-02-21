@@ -6,22 +6,36 @@ function Page(pagenr, lowobjects, highobjects, maxobjects) {
 	var _lowobjects = lowobjects;
 	var _highobjects = highobjects;
 	var _maxobjects = maxobjects;
-	var _rules = new Array();
+	var _rulerevs;
+		
+	this.start =  function() {
+	//var rulerevs = new Array;
+	return $.ajax({
+		
+		url: "getrulelistrange/"+_lowobjects+"/"+_highobjects+"/",
+		dataType: "json"
+	});
 	
-	test = $.get('getrulelistrange/'+lowobjects+'/'+highobjects+'/')
+	}
 	
-	for (var i=0; i<maxobjects;i++)  {_rules[i] = new Rule()};
+	//console.log(_rulerevs)
+	this.setrevs = function setrevs(revs) {
+		
+		_rulerevs = revs;
+	}
+	
+	//for (var i=0; i<maxobjects;i++)  {_rules[i] = new Rule()};
 	
 	this.getNr = function() {
 		
-		return _rules[0].getSid();
+		return _rulerevs;
 	}
 	
-	
+	var x = 1;
 
 }
 
-function Rule() {
+function RuleRevision() {
 	var _sid = 1;
 	
 	this.getSid = function() {

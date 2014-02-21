@@ -18,7 +18,7 @@
 <div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
 {% if rules %}
     
-<ul class="list-group">
+<ul id="1" class="list-group current">
 	{% for r in rules %}
         <li class="list-group-item odd">{{ r.rule.SID }}<span class="pull-right"><input type="checkbox" {% if r.rule.active %} checked {% endif %}id="{{ r.rule.SID }}" class="ruleswitch" data-size="mini" data-on-color="success" data-off-color="danger"></span></li>
         <li class="sub-list list-group-item list-group-item-warning even" style="display: none">{{ r.rev.raw }}</li>
