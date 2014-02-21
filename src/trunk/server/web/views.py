@@ -5,14 +5,18 @@ from core.models import *
 
 from django.core import serializers
 
+from web.utilities import UserSettings
+
 import json
 
 
 def index(request):
-	
 	context = {}
 	
 	context['pagecount'] =RuleRevision.objects.count()
+
+	# Slik foreslår jeg at vi henter sidelengde :) - Eigil
+	context['pagelength'] = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
 	
 	try:
 		rule_list = Rule.objects.all()[:10]
