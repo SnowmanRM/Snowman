@@ -27,7 +27,11 @@ if __name__ == "__main__":
     
     
     # Create source and update objects
-    source = Source.objects.create(name="Manual", schedule="00:00", url="", lastMd5="")
+	try:
+		source = Source.objects.get(name="Manual")
+	except Source.DoNotExist:
+	    source = Source.objects.create(name="Manual", schedule="00:00", url="", lastMd5="")
+
     update = Update.objects.create(time="2014-01-01", source=source)
     
     # 1. Read and update the classifications
