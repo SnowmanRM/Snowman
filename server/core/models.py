@@ -165,7 +165,7 @@ class RuleReference(models.Model):
 	about a specific rule. It is of a certain type (which contains an
 	urlPrefix), and a reference."""
 	
-	reference = models.CharField(max_length=80)
+	reference = models.TextField()
 	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
 	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 

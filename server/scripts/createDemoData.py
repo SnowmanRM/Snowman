@@ -22,11 +22,20 @@ user = User.objects.create(username = "MySensorName", first_name = "MySensorName
 user.set_password("123")
 user.save()
 
+# RuleReferenceTypes
+RuleReferenceType.objects.create(name="bugtraq", urlPrefix="http://www.securityfocus.com/bid/")
+RuleReferenceType.objects.create(name="cve", urlPrefix="http://cve.mitre.org/cgi-bin/cvename.cgi?name=")
+RuleReferenceType.objects.create(name="nessus", urlPrefix="http://cgi.nessus.org/plugins/dump.php3?id=")
+RuleReferenceType.objects.create(name="arachnids", urlPrefix="http://www.whitehats.com/info/IDS")
+RuleReferenceType.objects.create(name="mcafee", urlPrefix="http://vil.nai.com/vil/content/v_")
+RuleReferenceType.objects.create(name="osvdb", urlPrefix="http://osvdb.org/show/osvdb/")
+RuleReferenceType.objects.create(name="msb", urlPrefix="http://technet.microsoft.com/en-us/security/bulletin/")
+rulereferencetype = RuleReferenceType.objects.create(name="url", urlPrefix="http://")
+
 # Data for core
 sensor = Sensor.objects.create(name="MySensorName", user=user, active=True, ipAddress="127.0.0.1")
 generator = Generator.objects.create(GID=1, alertID=1, message="Generic SNORT rule")
 ruleset = RuleSet.objects.create(name="MyRuleSet", description="My first ruleset.", active=True)
-rulereferencetype = RuleReferenceType.objects.create(name="url", urlPrefix="http://")
 ruleclass = RuleClass.objects.create(classtype="default", description="The default Rule-class", priority=4)
 rule = Rule.objects.create(SID=1, generator=generator, active=True, ruleSet=ruleset, ruleClass=ruleclass)
 rulerevision = RuleRevision.objects.create(rule=rule, rev=1, active=True, msg="Message", raw="The raw snort-rule")
