@@ -2,7 +2,8 @@ from django.db import models
 import logging
 import re
 
-from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass
+from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
+	RuleReference, RuleReferenceType
 from update.exceptions import BadFormatError
 
 
@@ -163,16 +164,53 @@ class Update(models.Model):
 	def parseClassificationFile(self, path):
 		"""Method for parsing classification.config. File is read line by line
 		and classifications are updated in the database."""
+		self.parseFile(self.updateClassification, path)()
 		
+	def parseGenMsgFile(self, path):
+		"""Method for parsing gen-msg.map. File is read line by line
+		and generators are updated in the database."""		
+		self.parseFile(self.updateGenerator, path)()
+		
+	def parseSidMsgFile(self, path):
 		logger = logging.getLogger(__name__)
+		
+		try:
+			# Create a dictionary with SID:revisionID for all rule revisions in this update
+			updatedSIDs = {int(Rule.objects.get(id=x.rule_id).SID): x.id for x in self.ruleRevisions.all()}
+			self.parseFile(self.updateSidMsg, path, updatedRules=updatedSIDs)()		
+		except Rule.DoesNotExist:
+			logger.error("Unexpected error: rule lookup failed!");
+		
+	def updateSidMsg(self, raw, updatedRules=None):
+		# Regex: Match a generator definition: sid || message (|| reference)*
+		# sid is stored in group(1), and "message (|| reference)*" in group(2)
+		matchPattern = r"(\d+) \|\| ((.*\|\|)* .*)"
+		pattern = re.compile(matchPattern)
+		result = pattern.match(raw)
+		
+		# TODO: OR config.always update sidmsg
+		# If we have a match AND the SID is in updatedRules (rule was updated):
+		if result:
+			ruleSID = result.group(1)
+			print ruleSID
+			
+			if updatedRules and (int(ruleSID) in updatedRules):
+				revisionID = updatedRules[int(ruleSID)]
+				RuleReference.objects.filter(rulerevision_id=revisionID).delete()
 				
-		classificationFile = open(path, "r")
-		for i,line in enumerate(classificationFile):
-			try:
-				self.updateClassification(line)
-			except BadFormatError, e:
-				# Log exception message, file name and line number
-				logger.error("%s in file '%s', line " % (str(e), path, str(i+1)))
+				data = result.group(2).split(" || ")
+				dataiter = iter(data)
+				message = next(dataiter)
+				RuleRevision.objects.get(id=revisionID).msg = message
+				
+				for reference in dataiter:
+					referenceData = reference.split(",")
+					referenceType = referenceData[0]
+					referenceValue = referenceData[1]
+					
+					referenceTypeID = RuleReferenceType.objects.get(name=referenceType).id
+					RuleReference.objects.create(reference=referenceValue, referenceType_id=referenceTypeID,rulerevision_id=revisionID)
+
 			
 	def updateClassification(self, raw):
 		"""Method for updating the database with a new classification.
@@ -184,11 +222,11 @@ class Update(models.Model):
 		
 		# Regex: Match "config classification: " (group 0),
 		# and everything that comes after (group 1), which is the classification data. 
-		matchPattern = "config classification: (.*)"
+		matchPattern = r"config classification: (.*)"
 		pattern = re.compile(matchPattern)
 		result = pattern.match(raw)
 		
-		if(result):
+		if result:
 			# Split the data and store as separate strings
 			classification = result.group(1).split(",")
 			
@@ -205,6 +243,55 @@ class Update(models.Model):
 			except IndexError:
 				# If one or more indexes are invalid, the classification is badly formatted
 				raise BadFormatError("Badly formatted rule classification")
+				
+	def updateGenerator(self, raw):
+		"""Method for updating the database with a new generator.
+		Generator data consists of two numbers and a message string, all three
+		separated with a ||. All lines conforming to this pattern are split up
+		in the three respective parts: GID (generatorID), alertID and message.
+		The GID and alertID are looked up in the database and if found, the object 
+		is overwritten with the new data. Else,	a new generator object is inserted 
+		into the database."""
+				
+		# Regex: Match a generator definition: number || number || message
+		# If the line matches, it is stored in group(0)
+		matchPattern = r"(\d+ \|\| )+.*"
+		pattern = re.compile(matchPattern)
+		result = pattern.match(raw)
+		
+		if result:
+			# Split the line into GID, alertID and message
+			# (becomes generator[0], [1] and [2] respectively)
+			generator = result.group(0).split(" || ")
+			
+			# Overwrite existing, or create new, generator:
+			try:
+				try:
+					# TODO: Trenger vi except for MultipleObjectsReturned her? Streng tatt KAN det skje siden GID+alertID ikke er PRI?
+					oldGenerator = Generator.objects.get(GID=generator[0], alertID=generator[1])
+					oldGenerator.message = generator[2]
+					oldGenerator.save()
+				except Generator.DoesNotExist:
+					Generator.objects.create(GID=generator[0], alertID=generator[1], message=generator[2])
+			except IndexError:
+				# If one or more indexes are invalid, the generator is badly formatted
+				raise BadFormatError("Badly formatted generator")
+			
+	def parseFile(self, fn, path, **kwargs):
+		def parse():
+			"""Method for simple parsing of a file defined by path. 
+			Every line is sent to the function defined by fn."""
+			
+			logger = logging.getLogger(__name__)
+					
+			infile = open(path, "r")
+			for i,line in enumerate(infile):
+				try:
+					fn(raw=line, **kwargs)
+				except BadFormatError, e:
+					# Log exception message, file name and line number
+					logger.error("%s in file '%s', line " % (str(e), path, str(i+1)))
+		return parse
 				
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
