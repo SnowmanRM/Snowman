@@ -1,7 +1,8 @@
 function listInitialize() {
 	
-$(".ruleswitch").bootstrapSwitch()
+	$(".ruleswitch").bootstrapSwitch()
 	
+	$('.list-group li.odd').unbind('click');
 	$('.list-group li.odd').click(function(event){
 		//event.preventDefault();
 		if($(event.target).is('.bootstrap-switch span')){
@@ -26,28 +27,30 @@ $(".ruleswitch").bootstrapSwitch()
 	
 }
 
-function getFirstPages(pagedivisor) {
+function getFirstPages(nrofpages) {
 	
-	var _pagedivisor = pagedivisor;
+	var _nrofpages = nrofpages;
+	var _pages = new Array();
+	var _ajax = new Array();
 	
-	var _page2, _page3, _page4;
+	//console.log(_page);
 	
-	$.when(
-			$.get('getrulelistrange/'+_pagedivisor+'/'+_pagedivisor*2+'/', function(html) { 
-				_page2 = $('ul', $('<div/>').html(html)).hide().attr("id","2").parent().html(); 
-				}),
-			$.get('getrulelistrange/'+_pagedivisor*2+'/'+_pagedivisor*3+'/', function(html) { 
-				_page3 = $('ul', $('<div/>').html(html)).hide().attr("id","3").parent().html(); 
-				}),
-			$.get('getrulelistrange/'+_pagedivisor*3+'/'+_pagedivisor*4+'/', function(html) { 
-				_page4 = $('ul', $('<div/>').html(html)).hide().attr("id","4").parent().html(); 
-				})	
+	for (var _i=1; _i <= nrofpages; _i++) {
+		_ajax.push(
+			$.get('getrulelist/'+_i+'/', function(html) { 
+				_pages.push($('ul', $('<div/>').html(html)).hide().attr("id","2").parent().html()); 
+			})
+		);
+	}
 	
-	).done(function() {
+	
+	$.when.apply($, _ajax).done(function() {
 			
-			$('#content').append(_page2).append(_page3).append(_page4);
-			listInitialize();
-	
+		for (page in _pages) {
+			$('#content').append(_pages.pop());
+			
+		}
+		listInitialize();
 	});
 	
 	
@@ -56,17 +59,16 @@ function getFirstPages(pagedivisor) {
 	
 }
 
-function getLastPage(pagecount, ruleitems, pagedivisor) {
+function getLastPage(pagecount) {
 	var _lastpage;
 	
-	_minrange = pagecount * pagedivisor;
-	_maxrange = (ruleitems % pagecount) + _minrange;
+	var _pagecount = pagecount;
 	
 	$.when( 
 	
-			$.get('getrulelistrange/'+_minrange+'/'+_maxrange+'/', function(html) { 
+			$.get('getrulelist/'+_pagecount+'/', function(html) { 
 		
-				_lastpage = $('ul', $('<div/>').html(html)).hide().attr("id",pagecount).parent().html(); 
+				_lastpage = $('ul', $('<div/>').html(html)).hide().attr("id",_pagecount).parent().html(); 
 		
 			})
 	).then(function() {
@@ -77,18 +79,18 @@ function getLastPage(pagecount, ruleitems, pagedivisor) {
 	});
 }
 
-function getPage(pagenr, pagedivisor, pagecount){
+function getPage(pagenr){
 	
 	var _page;
 	
-	_minrange = pagecount * pagedivisor;
-	_maxrange = (ruleitems % pagecount) + _minrange;
+	var _pagenr = pagenr;
+	
 	
 	$.when( 
 	
-		$.get('getrulelistrange/'+_minrange+'/'+_maxrange+'/', function(html) { 
+		$.get('getrulelist/'+_pagenr+'/', function(html) { 
 	
-			_lastpage = $('ul', $('<div/>').html(html)).hide().attr("id",pagenr).parent().html(); 
+			_page = $('ul', $('<div/>').html(html)).hide().attr("id",pagenr).parent().html(); 
 	
 		})
 	).then(function() {
@@ -106,10 +108,12 @@ $(document).ready(function(){
 	var pagedivisor = 10;
 	var ruleitems = $('#paginator').attr('count');
 	var pagecount =  Math.floor(ruleitems / pagedivisor);
+	//console.log(ruleitems%pagecount);
+	if (ruleitems%pagecount == 0) pagecount--;
 	var currentpage = 1;
 	
 	
-	getFirstPages(pagedivisor);
+	getFirstPages(3);
 	getLastPage(pagecount, ruleitems, pagedivisor);
 	
 	//$('#footer').append("<p>"+foo.getNr()+"</p>");
@@ -124,13 +128,19 @@ $(document).ready(function(){
 		bootstrapMajorVersion: 3,
 		onPageClicked: function(e,originalEvent,type,page){
 			
-			console.log(currentpage + page);
+			//console.log(currentpage + page);
 			$('#content ul.current').hide().toggleClass('current');
-			$('#content ul#'+page).show("fast","swing").toggleClass('current');
+			$('#content ul#'+page).show().toggleClass('current');
 			
-			for(var i=1;i<=3;i++) {
-				if ($('#content ul#'+page+i).length == 0)
-					getPage(page+i, pagedivisor, pagecount);
+			for(var i=-3;i<=3;i++) {
+				if (page+i > 1 && page+i < pagecount) {
+					var j = $('#content ul#'+(page+i)+'').length;
+					console.log(j)
+					if (!j) {
+						console.log(j)
+						getPage(page+i);
+					}
+				}
 			}
 			
 			currentpage = page;
