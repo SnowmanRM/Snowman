@@ -16,18 +16,17 @@
 	</div>
 </div>
 <div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
-{% if rules %}
-    
 <ul id="1" class="list-group current">
-	{% for r in rules %}
-        <li class="list-group-item odd">{{ r.rule.SID }}<span class="pull-right"><input type="checkbox" {% if r.rule.active %} checked {% endif %}id="{{ r.rule.SID }}" class="ruleswitch" data-size="mini" data-on-color="success" data-off-color="danger"></span></li>
-        <li class="sub-list list-group-item list-group-item-warning even" style="display: none">{{ r.rev.raw }}</li>
+	{% if rule_list %}
+	{% for rev in rule_list %}
+        <li class="list-group-item odd">{{ rev.rule.SID }}<span class="pull-right"><input type="checkbox" {% if rev.rule.active %} checked {% endif %}id="{{ rev.rule.SID }}" class="ruleswitch" data-size="mini" data-on-color="success" data-off-color="danger"></span></li>
+        <li class="sub-list list-group-item list-group-item-warning even" style="display: none">{{ rev.raw }}</li>
     {% endfor %}
-	
+    
+    {% else %}
+    <li class="list-group-item odd">No rules are available.</li>
+	{% endif %}
 </ul>
-{% else %}
-    <p>No rules are available.</p>
-{% endif %}
 
 
 
