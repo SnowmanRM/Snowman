@@ -4,8 +4,9 @@ import re
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	RuleReference, RuleReferenceType
+	
 from update.exceptions import BadFormatError
-
+from update.exceptions import AbnormalRuleError
 
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
@@ -33,7 +34,7 @@ class Source(models.Model):
 	
 	The schedule is a cron-style string (30 0 * * 0 = 0:30 every sunday)"""
 	
-	name = models.CharField(max_length=40)
+	name = models.CharField(max_length=40, unique=True)
 	url = models.CharField(max_length=80)
 	lastMd5 = models.CharField(max_length=80)
 	schedule = models.CharField(max_length=40)
@@ -61,14 +62,21 @@ class Update(models.Model):
 	def parseRuleFile(self, path, currentRules = None, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method opens a rule-file, and parses it for all the found rules, and updated the
 		database with the new rules."""
-		if(not currentRules):
+		
+		logger = logging.getLogger(__name__)		
+		
+		if not currentRules:
 			currentRules = Rule.getRuleRevisions()
 		
 		rulefile = open(path, "r")
 		for line in rulefile:
-			self.updateRule(line, currentRules, rulesets, ruleclasses, generators)
+			try:
+				self.updateRule(line, path, currentRules, rulesets, ruleclasses, generators)
+			except AbnormalRuleError, e:
+				logger.info("Not parsing file '%s': %s") % (path,str(e))
+				return 
 	
-	def updateRule(self, raw, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
+	def updateRule(self, raw, path, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method takes a raw rule-string, parses it, and if it is a new rule, we 
 		update the database.
 		
@@ -81,6 +89,10 @@ class Update(models.Model):
 		
 		logger = logging.getLogger(__name__)
 		
+		# If we find a gid-attribute, we are parsing the wrong file
+		if re.match(r"(?=.*gid:(.*?);)",raw):
+			raise AbnormalRuleError
+		
 		# TODO: Add support for rules where ruleset is not defined.
 		
 		# Construct a regex, so that we can extract all the interesting parameters from the raw rulestring.
@@ -92,7 +104,8 @@ class Update(models.Model):
 		
 		# If the raw rule matched the regex: 
 		result = pattern.match(raw)
-		if(result):			
+		if(result):
+			
 			# Assign some helpful variable-names:
 			if("#" in result.group(1)):
 				ruleActive = False
@@ -324,8 +337,13 @@ class Update(models.Model):
 			Every line is sent to the function defined by fn."""
 			
 			logger = logging.getLogger(__name__)
-					
-			infile = open(path, "r")
+			logger.info("Parsing file "+path)
+			
+			try:		
+				infile = open(path, "r")
+			except IOError:
+				logger.info("File '%s' not found, nothing to parse." % path)
+				
 			for i,line in enumerate(infile):
 				try:
 					fn(raw=line, **kwargs)
