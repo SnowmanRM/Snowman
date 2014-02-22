@@ -16,35 +16,16 @@
 	</div>
 </div>
 <div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
-<ul id="1" class="list-group current">
-	{% if rule_list %}
-	{% for rev in rule_list %}
-        <li class="list-group-item odd">{{ rev.rule.SID }}<span class="pull-right"><input type="checkbox" {% if rev.rule.active %} checked {% endif %}id="{{ rev.rule.SID }}" class="ruleswitch" data-size="mini" data-on-color="success" data-off-color="danger"></span></li>
-        <li class="sub-list list-group-item list-group-item-warning even" style="display: none">{{ rev.raw }}</li>
-    {% endfor %}
-    
-    {% else %}
-    <li class="list-group-item odd">No rules are available.</li>
-	{% endif %}
-</ul>
+{% block rules %}
 
-
-
+{% include "rules/rulepage.tpl" %}
+		
+{% endblock %}
 </div>
 <div class="pull-right clear">
-	<ul id="paginator" count="{{ pagecount }}" class="pagination">
+	<ul id="paginator" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination">
 		
 	</ul>
-
-	<!--<ul class="pagination">
-		<li><a href="#">&laquo;</a></li>
-		<li><a href="#">1</a></li>
-		<li><a href="#">2</a></li>
-		<li><a href="#">3</a></li>
-		<li><a href="#">4</a></li>
-		<li><a href="#">5</a></li>
-		<li><a href="#">&raquo;</a></li>
-	</ul>-->
 </div>
 
 

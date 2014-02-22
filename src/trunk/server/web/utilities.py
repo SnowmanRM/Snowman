@@ -5,5 +5,5 @@ class UserSettings():
 	RULELIST = 1
 	
 	@staticmethod
-	def getPageLength(request, pagetype = 0):
+	def getPageLength(request, pagetype = DEFAULT):
 		return 10
