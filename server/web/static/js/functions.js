@@ -1,153 +1,43 @@
 function listInitialize() {
 	
+	// Initializes the switchbuttons
+	$(".ruleswitch").unbind();
 	$(".ruleswitch").bootstrapSwitch()
 	
+	// Installs click events on all rows.
 	$('.list-group li.odd').unbind('click');
 	$('.list-group li.odd').click(function(event){
-		//event.preventDefault();
+		// This is to make sure a click on the switch doesnt trigger a row open.
 		if($(event.target).is('.bootstrap-switch span')){
             event.preventDefault();
             return false;
         }
+		
+		// Toggles clicked row on the 'active' css class so it changes color
 		$(this).toggleClass("active");
+		// Shows or hides the next row which is hidden by default.
 		$(this).next().slideToggle("fast","linear");
-		//$(this).addClass('selected');	
-		//$('#nav li a').addClass('selected');
 	
 	});
-	
-	$('#nav a').click(function(event){
-		event.preventDefault();
-		$('#nav a').removeClass('selected');
-		$(this).addClass('selected');	
-		//$('#nav li a').addClass('selected');
-	
-	});
-	
-	
-}
-
-function getFirstPages(nrofpages) {
-	
-	var _nrofpages = nrofpages;
-	var _pages = new Array();
-	var _ajax = new Array();
-	
-	//console.log(_page);
-	
-	for (var _i=1; _i <= nrofpages; _i++) {
-		_ajax.push(
-			$.get('getrulelist/'+_i+'/', function(html) { 
-				_pages.push($('ul', $('<div/>').html(html)).hide().attr("id","2").parent().html()); 
-			})
-		);
-	}
-	
-	
-	$.when.apply($, _ajax).done(function() {
-			
-		for (page in _pages) {
-			$('#content').append(_pages.pop());
-			
-		}
-		listInitialize();
-	});
-	
-	
-	
-	
-	
-}
-
-function getLastPage(pagecount) {
-	var _lastpage;
-	
-	var _pagecount = pagecount;
-	
-	$.when( 
-	
-			$.get('getrulelist/'+_pagecount+'/', function(html) { 
 		
-				_lastpage = $('ul', $('<div/>').html(html)).hide().attr("id",_pagecount).parent().html(); 
-		
-			})
-	).then(function() {
-		
-		$('#content').append(_lastpage);
-		listInitialize();
-	
-	});
 }
 
 function getPage(pagenr){
+	// Copies pagenr to local _pagenr variable.
+	var _pagenr = parseInt(pagenr); 
 	
-	var _page;
-	
-	var _pagenr = pagenr;
-	
-	
-	$.when( 
-	
-		$.get('getrulelist/'+_pagenr+'/', function(html) { 
-	
-			_page = $('ul', $('<div/>').html(html)).hide().attr("id",pagenr).parent().html(); 
-	
-		})
-	).then(function() {
-		
-		$('#content').append(_page);
+	// Ajax-calls for the required page. We return it so we can use $.when
+	return $.get('page/'+_pagenr+'/', function(html) { 
+		// When the content is loaded, append to content container.
+		$('#content').append(html);
+		// We need to reinitialize all the click events and switchbuttons.
 		listInitialize();
-	
-	});
+
+	})
 	
 }
 
-
-$(document).ready(function(){
-
-	var pagedivisor = 10;
-	var ruleitems = $('#paginator').attr('count');
-	var pagecount =  Math.floor(ruleitems / pagedivisor);
-	//console.log(ruleitems%pagecount);
-	if (ruleitems%pagecount == 0) pagecount--;
-	var currentpage = 1;
-	
-	
-	getFirstPages(3);
-	getLastPage(pagecount, ruleitems, pagedivisor);
-	
-	//$('#footer').append("<p>"+foo.getNr()+"</p>");
-	
-	
-	listInitialize();
-	
-	var options = {
-		currentPage: currentpage,
-		totalPages: pagecount,
-		numberOfPages: 3,
-		bootstrapMajorVersion: 3,
-		onPageClicked: function(e,originalEvent,type,page){
-			
-			//console.log(currentpage + page);
-			$('#content ul.current').hide().toggleClass('current');
-			$('#content ul#'+page).show().toggleClass('current');
-			
-			for(var i=-3;i<=3;i++) {
-				if (page+i > 1 && page+i < pagecount) {
-					var j = $('#content ul#'+(page+i)+'').length;
-					console.log(j)
-					if (!j) {
-						console.log(j)
-						getPage(page+i);
-					}
-				}
-			}
-			
-			currentpage = page;
-		}
-	}
-
-	$('#paginator').bootstrapPaginator(options);
+function animateManipulator() {
 	
 	var el = $('#manipulator');
 	var elpos_original = el.offset().top;
@@ -159,8 +49,116 @@ $(document).ready(function(){
 	        finaldestination = elpos_original;
 	        el.stop().animate({'top':0},500);
 	    } else {
-	        el.stop().animate({'top':finaldestination-elpos_original+10},500);
+	        el.stop().animate({'top':finaldestination-elpos_original},500);
 	    }
 	});
+	
+}
+
+function loadNextPages(currentpage, pagecount) {
+	
+	// Copy passed variables to local variables.
+	var _currentpage = currentpage;
+	var _pagecount = pagecount;
+	
+	// Loop for -3 and +3 from the current page.
+	for(var i=-3;i<=3;i++) {
+		// We dont want negative page numbers or 
+		// pages outside the actual page range
+		if (_currentpage+i > 1 && _currentpage+i < _pagecount && _currentpage+i != _currentpage) {
+			// Try to find a page element with this id nr.
+			var _pageexists = $('#content ul#'+(_currentpage+i)+'').length;
+			// If the page doesnt exist, we need to load it.
+			if (!_pageexists) {
+				// Loads the page it didnt find.
+				getPage(_currentpage+i);
+			}
+		}
+	}
+	
+}
+
+function switchPage(page) {
+	
+	var _page = page;
+	
+	$('#content ul.current').hide().toggleClass('current');
+	$('#content ul#'+_page).show().toggleClass('current');
+	
+	
+}
+
+function loadPaginator(currentpage, pagecount) {
+	
+	// We set some options for the paginator and its click function.
+	var options = {
+			currentPage: currentpage,
+			totalPages: pagecount,
+			numberOfPages: 3,
+			bootstrapMajorVersion: 3,
+			onPageClicked: function(e,originalEvent,type,page){
+				// Hide the page we no longer want and show the one we want.
+				switchPage(page);
+				
+				// Load the next pages.
+				loadNextPages(page, pagecount);
+				// We update the window location hash value.
+				window.location.hash = page;
+			}
+	}
+	
+	// Start the paginator.
+	$('#paginator').bootstrapPaginator(options);
+	
+}
+
+function setCurrentNavigation() {
+	
+	$('.nav a[href$="'+location.pathname+'"]').parent().toggleClass("active");
+	
+}
+
+$(document).ready(function(){
+	console.log(location.pathname);
+	setCurrentNavigation()
+	// Calls function to initialize click events and buttons.
+	listInitialize();
+	
+	// Variables needed.
+	var pagelength = $('#paginator').attr('pagelength');
+	var itemcount = $('#paginator').attr('itemcount');
+	var pagecount =  Math.floor(itemcount / pagelength);
+	if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
+	
+	// We get a hash value if there is one.
+	var hash = parseInt(window.location.hash.slice(1));
+	
+	// If theres a hashvalue and its not the first page.
+	if (hash && hash != 1) {
+		// We obviously want another page.
+		var currentpage = hash;
+	
+		$.when(getPage(currentpage)).done(function(){switchPage(currentpage)});
+		// Preload the first set of pages.
+		loadNextPages(currentpage, pagecount);
+	}
+	else {
+		var currentpage = 1;
+		// Preload the first set of pages.
+		loadNextPages(currentpage, pagecount);
+	}
+	
+	// Preload the last page, but not if the hash points to the last page.
+	if (hash != pagecount) {
+		getPage(pagecount);
+	}
+	
+	// Load the paginator.
+	loadPaginator(currentpage, pagecount);
+
+	// Make the manipulator follow you when you scroll.
+	animateManipulator();
+	
+	//console.log(currentpage);
 	
 });
