@@ -30,7 +30,7 @@ class Rule(models.Model):
 	
 	The real data of the rule should be stored in a RuleRevision."""
 
-	SID = models.IntegerField()
+	SID = models.IntegerField(unique=True)
 	active = models.BooleanField()
 	generator = models.ForeignKey('Generator', related_name='rules')
 	ruleSet = models.ForeignKey('RuleSet', related_name='rules')
@@ -150,7 +150,7 @@ class RuleClass(models.Model):
 	"""A ruleclass have a name, and a priority. All Rule objects should
 	be a part of a RuleClass"""
 
-	classtype = models.CharField(max_length=80)
+	classtype = models.CharField(max_length=80,unique=True)
 	description = models.TextField()
 	priority = models.IntegerField()
 	
@@ -182,7 +182,7 @@ class RuleReferenceType(models.Model):
 	might be. It contains a name, which we find in the raw rules, and a
 	urlPrefix """
 
-	name = models.CharField(max_length=30)
+	name = models.CharField(max_length=30, unique=True)
 	urlPrefix = models.CharField(max_length=80)
 
 	def __repr__(self):
@@ -224,7 +224,7 @@ class RuleSet(models.Model):
 	only contain the metainfo for the set. Name, description, and 
 	wheter it should be active or not."""
 
-	name = models.CharField(max_length=30)
+	name = models.CharField(max_length=30,unique=True)
 	parent = models.ForeignKey('RuleSet', null=True, related_name='childSets')
 	description = models.TextField()
 	active = models.BooleanField()
@@ -243,7 +243,7 @@ class Sensor(models.Model):
 	contains name, address and the secret used for authentication."""
 
 	parent = models.ForeignKey('Sensor', null=True, related_name='childSensors')
-	name = models.CharField(max_length=30)
+	name = models.CharField(max_length=30, unique=True)
 	user = models.ForeignKey(User, related_name='sensor')
 	active = models.BooleanField(default=True)
 	autonomous = models.BooleanField(default=False)
