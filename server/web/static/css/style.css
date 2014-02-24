@@ -53,14 +53,22 @@
 	margin-right: 0;
 }
 
-#content .panel p {
+#content .panel .panel-heading div,
+#content .panel .list-group div {
 
-	margin-bottom: 0;
+	padding: 0;
 	border-left: 1px solid #ddd;
 }
 
-#content .panel p#sid {
+#content .panel div p {
 
+	margin-bottom: 0;
+}
+
+#content .panel div#sid {
+
+	padding-left: 0;
+	padding-right: 15px;
 	border-left: 0;
 } 
 
