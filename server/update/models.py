@@ -34,12 +34,13 @@ class Source(models.Model):
 	The schedule is a cron-style string (30 0 * * 0 = 0:30 every sunday)"""
 	
 	name = models.CharField(max_length=40, unique=True)
-	url = models.CharField(max_length=80)
-	lastMd5 = models.CharField(max_length=80)
-	schedule = models.CharField(max_length=40)
+	url = models.CharField(max_length=160, null=True)
+	md5url = models.CharField(max_length=160, null=True)
+	lastMd5 = models.CharField(max_length=80, null=True)
+	schedule = models.CharField(max_length=40, null=True)
 	
 	def __repr__(self):
-		return "<Source name:%s, schedule:%s, url:%s, lastMd5:%s>" % (self.name, str(self.schedule), self.url, self.lastMd5)
+		return "<Source name:%s, schedule:%s, url:%s, md5url:%s, lastMd5:%s>" % (self.name, str(self.schedule), self.url, self.md5url, self.lastMd5)
 	
 	def __str__(self):
 		return "<Source name:%s, schedule:%s, url:%s>" % (self.name, str(self.schedule), self.url)
@@ -159,7 +160,7 @@ class Update(models.Model):
 				except KeyError:
 					try:
 						generator = Generator.objects.get(GID=ruleGID)
-					except RuleClass.DoesNotExist:
+					except Generator.DoesNotExist:
 						generator = Generator.objects.create(GID=ruleGID, alertID=1, message="Automaticly created during update")
 						logger.info("Created new generator (" + str(generator) + ") while importing rule")
 					ruleclasses[ruleClassName] = ruleclass
