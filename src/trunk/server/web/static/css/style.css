@@ -34,7 +34,7 @@
 	//padding: 5% 2% 2% 2%;
 	//border: 5px solid grey;
 	//border-radius: 10px;
-	//padding: 5px;
+	padding: 10px;
 	//margin-right: 2%;
 	//width: 90%;
 	//float: left;
@@ -42,9 +42,19 @@
 
 }
 
+#content .panel {
+
+	margin: 0;
+}
+
 #content .list-group {
 
 	margin: auto;
+}
+
+#content .list-group pre {
+
+	margin: 0;
 }
 
 #manipulator {
@@ -93,80 +103,6 @@
 	float: right;
 	padding: 5px;
 
-}
-
-
-
-#rule-list {
-
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	//float: left;
-}
-
-#rule-list.list-container {
-
-	border: 5px solid grey;
-	border-radius: 10px 10px 10px 10px;
-}
-
-#rule-list li {
-
-	//border-radius: 0 0 10px 10px;
-	//display: inline;
-	padding: 5px;
-	padding-right: 0;
-	margin: 0;
-	//float: left;
-	background-color: lightgrey;
-	border-bottom: 1px solid grey;
-
-}
-
-#rule-list li.sub {
-
-	padding: 0;
-	border-left: 0 !important;
-	background-color: lightgrey;
-
-}
-
-#rule-list li.selected {
-
-	background-color: grey;
-
-}
-
-#rule-list .sub-rule li.first.selected {
-
-	border-top: 1px solid lightgrey;
-}
-
-#rule-list li.first {
-	border-radius: 3px 3px 0 0; 
-}
-
-#rule-list li.last {
-	border-radius: 0 0 3px 3px; 
-	border-bottom: 0;
-}
-
-#rule-list .sub-rule {
-	margin-left:10px;
-}
-
-#rule-list .sub-rule li {
-	border-left: 1px solid grey;
-}
-
-#rule-list .sub-rule li.first {
-	
-	border-radius: 0; 
-}
-#rule-list .sub-rule li.last {
-	
-	border-radius: 0; 
 }
 
 .clear {

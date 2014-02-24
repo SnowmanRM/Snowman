@@ -3,24 +3,27 @@
 
 {% block content %}
 {% load staticfiles %}
-<script type="text/javascript" src="{% static 'js/classes.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/functions.js' %}"></script>
 
-<div id="manipulator" class="col-xs-2 col-sm-2 col-md-2">
-	<div class="button-container well">
-		<button type="button" class="btn btn-success btn-block">Enable</button>
-		<button type="button" class="btn btn-danger btn-block">Diable</button>
-		<button type="button" class="btn btn-warning btn-block">Treshold</button>
-		<button type="button" class="btn btn-warning btn-block">Suppress</button>
-		<button type="button" class="btn btn-primary btn-block">Comment</button>
-	</div>
-</div>
+{% block manipulator %}
+
+{% include "general/manipulator.tpl" %}
+		
+{% endblock %}
+
 <div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
+
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading row"><p></p>Panel heading</div>
 {% block rules %}
 
 {% include "rules/rulepage.tpl" %}
 		
 {% endblock %}
+
+</div>
+
 </div>
 <div class="pull-right clear">
 	<ul id="paginator" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination">
