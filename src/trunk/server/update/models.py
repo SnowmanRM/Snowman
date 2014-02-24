@@ -69,11 +69,11 @@ class Update(models.Model):
 		
 		rulefile = open(path, "r")
 		for line in rulefile:
+			# TODO: rule span multiple lines
 			try:
-				self.updateRule(line, path, currentRules, rulesets, ruleclasses, generators)
-			except AbnormalRuleError, e:
-				logger.info("Not parsing file '%s': %s" % (path,str(e)))
-				return 
+				self.updateRule(line.rstrip("\n"), path, currentRules, rulesets, ruleclasses, generators)
+			except AbnormalRuleError:
+				logger.info("Skipping abnormal rule in '%s'" % path)
 	
 	def updateRule(self, raw, path, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method takes a raw rule-string, parses it, and if it is a new rule, we 
@@ -90,6 +90,7 @@ class Update(models.Model):
 		
 		# If we find a gid-attribute, we are parsing the wrong file
 		if re.match(r"(?=.*gid:(.*?);)",raw):
+			# TODO: GID=1
 			raise AbnormalRuleError
 		
 		# Get the filename of the current file:
@@ -111,6 +112,7 @@ class Update(models.Model):
 			
 			# Assign some helpful variable-names:
 			if("#" in result.group(1)):
+				raw = raw.lstrip("# ")
 				ruleActive = False
 			else:
 				ruleActive = True
@@ -367,23 +369,10 @@ class UpdateFile(models.Model):
 	name = models.CharField(max_length=40)
 	update = models.ForeignKey('Update', related_name="files")
 	checksum = models.CharField(max_length=80)
+	isParsed = models.BooleanField()
 	
 	def __repr__(self):
 		return "<UpdateFile name:%s, update:%s-%s, md5:%s>" % (self.name, self.update.source.name, self.update.time, self.checksum)
 
 	def __str__(self):
 		return "<UpdateFile name:%s, update:%s-%s>" % (self.name, self.update.source.name, self.update.time)
-
-class StaticFile(UpdateFile):
-	"""Some of the files in an update should be delivered to the sensors without further processing.
-	These files are represented by a StaticFile-object instead of an UpdateFile. (StaticFile inherits
-	all of UpdateFile's properties."""
-
-	path = models.CharField(max_length=120)
-	
-	def __repr__(self):
-		return "<StaticFile name:%s, update:%s-%s, path:%s, md5:%s>" % (self.name, self.update.source.name, self.update.time, self.path, self.checksum)
-	
-	def __str__(self):
-		return "<StaticFile name:%s, update:%s-%s, path:%s>" % (self.name, self.update.source.name, self.update.time, self.path)
-
