@@ -14,7 +14,7 @@ def index(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Should be loading a front page."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 
 def rules(request):
@@ -53,61 +53,61 @@ def ruleSet(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def ruleSetBySensorActive(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def ruleSetBySensorNew(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def ruleclass(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def update(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def updates(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def sensors(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def tuningBySensor(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def tuningByRule(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 def tuningBySensorName(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""
-	return redirect('web.views.rules')
+	return redirect('web.views.views.rules')
 
 
 	

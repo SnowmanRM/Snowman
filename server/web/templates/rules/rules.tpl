@@ -13,16 +13,12 @@
 
 <div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
 
-<div class="panel panel-default">
-  <!-- Default panel contents -->
-  <div class="panel-heading row"><p></p>Panel heading</div>
 {% block rules %}
 
 {% include "rules/rulepage.tpl" %}
 		
 {% endblock %}
 
-</div>
 
 </div>
 <div class="pull-right clear">

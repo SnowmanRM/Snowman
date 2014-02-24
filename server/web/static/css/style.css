@@ -47,6 +47,23 @@
 	margin: 0;
 }
 
+#content .panel .row {
+
+	margin-left: 0;
+	margin-right: 0;
+}
+
+#content .panel p {
+
+	margin-bottom: 0;
+	border-left: 1px solid #ddd;
+}
+
+#content .panel p#sid {
+
+	border-left: 0;
+} 
+
 #content .list-group {
 
 	margin: auto;

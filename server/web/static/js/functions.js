@@ -28,7 +28,7 @@ function getPage(pagenr){
 	// Ajax-calls for the required page. We return it so we can use $.when
 	return $.get('page/'+_pagenr+'/', function(html) { 
 		// When the content is loaded, append to content container.
-		$('#content .panel').append(html);
+		$('#content').append(html);
 		// We need to reinitialize all the click events and switchbuttons.
 		listInitialize();
 
@@ -66,7 +66,7 @@ function loadNextPages(currentpage, pagecount) {
 		// pages outside the actual page range
 		if (_currentpage+i > 1 && _currentpage+i < _pagecount && _currentpage+i != _currentpage) {
 			// Try to find a page element with this id nr.
-			var _pageexists = $('#content .panel ul#'+(_currentpage+i)+'').length;
+			var _pageexists = $('#content .panel#'+(_currentpage+i)+'').length;
 			// If the page doesnt exist, we need to load it.
 			if (!_pageexists) {
 				// Loads the page it didnt find.
@@ -81,8 +81,8 @@ function switchPage(page) {
 	
 	var _page = page;
 	
-	$('#content ul.current').hide().toggleClass('current');
-	$('#content ul#'+_page).show().toggleClass('current');
+	$('#content .current').hide().toggleClass('current');
+	$('#content .panel#'+_page).show().toggleClass('current');
 	
 	
 }
