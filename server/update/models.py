@@ -7,6 +7,8 @@ from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	
 from update.exceptions import BadFormatError, AbnormalRuleError
 
+from util.config import Config
+
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
 	It references to a rule, what set it was a member in, what set it should become member in,
@@ -18,6 +20,8 @@ class RuleChanges(models.Model):
 	newSet = models.ForeignKey(RuleSet, related_name="rulechangenew")
 	update = models.ForeignKey('Update', related_name="pendingChanges")
 	moved = models.BooleanField()
+	
+	# TODO: add class Meta, set unique_together: rule, update
 	
 	def __repr__(self):
 		return "<RuleChanges SID:%d, fromSet:%s, toSet:%s, moved:%s>" % (self.rule.SID, 
@@ -90,9 +94,13 @@ class Update(models.Model):
 		logger = logging.getLogger(__name__)
 		
 		# If we find a gid-attribute, we are parsing the wrong file
-		if re.match(r"(?=.*gid:(.*?);)",raw):
-			# TODO: GID=1
-			raise AbnormalRuleError
+		try:
+			gid = re.match(r"(?=.*gid:(.*?);)",raw).group(1)
+			if int(gid) != 1:
+				raise AbnormalRuleError
+		except AttributeError:
+			pass
+			
 		
 		# Get the filename of the current file:
 		# (will throw AttributeError if invalid filename)
@@ -169,7 +177,22 @@ class Update(models.Model):
 				try:
 					rule = Rule.objects.get(SID=ruleSID)
 					rule.active = ruleActive
-					# TODO: Handle logic moving rule to new set
+
+					# Create a RuleChanges object if the rule has been moved to a new ruleset
+					# Compare old ruleset id to new ruleset id:
+					if rule.ruleSet.id != ruleset.id:
+						# Flag to indicate whether we will move the rule to the new ruleset or not:
+						wasMoved = False
+						# Store the original ruleset id:
+						originalRulesetId = rule.ruleSet.id
+						
+						# Check if config says move rule to new ruleset:
+						if Config.get("update", "changeRuleset") is "true":
+							rule.ruleSet.id = ruleset.id
+							wasMoved = True
+							
+						RuleChanges.objects.create(rule_id=rule.id, originalSet_id=originalRulesetId, newSet_id=ruleset.id, update_id=self.id, moved=wasMoved)
+					
 					rule.ruleClass = ruleclass
 					rule.generator = generator
 					rule.save()
