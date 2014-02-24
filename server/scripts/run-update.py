@@ -11,7 +11,7 @@ sys.path.append(parentdir)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
 from update.models import Update, Source
-from util.logger import initialize
+from util.logger import initConsoleLogging
 
 if __name__ == "__main__":
     
@@ -22,15 +22,14 @@ if __name__ == "__main__":
     updateDir = sys.argv[1]
 
     # Init the logger
-    initialize()
+    initConsoleLogging()
     logger = logging.getLogger(__name__)
     logger.info("Starting run-update-script")
-    
     
     # Create source and update objects
     try:
 		source = Source.objects.get(name="Manual")
-    except Source.DoNotExist:
+    except Source.DoesNotExist:
 	    source = Source.objects.create(name="Manual", schedule="00:00", url="", lastMd5="")
 
     update = Update.objects.create(time="2014-01-01", source=source)
