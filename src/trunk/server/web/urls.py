@@ -9,13 +9,12 @@ urlpatterns = patterns('',
     #Main URLs
     url(r'^$', 'web.views.index'),
     url(r'^rules/$', 'web.views.rules'),
+
     #TODO:
     url(r'^ruleset/$', 'web.views.ruleSet'),
     url(r'^ruleset/bysensor/active/$', 'web.views.ruleSetBySensorActive'),
     url(r'^ruleset/bysensor/new/$', 'web.views.ruleSetBySensorNew'),
     url(r'^ruleclass/$', 'web.views.ruleclass'),
-    url(r'^update/$', 'web.views.update'),
-    url(r'^updates/$', 'web.views.updates'),
     url(r'^sensors/$', 'web.views.sensors'),
     url(r'^tuning/bysensor/$', 'web.views.tuningBySensor'),
     url(r'^tuning/byrule/$', 'web.views.tuningByRule'),
@@ -36,4 +35,8 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+)
+
+urlpatterns += patterns('web.views.updateviews',
+    url(r'^update/$', 'index'),
 )
