@@ -9,11 +9,13 @@
 			<div class="panel-heading">
 				<p>Update status:</p>
 			</div>
-			<div class="container">
+			<div class="panel-body">
 				<h1>Hasd</h1>
 				<p>asdgya sd</p>
 			</div>
 		</div>
+	</div>
+	<div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<p>Update sources:</p>
