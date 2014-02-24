@@ -1,12 +1,11 @@
 from django.db import models
 import logging
-import re
+import re, os
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	RuleReference, RuleReferenceType
 	
-from update.exceptions import BadFormatError
-from update.exceptions import AbnormalRuleError
+from update.exceptions import BadFormatError, AbnormalRuleError
 
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
@@ -73,7 +72,7 @@ class Update(models.Model):
 			try:
 				self.updateRule(line, path, currentRules, rulesets, ruleclasses, generators)
 			except AbnormalRuleError, e:
-				logger.info("Not parsing file '%s': %s") % (path,str(e))
+				logger.info("Not parsing file '%s': %s" % (path,str(e)))
 				return 
 	
 	def updateRule(self, raw, path, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
@@ -93,14 +92,18 @@ class Update(models.Model):
 		if re.match(r"(?=.*gid:(.*?);)",raw):
 			raise AbnormalRuleError
 		
-		# TODO: Add support for rules where ruleset is not defined.
+		# Get the filename of the current file:
+		# (will throw AttributeError if invalid filename)
+		filename = re.match(r"(.*)\.rules", os.path.split(path)[1]).group(1)
 		
 		# Construct a regex, so that we can extract all the interesting parameters from the raw rulestring.
 		matchPattern = r"(.*)alert(?=.*sid:(\d+))(?=.*rev:(\d+))"
-		matchPattern += r"(?=.*ruleset (.*?)[,;])"
 		matchPattern += r"(?=.*msg:\"(.*?)\";)"
 		matchPattern += r"(?=.*classtype:(.*?);)"
 		pattern = re.compile(matchPattern)
+		
+		# Regex to match ruleset name (not present in all rules)
+		ruleset = re.match(r"(?=.*ruleset (.*?)[,;])", raw)
 		
 		# If the raw rule matched the regex: 
 		result = pattern.match(raw)
@@ -113,9 +116,15 @@ class Update(models.Model):
 				ruleActive = True
 			ruleSID = result.group(2)
 			ruleRev = result.group(3)
-			ruleSetName = result.group(4)
-			ruleMessage = result.group(5)
-			ruleClassName = result.group(6)
+			
+			# Ruleset name set to filename if not found in raw string:
+			try:
+				ruleSetName = ruleset.group(1)
+			except AttributeError:
+				ruleSetName = filename
+			
+			ruleMessage = result.group(4)
+			ruleClassName = result.group(5)
 			ruleGID = 1
 			
 			# If the rule is new, or is a newer version of a rule we already have:
@@ -161,10 +170,10 @@ class Update(models.Model):
 					rule.ruleClass = ruleclass
 					rule.generator = generator
 					rule.save()
-					logger.info("Updated rule:" + str(rule))
+					logger.debug("Updated rule:" + str(rule))
 				except Rule.DoesNotExist:
 					rule = Rule.objects.create(SID=int(ruleSID), generator=generator, active=ruleActive, ruleSet=ruleset, ruleClass=ruleclass)
-					logger.info("Created a new rule: " + str(rule))
+					logger.debug("Created a new rule: " + str(rule))
 				
 				rev = rule.updateRule(raw, ruleRev, ruleActive, ruleMessage)
 				if(rev):

@@ -32,3 +32,13 @@ def initialize():
 	logger = logging.getLogger(__name__)
 	for m in messages:
 		logger.log(m[1], m[0])
+
+def initConsoleLogging():
+	rootlogger = logging.getLogger()
+	formatter = logging.Formatter('%(asctime)s: %(name)s: %(levelname)s - %(message)s')
+	
+	ch = logging.StreamHandler()
+	ch.setLevel(logging.INFO)
+	ch.setFormatter(formatter)	
+	rootlogger.addHandler(ch)
+	rootlogger.setLevel(logging.INFO)
