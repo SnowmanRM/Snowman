@@ -22,8 +22,10 @@ class RuleChanges(models.Model):
 	update = models.ForeignKey('Update', related_name="pendingChanges")
 	moved = models.BooleanField()
 	
-	# TODO: add class Meta, set unique_together: rule, update
-	
+	class Meta:
+		# Rule and update must be unique together
+		unique_together = ('rule', 'update')
+		
 	def __repr__(self):
 		return "<RuleChanges SID:%d, fromSet:%s, toSet:%s, moved:%s>" % (self.rule.SID, 
 				self.originalSet.name, self.newSet.name, str(self.moved))
@@ -65,17 +67,30 @@ class Update(models.Model):
 		return "<Update source:%s, time:%s>" % (self.source.name, str(self.time))
 
 	def parseRuleFile(self, path, currentRules = None, rulesets = {}, ruleclasses = {}, generators = {}):
-		"""This method opens a rule-file, and parses it for all the found rules, and updated the
+		"""This method opens a rule-file, parses it for all the found rules, and updates the
 		database with the new rules."""
 		
 		logger = logging.getLogger(__name__)		
 		
 		if not currentRules:
+			# Get all the latest rulerevisions
 			currentRules = Rule.getRuleRevisions()
 		
 		rulefile = open(path, "r")
-		for line in rulefile:
-			# TODO: rule span multiple lines
+		it = iter(rulefile)
+		for line in it:
+			
+			multiline = re.match(r"(.*)\\$",line)
+			if multiline:
+				partline = multiline.group(1)
+				while 1:
+					try:
+						nextline = it.next()
+						partline += re.match(r"(.*)\\$",nextline).group(1)
+					except AttributeError:
+						line = partline+nextline
+						break
+
 			try:
 				self.updateRule(line.rstrip("\n"), path, currentRules, rulesets, ruleclasses, generators)
 			except AbnormalRuleError:

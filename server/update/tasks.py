@@ -10,7 +10,7 @@ from update.models import Source, Update
 import util.logger
 
 class UpdateTasks:
-	"""This class exposes the different method which we use for prcessing update-files."""
+	"""This class exposes the different method which we use for processing update-files."""
 
 	@staticmethod
 	def update(filename, sourcename = "Manual"):
