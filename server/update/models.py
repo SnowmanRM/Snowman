@@ -8,6 +8,7 @@ from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 from update.exceptions import BadFormatError, AbnormalRuleError
 
 from util.config import Config
+from util.patterns import ConfigPatterns
 
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
@@ -422,7 +423,58 @@ class Update(models.Model):
 					# Log exception message, file name and line number
 					logger.error("%s in file '%s', line " % (str(e), path, str(i+1)))
 		return parse
-				
+	
+	def parseConfigFile(self, filename):
+		"""Method to parse an ASCII configuration-file for snort, with undefined content."""
+		logger = logging.getLogger(__name__)
+		
+		# Compile the re-patterns
+		patterns = {}
+		patterns['rule'] = re.compile(ConfigPatterns.RULE)
+		patterns['reference'] = re.compile(ConfigPatterns.REFERENCE)
+		patterns['class'] = re.compile(ConfigPatterns.CLASS)
+		patterns['genmsg'] = re.compile(ConfigPatterns.GENMSG)
+		patterns['sidmsg'] = re.compile(ConfigPatterns.SIDMSG)
+		
+		# Open the file, and parse it line by line.
+		logger.debug("Starting to parse \"%s\"" % filename)
+		
+		try:
+			f = open(filename, "r")
+		except IOError:
+			logger.error("Could not find the file \"%s\"" % filename)
+			return
+		
+		previous = ""
+		for line in f:
+			# Concatinate the current line with the previous
+			line = previous + line
+			previous = ""
+			
+			# If the line is incomplete, store what we have, and read next line.
+			if(line.endswith("\\")):
+				previous = line.rstrip("\\")
+			
+			# Otherwise, try to match the line with any of the patterns, and parse them appropriatly.
+			elif(patterns['rule'].match(line)):
+				logger.debug("Identified rule: %s" % line)
+				self.updateRule(line, filename)
+			elif(patterns['reference'].match(line)):
+				logger.debug("Identified reference: %s" % line)
+				self.updateReference(line)
+			elif(patterns['class'].match(line)):
+				logger.debug("Identified Class: %s" % line)
+				self.updateClassification(line)
+			elif(patterns['genmsg'].match(line)):
+				logger.debug("Identified GEN-Msg: %s" % line)
+				self.updateGenerator(line)
+			elif(patterns['sidmsg'].match(line)):
+				logger.debug("Identified SID-Msg: %s" % line)
+				self.updateSidMsg(line)
+
+		f.close()
+		logger.debug("Finished parsing \"%s\"" % filename)
+
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
 
