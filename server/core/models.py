@@ -169,6 +169,8 @@ class RuleReference(models.Model):
 	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
 	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 
+	# TODO: Unique: rulerevision+referencetype? 
+
 	def __repr__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
 					self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
