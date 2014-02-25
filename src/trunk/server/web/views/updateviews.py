@@ -18,14 +18,13 @@ from update.tasks import UpdateTasks
 from util.config import Config
 from web.utilities import UserSettings
 
-
 class NameModelChoiceField(ModelChoiceField):
 	"""A drop-down-list, based on django's "ModelChoiseField", which can be populated
 	by a django queryset, and uses the objects name as visual representation."""
 
-    def label_from_instance(self, obj):
+	def label_from_instance(self, obj):
 		"""Overrides the default label, to rather use the name of the object."""
-        return "%s" % obj.name
+		return "%s" % obj.name
 
 class ManualUpdateForm(forms.Form):
 	"""The form used for file-uploads."""
