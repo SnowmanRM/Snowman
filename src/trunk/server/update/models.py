@@ -104,7 +104,7 @@ class Update(models.Model):
 		
 		# Get the filename of the current file:
 		# (will throw AttributeError if invalid filename)
-		filename = re.match(r"(.*)\.rules", os.path.split(path)[1]).group(1)
+		filename = re.match(r"(.*)\.(.*?)", os.path.split(path)[1]).group(1)
 		
 		# Construct a regex, so that we can extract all the interesting parameters from the raw rulestring.
 		matchPattern = r"(.*)alert(?=.*sid:(\d+))(?=.*rev:(\d+))"
@@ -274,32 +274,45 @@ class Update(models.Model):
 			# We have a valid line, fetch the SID
 			ruleSID = result.group(1)
 			
-			# If updatedRules exist and this SID exists in updatedRules:
-			if updatedRules and (int(ruleSID) in updatedRules):
-				revisionID = updatedRules[int(ruleSID)]
-				
-				# Get message and ruleReferences, if any
-				data = result.group(2).split(" || ")				
-				dataiter = iter(data)
-				
+			if updatedRules:
+				if int(ruleSID) in updatedRules:
+					revisionID = updatedRules[int(ruleSID)]
+					ruleRevision = RuleRevision.objects.get(id=revisionID)
+				else:
+					return
+			else:
 				try:
-					# Rule message is always the first element
-					message = next(dataiter)
-					RuleRevision.objects.get(id=revisionID).msg = message
+					ruleRevision = Rule.objects.get(SID=ruleSID).revisions.latest("rev")
+				except (Rule.DoesNotExist, RuleRevision.DoesNotExist):
+					logger.error("Cannot update sidMsg for ruleSID %s: Rule does not exist or has no revisions!" % ruleSID)
+					return
+				
+			# Get message and ruleReferences, if any
+			data = result.group(2).split(" || ")				
+			dataiter = iter(data)
+			
+			# Rule message is always the first element
+			message = next(dataiter)
+			ruleRevision.msg = message
+			ruleRevision.save()			
+			
+			try:	
+				# Any succeeding elements are ruleReferences, formatted
+				# with referenceType,referenceValue:
+				for reference in dataiter:
+					referenceData = reference.split(",")
+					referenceType = referenceData[0]
+					referenceValue = referenceData[1]
 					
-					# Any succeeding elements are ruleReferences, formatted
-					# with referenceType,referenceValue:
-					for reference in dataiter:
-						referenceData = reference.split(",")
-						referenceType = referenceData[0]
-						referenceValue = referenceData[1]
-						
-						referenceTypeID = RuleReferenceType.objects.get(name=referenceType).id
-						RuleReference.objects.create(reference=referenceValue, referenceType_id=referenceTypeID,rulerevision_id=revisionID)
-				except (StopIteration, IndexError):
-					raise BadFormatError("Badly formatted sid-msg")
-				except RuleReferenceType.DoesNotExist:
-					logger.error("referenceType %s does not exist! RuleReference was not created." % referenceType)
+					referenceTypeID = RuleReferenceType.objects.get(name=referenceType).id
+					
+					# TODO: get and overwrite before create?
+					RuleReference.objects.create(reference=referenceValue, referenceType_id=referenceTypeID,rulerevision_id=revisionID)
+			except (StopIteration, IndexError):
+				raise BadFormatError("Badly formatted sid-msg")
+			except RuleReferenceType.DoesNotExist:
+				logger.info("Creating missing ruleReferenceType %s." % referenceType)
+				reference = RuleReferenceType.objects.create(name=referenceType)
 
 	def updateClassification(self, raw):
 		"""Method for updating the database with a new classification.
