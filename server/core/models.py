@@ -61,6 +61,11 @@ class Rule(models.Model):
 			
 		return {'SID': self.SID, 'Active': str(self.active), 'Set': self.ruleSet.name, 'Class': self.ruleClass.classtype, 'Priority': str(self.priority)}
 	
+	def getCurrentRevision(self):
+			
+		return self.revisions.filter(active=True).last()
+
+	
 	def updateRule(self, raw, rev = None, msg = None):
 		"""This method recieves a rule, and if needed, creates a new RuleRevision object, and inserts into
 		the list of revisions belonging to this rule. If the rev on the new rule is equal, or smaller than
@@ -178,6 +183,12 @@ class RuleReference(models.Model):
 	def __str__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
 					self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
+		
+		
+	def splitReference(self):
+		
+		
+		return 0
 
 class RuleReferenceType(models.Model):
 	""" RuleReferenceType is the different types a certain rulereference

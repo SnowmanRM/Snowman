@@ -8,7 +8,6 @@ urlpatterns = patterns('',
     # Examples:
     #Main URLs
     url(r'^$', 'web.views.views.index'),
-    url(r'^rules/$', 'web.views.views.rules'),
 
     #TODO:
     url(r'^ruleset/$', 'web.views.views.ruleSet'),
@@ -22,7 +21,6 @@ urlpatterns = patterns('',
     
     
     # URLs used for AJAX requests
-    url(r'^rules/page/(?P<pagenr>\d+)/$', 'web.views.requests.getRulePage'),
     #TODO:
     url(r'^rules/byClass/(?P<classname>\w+)/(?P<pagenr>\d+)/$', 'web.views.requests.getRulePageByClass'),
     url(r'^ruleset/set/(?P<rulesetname>\w+)/$', 'web.views.requests.getRuleSet'),
@@ -40,3 +38,8 @@ urlpatterns = patterns('',
 urlpatterns += patterns('web.views.updateviews',
     url(r'^update/$', 'index'),
 )
+urlpatterns += patterns('web.views.ruleviews',
+    url(r'^rules/$', 'index'),
+    url(r'^rules/page/(?P<pagenr>\d+)/$', 'getRulePage'),
+)
+

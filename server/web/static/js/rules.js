@@ -4,8 +4,8 @@ function listInitialize() {
 	$(".ruleswitch").bootstrapSwitch()
 	
 	// Installs click events on all rows.
-	$('.list-group li.odd').unbind('click');
-	$('.list-group li.odd').click(function(event){
+	$('table tbody tr.odd').unbind('click');
+	$('table tbody tr.odd').click(function(event){
 		// This is to make sure a click on the switch doesnt trigger a row open.
 		if($(event.target).is('.bootstrap-switch span')){
             event.preventDefault();
@@ -36,24 +36,6 @@ function getPage(pagenr){
 	
 }
 
-function animateManipulator() {
-	
-	var el = $('#manipulator');
-	var elpos_original = el.offset().top;
-	$(window).scroll(function(){
-	    var elpos = el.offset().top;
-	    var windowpos = $(window).scrollTop();
-	    var finaldestination = windowpos;
-	    if(windowpos<elpos_original) {
-	        finaldestination = elpos_original;
-	        el.stop().animate({'top':0},500);
-	    } else {
-	        el.stop().animate({'top':finaldestination-elpos_original},500);
-	    }
-	});
-	
-}
-
 function loadNextPages(currentpage, pagecount) {
 	
 	// Copy passed variables to local variables.
@@ -66,7 +48,7 @@ function loadNextPages(currentpage, pagecount) {
 		// pages outside the actual page range
 		if (_currentpage+i > 1 && _currentpage+i < _pagecount && _currentpage+i != _currentpage) {
 			// Try to find a page element with this id nr.
-			var _pageexists = $('#content .panel#'+(_currentpage+i)+'').length;
+			var _pageexists = $('#content .table#'+(_currentpage+i)+'').length;
 			// If the page doesnt exist, we need to load it.
 			if (!_pageexists) {
 				// Loads the page it didnt find.
@@ -82,7 +64,7 @@ function switchPage(page) {
 	var _page = page;
 	
 	$('#content .current').hide().toggleClass('current');
-	$('#content .panel#'+_page).show().toggleClass('current');
+	$('#content .table#'+_page).show().toggleClass('current');
 	
 	
 }
@@ -111,14 +93,8 @@ function loadPaginator(currentpage, pagecount) {
 	
 }
 
-function setCurrentNavigation() {
-	
-	$('.nav a[href$="'+location.pathname+'"]').parent().toggleClass("active");
-	
-}
-
 $(document).ready(function(){
-	setCurrentNavigation()
+
 	// Calls function to initialize click events and buttons.
 	listInitialize();
 	
@@ -156,7 +132,5 @@ $(document).ready(function(){
 
 	// Make the manipulator follow you when you scroll.
 	animateManipulator();
-	
-	//console.log(currentpage);
 	
 });

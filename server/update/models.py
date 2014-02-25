@@ -55,7 +55,7 @@ class Update(models.Model):
 	
 	time = models.DateTimeField()
 	source = models.ForeignKey('Source', related_name="updates")
-	ruleRevisions = models.ManyToManyField(RuleRevision)
+	ruleRevisions = models.ManyToManyField(RuleRevision, related_name="update")
 	
 	def __repr__(self):
 		return "<Update source:%s, time:%s>" % (self.source.name, str(self.time))
