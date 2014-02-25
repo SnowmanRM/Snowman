@@ -14,42 +14,25 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 from django.contrib.auth.models import User
 
 from core.models import *
-from tuning.models import *
-from update.models import *
+
 
 # User for the sensor we are going to create later..
-user = User.objects.create(username = "MySensorName", first_name = "MySensorName", last_name = "Sensor")
+user = User.objects.create(username = "MySensor1", first_name = "MySensor", last_name = "1")
 user.set_password("123")
 user.save()
 
-# RuleReferenceTypes
-RuleReferenceType.objects.create(name="bugtraq", urlPrefix="http://www.securityfocus.com/bid/")
-RuleReferenceType.objects.create(name="cve", urlPrefix="http://cve.mitre.org/cgi-bin/cvename.cgi?name=")
-RuleReferenceType.objects.create(name="nessus", urlPrefix="http://cgi.nessus.org/plugins/dump.php3?id=")
-RuleReferenceType.objects.create(name="arachnids", urlPrefix="http://www.whitehats.com/info/IDS")
-RuleReferenceType.objects.create(name="mcafee", urlPrefix="http://vil.nai.com/vil/content/v_")
-RuleReferenceType.objects.create(name="osvdb", urlPrefix="http://osvdb.org/show/osvdb/")
-RuleReferenceType.objects.create(name="msb", urlPrefix="http://technet.microsoft.com/en-us/security/bulletin/")
-rulereferencetype = RuleReferenceType.objects.create(name="url", urlPrefix="http://")
+user2 = User.objects.create(username = "MySensor2", first_name = "MySensor", last_name = "2")
+user2.set_password("123")
+user2.save()
+
+user3 = User.objects.create(username = "MySensor3", first_name = "MySensor", last_name = "3")
+user3.set_password("123")
+user3.save()
 
 # Data for core
-sensor = Sensor.objects.create(name="MySensorName", user=user, active=True, ipAddress="127.0.0.1")
+sensor = Sensor.objects.create(name="MySensor1", user=user, active=True, ipAddress="127.0.0.1")
+sensor = Sensor.objects.create(name="MySensor2", user=user2, active=True, ipAddress="127.0.0.2")
+sensor = Sensor.objects.create(name="MySensor3", user=user3, active=True, ipAddress="127.0.0.3")
+
 generator = Generator.objects.create(GID=1, alertID=1, message="Generic SNORT rule")
-ruleset = RuleSet.objects.create(name="MyRuleSet", description="My first ruleset.", active=True)
-ruleclass = RuleClass.objects.create(classtype="default", description="The default Rule-class", priority=4)
-rule = Rule.objects.create(SID=1, generator=generator, active=True, ruleSet=ruleset, ruleClass=ruleclass)
-rulerevision = RuleRevision.objects.create(rule=rule, rev=1, active=True, msg="Message", raw="The raw snort-rule")
-rulereference = RuleReference.objects.create(reference="foo.bar/123", referenceType=rulereferencetype, rulerevision=rulerevision)
 
-# Data for tuning
-modifier = RuleModifier.objects.create(rule=rule, sensor=sensor, active=None)
-supress = Supress.objects.create(rule=rule, sensor=sensor, comment="My first Supress", track=Supress.SOURCE)
-supressaddress = SupressAddress.objects.create(supress=supress, ipAddress="127.0.0.2")
-threshold = Threshold.objects.create(rule=rule, sensor=sensor, comment="My first Threshold", thresholdType=Threshold.LIMIT, track=Threshold.SOURCE, count=42, seconds=60)
-
-# Data for update
-source = Source.objects.create(name="Manual", schedule="00:00", url="", lastMd5="")
-update = Update.objects.create(time="2014-01-01", source=source)
-updatefile = UpdateFile.objects.create(name="a.txt", update=update, checksum="abc")
-staticFile = StaticFile.objects.create(name="a.txt", update=update, checksum="abc", path="/test/av/path/")
-rc = RuleChanges.objects.create(rule=rule, originalSet=ruleset, newSet=ruleset, update=update, moved=False)
