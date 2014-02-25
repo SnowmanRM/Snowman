@@ -17,7 +17,7 @@ from util.logger import initConsoleLogging
 if __name__ == "__main__":
 	
 	if(len(sys.argv) < 2):
-		print "Usage: %s <update directory>"
+		print "Usage: %s <update directory> [source]"
 		sys.exit(1)
 		
 	updateDir = sys.argv[1]
@@ -29,9 +29,14 @@ if __name__ == "__main__":
 	
 	# Create source and update objects
 	try:
-		source = Source.objects.get(name="Manual")
+		src = sys.argv[2]
+	except IndexError:
+		src = "Manual"
+
+	try:
+		source = Source.objects.get(name=src)
 	except Source.DoesNotExist:
-		source = Source.objects.create(name="Manual")
+		source = Source.objects.create(name=src)
 
 	update = Update.objects.create(time=datetime.now(), source=source)
 	

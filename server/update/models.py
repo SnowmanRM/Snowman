@@ -198,7 +198,7 @@ class Update(models.Model):
 					rule.save()
 					logger.debug("Updated rule:" + str(rule))
 				except Rule.DoesNotExist:
-					rule = Rule.objects.create(SID=int(ruleSID), generator=generator, active=ruleActive, ruleSet=ruleset, ruleClass=ruleclass)
+					rule = Rule.objects.create(SID=int(ruleSID), generator=generator, ruleSet=ruleset, ruleClass=ruleclass)
 					logger.debug("Created a new rule: " + str(rule))
 				
 				rev = rule.updateRule(raw, ruleRev, ruleActive, ruleMessage)
