@@ -89,31 +89,38 @@ class Update(models.Model):
 		
 		rulesets/ruleclasses is used as a cache to store the django-objects retrieved from the 
 		database, so  that we in later calls to this method can use them for quicker access.
-		(Memory is generally cheaper than dbAccess)"""
+		(Memory is generally faster than dbAccess)"""
 		
 		logger = logging.getLogger(__name__)
 		
-		# If we find a gid-attribute, we are parsing the wrong file
 		try:
+			# If we find a gid element with a value other than 1, we are parsing the wrong file
 			gid = re.match(r"(?=.*gid:(.*?);)",raw).group(1)
 			if int(gid) != 1:
 				raise AbnormalRuleError
 		except AttributeError:
+			# No gid element, all is good.
 			pass
 			
-		
 		# Get the filename of the current file:
-		# (will throw AttributeError if invalid filename)
 		filename = re.match(r"(.*)\.(.*?)", os.path.split(path)[1]).group(1)
 		
-		# Construct a regex, so that we can extract all the interesting parameters from the raw rulestring.
+		# Construct a regex to match all elements a raw rulestring 
+		# must have in order to be considered a valid rule
+		# (sid, rev, message and classtype):
 		matchPattern = r"(.*)alert(?=.*sid:(\d+))(?=.*rev:(\d+))"
 		matchPattern += r"(?=.*msg:\"(.*?)\";)"
 		matchPattern += r"(?=.*classtype:(.*?);)"
 		pattern = re.compile(matchPattern)
 		
-		# Regex to match ruleset name (not present in all rules)
-		ruleset = re.match(r"(?=.*ruleset (.*?)[,;])", raw)
+		# Construct regexes for elements that MIGHT appear in a raw rulestring
+		# (ruleset, ):
+		
+		# Match ruleset name
+		ruleset = re.match(r".*ruleset (.*?)[,;]", raw)
+		
+		# Match reference (group1: name, group2: reference):
+		reference = re.match(r".*reference:(.*),(.*?); ",raw)
 		
 		# If the raw rule matched the regex: 
 		result = pattern.match(raw)
@@ -125,21 +132,22 @@ class Update(models.Model):
 				ruleActive = False
 			else:
 				ruleActive = True
+				
 			ruleSID = result.group(2)
-			ruleRev = result.group(3)
+			ruleRev = result.group(3)			
+			ruleMessage = result.group(4)
+			ruleClassName = result.group(5)
+			ruleGID = 1
 			
 			# Ruleset name set to filename if not found in raw string:
 			try:
 				ruleSetName = ruleset.group(1)
 			except AttributeError:
-				ruleSetName = filename
-			
-			ruleMessage = result.group(4)
-			ruleClassName = result.group(5)
-			ruleGID = 1
+				ruleSetName = filename			
 			
 			# If the rule is new, or is a newer version of a rule we already have:
 			if(int(ruleSID) not in currentRules or int(ruleRev) > currentRules[int(ruleSID)]):
+				
 				# Grab the correct ruleset from cache/db, or create a new one if it doesn't exist.
 				try:
 					ruleset = rulesets[ruleSetName]
@@ -202,7 +210,13 @@ class Update(models.Model):
 					logger.debug("Created a new rule: " + str(rule))
 				
 				rev = rule.updateRule(raw, ruleRev, ruleMessage)
-				if(rev):
+				if rev:
+					# Add rulereference if this was specified in the raw string:
+					if reference:
+						referenceTypeName = reference.group(1)
+						referenceData = reference.group(2)
+						self.updateReference(referenceTypeName, referenceData, rev)
+						
 					self.ruleRevisions.add(rev)
 			else:
 				logger.debug("Rule %s/%s is already up to date" % (ruleSID, ruleRev))
@@ -217,12 +231,12 @@ class Update(models.Model):
 		and generators are updated in the database."""		
 		self.parseFile(self.updateGenerator, path)()
 		
-	def parseReferenceConfig(self, path):
+	def parseReferenceConfigFile(self, path):
 		"""Method for parsing reference.config which contains all ruleReferenceTypes.
 		File is read line by line and generators are updated in the database."""
-		self.parseFile(self.updateReference, path)()
+		self.parseFile(self.parseReferenceConfig, path)()
 		
-	def updateReference(self, raw):
+	def parseReferenceConfig(self, raw):
 		logger = logging.getLogger(__name__)
 		
 		matchPattern = r"config reference: (.*) (http(s)?://.*)"
@@ -303,17 +317,26 @@ class Update(models.Model):
 					referenceData = reference.split(",")
 					referenceType = referenceData[0]
 					referenceValue = referenceData[1]
+					self.updateReference(referenceType, referenceValue, ruleRevision)
 					
-					referenceTypeID = RuleReferenceType.objects.get(name=referenceType).id
-					
-					# TODO: get and overwrite before create?
-					RuleReference.objects.create(reference=referenceValue, referenceType_id=referenceTypeID,rulerevision_id=revisionID)
 			except (StopIteration, IndexError):
 				raise BadFormatError("Badly formatted sid-msg")
-			except RuleReferenceType.DoesNotExist:
-				logger.info("Creating missing ruleReferenceType %s." % referenceType)
-				reference = RuleReferenceType.objects.create(name=referenceType)
 
+	def updateReference(self, referenceTypeName, referenceData, ruleRevision):
+		logger = logging.getLogger(__name__)
+		try:
+			referenceType = RuleReferenceType.objects.get(name=referenceTypeName)
+		except RuleReferenceType.DoesNotExist:
+			referenceType = RuleReferenceType.objects.create(name=referenceTypeName)
+			logger.info("Created new referencetype "+str(referenceType)+" WITHOUT urlprefix!")
+			
+		try:
+			reference = referenceType.references.get(rulerevision=ruleRevision)
+			reference.reference = referenceData
+			reference.save()
+		except RuleReference.DoesNotExist:
+			reference = referenceType.references.create(reference=referenceData, rulerevision=ruleRevision)
+		
 	def updateClassification(self, raw):
 		"""Method for updating the database with a new classification.
 		Classification data consists of three comma-separated strings which are
