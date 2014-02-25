@@ -61,7 +61,7 @@ class Rule(models.Model):
 			
 		return {'SID': self.SID, 'Active': str(self.active), 'Set': self.ruleSet.name, 'Class': self.ruleClass.classtype, 'Priority': str(self.priority)}
 	
-	def updateRule(self, raw, rev = None, active = None, msg = None):
+	def updateRule(self, raw, rev = None, msg = None):
 		"""This method recieves a rule, and if needed, creates a new RuleRevision object, and inserts into
 		the list of revisions belonging to this rule. If the rev on the new rule is equal, or smaller than
 		the last in revisions, nothing is done.
@@ -81,7 +81,7 @@ class Rule(models.Model):
 		# If no revisions are found, or the last revision is smaller than the new one,
 		#   add the new revision to the database.
 		if(lastRev == None or int(lastRev.rev) < int(rev)):
-			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=active, msg=msg, raw=raw)
+			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=True, msg=msg, raw=raw)
 			logger.debug("Updated rule-revision:" + str(rev))
 			return rev
 		
