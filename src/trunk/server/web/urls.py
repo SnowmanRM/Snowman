@@ -40,6 +40,7 @@ urlpatterns += patterns('web.views.updateviews',
 )
 urlpatterns += patterns('web.views.ruleviews',
     url(r'^rules/$', 'index'),
+    url(r'^rules/page/search/(?P<pagenr>\d+)/$', 'getRulesBySearch'),
     url(r'^rules/page/(?P<pagenr>\d+)/$', 'getRulePage'),
 )
 

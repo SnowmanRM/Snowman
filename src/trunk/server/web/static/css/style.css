@@ -67,7 +67,7 @@
 	font-size: 12px;
 }
 
-#content table > tbody > tr:nth-child(4n-1) > td {
+#content table > tbody > tr:nth-child(4n-1) {
 
 	background-color: #f9f9f9;
 }
@@ -122,6 +122,16 @@
 	//margin-right: 1%;
 }
 
+#content .table .bg-primary:hover td {
+	
+	color: #fff;
+	background-color: #428bca;
+	
+}
+#content .table .bg-primary {
+	
+	background-color: #428bca !important;
+}
 /*
 #content .panel {
 

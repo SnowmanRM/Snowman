@@ -34,5 +34,3 @@ sensor = Sensor.objects.create(name="MySensor1", user=user, active=True, ipAddre
 sensor = Sensor.objects.create(name="MySensor2", user=user2, active=True, ipAddress="127.0.0.2")
 sensor = Sensor.objects.create(name="MySensor3", user=user3, active=True, ipAddress="127.0.0.3")
 
-generator = Generator.objects.create(GID=1, alertID=1, message="Generic SNORT rule")
-
