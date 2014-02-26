@@ -136,7 +136,7 @@ class Update(models.Model):
 		ruleset = re.match(r".*ruleset (.*?)[,;]", raw)
 		
 		# Match reference (group1: name, group2: reference):
-		reference = re.match(r".*reference:(.*),(.*?); ",raw)
+		references = re.findall(r"reference:(.*?),(.*?);", raw)
 		
 		# If the raw rule matched the regex: 
 		result = pattern.match(raw)
@@ -228,11 +228,14 @@ class Update(models.Model):
 				rev = rule.updateRule(raw, ruleRev, ruleMessage)
 				if rev:
 					# Add rulereference if this was specified in the raw string:
-					if reference:
-						referenceTypeName = reference.group(1)
-						referenceData = reference.group(2)
-						self.updateReference(referenceTypeName, referenceData, rev)
-						
+					if len(references) > 0:
+						for reference in references:
+							referenceTypeName = reference[0]
+							referenceData = reference[1]
+							self.updateReference(referenceTypeName, referenceData, rev)
+							logger.debug("Added a %s reference to SID:%d : %s" % (referenceTypeName, int(ruleSID), referenceData))
+
+					# Add the ruleRevision to the update-object.
 					self.ruleRevisions.add(rev)
 			else:
 				logger.debug("Rule %s/%s is already up to date" % (ruleSID, ruleRev))
