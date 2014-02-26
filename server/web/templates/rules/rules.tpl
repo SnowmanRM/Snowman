@@ -5,16 +5,16 @@
 {% load staticfiles %}
 <script type="text/javascript" src="{% static 'js/rules.js' %}"></script>
 <div id="search-container" class="">
+	{% csrf_token %}
 	<div class="input-group col-lg-4 pull-right">
-		<select class="form-control">
-			<option>SID</option>
-			<option>Rev</option>
-			<option>Name</option>
+		<select id="searchfield" class="form-control">
+			<option value="sid">SID</option>
+			<option value="name">Name</option>
 		</select>
 		<span class="input-group-btn">
 			<button class="btn btn-default" type="button">Search</button>
 		</span>
-		<input type="text" class="form-control">
+		<input id="searchtext" type="text" class="form-control">
 	</div>
 </div>
 {% block manipulator %}

@@ -1,4 +1,4 @@
-
+{% if rulesearch %}<div id="searchresult" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}">{% endif %}
 <table id="{{ pagenr }}" class="table table-responsive table-bordered table-hover
 {% if pagenr == 1 %} current{% endif %}"{% if ishidden %} style="display: none;"{% endif %}>
 	<thead>
@@ -72,7 +72,7 @@
 		{% endif %}
 	</tbody>
 </table>
-
+{% if rulesearch %}</div>{% endif %}
 
 {% comment %}
 

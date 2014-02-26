@@ -75,3 +75,49 @@ def getRulePage(request, pagenr):
 		raise Http404
 	
 	return render(request, 'rules/rulepage.tpl', context)
+
+def getRulesBySearch(request, pagenr):
+	
+	"""This method is loaded when the /rules/search/<int> url is called.
+	
+	"""
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	searchstring = request.POST['searchs']
+	searchfield = request.POST['searchf']
+	
+	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	context['rulesearch'] = True
+	context['pagenr'] = "search"+pagenr
+	context['pagelength'] = pagelength
+	context['ishidden'] = True
+	
+	if pagenr=='1':
+		minrange=0
+	else:
+		minrange = pagelength * int(pagenr)
+	
+	maxrange = int(minrange) + pagelength
+	
+	try:
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
+		
+		if searchfield=='sid':
+			context['itemcount'] = Rule.objects.filter(SID__istartswith=searchstring).count()
+			context['rule_list'] = Rule.objects.filter(SID__istartswith=searchstring)[minrange:maxrange]
+		elif searchfield=='name':
+			context['itemcount'] = Rule.objects.filter(revisions__active=True, revisions__msg__icontains=searchstring).count()
+			context['rule_list'] = Rule.objects.filter(revisions__active=True, revisions__msg__icontains=searchstring)[minrange:maxrange]
+			
+		
+	except Rule.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	
+	return render(request, 'rules/rulepage.tpl', context)
+
