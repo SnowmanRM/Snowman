@@ -1,11 +1,12 @@
 import unittest
 import os
 import sys
+import datetime
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	RuleReference, RuleReferenceType
 	
-from update.models import Update, Source, RuleChanges
+from update.models import Update, Source, RuleChanges, UpdateFile
 from update.exceptions import BadFormatError, AbnormalRuleError
 
 class TestUpdate(unittest.TestCase):
@@ -17,11 +18,24 @@ class TestUpdate(unittest.TestCase):
 		except Source.DoesNotExist:
 			source = Source.objects.create(name="Manual", schedule="00:00", url="", lastMd5="")
 	
-		self.update = Update.objects.create(time="2014-01-01", source=source)
+		self.update = Update.objects.create(time=datetime.datetime.now(), source=source)
 
 	def tearDown(self):
 		pass
 
+	def testParseFile(self):
+		# Try to add two identical updates with a single rule file. 
+		# Should notify that update #2 contains a file with the same
+		# hash as the previous.
+		ruleFile = "ruleFile2.rules"
+		self.update.parseRuleFile(ruleFile)
+		try:
+			newFile = self.update.source.files.get(name=ruleFile)
+		except UpdateFile.DoesNotExist:
+			self.fail("Rulefile was not properly created!")
+		
+
+	@unittest.skip("Skipping testUpdateRule")
 	def testParseRuleFile(self):
 		path = os.path.abspath("multilinerules.txt")
 		self.update.parseRuleFile(path)

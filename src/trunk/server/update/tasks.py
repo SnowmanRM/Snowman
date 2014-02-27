@@ -97,7 +97,6 @@ class UpdateTasks:
 		# We do not catch the exception here, as the caller should be responsible to decide what to
 		#   do if the source do not exist.
 		source = Source.objects.get(name=sourceName)
-		
 		update = Update.objects.create(time=datetime.datetime.now(), source=source)
 		
 		# Filenames to look for:
@@ -144,7 +143,7 @@ class UpdateTasks:
 		if(foundGenMsg):
 			update.parseGenMsgFile(genMsgFile)
 		if(foundReferences):
-	   		update.parseReferenceConfig(referenceConfigFile)
+			update.parseReferenceConfig(referenceConfigFile)
 		
 		for ruleFile in ruleFiles:
 			update.parseRuleFile(ruleFile)

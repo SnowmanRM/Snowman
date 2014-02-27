@@ -17,6 +17,10 @@ class Generator(models.Model):
 	alertID = models.IntegerField()
 	message = models.TextField()
 	
+	class Meta:
+		# GID and alertID must be unique together
+		unique_together = ('GID', 'alertID')	
+	
 	def __repr__(self):
 		return "<Generator GID:%d, alertID:%d, message:\"%s\">" % (self.GID, self.alertID, self.message)
 	
