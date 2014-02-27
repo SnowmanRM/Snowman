@@ -1,6 +1,7 @@
 from django.db import models
 import logging
 import re, os
+import hashlib
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	RuleReference, RuleReferenceType
@@ -67,34 +68,47 @@ class Update(models.Model):
 		return "<Update source:%s, time:%s>" % (self.source.name, str(self.time))
 
 	def parseRuleFile(self, path, currentRules = None, rulesets = {}, ruleclasses = {}, generators = {}):
-		"""This method opens a rule-file, parses it for all the found rules, and updates the
+		"""This method opens a ruleFile, parses it for all the found rules, and updates the
 		database with the new rules."""
 		
-		logger = logging.getLogger(__name__)		
+		logger = logging.getLogger(__name__)
+		logger.info("Parsing ruleFile '%s'" % path)
 		
-		if not currentRules:
-			# Get all the latest rulerevisions
-			currentRules = Rule.getRuleRevisions()
-		
-		rulefile = open(path, "r")
-		it = iter(rulefile)
-		for line in it:
-			
-			multiline = re.match(r"(.*)\\$",line)
-			if multiline:
-				partline = multiline.group(1)
-				while 1:
-					try:
-						nextline = it.next()
-						partline += re.match(r"(.*)\\$",nextline).group(1)
-					except AttributeError:
-						line = partline+nextline
-						break
+		# Add ruleFile to update:
+		fileName = os.path.basename(path)
+		ruleFile, created = self.source.files.get_or_create(name=fileName)
+		oldHash = ruleFile.checksum
+		newHash = self.md5sum(path)
 
-			try:
-				self.updateRule(line.rstrip("\n"), path, currentRules, rulesets, ruleclasses, generators)
-			except AbnormalRuleError:
-				logger.info("Skipping abnormal rule in '%s'" % path)
+		if oldHash != newHash:
+			ruleFile.isParsed = True
+			ruleFile.checksum = newHash
+			ruleFile.save()
+			if not currentRules:
+				# Get all the latest rulerevisions
+				currentRules = Rule.getRuleRevisions()
+			
+			rulefile = open(path, "r")
+			it = iter(rulefile)
+			for line in it:
+				
+				multiline = re.match(r"(.*)\\$",line)
+				if multiline:
+					partline = multiline.group(1)
+					while 1:
+						try:
+							nextline = it.next()
+							partline += re.match(r"(.*)\\$",nextline).group(1)
+						except AttributeError:
+							line = partline+nextline
+							break
+	
+				try:				
+					self.updateRule(line.rstrip("\n"), path, currentRules, rulesets, ruleclasses, generators)
+				except AbnormalRuleError:
+					logger.info("Skipping abnormal rule in '%s'" % path)
+		else:
+			logger.info("Skipping ruleFile '%s', new and old hashes are identical." % path)
 	
 	def updateRule(self, raw, path, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method takes a raw rule-string, parses it, and if it is a new rule, we 
@@ -410,8 +424,7 @@ class Update(models.Model):
 			
 			# Overwrite existing, or create new, generator:
 			try:
-				try:
-					# TODO: Trenger vi except for MultipleObjectsReturned her? Streng tatt KAN det skje siden GID+alertID ikke er PRI?
+				try:					
 					oldGenerator = Generator.objects.get(GID=generator[0], alertID=generator[1])
 					oldGenerator.message = generator[2]
 					oldGenerator.save()
@@ -421,25 +434,38 @@ class Update(models.Model):
 				# If one or more indexes are invalid, the generator is badly formatted
 				raise BadFormatError("Badly formatted generator")
 			
-	def parseFile(self, fn, path, **kwargs):
+	def parseFile(self, fn, filePath, **kwargs):
 		def parse():
-			"""Method for simple parsing of a file defined by path. 
+			"""Method for simple parsing of a file defined by filePath. 
 			Every line is sent to the function defined by fn."""
 			
 			logger = logging.getLogger(__name__)
-			logger.info("Parsing file "+path)
+			logger.info("Parsing file "+filePath)
 			
-			try:		
-				infile = open(path, "r")
-			except IOError:
-				logger.info("File '%s' not found, nothing to parse." % path)
-				
-			for i,line in enumerate(infile):
-				try:
-					fn(raw=line, **kwargs)
-				except BadFormatError, e:
-					# Log exception message, file name and line number
-					logger.error("%s in file '%s', line " % (str(e), path, str(i+1)))
+			# Add ruleFile to update:
+			fileName = os.path.basename(filePath)
+			ruleFile, created = self.source.files.get_or_create(name=fileName, isParsed=False)
+			oldHash = ruleFile.checksum
+			newHash = self.md5sum(filePath)
+	
+			if oldHash != newHash:
+				try:		
+					infile = open(filePath, "r")
+				except IOError:
+					logger.info("File '%s' not found, nothing to parse." % filePath)
+					
+				ruleFile.isParsed = True
+				ruleFile.checksum = newHash
+				ruleFile.save()
+					
+				for i,line in enumerate(infile):
+					try:
+						fn(raw=line, **kwargs)
+					except BadFormatError, e:
+						# Log exception message, file name and line number
+						logger.error("%s in file '%s', line " % (str(e), filePath, str(i+1)))
+			else :
+				logger.info("Skipping file '%s', new and old hashes are identical." % filePath)
 		return parse
 	
 	def parseConfigFile(self, filename):
@@ -492,14 +518,25 @@ class Update(models.Model):
 
 		f.close()
 		logger.debug("Finished parsing \"%s\"" % filename)
+		
+	def md5sum(self, filename, blocksize=65536):
+		_hash = hashlib.md5()
+		with open(filename, "r+b") as f:
+			for block in iter(lambda: f.read(blocksize), ""):
+				_hash.update(block)
+		return _hash.hexdigest()
 
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
 
 	name = models.CharField(max_length=40)
-	update = models.ForeignKey('Update', related_name="files")
+	source = models.ForeignKey('Source', related_name="files")
 	checksum = models.CharField(max_length=80)
 	isParsed = models.BooleanField()
+	
+	class Meta:
+		# name and update must be unique together
+		unique_together = ('name', 'source')		
 	
 	def __repr__(self):
 		return "<UpdateFile name:%s, update:%s-%s, md5:%s>" % (self.name, self.update.source.name, self.update.time, self.checksum)
