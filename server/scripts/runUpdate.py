@@ -3,8 +3,8 @@
 This script is used by the webpage, to do the parsing of the configuration-files asynchronusly,
 so that the webpage does not need to block while processing data.
 
-The script can also be invoked manually. It should (when finished) be able to process a single
-textfile, an archive (tar(gz), zip) or an unpacked folder.
+The script can also be invoked manually. It is able to process a single textfile, an archive 
+(tar(gz), zip) or an unpacked folder.
 """
 
 import logging
@@ -24,15 +24,13 @@ from update.tasks import UpdateTasks
 import util.logger
 
 if __name__ == "__main__":
-	# Init the logger TODO: Why do we get the logger from the parent process?
-	#util.logger.initialize()
 	logger = logging.getLogger(__name__)
 	
 	# Grab the parametres.
 	try:
 		filename = sys.argv[1]
 	except IndexError:
-		print "Usage: %s <update directory> [source]"
+		print "Usage: %s <update directory> [<source>] [create]"
 		sys.exit(1)
 		
 	try:
@@ -40,7 +38,13 @@ if __name__ == "__main__":
 	except IndexError:
 		sourcename = "Manual"
 
+	logger.info("Starting the update, with PID:%d, from: %s" % (os.getpid(), filename))
+	# Creating the source if desired and needed.
+	if("create" in sys.argv):
+		s, c = Source.objects.get_or_create(name=sourcename)
+		if(c):
+			logger.info("Created a new source during updates: %s", s)
+
 	# Start doing the update.
-	logger.info("Starting run-update-script")
 	UpdateTasks.runUpdate(filename, sourcename)
-	logger.info("Finishing run-update-script")
+	logger.info("Finished the update, with PID:%d, from: %s" % (os.getpid(), filename))
