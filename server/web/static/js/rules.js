@@ -1,3 +1,11 @@
+/*
+*	Snort Rule Manager - Web Interface
+*	rules.js
+*	Contains all the specialized javascript used on the /web/rules page.
+*
+*/
+
+// This function starts all click events within the rule list.
 function listInitialize() {
 	
 	// Initializes the switchbuttons
@@ -20,12 +28,13 @@ function listInitialize() {
 	});
 		
 }
-
+// This function is used to dynamically retrieve a page that contains a list of rules.
+// This function is utilized for the regular list of all rules.
 function getPage(pagenr){
 	// Copies pagenr to local _pagenr variable.
 	var _pagenr = parseInt(pagenr); 
 	
-	// Ajax-calls for the required page. We return it so we can use $.when
+	// Ajax-call for the required page. We return it so we can use $.when
 	return $.get('page/'+_pagenr+'/', function(html) { 
 		// When the content is loaded, append to content container.
 		$('#content').append(html);
@@ -36,13 +45,16 @@ function getPage(pagenr){
 	
 }
 
+// This function is used to dynamically retrieve a page that contains a list of rules.
+// This function is utilized for the search pages.
 function getSearchPage(pagenr, searchfield, searchstring){
 	// Copies pagenr to local _pagenr variable.
 	var _pagenr = parseInt(pagenr); 
 	var _searchfield = searchfield;
 	var _searchstring = searchstring;
-	
-	// Ajax-calls for the required page. We return it so we can use $.when
+		
+	// Ajax-call for the required page. We return it so we can use $.when.
+	// We also include the CSRF token so Django can know we are friendly.
 	return $.ajax({
 		url:'page/search/'+_pagenr+'/',
 		type:'POST',
@@ -50,6 +62,7 @@ function getSearchPage(pagenr, searchfield, searchstring){
 		
 	}).done(function(html) { 
 		// When the content is loaded, append to content container.
+		
 		$('#content').append(html);
 		listInitialize();
 		
@@ -57,6 +70,8 @@ function getSearchPage(pagenr, searchfield, searchstring){
 	
 }
 
+// This function is used to dynamically load three pages before and after the current page.
+// This function is utilized for the regular list of all rules.
 function loadNextPages(currentpage, pagecount) {
 	
 	// Copy passed variables to local variables.
@@ -81,6 +96,8 @@ function loadNextPages(currentpage, pagecount) {
 	
 }
 
+// This function is used to dynamically load three pages before and after the current page.
+// This function is utilized for the search pages.
 function loadNextSearchPages(currentpage, pagecount, searchfield, searchstring) {
 	
 	// Copy passed variables to local variables.
@@ -106,16 +123,19 @@ function loadNextSearchPages(currentpage, pagecount, searchfield, searchstring) 
 	
 }
 
+// This function is used to switch between pages in the list.
 function switchPage(page) {
 	
 	var _page = page;
-	
+	// Hide the page marked .current and then turn off its .current class.
 	$('#content .current').hide().toggleClass('current');
-	$('#content .table#'+_page).show().toggleClass('current');
+	// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
+	$('#content .table#'+_page).first().show().toggleClass('current');
 	
 	
 }
 
+// This function loads the paginator used when displaying a full list of all rules.
 function loadPaginator(currentpage, pagecount) {
 	
 	// We set some options for the paginator and its click function.
@@ -140,6 +160,7 @@ function loadPaginator(currentpage, pagecount) {
 	
 }
 
+// This function loads the paginator used when a search is done.
 function loadSearchPaginator(currentpage, pagecount, _searchfield, _searchstring) {
 	
 	// We set some options for the paginator and its click function.
@@ -154,8 +175,7 @@ function loadSearchPaginator(currentpage, pagecount, _searchfield, _searchstring
 				
 				// Load the next pages.
 				loadNextSearchPages(page, pagecount, _searchfield, _searchstring);
-				// We update the window location hash value.
-				//window.location.hash = page;
+
 			}
 	}
 	
@@ -164,43 +184,70 @@ function loadSearchPaginator(currentpage, pagecount, _searchfield, _searchstring
 	
 }
 
+// This function initializes the search field and triggers on keyup.
 function searchField() {
-	
-	$('#search-container input#searchtext').keyup(function(){
-		var _searchfield = $('#search-container select#searchfield').val();
-		var _searchstring = $(this).val();
-		if(!_searchstring) { 
-			var hash = parseInt(window.location.hash.slice(1));
-			// If theres a hashvalue and its not the first page.
-			if (hash && hash != 1) {
-				// We obviously want another page.
-				var currentpage = hash;
+
+	$('#search-container input#searchtext').keyup(function(){ // This is triggered when someone types in the inputfield.
+		//delay(function(){	// We add a bit of delay.
+
+			// We get the what we're searching in from the select.
+			var _searchfield = $('#search-container select#searchfield').val();
+
+			// This is the string we want to match.
+			var _searchstring = $('#search-container input#searchtext').val();
+			
+			// If the searchstring is empty, user has emptied the field. We want to revert to pre-search state.
+			if(!_searchstring) { 
+				// Grab the window hash as reference to where we were.
+				var hash = parseInt(window.location.hash.slice(1));
+				// If theres a hashvalue and its not the first page.
+				if (hash && hash != 1) {
+					// We obviously want another page.
+					var currentpage = hash;
+				}
+				else {
+					var currentpage = 1;
+				}
+				// We have to find these variables again.
+				var pagelength = $('#paginator').attr('pagelength');
+				var itemcount = $('#paginator').attr('itemcount');
+				pagecount =  Math.floor(itemcount / pagelength);
+				if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
+				
+				// Switch back to the current page.
+				switchPage(currentpage);
+				// Reload the paginator to its former state.
+
+				loadPaginator(currentpage, pagecount);
+				// Remove any searchresult container from the DOM.
+				$('#content #searchresult').remove();
 			}
 			else {
-				var currentpage = 1;
-			}
-			switchPage(currentpage);
-			loadPaginator(currentpage, pagecount);
-			$('#content #searchresult').remove();
-		}
-		else {
-			$('#content #searchresult').remove();
-			$.when(getSearchPage(1, _searchfield, _searchstring)).done(function() {
-				switchPage('search1');
-				searchitemcount = $('#content #searchresult').attr('itemcount');
-				searchpagelength = $('#content #searchresult').attr('pagelength');
-				searchpagecount = Math.floor(searchitemcount / searchpagelength);
-				if (searchitemcount%searchpagecount == 0) {searchpagecount--}
-				if (searchpagecount < 1) {searchpagecount=1}
-				console.log(searchpagecount);
-				loadSearchPaginator(1, searchpagecount, _searchfield, _searchstring);
-				loadNextSearchPages(1, searchpagecount, _searchfield, _searchstring);
-			});
-		}
+				// Remove any previous searches from the DOM.
+				$('#content #searchresult').remove();
+				// We do an ajax call to retrieve the first page of the search results.
+				$.when(getSearchPage(1, _searchfield, _searchstring)).done(function() {
+					// Switch the page to the search result.
+					switchPage('search1');
+					// We retrieve some details about the search result to set page variables.
+					searchitemcount = $('#content #searchresult').attr('itemcount');
+					searchpagelength = $('#content #searchresult').attr('pagelength');
+					searchpagecount = Math.floor(searchitemcount / searchpagelength);
+					if (searchitemcount%searchpagecount == 0) {searchpagecount--}
+					if (searchpagecount < 1) {searchpagecount=1}
+	
+					// Load the paginator with the page variables for the search.
+					loadSearchPaginator(1, searchpagecount, _searchfield, _searchstring);
+				
+					// Load the next pages of the search.
+					loadNextSearchPages(1, searchpagecount, _searchfield, _searchstring);
+				});
+			};
+			
+		//}, 500 );	// 500ms should be enough delay.
 	});	
 	
 }
-
 
 $(document).ready(function(){
 
@@ -210,7 +257,7 @@ $(document).ready(function(){
 	// Variables needed.
 	var pagelength = $('#paginator').attr('pagelength');
 	var itemcount = $('#paginator').attr('itemcount');
-	var pagecount =  Math.floor(itemcount / pagelength);
+	pagecount =  Math.floor(itemcount / pagelength);
 	if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
 	
 	// We get a hash value if there is one.
@@ -242,6 +289,7 @@ $(document).ready(function(){
 	// Make the manipulator follow you when you scroll.
 	animateManipulator();
 	
+	// Initialize the search field above content.
 	searchField();
 
 });

@@ -6,4 +6,4 @@ class UserSettings():
 	
 	@staticmethod
 	def getPageLength(request, pagetype = DEFAULT):
-		return 10
+		return 20

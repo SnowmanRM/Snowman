@@ -1,5 +1,5 @@
 """
-This script file serves to answer url requests for all the main pages in the page structure.
+This script file serves to answer url requests for the /web/rules page.
 
 """
 
@@ -78,7 +78,12 @@ def getRulePage(request, pagenr):
 
 def getRulesBySearch(request, pagenr):
 	
-	"""This method is loaded when the /rules/search/<int> url is called.
+	"""	This method is loaded when the /rules/search/<int> url is called. This url is called when a user has typed a string into 
+		the search bar on the /rules page. 
+		
+		The method does a search in the database based on the searchfield and searchstring requested, and the item range based on the page requested.
+		
+		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
 	
 	"""
 	
@@ -94,6 +99,7 @@ def getRulesBySearch(request, pagenr):
 	context['pagenr'] = "search"+pagenr
 	context['pagelength'] = pagelength
 	context['ishidden'] = True
+	context['searchstring'] = searchstring
 	
 	if pagenr=='1':
 		minrange=0
@@ -112,10 +118,9 @@ def getRulesBySearch(request, pagenr):
 		elif searchfield=='name':
 			context['itemcount'] = Rule.objects.filter(revisions__active=True, revisions__msg__icontains=searchstring).count()
 			context['rule_list'] = Rule.objects.filter(revisions__active=True, revisions__msg__icontains=searchstring)[minrange:maxrange]
-			
-		
+
 	except Rule.DoesNotExist:
-		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		logger.warning("Page request /rules/search for string: "+searchstring+" in field "+searchfield+" could not be resolved, objects not found.")
 		raise Http404
 	
 	

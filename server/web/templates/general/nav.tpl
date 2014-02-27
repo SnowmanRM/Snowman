@@ -1,4 +1,4 @@
-
+{# This is the navigational bar of the website. #}
 <div class="navbar navbar-default no-radius">
 	<div class="container">
 		<div class="navbar-header">
@@ -19,10 +19,6 @@
 					<li class=""><a href="/web/rules/">All Rules</a></li>
 					<li><a href="/web/ruleset/">By Set</a></li>
 					<li><a href="/web/ruleclass/">By Class</a></li>
-					<li class="divider"></li>
-					<li class="dropdown-header">Nav header</li>
-					<li><a href="#">Separated link</a></li>
-					<li><a href="#">One more separated link</a></li>
 					</ul>
 				</li>
 				<li class=""><a href="/web/sensors/">Sensors</a></li>
@@ -31,11 +27,6 @@
 					<ul class="dropdown-menu">
 					<li class=""><a href="/web/tuning/bysensor/">Sensors</a></li>
 					<li><a href="/web/tuning/byrule/">Rules</a></li>
-					
-					<li class="divider"></li>
-					<li class="dropdown-header">Nav header</li>
-					<li><a href="#">Separated link</a></li>
-					<li><a href="#">One more separated link</a></li>
 					</ul>
 				</li>
 				<li><a href="/web/update/">Update</a></li>
@@ -43,13 +34,3 @@
 		</div>
 	</div>
 </div>
-
-<!--
-<ul>
-	<li><a href="/foo/bar" class="selected no-left-border">Nav1</a></li>
-	<li><a href="#">Nav1</a></li>
-	<li><a href="#">Nav1</a></li>
-	<li><a href="#">Nav1</a></li>
-</ul>
-
--->

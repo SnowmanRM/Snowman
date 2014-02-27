@@ -1,4 +1,8 @@
-{% if rulesearch %}<div id="searchresult" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}">{% endif %}
+{# rulepage.tpl is the template for the paginated list of rules on the rules page. #} 
+{# It constructs a table based on the list of rules sent to the parser. #}
+{#  #}
+
+{% if rulesearch %}<div id="searchresult" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" searchstring="{{ searchstring }}">{% endif %}
 <table id="{{ pagenr }}" class="table table-responsive table-bordered table-hover
 {% if pagenr == 1 %} current{% endif %}"{% if ishidden %} style="display: none;"{% endif %}>
 	<thead>
