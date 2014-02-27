@@ -1,3 +1,4 @@
+{# This is the little box on the left that follows you as you scroll. #}
 <div id="manipulator" class="col-xs-2 col-sm-2 col-md-2">
 	<div class="button-container well">
 		<div class="btn-group-vertical btn-block">

@@ -1,12 +1,14 @@
 {% extends "general/index.tpl" %}
-
+{# rules.tpl is the template for the rules page. #} 
+{# It contains a list of all rules present in the database. #}
+{# It can also contain a list rules found through a search, which the user can do in the searchbar. #}
 
 {% block content %}
 {% load staticfiles %}
 <script type="text/javascript" src="{% static 'js/rules.js' %}"></script>
 <div id="search-container" class="">
 	{% csrf_token %}
-	<div class="input-group col-lg-4 pull-right">
+	<div class="input-group col-xs-6 col-sm-6 col-md-4 col-lg-4 pull-right">
 		<select id="searchfield" class="form-control">
 			<option value="sid">SID</option>
 			<option value="name">Name</option>
