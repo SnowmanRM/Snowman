@@ -3,6 +3,17 @@
 import os
 import resource
 import sys
+import hashlib
+
+def md5sum(filename, blocksize=65536):
+	"""Returns the md5 sum of the file specified.
+	Reading blocksize can be customized."""
+	
+	_hash = hashlib.md5()
+	with open(filename, "r+b") as f:
+		for block in iter(lambda: f.read(blocksize), ""):
+			_hash.update(block)
+	return _hash.hexdigest()
 
 def doubleFork():
 	"""This method does a double fork, and kills both parents. So, after this method is returned,
