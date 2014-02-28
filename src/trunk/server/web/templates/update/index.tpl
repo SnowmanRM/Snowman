@@ -48,30 +48,7 @@
 				</div>
 				<h2>Information per source:</h2>
 				<div id="sourceList">
-					{% if sources and sources|length > 0 %}
-						{% for source in sources %}
-	        				<li class="list-group-item odd">{{ source.source.name }}</li>
-	        				<li class="sub-list list-group-item even" style="display: none">
-								{% if source.updatable %}
-									<p>Last Updated: {{source.lastUpdate}} - <button class="runUpdate" id={{source.source.id}}>Run update now</button></p>
-									<p>Schedule: {{source.source.schedule}}</p>
-									<p>Url: {{source.source.url}}</p>
-									<p>Md5Url: {{source.source.md5url}}</p>
-								{% else %}
-									<p>Last Updated: {{source.lastUpdate}}</p>
-								{% endif %}
-
-								<h4>Last 5 updates:</h4>
-								<ul>
-									{% for update in source.updates %}
-										<li>{{update.time}} ({{update.ruleRevisions.count}} rule-changes)</li>
-									{% endfor %}
-								</ul>
-							</li>
-						{% endfor %}
-					{% else %}
-	    				<li class="list-group-item odd">No update-sources is available.</li>
-					{% endif %}
+					{% include "update/sourceList.tpl" %}
 				</div>
 			</div>
 		</div>

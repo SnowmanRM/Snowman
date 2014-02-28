@@ -2,76 +2,18 @@
 The views related to the update-pages.
 """
 import logging
-from multiprocessing import Process
 import os
 import subprocess
 import time
-import urllib2
 
-from django import forms
-from django.forms import ModelChoiceField
-from django.http import Http404, HttpResponse
-from django.shortcuts import render, redirect
+from django.http import Http404
+from django.shortcuts import render
 
-from core.models import Rule, RuleRevision
 from srm.settings import BASE_DIR
 from update.models import Source
 from update.tasks import UpdateTasks
 from util.config import Config
-from web.utilities import UserSettings
-
-class NameModelChoiceField(ModelChoiceField):
-	"""A drop-down-list, based on django's "ModelChoiseField", which can be populated
-	by a django queryset, and uses the objects name as visual representation."""
-
-	def label_from_instance(self, obj):
-		"""Overrides the default label, to rather use the name of the object."""
-		return "%s" % obj.name
-
-class ManualUpdateForm(forms.Form):
-	"""The form used for file-uploads."""
-	file = forms.FileField()
-	source = NameModelChoiceField(queryset=Source.objects.all(), empty_label=None)
-
-class DailySelector(forms.Form):
-	hourChoises = (('', '<select one>'),) + tuple((x, str(x)) for x in range(0,24))
-	minuteChoises = (('', '<select one>'),) + tuple((x, str(x)) for x in range(0,60,15))
-	
-	hour = forms.ChoiceField(hourChoises)
-	minute = forms.ChoiceField(minuteChoises)
-
-class WeeklySelector(DailySelector):
-	dayChoises = (
-		(0, '<select one>'),
-		(1, "Monday"),
-		(2, "Tuesday"),
-		(3, "Wednesday"),
-		(4, "Thursday"),
-		(5, "Friday"),
-		(6, "Saturday"),
-		(7, "Sunday"),
-	)
-	
-	day = forms.ChoiceField(dayChoises)
-
-class MonthlySelector(DailySelector):
-	dayChoises = (('', '<select one>'),) + tuple((x, str(x)) for x in range(1,32))
-	day = forms.ChoiceField(dayChoises)
-
-class NewSourceForm(forms.Form):
-	"""The form used to create new sources"""
-	scheduleChoises = (
-		('', '<Select one>'),
-		('n', 'No automatic update'),
-		('d', 'Daily'),
-		('w', 'Weekly'),
-		('m', 'Monthly'),
-	)
-	
-	name = forms.CharField(max_length=40)
-	url = forms.CharField(max_length=160, required=False)
-	md5url = forms.CharField(max_length=160, required=False)
-	schedule = forms.ChoiceField(scheduleChoises)
+from web.views.updateforms import ManualUpdateForm, DailySelector, WeeklySelector, MonthlySelector, NewSourceForm
 
 def index(request):
 	"""The default view for the update section."""
@@ -94,6 +36,11 @@ def index(request):
 			d['lastUpdate'] = "Never"
 
 		d['updates'] = source.updates.order_by('-id').all()[:5]
+		
+		# Create a form for editing the sources:
+		formData = {'name': source.name, 'url': source.url, 'md5url': source.md5url, 'schedule': "n"}
+		d['form'] = NewSourceForm(formData)
+		
 		data['sources'].append(d)
 	
 	# If something is posted:
@@ -216,14 +163,8 @@ def runUpdate(request, id):
 	data = {}
 	source = Source.objects.get(pk=id)
 	
-	try:
-		test = urllib2.urlopen(source.url)
-		test.close()
-	except:
-		data['message'] = "Could not find the file %s. Download therfore not started." % source.url
-	else:
-		data['message'] = "Started en update from %s.\nThis might take a while, and currently no feedback is given if things are happening or not. Be patient :)" % source.name
-
+	data['message'] = "Started en update from %s.\nThis might take a while, and currently no feedback is given if things are happening or not. Be patient :)" % source.name
+	
 	# Call the background-update script.
 	subprocess.call([os.path.join(BASE_DIR, 'scripts/runBackgroundUpdate.py'), str(source.id)])
 	
