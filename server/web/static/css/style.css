@@ -77,6 +77,11 @@
 	width: 1%;
 }
 
+#content .table-hover > tbody > tr.even:hover > td {
+
+	background-color: white;
+}
+
 #content .table thead tr:first-child th:first-child {
 
 	border-left: 0;
@@ -174,6 +179,13 @@
 }
 
 */
+
+#paginator.pagination {
+
+	display: inline;
+	margin: 0;
+	
+}
 
 #manipulator {
 

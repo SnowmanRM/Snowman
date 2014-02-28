@@ -36,8 +36,23 @@ function getPage(pagenr){
 	
 	// Ajax-call for the required page. We return it so we can use $.when
 	return $.get('page/'+_pagenr+'/', function(html) { 
-		// When the content is loaded, append to content container.
-		$('#content').append(html);
+		downloadid = $('table', $('<div/>').html(html)).attr("id");
+		pagealreadyexists = $("#content table").attr('id',downloadid);
+		
+		//$('ul', $('<div/>').html(html)).hide().attr("id","4").parent().html();
+		if( !pagealreadyexists.length ) {
+			console.log('page found');
+			$('#content table').attr('id', downloadid).replaceWith(html);
+			
+		}
+		else {
+			console.log('page not found');
+			// When the content is loaded, append to content container.
+			$('#content').append(html);
+			
+		}
+		
+		
 		// We need to reinitialize all the click events and switchbuttons.
 		listInitialize();
 
@@ -187,42 +202,46 @@ function loadSearchPaginator(currentpage, pagecount, _searchfield, _searchstring
 // This function initializes the search field and triggers on keyup.
 function searchField() {
 
-	$('#search-container input#searchtext').keyup(function(){ // This is triggered when someone types in the inputfield.
-		//delay(function(){	// We add a bit of delay.
+	$('#search-container input#searchtext').keyup(function(event){ // This is triggered when someone types in the inputfield.
+		console.log(event);
+		
+		// We get the what we're searching in from the select.
+		var _searchfield = $('#search-container select#searchfield').val();
 
-			// We get the what we're searching in from the select.
-			var _searchfield = $('#search-container select#searchfield').val();
-
-			// This is the string we want to match.
-			var _searchstring = $('#search-container input#searchtext').val();
-			
-			// If the searchstring is empty, user has emptied the field. We want to revert to pre-search state.
-			if(!_searchstring) { 
-				// Grab the window hash as reference to where we were.
-				var hash = parseInt(window.location.hash.slice(1));
-				// If theres a hashvalue and its not the first page.
-				if (hash && hash != 1) {
-					// We obviously want another page.
-					var currentpage = hash;
-				}
-				else {
-					var currentpage = 1;
-				}
-				// We have to find these variables again.
-				var pagelength = $('#paginator').attr('pagelength');
-				var itemcount = $('#paginator').attr('itemcount');
-				pagecount =  Math.floor(itemcount / pagelength);
-				if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
-				
-				// Switch back to the current page.
-				switchPage(currentpage);
-				// Reload the paginator to its former state.
-
-				loadPaginator(currentpage, pagecount);
-				// Remove any searchresult container from the DOM.
-				$('#content #searchresult').remove();
+		// This is the string we want to match.
+		var _searchstring = $('#search-container input#searchtext').val();
+		
+		// If the searchstring is empty, user has emptied the field. We want to revert to pre-search state.
+		if(!_searchstring) { 
+			// Grab the window hash as reference to where we were.
+			var hash = parseInt(window.location.hash.slice(1));
+			// If theres a hashvalue and its not the first page.
+			if (hash && hash != 1) {
+				// We obviously want another page.
+				var currentpage = hash;
 			}
 			else {
+				var currentpage = 1;
+			}
+			// We have to find these variables again.
+			var pagelength = $('#paginator').attr('pagelength');
+			var itemcount = $('#paginator').attr('itemcount');
+			pagecount =  Math.floor(itemcount / pagelength);
+			if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
+			
+			// Switch back to the current page.
+			switchPage(currentpage);
+			// Reload the paginator to its former state.
+
+			loadPaginator(currentpage, pagecount);
+			// Remove any searchresult container from the DOM.
+			$('#content #searchresult').remove();
+		}
+		
+		if ( event.which == 13 || !event.which ) {
+		     
+		//delay(function(){	// We add a bit of delay.
+
 				// Remove any previous searches from the DOM.
 				$('#content #searchresult').remove();
 				// We do an ajax call to retrieve the first page of the search results.
@@ -242,10 +261,15 @@ function searchField() {
 					// Load the next pages of the search.
 					loadNextSearchPages(1, searchpagecount, _searchfield, _searchstring);
 				});
-			};
 			
 		//}, 500 );	// 500ms should be enough delay.
+		}
 	});	
+	
+	$( "#search-container button" ).click(function() {
+		console.log('button was pressed');
+		  $( "#search-container input#searchtext" ).keyup();
+		});
 	
 }
 
