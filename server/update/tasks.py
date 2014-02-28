@@ -105,21 +105,26 @@ class UpdateTasks:
 		# Walk through the directory structure and extract the absolute path
 		# of all interesting files:
 		for dirpath, dirnames, filenames in os.walk(path):
-			for ruleFile in filenames:
-				if ruleFile.endswith(".rules"):
-					# Save the absolute path of the rule file
-					ruleFiles.append(os.path.join(dirpath, ruleFile))
-				elif ruleFile == classificationFile:
+			for updateFile in filenames:
+				# Create a tuple with (absolute filepath, root folder path)
+				# This will be used to store relative paths in the DB
+				absoluteFilePath = os.path.join(dirpath, updateFile)
+				relativeFilePath = os.path.relpath(absoluteFilePath, path) 
+				fileTuple = (absoluteFilePath, relativeFilePath)
+				
+				if updateFile.endswith(".rules"):
+					ruleFiles.append(fileTuple)
+				elif updateFile == classificationFile:
 					foundClassifications = True
-					classificationFile = os.path.join(dirpath, ruleFile)
-				elif ruleFile == genMsgFile:
+					classificationFile = fileTuple
+				elif updateFile == genMsgFile:
 					foundGenMsg = True
-					genMsgFile = os.path.join(dirpath, ruleFile)
-				elif ruleFile == referenceConfigFile:
+					genMsgFile = fileTuple
+				elif updateFile == referenceConfigFile:
 					foundReferences = True
-					referenceConfigFile = os.path.join(dirpath, ruleFile)
-				elif ruleFile == sidMsgFile:
-					sidMsgFile = os.path.join(dirpath, ruleFile)
+					referenceConfigFile = fileTuple
+				elif updateFile == sidMsgFile:
+					sidMsgFile = fileTuple
 		
 		
 		# Update must parse files in the following order:
@@ -134,10 +139,10 @@ class UpdateTasks:
 		if(foundGenMsg):
 			update.parseGenMsgFile(genMsgFile)
 		if(foundReferences):
-			update.parseReferenceConfig(referenceConfigFile)
+			update.parseReferenceConfigFile(referenceConfigFile)
 		
-		for ruleFile in ruleFiles:
-			update.parseRuleFile(ruleFile)
+		for updateFile in ruleFiles:
+			update.parseRuleFile(updateFile)
 	
 		update.parseSidMsgFile(sidMsgFile)
 		

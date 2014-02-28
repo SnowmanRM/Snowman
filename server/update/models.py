@@ -1,7 +1,6 @@
 from django.db import models
 import logging
 import re, os
-import hashlib
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	RuleReference, RuleReferenceType
@@ -10,6 +9,7 @@ from update.exceptions import BadFormatError, AbnormalRuleError
 
 from util.config import Config
 from util.patterns import ConfigPatterns
+from util.tools import md5sum
 
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
@@ -71,51 +71,38 @@ class Update(models.Model):
 		"""This method opens a ruleFile, parses it for all the found rules, and updates the
 		database with the new rules."""
 		
-		logger = logging.getLogger(__name__)
-		logger.info("Parsing ruleFile '%s'" % path)
+		if not currentRules:
+			currentRules = Rule.getRuleRevisions()
 		
-		# Add ruleFile to update:
-		fileName = os.path.basename(path)
+		filename = os.path.basename(path[0])
+		self.parseFile(self.updateRule, path, filename=filename, currentRules=currentRules, rulesets=rulesets, ruleclasses=ruleclasses, generators=generators)()
 
+	def parseClassificationFile(self, path):
+		"""Method for parsing classification.config. File is read line by line
+		and classifications are updated in the database."""
+		self.parseFile(self.updateClassification, path)()
+		
+	def parseGenMsgFile(self, path):
+		"""Method for parsing gen-msg.map. File is read line by line
+		and generators are updated in the database."""		
+		self.parseFile(self.updateGenMsg, path)()
+		
+	def parseReferenceConfigFile(self, path):
+		"""Method for parsing reference.config which contains all ruleReferenceTypes.
+		File is read line by line and generators are updated in the database."""
+		self.parseFile(self.updateReferenceConfig, path)()
+		
+	def parseSidMsgFile(self, path):
+		logger = logging.getLogger(__name__)
+		
 		try:
-			ruleFile = self.source.files.get(name=fileName)
-		except UpdateFile.DoesNotExist:
-			ruleFile = self.source.files.create(name=fileName, isParsed=False)
-
-		oldHash = ruleFile.checksum
-		newHash = self.md5sum(path)
-
-		if oldHash != newHash:
-			ruleFile.isParsed = True
-			ruleFile.checksum = newHash
-			ruleFile.save()
-			if not currentRules:
-				# Get all the latest rulerevisions
-				currentRules = Rule.getRuleRevisions()
-			
-			rulefile = open(path, "r")
-			it = iter(rulefile)
-			for line in it:
-				
-				multiline = re.match(r"(.*)\\$",line)
-				if multiline:
-					partline = multiline.group(1)
-					while 1:
-						try:
-							nextline = it.next()
-							partline += re.match(r"(.*)\\$",nextline).group(1)
-						except AttributeError:
-							line = partline+nextline
-							break
+			# Create a dictionary with SID:revisionID for all rule revisions in this update
+			updatedSIDs = {int(Rule.objects.get(id=x.rule_id).SID): x.id for x in self.ruleRevisions.all()}
+			self.parseFile(self.updateSidMsg, path, updatedRules=updatedSIDs)()		
+		except Rule.DoesNotExist:
+			logger.error("Unexpected error: rule lookup failed!")		
 	
-				try:				
-					self.updateRule(line.rstrip("\n"), path, currentRules, rulesets, ruleclasses, generators)
-				except AbnormalRuleError:
-					logger.info("Skipping abnormal rule in '%s'" % path)
-		else:
-			logger.info("Skipping ruleFile '%s', new and old hashes are identical." % path)
-	
-	def updateRule(self, raw, path, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
+	def updateRule(self, raw, filename, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method takes a raw rule-string, parses it, and if it is a new rule, we 
 		update the database.
 		
@@ -136,9 +123,6 @@ class Update(models.Model):
 		except AttributeError:
 			# No gid element, all is good.
 			pass
-			
-		# Get the filename of the current file:
-		filename = re.match(r"(.*)\.(.*?)", os.path.split(path)[1]).group(1)
 		
 		# Construct a regex to match all elements a raw rulestring 
 		# must have in order to be considered a valid rule
@@ -259,22 +243,71 @@ class Update(models.Model):
 			else:
 				logger.debug("Rule %s/%s is already up to date" % (ruleSID, ruleRev))
 				
-	def parseClassificationFile(self, path):
-		"""Method for parsing classification.config. File is read line by line
-		and classifications are updated in the database."""
-		self.parseFile(self.updateClassification, path)()
+	def updateClassification(self, raw):
+		"""Method for updating the database with a new classification.
+		Classification data consists of three comma-separated strings which are
+		extracted with a regex, and split up in the three respective parts:
+		classtype, description and priority. The classtype is looked up in the
+		database and if found, the object is overwritten with the new data. Else,
+		a new classification object is inserted into the database."""
 		
-	def parseGenMsgFile(self, path):
-		"""Method for parsing gen-msg.map. File is read line by line
-		and generators are updated in the database."""		
-		self.parseFile(self.updateGenerator, path)()
+		# Regex: Match "config classification: " (group 0),
+		# and everything that comes after (group 1), which is the classification data. 
+		matchPattern = r"config classification: (.*)"
+		pattern = re.compile(matchPattern)
+		result = pattern.match(raw)
 		
-	def parseReferenceConfigFile(self, path):
-		"""Method for parsing reference.config which contains all ruleReferenceTypes.
-		File is read line by line and generators are updated in the database."""
-		self.parseFile(self.parseReferenceConfig, path)()
+		if result:
+			# Split the data and store as separate strings
+			classification = result.group(1).split(",")
+			
+			try:
+				try:
+					# Update existing classification
+					ruleclassification = RuleClass.objects.get(classtype=classification[0])
+					ruleclassification.description = classification[1]
+					ruleclassification.priority = classification[2]
+					ruleclassification.save()
+				except RuleClass.DoesNotExist:
+					# Add new classification
+					RuleClass.objects.create(classtype=classification[0], description=classification[1], priority=classification[2])
+			except IndexError:
+				# If one or more indexes are invalid, the classification is badly formatted
+				raise BadFormatError("Badly formatted rule classification")
+				
+	def updateGenMsg(self, raw):
+		"""Method for updating the database with a new generator.
+		Generator data consists of two numbers and a message string, all three
+		separated with a ||. All lines conforming to this pattern are split up
+		in the three respective parts: GID (generatorID), alertID and message.
+		The GID and alertID are looked up in the database and if found, the object 
+		is overwritten with the new data. Else,	a new generator object is inserted 
+		into the database."""
+				
+		# Regex: Match a generator definition: number || number || message
+		# If the line matches, it is stored in group(0)
+		matchPattern = r"(\d+ \|\| )+.*"
+		pattern = re.compile(matchPattern)
+		result = pattern.match(raw)
 		
-	def parseReferenceConfig(self, raw):
+		if result:
+			# Split the line into GID, alertID and message
+			# (becomes generator[0], [1] and [2] respectively)
+			generator = result.group(0).split(" || ")
+			
+			# Overwrite existing, or create new, generator:
+			try:
+				try:					
+					oldGenerator = Generator.objects.get(GID=generator[0], alertID=generator[1])
+					oldGenerator.message = generator[2]
+					oldGenerator.save()
+				except Generator.DoesNotExist:
+					Generator.objects.create(GID=generator[0], alertID=generator[1], message=generator[2])
+			except IndexError:
+				# If one or more indexes are invalid, the generator is badly formatted
+				raise BadFormatError("Badly formatted generator")
+		
+	def updateReferenceConfig(self, raw):
 		logger = logging.getLogger(__name__)
 		
 		matchPattern = r"config reference: (.*) (http(s)?://.*)"
@@ -294,16 +327,22 @@ class Update(models.Model):
 				reference = RuleReferenceType.objects.create(name=referenceType, urlPrefix=urlPrefix)
 				logger.debug("Created new ruleReferenceType: "+str(reference))
 				
-		
-	def parseSidMsgFile(self, path):
+	def updateReference(self, referenceTypeName, referenceData, ruleRevision):
 		logger = logging.getLogger(__name__)
-		
 		try:
-			# Create a dictionary with SID:revisionID for all rule revisions in this update
-			updatedSIDs = {int(Rule.objects.get(id=x.rule_id).SID): x.id for x in self.ruleRevisions.all()}
-			self.parseFile(self.updateSidMsg, path, updatedRules=updatedSIDs)()		
-		except Rule.DoesNotExist:
-			logger.error("Unexpected error: rule lookup failed!")
+			referenceType = RuleReferenceType.objects.get(name=referenceTypeName)
+		except RuleReferenceType.DoesNotExist:
+			referenceType = RuleReferenceType.objects.create(name=referenceTypeName)
+			logger.info("Created new referencetype "+str(referenceType)+" WITHOUT urlprefix!")
+			
+		try:
+			reference = referenceType.references.get(rulerevision=ruleRevision)
+			reference.reference = referenceData
+			reference.save()
+		except RuleReference.DoesNotExist:
+			reference = referenceType.references.create(reference=referenceData, rulerevision=ruleRevision)
+		
+				
 		
 	def updateSidMsg(self, raw, updatedRules=None):
 		"""The sid-msg.map file contains mappings between ruleSIDs, rule messages and ruleReferences.
@@ -359,123 +398,60 @@ class Update(models.Model):
 					
 			except (StopIteration, IndexError):
 				raise BadFormatError("Badly formatted sid-msg")
-
-	def updateReference(self, referenceTypeName, referenceData, ruleRevision):
-		logger = logging.getLogger(__name__)
-		try:
-			referenceType = RuleReferenceType.objects.get(name=referenceTypeName)
-		except RuleReferenceType.DoesNotExist:
-			referenceType = RuleReferenceType.objects.create(name=referenceTypeName)
-			logger.info("Created new referencetype "+str(referenceType)+" WITHOUT urlprefix!")
 			
-		try:
-			reference = referenceType.references.get(rulerevision=ruleRevision)
-			reference.reference = referenceData
-			reference.save()
-		except RuleReference.DoesNotExist:
-			reference = referenceType.references.create(reference=referenceData, rulerevision=ruleRevision)
-		
-	def updateClassification(self, raw):
-		"""Method for updating the database with a new classification.
-		Classification data consists of three comma-separated strings which are
-		extracted with a regex, and split up in the three respective parts:
-		classtype, description and priority. The classtype is looked up in the
-		database and if found, the object is overwritten with the new data. Else,
-		a new classification object is inserted into the database."""
-		
-		# Regex: Match "config classification: " (group 0),
-		# and everything that comes after (group 1), which is the classification data. 
-		matchPattern = r"config classification: (.*)"
-		pattern = re.compile(matchPattern)
-		result = pattern.match(raw)
-		
-		if result:
-			# Split the data and store as separate strings
-			classification = result.group(1).split(",")
-			
-			try:
-				try:
-					# Update existing classification
-					ruleclassification = RuleClass.objects.get(classtype=classification[0])
-					ruleclassification.description = classification[1]
-					ruleclassification.priority = classification[2]
-					ruleclassification.save()
-				except RuleClass.DoesNotExist:
-					# Add new classification
-					RuleClass.objects.create(classtype=classification[0], description=classification[1], priority=classification[2])
-			except IndexError:
-				# If one or more indexes are invalid, the classification is badly formatted
-				raise BadFormatError("Badly formatted rule classification")
-				
-	def updateGenerator(self, raw):
-		"""Method for updating the database with a new generator.
-		Generator data consists of two numbers and a message string, all three
-		separated with a ||. All lines conforming to this pattern are split up
-		in the three respective parts: GID (generatorID), alertID and message.
-		The GID and alertID are looked up in the database and if found, the object 
-		is overwritten with the new data. Else,	a new generator object is inserted 
-		into the database."""
-				
-		# Regex: Match a generator definition: number || number || message
-		# If the line matches, it is stored in group(0)
-		matchPattern = r"(\d+ \|\| )+.*"
-		pattern = re.compile(matchPattern)
-		result = pattern.match(raw)
-		
-		if result:
-			# Split the line into GID, alertID and message
-			# (becomes generator[0], [1] and [2] respectively)
-			generator = result.group(0).split(" || ")
-			
-			# Overwrite existing, or create new, generator:
-			try:
-				try:					
-					oldGenerator = Generator.objects.get(GID=generator[0], alertID=generator[1])
-					oldGenerator.message = generator[2]
-					oldGenerator.save()
-				except Generator.DoesNotExist:
-					Generator.objects.create(GID=generator[0], alertID=generator[1], message=generator[2])
-			except IndexError:
-				# If one or more indexes are invalid, the generator is badly formatted
-				raise BadFormatError("Badly formatted generator")
-			
-	def parseFile(self, fn, filePath, **kwargs):
+	def parseFile(self, fn, filePathTuple, **kwargs):
 		def parse():
-			"""Method for simple parsing of a file defined by filePath. 
+			"""Method for simple parsing of a file defined by filePathTuple. 
 			Every line is sent to the function defined by fn."""
 			
-			logger = logging.getLogger(__name__)
-			logger.info("Parsing file "+filePath)
+			absoluteFilepath, relativeFilePath = filePathTuple
 			
-			# Add ruleFile to update:
-			fileName = os.path.basename(filePath)
+			logger = logging.getLogger(__name__)
+			logger.info("Parsing file "+absoluteFilepath)
+
 			try:
-				ruleFile = self.source.files.get(name=fileName)
+				ruleFile = self.source.files.get(name=relativeFilePath)
 			except UpdateFile.DoesNotExist:
-				ruleFile = self.source.files.create(name=fileName, isParsed=False)
+				ruleFile = self.source.files.create(name=relativeFilePath, isParsed=False)
 			oldHash = ruleFile.checksum
-			newHash = self.md5sum(filePath)
+			newHash = md5sum(absoluteFilepath)
 	
 			if oldHash != newHash:
-				try:		
-					infile = open(filePath, "r")
+				try:
+					infile = open(absoluteFilepath, "r")
 				except IOError:
-					logger.info("File '%s' not found, nothing to parse." % filePath)
+					logger.info("File '%s' not found, nothing to parse." % absoluteFilepath)
+					return
 					
 				ruleFile.isParsed = True
 				ruleFile.checksum = newHash
 				ruleFile.save()
 					
-				for i,line in enumerate(infile):
-					try:
+				it = iter(enumerate(infile))
+				for i,line in it:
+					
+					multiline = re.match(r"(.*)\\$",line)
+					if multiline:
+						partline = multiline.group(1)
+						while 1:
+							try:
+								i,nextline = it.next()
+								partline += re.match(r"(.*)\\$",nextline).group(1)
+							except AttributeError:
+								line = partline+nextline
+								break
+		
+					try:				
 						fn(raw=line, **kwargs)
+					except AbnormalRuleError:
+						logger.info("Skipping abnormal rule in '%s'" % absoluteFilepath)
 					except BadFormatError, e:
 						# Log exception message, file name and line number
-						logger.error("%s in file '%s', line " % (str(e), filePath, str(i+1)))
+						logger.error("%s in file '%s', line %s." % (str(e), absoluteFilepath, str(i+1)))							
 			else :
-				logger.info("Skipping file '%s', new and old hashes are identical." % filePath)
+				logger.info("Skipping file '%s', new and old hashes are identical." % absoluteFilepath)
 		return parse
-	
+
 	def parseConfigFile(self, filename):
 		"""Method to parse an ASCII configuration-file for snort, with undefined content."""
 		logger = logging.getLogger(__name__)
@@ -519,20 +495,13 @@ class Update(models.Model):
 				self.updateClassification(line)
 			elif(patterns['genmsg'].match(line)):
 				logger.debug("Identified GEN-Msg: %s" % line)
-				self.updateGenerator(line)
+				self.updateGenMsg(line)
 			elif(patterns['sidmsg'].match(line)):
 				logger.debug("Identified SID-Msg: %s" % line)
 				self.updateSidMsg(line)
 
 		f.close()
 		logger.debug("Finished parsing \"%s\"" % filename)
-		
-	def md5sum(self, filename, blocksize=65536):
-		_hash = hashlib.md5()
-		with open(filename, "r+b") as f:
-			for block in iter(lambda: f.read(blocksize), ""):
-				_hash.update(block)
-		return _hash.hexdigest()
 
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
