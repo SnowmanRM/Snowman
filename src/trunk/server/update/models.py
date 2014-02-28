@@ -76,7 +76,12 @@ class Update(models.Model):
 		
 		# Add ruleFile to update:
 		fileName = os.path.basename(path)
-		ruleFile, created = self.source.files.get_or_create(name=fileName)
+
+		try:
+			ruleFile = self.source.files.get(name=fileName)
+		except UpdateFile.DoesNotExist:
+			ruleFile = self.source.files.create(name=fileName, isParsed=False)
+
 		oldHash = ruleFile.checksum
 		newHash = self.md5sum(path)
 
@@ -444,7 +449,10 @@ class Update(models.Model):
 			
 			# Add ruleFile to update:
 			fileName = os.path.basename(filePath)
-			ruleFile, created = self.source.files.get_or_create(name=fileName, isParsed=False)
+			try:
+				ruleFile = self.source.files.get(name=fileName)
+			except UpdateFile.DoesNotExist:
+				ruleFile = self.source.files.create(name=fileName, isParsed=False)
 			oldHash = ruleFile.checksum
 			newHash = self.md5sum(filePath)
 	
