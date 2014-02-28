@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
 	try:
 		source = Source.objects.get(pk=sourceID)
-	except Source.DoNotExist:
+	except Source.DoesNotExist:
 		logger.error("Could not find source with ID:%d" % sourceID)
 		sys.exit(1)
 

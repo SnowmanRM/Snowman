@@ -506,7 +506,7 @@ class Update(models.Model):
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
 
-	name = models.CharField(max_length=40)
+	name = models.TextField()
 	source = models.ForeignKey('Source', related_name="files")
 	checksum = models.CharField(max_length=80)
 	isParsed = models.BooleanField()
