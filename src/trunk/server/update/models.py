@@ -322,7 +322,7 @@ class Update(models.Model):
 			try:
 				reference = RuleReferenceType.objects.get(name=referenceType)
 				reference.urlPrefix = urlPrefix
-				reference.save
+				reference.save()
 			except RuleReferenceType.DoesNotExist:
 				reference = RuleReferenceType.objects.create(name=referenceType, urlPrefix=urlPrefix)
 				logger.debug("Created new ruleReferenceType: "+str(reference))
