@@ -7,6 +7,7 @@ import logging
 import os
 import resource
 import sys
+import traceback
 import urllib2
 from datetime import datetime
 
@@ -52,35 +53,43 @@ if __name__ == "__main__":
 			md5 = socket.read()
 			md5 = md5.strip()
 			socket.close()
+
+			logger.debug("Downloaded-MD5:'%s'" % str(md5))
+			logger.debug("LastUpdate-MD5:'%s'" % str(source.lastMd5))
 		except:
 			logger.warning("Could not find the md5-file at %s. Proceeding to download the main update-file." % source.md5url)
 			md5 = ""
 	else:
+		logger.info("No md5-url file found. Proceeding to download the main update-file.")
 		md5 = ""
 	
-	logger.debug("Downloaded-MD5:'%s'" % str(md5))
-	logger.debug("LastUpdate-MD5:'%s'" % str(source.lastMd5))
 	
 	if(len(str(md5)) == 0 or str(md5) != str(source.lastMd5)):
 		logger.info("Starting to download %s" % source.url)
-		socket = urllib2.urlopen(source.url)
 		storagelocation = Config.get("storage", "inputFiles")		
 		filename = storagelocation + source.url.split("/")[-1]
 		
 		if(os.path.isdir(storagelocation) == False):
 			os.makedirs(storagelocation)
 
-		f = open(filename, "w")
-		_hash = hashlib.md5()
-		blocksize = 65536
-		while True:
-			buffer = socket.read(blocksize)
-			if not buffer:
-				socket.close()
-				f.close()
-				break
-			f.write(buffer)
-			_hash.update(buffer)
+		try:
+			socket = urllib2.urlopen(source.url)
+	
+			f = open(filename, "w")
+			_hash = hashlib.md5()
+			blocksize = 65536
+			while True:
+				buffer = socket.read(blocksize)
+				if not buffer:
+					socket.close()
+					f.close()
+					break
+				f.write(buffer)
+				_hash.update(buffer)
+
+		except urllib2.HTTPError as e:
+			logger.error("Error during download: %s" % str(e))
+			sys.exit(1)
 
 		logger.debug("Downloaded-MD5:'%s'" % str(_hash.hexdigest()))
 		logger.debug("LastUpdate-MD5:'%s'" % str(source.lastMd5))
@@ -91,6 +100,7 @@ if __name__ == "__main__":
 				UpdateTasks.runUpdate(filename, source.name)
 			except Exception as e:
 				logger.critical("Hit exception while running update: %s" % str(e))
+				logger.debug("%s" % (traceback.format_exc()))
 				sys.exit(1)
 		
 			logger.info("Storing md5 of this update: %s" % (_hash.hexdigest()))
