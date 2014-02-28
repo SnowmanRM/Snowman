@@ -52,7 +52,7 @@ class UpdateTasks:
 				logger.error("%d Could not recognize the compression used in tarfile '%s'. Update is therefore not performed." % (os.getpid(), filename))
 			else:
 				# Process the content
-				UpdateTasks.processFolder(tmpdirectory, source.name)
+				UpdateTasks.processFolder(tmpdirectory, source.name, update=update)
 	
 				# Delete the temporary folder
 				shutil.rmtree(tmpdirectory)
@@ -69,26 +69,27 @@ class UpdateTasks:
 				z.extractall(tmpdirectory)
 
 			# Process the content
-			UpdateTasks.processFolder(tmpdirectory, source.name)
+			UpdateTasks.processFolder(tmpdirectory, source.name, update=update)
 
 			# Delete the temporary folder
 			shutil.rmtree(tmpdirectory)
 
 		elif(os.path.isdir(filename)):		
 			logger.debug("%d File is identified as a folder" % os.getpid())
-			UpdateTasks.processFolder(filename, source.name)
+			UpdateTasks.processFolder(filename, source.name, update=update)
 		
 		logger.info("%d Finished update from %s with %s" % (os.getpid(), sourcename, filename))
 
 	@staticmethod
-	def processFolder(path, sourceName = "Manual"):
+	def processFolder(path, sourceName = "Manual", update = None):
 		logger = logging.getLogger(__name__)
 		logger.info("Starting to process an update-folder: %s" % path)
 	
 		# We do not catch the exception here, as the caller should be responsible to decide what to
 		#   do if the source do not exist.
 		source = Source.objects.get(name=sourceName)
-		update = Update.objects.create(time=datetime.datetime.now(), source=source)
+		if(update == None):
+			update = Update.objects.create(time=datetime.datetime.now(), source=source)
 		
 		# Filenames to look for:
 		ruleFiles = []
