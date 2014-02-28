@@ -6,9 +6,15 @@
 {% block content %}
 {% load staticfiles %}
 <script type="text/javascript" src="{% static 'js/rules.js' %}"></script>
-<div id="search-container" class="">
+<div id="search-container" class="row col-xs-10 col-sm-10 col-md-10 pull-right">
+	<div class="pull-left">
+			<ul id="paginator" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination">
+				
+			</ul>
+		</div>
 	{% csrf_token %}
-	<div class="input-group col-xs-6 col-sm-6 col-md-4 col-lg-4 pull-right">
+	<div class="input-group col-xs-6 col-sm-6 col-md-8 col-lg-8 pull-right">
+		
 		<select id="searchfield" class="form-control">
 			<option value="sid">SID</option>
 			<option value="name">Name</option>
@@ -18,6 +24,7 @@
 		</span>
 		<input id="searchtext" type="text" class="form-control">
 	</div>
+	
 </div>
 {% block manipulator %}
 
@@ -35,11 +42,7 @@
 
 
 </div>
-<div class="pull-right clear">
-	<ul id="paginator" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination">
-		
-	</ul>
-</div>
+
 
 
 {% endblock %}

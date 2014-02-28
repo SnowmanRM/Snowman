@@ -61,12 +61,20 @@
 		</tr>
 		<tr class="even" style="display: none">
 			<td colspan="7">
-				<ul>
-				{% for reference in rule.getCurrentRevision.references.all %}
-					<li><a href="{{ reference.referenceType.urlPrefix }}{{ reference.reference }}">{{ reference.referenceType.urlPrefix }}{{ reference.reference }}</a></li>
-				{% endfor %}
-				</ul>
+				<div class="panel panel-default">
+  					<div class="panel-heading">References</div>
+					<div class="list-group">
+					{% for reference in rule.getCurrentRevision.references.all %}
+						<a class="list-group-item" href="{{ reference.referenceType.urlPrefix }}{{ reference.reference }}">{{ reference.referenceType.urlPrefix }}{{ reference.reference }}</a>
+					{% endfor %}
+					</div>
+				
+				
+				</div>
+				<div class="panel panel-default"><div class="panel-heading">Rule</div>
 				<pre>{{ rule.getCurrentRevision.raw }}</pre>
+				</div>
+				
 			</tr>
 		</tr>
 		 {% endfor %}
