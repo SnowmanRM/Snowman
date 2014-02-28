@@ -18,15 +18,6 @@ class UpdateTasks:
 	"""This class exposes the different method which we use for processing update-files."""
 
 	@staticmethod
-	def update(filename, sourcename = "Manual"):
-		"""This method spawns a subprocess calling the script 'scripts/runUpdate.py', which
-		is actually doing the update. (Or, actually, it is just calling UpdateTasks,runUpdate).
-		If this method is called in its own process, we will accomplish process-separation, and
-		the famous double-fork, so it should be able to run asynchronusly to the webserver."""
-		logger = logging.getLogger(__name__)
-		subprocess.call([os.path.join(BASE_DIR, 'scripts/runUpdate.py'), filename, sourcename])
-
-	@staticmethod
 	def runUpdate(filename, sourcename = "Manual"):
 		"""This method is doing an update. It is identifying what kind of file we have, and 
 		unpacks/parses it accordingly."""

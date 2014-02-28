@@ -5,7 +5,6 @@ from django.conf.urls import patterns, include, url
 # from django.contrib import admin
 # admin.autodiscover()
 urlpatterns = patterns('',
-    # Examples:
     #Main URLs
     url(r'^$', 'web.views.views.index'),
 
@@ -25,18 +24,17 @@ urlpatterns = patterns('',
     url(r'^rules/byClass/(?P<classname>\w+)/(?P<pagenr>\d+)/$', 'web.views.requests.getRulePageByClass'),
     url(r'^ruleset/set/(?P<rulesetname>\w+)/$', 'web.views.requests.getRuleSet'),
     url(r'^sensors/parent/(?P<sensorname>\w+)/$', 'web.views.requests.getSensor'),
-    url(r'^update/(?P<sensorname>\w+)/$', 'web.views.requests.postSensorUpdate'),
-    url(r'^update/(?P<sensorname>\w+)/updates$', 'web.views.requests.getSensorUpdatesBySensorName'),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    #url(r'^update/(?P<sensorname>\w+)/$', 'web.views.requests.postSensorUpdate'),
+    #url(r'^update/(?P<sensorname>\w+)/updates$', 'web.views.requests.getSensorUpdatesBySensorName'),
 )
 
 urlpatterns += patterns('web.views.updateviews',
     url(r'^update/$', 'index'),
+    url(r'^update/newSource/$', 'newSource'),
+    url(r'^update/getSourceList/$', 'getSourceList'),
+    url(r'^update/getManualUpdateForm/$', 'getManualUpdateForm'),
+	url(r'^update/getTimeSelector/(?P<interval>[wdmn])/$', 'getTimeSelector'),
+	url(r'^update/runUpdate/(?P<id>\d+)/$', 'runUpdate'),
 )
 urlpatterns += patterns('web.views.ruleviews',
     url(r'^rules/$', 'index'),
