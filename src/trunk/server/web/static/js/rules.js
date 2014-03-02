@@ -37,12 +37,11 @@ function getPage(pagenr){
 	// Ajax-call for the required page. We return it so we can use $.when
 	return $.get('page/'+_pagenr+'/', function(html) { 
 		downloadid = $('table', $('<div/>').html(html)).attr("id");
-		pagealreadyexists = $("#content table").attr('id',downloadid);
-		
-		//$('ul', $('<div/>').html(html)).hide().attr("id","4").parent().html();
-		if( !pagealreadyexists.length ) {
+		pagealreadyexists = $('#content table[id="'+downloadid+'"]');
+		console.log(pagealreadyexists);
+		if( pagealreadyexists.length ) {
 			console.log('page found');
-			$('#content table').attr('id', downloadid).replaceWith(html);
+			$('#content [id="'+downloadid+'"]').replaceWith(html);
 			
 		}
 		else {
@@ -145,7 +144,7 @@ function switchPage(page) {
 	// Hide the page marked .current and then turn off its .current class.
 	$('#content .current').hide().toggleClass('current');
 	// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
-	$('#content .table#'+_page).first().show().toggleClass('current');
+	$('#content .table#'+_page).show().toggleClass('current');
 	
 	
 }
@@ -160,11 +159,12 @@ function loadPaginator(currentpage, pagecount) {
 			numberOfPages: 3,
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
-				// Hide the page we no longer want and show the one we want.
-				switchPage(page);
+				
 				
 				// Load the next pages.
 				loadNextPages(page, pagecount);
+				// Hide the page we no longer want and show the one we want.
+				switchPage(page);
 				// We update the window location hash value.
 				window.location.hash = page;
 			}

@@ -61,20 +61,42 @@
 		</tr>
 		<tr class="even" style="display: none">
 			<td colspan="7">
-				<div class="panel panel-default">
-  					<div class="panel-heading">References</div>
-					<div class="list-group">
-					{% for reference in rule.getCurrentRevision.references.all %}
-						<a class="list-group-item" href="{{ reference.referenceType.urlPrefix }}{{ reference.reference }}">{{ reference.referenceType.urlPrefix }}{{ reference.reference }}</a>
-					{% endfor %}
+				<div class="row container-fluid">
+					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+						<div class="panel panel-default">
+		  					<div class="panel-heading">References</div>
+							<div class="list-group">
+							{% for reference in rule.getCurrentRevision.references.all %}
+								<a class="list-group-item" href="{{ reference.referenceType.urlPrefix }}{{ reference.reference }}">{{ reference.referenceType.urlPrefix }}{{ reference.reference }}</a>
+							{% endfor %}
+							</div>
+						</div>
 					</div>
-				
-				
-				</div>
-				<div class="panel panel-default"><div class="panel-heading">Rule</div>
-				<pre>{{ rule.getCurrentRevision.raw }}</pre>
-				</div>
-				
+					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+						<div class="panel panel-default">
+		  					<div class="panel-heading">Active On Sensors:</div>
+		  					<ul class="list-group">
+							{% for sensor in rule.ruleSet.sensors.all %}
+								<li class="list-group-item">{{ sensor.name }}</li>
+							{% endfor %}
+							</ul>
+		  				</div>
+	  				</div>
+  				</div>
+  				<div class="row container-fluid">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						<div class="panel panel-default">
+							<div class="panel-heading">Tuning</div>
+							<div class="panel-body">
+								Stuff
+							</div>
+							<div class="panel-heading">Rule</div>
+							<div class="panel-body">
+								<pre>{{ rule.getCurrentRevision.raw }}</pre>
+							</div>
+						</div>
+					</div>
+				</div>	
 			</tr>
 		</tr>
 		 {% endfor %}

@@ -13,7 +13,7 @@
 			</ul>
 		</div>
 	{% csrf_token %}
-	<div class="input-group col-xs-6 col-sm-6 col-md-8 col-lg-8 pull-right">
+	<div class="input-group col-xs-6 col-sm-6 col-md-6 col-lg-6 pull-right">
 		
 		<select id="searchfield" class="form-control">
 			<option value="sid">SID</option>
