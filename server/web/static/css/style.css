@@ -28,6 +28,21 @@
 	padding: 0 2% 1% 2%;
 }
 
+@media (min-width: 1200px) {
+
+#wrap.container,
+#footer.container  {
+	
+	width: 90%;
+}
+
+#content-wrap.container,
+.navbar .container {
+	
+	width: 100%;
+	
+}
+}
 
 /* CSS for Rules */
 
@@ -59,6 +74,23 @@
 	white-space: normal;
 	word-break: normal;
 	margin: 0;
+}
+
+#content .table .row {
+	
+	margin-right: 0;
+	margin-left: 0;
+	padding-left: 0;
+	padding-right: 0;
+	
+}
+
+#content .table .row .panel .list-group {
+	
+
+	overflow-y: scroll;
+	max-height: 110px;
+	
 }
 
 #content .table tbody {
@@ -114,6 +146,12 @@
 
 #content .table tbody tr td.wrappable {
 	white-space:normal;
+	
+}
+
+#search-container {
+	
+	padding-left: 0;
 	
 }
 
