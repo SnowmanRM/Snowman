@@ -241,7 +241,7 @@ class RuleSet(models.Model):
 	only contain the metainfo for the set. Name, description, and 
 	wheter it should be active or not."""
 
-	name = models.CharField(max_length=30,unique=True)
+	name = models.CharField(max_length=100, unique=True)
 	parent = models.ForeignKey('RuleSet', null=True, related_name='childSets')
 	description = models.TextField()
 	active = models.BooleanField()

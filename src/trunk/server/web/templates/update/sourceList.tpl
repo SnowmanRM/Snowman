@@ -29,16 +29,23 @@
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 							<h4 class="modal-title" id="editSourceModal-{{source.source.id}}">Edit "{{source.source.name}}"</h4>
 						</div>
-						<div class="modal-body">
-							<form id="createSourceForm" action="/web/update/newSource/" method="post">
-								{% csrf_token %}
-								{{ source.form.as_p }}
-							</form>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							<button type="button" class="btn btn-primary">Save changes</button>
-						</div>
+						<form id="editSourceForm" class="editSourceForm" action="/web/update/editSource/{{ source.source.id }}/" method="post">
+							<div class="modal-body">
+								<div id='editSourceForm'>
+									{% csrf_token %}
+									{{ source.newSourceForm.as_p }}
+									<div id='TimeSelector'>
+										{% if source.timeSelector %}
+											{{ source.timeSelector.as_p }}
+										{% endif %}
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button type="submit" class="btn btn-primary">Save changes</button>
+							</div>
+						</form>
 					</div>
 				</div>
 			</div>

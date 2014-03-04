@@ -55,7 +55,7 @@ if(created):
 else:
 	logger.info("'%s' already exists.", a)
 
-a, created = Source.objects.get_or_create(name = "OEmerging Threats", url="http://filer.rothaugane.com/rules/et.tar.gz", md5url="http://filer.rothaugane.com/rules/et.tar.gz.md5", schedule="0 1 * * *")
+"""a, created = Source.objects.get_or_create(name = "OEmerging Threats", url="http://filer.rothaugane.com/rules/et.tar.gz", md5url="http://filer.rothaugane.com/rules/et.tar.gz.md5", schedule="0 1 * * *")
 if(created):
 	logger.info("Created '%s'" % a)
 else:
@@ -66,5 +66,5 @@ if(created):
 	logger.info("Created '%s'" % a)
 else:
 	logger.info("'%s' already exists.", a)
-
+"""
 logger.info("Finished to create initial data.")
