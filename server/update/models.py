@@ -53,6 +53,63 @@ class Source(models.Model):
 	def __str__(self):
 		return "<Source name:%s, schedule:%s, url:%s>" % (self.name, str(self.schedule), self.url)
 	
+	def setSchedule(self, data, save = True):
+		if(data['newSourceForm'].cleaned_data['schedule'] == 'n'):
+			self.schedule = "No automatic updates"
+		else:
+			self.schedule = str(data['timeSelector'].cleaned_data['minute']) + " "
+			self.schedule += str(data['timeSelector'].cleaned_data['hour']) + " "
+
+			if(data['newSourceForm'].cleaned_data['schedule'] == 'm'):
+				self.schedule += str(data['timeSelector'].cleaned_data['day']) + " * "
+			else:
+				self.schedule += "* * "
+			
+			if(data['newSourceForm'].cleaned_data['schedule'] == 'w'):
+				self.schedule += str(int(data['timeSelector'].cleaned_data['day']) % 7)
+			else:
+				self.schedule += "*"
+
+		if(save):
+			self.save()
+	
+	def getSchedule(self):
+		d = {}
+		
+		if(self.schedule == None):
+			self.schedule = "No automatic schedule"
+			self.save()
+		
+		# Extract the relevant groups from the schedule-field.
+		pattern = re.compile(r"([\d\*]+)\ ([\d\*]+)\ ([\d\*]+)\ ([\d\*]+)\ ([\d\*]+)")
+		match = pattern.match(self.schedule)
+		
+		if(match):
+			groups = []
+			for group in match.groups():
+				if "*" in group:
+					groups.append(None)
+				else:
+					groups.append(int(group))
+			
+			minute, hour, dom, mon, dow = groups
+			
+			d['minute'] = minute
+			d['hour'] = hour
+			
+			if(dom):
+				d['schedule'] = 'm'
+				d['day'] = dom
+			elif(dow):
+				d['schedule'] = 'w'
+				d['day'] = dow
+			else:
+				d['schedule'] = 'd'
+		else:
+			d['schedule'] = 'n'
+		
+		return d
+	
 class Update(models.Model):
 	"""An Update-object is representing a single update of rules. This update happened at a time,
 	it has a source, and a link to all the RuleRevisions that were updated."""
@@ -506,7 +563,7 @@ class Update(models.Model):
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""
 
-	name = models.TextField()
+	name = models.CharField(max_length = 250)
 	source = models.ForeignKey('Source', related_name="files")
 	checksum = models.CharField(max_length=80)
 	isParsed = models.BooleanField()
