@@ -127,7 +127,7 @@ function initializeEditSourceForm() {
 // Method which reloads the form for new Update-Sources.
 function loadNewSourceForm() {
 	$('#newSource').load("/web/update/newSource/", function(){
-		overrideNewSorceSubmit()
+		initializeNewSourceForm()
 	});
 }
 

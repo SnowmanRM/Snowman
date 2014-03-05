@@ -45,7 +45,7 @@ class Source(models.Model):
 	url = models.CharField(max_length=160, null=True)
 	md5url = models.CharField(max_length=160, null=True)
 	lastMd5 = models.CharField(max_length=80, null=True)
-	schedule = models.CharField(max_length=40, null=True)
+	schedule = models.CharField(max_length=40, default="No automatic updates")
 	
 	def __repr__(self):
 		return "<Source name:%s, schedule:%s, url:%s, md5url:%s, lastMd5:%s>" % (self.name, str(self.schedule), self.url, self.md5url, self.lastMd5)
@@ -77,7 +77,7 @@ class Source(models.Model):
 		d = {}
 		
 		if(self.schedule == None):
-			self.schedule = "No automatic schedule"
+			self.schedule = "No automatic updates"
 			self.save()
 		
 		# Extract the relevant groups from the schedule-field.
