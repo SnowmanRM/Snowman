@@ -36,7 +36,7 @@
 
 {% block rules %}
 
-{% include "rules/rulepage.tpl" %}
+{% include "rules/rulePage.tpl" %}
 		
 {% endblock %}
 

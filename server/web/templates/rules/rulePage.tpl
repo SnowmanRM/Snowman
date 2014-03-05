@@ -7,7 +7,7 @@
 {% if pagenr == 1 %} current{% endif %}"{% if ishidden %} style="display: none;"{% endif %}>
 	<thead>
 	<tr>
-		<th class="text-left">
+		<th id="checkbox-all" class="text-left">
 			<input type="checkbox">
 		</th>
 		<th class="text-center">
@@ -34,8 +34,8 @@
 		{% if rule_list %}
 		{% for rule in rule_list %}
 		<tr class="odd">
-			<td class="text-left">
-				<input type="checkbox">
+			<td id="checkbox" class="text-left">
+				<input id="{{rule.id}}" gid="{{ rule.generator_id }}" sid="{{ rule.SID }}" status="T S" type="checkbox">
 			</td>
 			<td class="text-right">
 				{{ rule.SID }}
@@ -53,10 +53,13 @@
 				{{ rule.ruleSet.name }}
 			</td>
 			<td class="text-right">
+				<span class="badge btn-warning">T</span>
+				<span class="badge btn-warning">S</span>
+				|
 				<span class="badge btn-success">{{ rule.ruleSet.sensors.count }}</span>
 				<span class="badge btn-danger">{{ sensorcount|add:rule.ruleSet.sensors.count|cut:"-" }}</span>
-				<input type="checkbox" {% if rule.active %} checked {% endif %}id="{{ rule.SID }}" 
-			        	class="ruleswitch" data-size="mini" data-on-color="success" data-off-color="danger">
+				|
+				{% if rule.active %}<span class="badge btn-success">ON</span>{% else %} <span class="badge btn-danger">OFF</span> {% endif %}
 			</td>
 		</tr>
 		<tr class="even" style="display: none">

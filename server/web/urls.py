@@ -42,4 +42,7 @@ urlpatterns += patterns('web.views.ruleviews',
     url(r'^rules/page/search/(?P<pagenr>\d+)/$', 'getRulesBySearch'),
     url(r'^rules/page/(?P<pagenr>\d+)/$', 'getRulePage'),
 )
-
+urlpatterns += patterns('web.views.tuning',
+    url(r'^tuning/getSuppressForm$', 'getSuppressForm'),
+    url(r'^tuning/getThresholdForm$', 'getThresholdForm'),                     
+)

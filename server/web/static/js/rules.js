@@ -8,16 +8,17 @@
 // This function starts all click events within the rule list.
 function listInitialize() {
 	
+	
 	// Initializes the switchbuttons
-	$(".ruleswitch").bootstrapSwitch()
+	//$(".ruleswitch").bootstrapSwitch()
 	
 	// Installs click events on all rows.
 	$('table tbody tr.odd').unbind('click');
 	$('table tbody tr.odd').click(function(event){
 		// This is to make sure a click on the switch doesnt trigger a row open.
-		if($(event.target).is('.bootstrap-switch span')){
-            event.preventDefault();
-            return false;
+		if($(event.target).is('table td#checkbox')||$(event.target).is('table tr.odd td#checkbox input')){
+            //event.preventDefault();
+            return;
         }
 		
 		// Toggles clicked row on the 'active' css class so it changes color
@@ -26,26 +27,27 @@ function listInitialize() {
 		$(this).next().toggle();
 	
 	});
+
 		
 }
 // This function is used to dynamically retrieve a page that contains a list of rules.
 // This function is utilized for the regular list of all rules.
-function getPage(pagenr){
+function getPage(pageNr){
 	// Copies pagenr to local _pagenr variable.
-	var _pagenr = parseInt(pagenr); 
+	var _pageNr = parseInt(pageNr); 
 	
 	// Ajax-call for the required page. We return it so we can use $.when
-	return $.get('page/'+_pagenr+'/', function(html) { 
-		downloadid = $('table', $('<div/>').html(html)).attr("id");
-		pagealreadyexists = $('#content table[id="'+downloadid+'"]');
-		console.log(pagealreadyexists);
-		if( pagealreadyexists.length ) {
-			console.log('page found');
-			$('#content [id="'+downloadid+'"]').replaceWith(html);
+	return $.get('page/'+_pageNr+'/', function(html) { 
+		downloadId = $('table', $('<div/>').html(html)).attr("id");
+		pageAlreadyExists = $('#content table[id="'+downloadId+'"]');
+
+		if( pageAlreadyExists.length ) {
+
+			$('#content [id="'+downloadId+'"]').replaceWith(html);
 			
 		}
 		else {
-			console.log('page not found');
+	
 			// When the content is loaded, append to content container.
 			$('#content').append(html);
 			
@@ -274,7 +276,13 @@ function searchField() {
 }
 
 $(document).ready(function(){
-
+	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('table thead th#checkbox-all input').click(function(event){
+		
+		checkBoxes = $('table.current td#checkbox input');
+		checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+		
+	});
 	// Calls function to initialize click events and buttons.
 	listInitialize();
 	

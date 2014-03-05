@@ -90,6 +90,7 @@ def getRulePage(request, pagenr):
 		context['sensorcount'] =  Sensor.objects.count()
 		context['sensorcount'] = -context['sensorcount']
 		
+		
 		# We need to know how many rules there are total.
 		context['itemcount'] = Rule.objects.count()
 		# Get all rules, within the set range.
@@ -98,7 +99,7 @@ def getRulePage(request, pagenr):
 		logger.warning("Page request /rules/page/"+str(pagenr)+" could not be resolved, objects in range "+str(minrange)+" - "+str(maxrange)+"not found.")
 		raise Http404
 	
-	return render(request, 'rules/rulepage.tpl', context)
+	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesBySearch(request, pagenr):
 	
@@ -169,5 +170,5 @@ def getRulesBySearch(request, pagenr):
 		raise Http404
 	
 	
-	return render(request, 'rules/rulepage.tpl', context)
+	return render(request, 'rules/rulePage.tpl', context)
 
