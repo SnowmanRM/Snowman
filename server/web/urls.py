@@ -42,7 +42,8 @@ urlpatterns += patterns('web.views.ruleviews',
     url(r'^rules/page/search/(?P<pagenr>\d+)/$', 'getRulesBySearch'),
     url(r'^rules/page/(?P<pagenr>\d+)/$', 'getRulePage'),
 )
-urlpatterns += patterns('web.views.tuning',
+urlpatterns += patterns('web.views.tuningviews',
     url(r'^tuning/getSuppressForm$', 'getSuppressForm'),
-    url(r'^tuning/getThresholdForm$', 'getThresholdForm'),                     
+    url(r'^tuning/getThresholdForm$', 'getThresholdForm'), 
+    url(r'^tuning/setThresholdOnRule$', 'setThresholdOnRule'),                  
 )

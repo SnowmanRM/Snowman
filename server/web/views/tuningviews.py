@@ -2,8 +2,9 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
 from core.models import Rule, RuleRevision, Sensor
+from tuning.models import Threshold
 from web.utilities import UserSettings
-import logging
+import logging, json
 
 
 def getThresholdForm(request):
@@ -41,3 +42,14 @@ def getSuppressForm(request):
         raise Http404
     
     return render(request, 'tuning/suppressForm.tpl', context)
+   
+   
+def setThresholdOnRule(request):
+	ruleId = request.POST.getlist('id')
+	response = []
+	for rule in ruleId:
+		r = Rule.objects.get(id=rule)
+		if r.thresholds.count() == 0:
+			response.append({'response': 'thresholdExists', 'ruleSID': r.SID})
+	
+	return HttpResponse(json.dumps(response))
