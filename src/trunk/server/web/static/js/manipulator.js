@@ -70,12 +70,30 @@ $(document).ready(function(){
 	});
 	$('#thresholdForm').submit(function(event) {
 		event.preventDefault();
-		console.log('click');
 		
+		$.ajax({
+			url: "/web/tuning/setThresholdOnRule",
+			type: "post",
+			dataType: "json",
+			data: $(this).serialize(),
+			success: function(data) {
+				
+				console.log(data[0].ruleSID);
+			}
+			
+			
+		});
+		
+		/*
+		$(this.id).each(function(){
+			console.log(this.value);
+		});
+		//console.log(this.id.value);
+		*/
 	});
 	$('#suppressForm').submit(function(event) {
 		event.preventDefault();
-		console.log('click');
+		console.log(event);
 		
 	});
 	
