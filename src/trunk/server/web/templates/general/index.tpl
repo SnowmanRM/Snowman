@@ -11,6 +11,7 @@
 	<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap-switch/bootstrap-switch.css' %}" media="screen">
 	<script type="text/javascript" src="{% static 'js/jquery/jquery-1.11.0.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/jquery/jquery-ui-1.10.4.custom.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/jquery/jquery.validate.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/bootstrap/bootstrap.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/bootstrap/bootstrap-paginator.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/bootstrap/bootstrap-switch.js' %}"></script>
