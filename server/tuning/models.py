@@ -16,8 +16,8 @@ class RuleModifier(models.Model):
 	def __str__(self):
 		return "<RuleModifier Rule:%d, Sensor:%s, active:%s>" % (self.rule.SID, self.sensor.name, str(self.active))
 
-class Supress(models.Model):
-	"""The supress lets us supress warnings from a specific rule on a
+class Suppress(models.Model):
+	"""The suppress lets us suppress warnings from a specific rule on a
 	specific sensor, if the rule is matching listed source or destination
 	addresses."""
 
@@ -26,22 +26,22 @@ class Supress(models.Model):
 	SOURCE = 1
 	DESTINATION = 2
 	
-	rule = models.ForeignKey(Rule, related_name = 'supress')
-	sensor = models.ForeignKey(Sensor, related_name = 'supress')
+	rule = models.ForeignKey(Rule, related_name = 'suppress')
+	sensor = models.ForeignKey(Sensor, related_name = 'suppress')
 	comment = models.TextField()
 	track = models.IntegerField()
 	
 	def __repr__(self):
-		return "<Supress Rule:%d, Sensor:%s, comment:'%s', track:%s>" % (self.rule.SID, self.sensor.name, self.comment, Supress.TRACK[self.track])
+		return "<Suppress Rule:%d, Sensor:%s, comment:'%s', track:%s>" % (self.rule.SID, self.sensor.name, self.comment, Suppress.TRACK[self.track])
 
 	def __str__(self):
-		return "<Supress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
+		return "<Suppress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
 
-class SupressAddress(models.Model):
+class SuppressAddress(models.Model):
 	"""SupressAddress is simply a container for an address that is
-	assigned to a Supress"""
+	assigned to a Suppress"""
 	
-	supress = models.ForeignKey('Supress', related_name = 'addresses')
+	supress = models.ForeignKey('Suppress', related_name = 'addresses')
 	ipAddress = models.CharField(max_length = 38)
 	
 	def __repr__(self):
