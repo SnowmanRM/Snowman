@@ -32,11 +32,11 @@
 			</div>
 
 			<h4>Last 5 updates:</h4>
-			<ul>
-				{% for update in source.updates %}
-					<li>{{update.time}} ({{update.ruleRevisions.count}} rule-changes)</li>
-				{% endfor %}
-			</ul>
+			<div id="lastUpdates-{{source.source.id}}">
+				<ul>
+					<li>Preparing to fetch the last 5 updates</li>
+				</ul>
+			</div>
 			
 			<!-- Modal for editing the source.-->
 			<div class="modal fade" id="editSource-{{source.source.id}}" tabindex="-1" role="dialog" aria-labelledby="editSourceModal-{{source.source.id}}" aria-hidden="true">
@@ -67,7 +67,7 @@
 				</div>
 			</div>
 		</li>
-		<script>startProgressBar({{source.source.id}});</script>
+		<script>startStatusUpdates({{source.source.id}});</script>
 	{% endfor %}
 {% else %}
 	<li class="list-group-item odd">No update-sources is available.</li>
