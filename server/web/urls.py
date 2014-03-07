@@ -46,5 +46,6 @@ urlpatterns += patterns('web.views.ruleviews',
 urlpatterns += patterns('web.views.tuningviews',
     url(r'^tuning/getSuppressForm$', 'getSuppressForm'),
     url(r'^tuning/getThresholdForm$', 'getThresholdForm'), 
+    url(r'^tuning/setSuppressOnRule$', 'setSuppressOnRule'), 
     url(r'^tuning/setThresholdOnRule$', 'setThresholdOnRule'),                  
 )
