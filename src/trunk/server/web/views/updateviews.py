@@ -21,7 +21,7 @@ def index(request):
 	"""The default view for the update section."""
 	data = {}
 	
-	# Create a list over sources, and their last 5 updates.
+	# Create a list over sources.
 	data['sources'] = createSourceList()
 	
 	# If something is posted:
@@ -162,7 +162,7 @@ def getSourceList(request):
 	This view is not a complete website, as it is supposed to be called via AJAX"""
 	data = {}
 	
-	# Create a list over sources, and their last 5 updates.
+	# Create a list over sources
 	data['sources'] = createSourceList()
 
 	return render(request, "update/sourceList.tpl", data)
@@ -203,12 +203,12 @@ def runUpdate(request, id):
 	if source.locked:
 		data['message'] = "There are already an update running for %s" % source.name
 	else:
-		data['message'] = "Started en update from %s." % source.name
+		data['message'] = "Started the update from %s." % source.name
 	
 		# Call the background-update script.
 		subprocess.call([os.path.join(BASE_DIR, 'scripts/runBackgroundUpdate.py'), str(source.id)])
 	
-	return render(request, "message.tpl", data)
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def getStatus(request, id):
 	data = {}
@@ -227,5 +227,12 @@ def getStatus(request, id):
 		data['progress'] = match.group(1)
 		data['message'] = match.group(2)
 		data['time'] = str(lastLogLine.time)
-
+	
+	data['updates'] = []
+	for update in source.updates.order_by('-time').all()[:5]:
+		d = {}
+		d['time'] = update.time.strftime("%d.%m.%Y %H:%M")
+		d['changes'] = update.ruleRevisions.count()
+		data['updates'].append(d)
+		
 	return HttpResponse(json.dumps(data), content_type="application/json")

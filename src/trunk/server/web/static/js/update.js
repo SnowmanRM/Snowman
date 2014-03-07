@@ -21,7 +21,7 @@ function initialize() {
 	$('button.runUpdate').click(function(event){
 		var id = $(this).attr('id')
 		$.get("/web/update/runUpdate/" + id + "/", function(data, status){
-			alert(data);
+			alert(data.message);
 		});
 	});
 	
@@ -136,7 +136,7 @@ function initializeNewSourceButton() {
 	$('#newSource').find("button").click(loadNewSourceForm);
 }
 
-function startProgressBar(sourceid) {
+function startStatusUpdates(sourceid) {
 	var progresspump = setInterval(function(){
 		/* query the completion percentage from the server */
 		$.get("/web/update/getStatus/" + sourceid + "/", function(data){
@@ -153,11 +153,17 @@ function startProgressBar(sourceid) {
 					//clearInterval(progresspump);
 					//$("#progressouter").removeClass("active");
 					$("#progress-" + sourceid).html("Done");
-				$("#updateMessage-" + sourceid).html("<p>Update complete</p>");
+					$("#updateMessage-" + sourceid).html("<p>Update complete</p>");
 				}
 			} else {
 				$("#progressouter-" + sourceid).css('display', 'none');
 			}
+			var newlist = "<ul>\n";
+			for(var i = 0; i < data.updates.length; i++) {
+				newlist += "<li>" + data.updates[i].time + " (" + data.updates[i].changes + " changes)</li>\n";
+			}
+			newlist += "</ul>\n";
+			$("#lastUpdates-" + sourceid).html(newlist);
 		})
 	}, 1000);
 }
@@ -165,5 +171,4 @@ function startProgressBar(sourceid) {
 // When the documents is finished loading, initialize everything.
 $(document).ready(function(){
 	initialize();
-	startProgressBar(1);
 });
