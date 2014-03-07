@@ -7,24 +7,22 @@
 				<p>Schedule: {{source.source.schedule}}</p>
 				<p>Url: {{source.source.url}}</p>
 				<p>Md5Url: {{source.source.md5url}}</p>
-				<div id="updateMessage-{{source.source.id}}">
-					{% if source.source.locked %}
-						<p>There are currently an update running for this source.</p>
-					{% else %}
-						<p><button class="runUpdate" id={{source.source.id}}>Run update now</button>
-							<button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
-					{% endif %}
+				<div id="updateButtons-{{source.source.id}}">
+					<p><button class="runUpdate" id={{source.source.id}}>Run update now</button>
+						<button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
 				</div>
 			{% else %}
 				<p>Last Updated: {{source.lastUpdate}}</p>
-				<div id="updateMessage-{{source.source.id}}">
-					{% if source.source.locked == True %}
-						<p>There are currently an update running for this source.</p>
-					{% else %}
-						<p><button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
-					{% endif %}
+				<div id="updateButtons-{{source.source.id}}">
+					<p><button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
 				</div>
 			{% endif %}
+			
+			<div id="updateMessage-{{source.source.id}}">
+				{% if source.source.locked == True %}
+					<p>There are currently an update running for this source.</p>
+				{% endif %}
+			</div>
 			
 			<div class="progress" id="progressouter-{{source.source.id}}">
 				<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;" id="progress-{{source.source.id}}">

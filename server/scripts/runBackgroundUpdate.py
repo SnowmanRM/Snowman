@@ -2,6 +2,7 @@
 """
 """
 
+import datetime
 import hashlib
 import logging
 import os
@@ -9,7 +10,6 @@ import resource
 import sys
 import traceback
 import urllib2
-from datetime import datetime
 
 # Add the parent folder of the script to the path
 scriptpath = os.path.realpath(__file__)
@@ -18,7 +18,7 @@ parentdir = os.path.dirname(scriptdir)
 sys.path.append(parentdir)
 
 from util.tools import doubleFork
-doubleFork()
+#doubleFork()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
@@ -44,6 +44,8 @@ if __name__ == "__main__":
 	except Source.DoesNotExist:
 		logger.error("Could not find source with ID:%d" % sourceID)
 		sys.exit(1)
+	
+	update = Update.objects.create(source=source, time=datetime.datetime.now())
 
 	if(source.locked):
 		logger.info("Could not update '%s', as there seems to already be an update going for this source.")
@@ -54,6 +56,7 @@ if __name__ == "__main__":
 		logger.info("Starting the update from %s, with PID:%d." % (source.name, os.getpid()))
 	
 	if(len(source.md5url) > 0):
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="1 Trying to fetch md5sum, to compare with last processed file.")
 		try:
 			socket = urllib2.urlopen(source.md5url)
 			md5 = socket.read()
@@ -71,6 +74,7 @@ if __name__ == "__main__":
 	
 	
 	if(len(str(md5)) == 0 or str(md5) != str(source.lastMd5)):
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="2 Starting to download ruleset from source.")
 		logger.info("Starting to download %s" % source.url)
 		storagelocation = Config.get("storage", "inputFiles")		
 		filename = storagelocation + source.url.split("/")[-1]
@@ -94,6 +98,7 @@ if __name__ == "__main__":
 				_hash.update(buffer)
 
 		except urllib2.HTTPError as e:
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="100 Error during downloading. Check log for details..")
 			logger.error("Error during download: %s" % str(e))
 			source.locked = False
 			source.save()
@@ -103,11 +108,13 @@ if __name__ == "__main__":
 		logger.debug("LastUpdate-MD5:'%s'" % str(source.lastMd5))
 	
 		if(str(_hash.hexdigest()) != str(source.lastMd5)):
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="7 Starting to process the download.")
 			logger.info("Processing the download" )
 			try:
-				UpdateTasks.runUpdate(filename, source.name)
+				UpdateTasks.runUpdate(filename, source.name, update=update)
 			except Exception as e:
 				logger.critical("Hit exception while running update: %s" % str(e))
+				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="100 ERROR: Hit an exception while processing the update.")
 				logger.debug("%s" % (traceback.format_exc()))
 				source.locked = False
 				source.save()
@@ -118,9 +125,15 @@ if __name__ == "__main__":
 			source.save()
 		else:
 			logger.info("The downloaded file has the same md5sum as the last file we updated from. Skipping update.")
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="100 Downloaded file is processed earlier. Finishing.")
 	else:
 		logger.info("We already have the latest version of the %s ruleset. Skipping download." % source.name)
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="100 MD5 sum mathces last update. Skipping.")
 
 	logger.info("Finished the update, with PID:%d, from: %s" % (os.getpid(), source.name))
+	UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="100 Finished the update.")
 	source.locked = False
 	source.save()
+	
+	if(update.ruleRevisions.count() == 0):
+		update.delete()

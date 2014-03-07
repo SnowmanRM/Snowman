@@ -141,7 +141,9 @@ function startStatusUpdates(sourceid) {
 		/* query the completion percentage from the server */
 		$.get("/web/update/getStatus/" + sourceid + "/", function(data){
 			if(data.status == true) {
-				$("#progressouter-" + sourceid).css('display', 'block');
+				$("#updateMessage-" + sourceid).show();
+				$("#progressouter-" + sourceid).show();
+				$("#updateButtons-" + sourceid).hide();
 				/* update the progress bar width */
 				$("#progress-" + sourceid).css('width',data.progress+'%');
 				/* and display the numeric value */
@@ -156,7 +158,9 @@ function startStatusUpdates(sourceid) {
 					$("#updateMessage-" + sourceid).html("<p>Update complete</p>");
 				}
 			} else {
-				$("#progressouter-" + sourceid).css('display', 'none');
+				$("#progressouter-" + sourceid).hide();
+				$("#updateMessage-" + sourceid).hide();
+				$("#updateButtons-" + sourceid).show();
 			}
 			var newlist = "<ul>\n";
 			for(var i = 0; i < data.updates.length; i++) {
