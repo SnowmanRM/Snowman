@@ -68,7 +68,7 @@ def createSourceList():
 			d['lastUpdate'] = "Never"
 
 		# Add the five last updates related to this source.
-		d['updates'] = source.updates.order_by('-id').all()[:5]
+		#d['updates'] = source.updates.order_by('-id').all()[:5]
 		
 		# Add the forms needed to edit this source.
 		d.update(createForm(source))

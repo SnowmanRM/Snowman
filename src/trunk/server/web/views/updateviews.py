@@ -191,7 +191,7 @@ def getTimeSelector(request, interval):
 def runUpdate(request, id):
 	"""This view is responsible to start an automatic update of a source. The update is spawned in its own process, so
 	the user is only informed that the update is started.
-	This view is not a complete website, as it is supposed to be called via AJAX"""
+	The status-message is returnes as JSON."""
 	data = {}
 
 	# If we cannot find a source with the requested ID, raise an 404 error.
@@ -211,6 +211,17 @@ def runUpdate(request, id):
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def getStatus(request, id):
+	"""This view returns the update-status for a given source as JSON.
+	
+	The data returned is:
+	 - status: true/false if an update is running now
+	 - progress: How far (in percents) the current update have come.
+	 - message: A message telling what the update-process is doing right now.
+	 - time: The time corresponding to the last message.
+	 - updates: A list over the 5 last updates. Each of which contains:
+		- time: The time the update was started
+		- changes: The nuber of rules that have been changed in this update."""
+
 	data = {}
 
 	# If we cannot find a source with the requested ID, raise an 404 error.

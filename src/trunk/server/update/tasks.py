@@ -18,7 +18,7 @@ class UpdateTasks:
 	"""This class exposes the different method which we use for processing update-files."""
 
 	@staticmethod
-	def runUpdate(filename, sourcename = "Manual"):
+	def runUpdate(filename, sourcename = "Manual", update = None):
 		"""This method is doing an update. It is identifying what kind of file we have, and 
 		unpacks/parses it accordingly."""
 		logger = logging.getLogger(__name__)
@@ -31,7 +31,9 @@ class UpdateTasks:
 			return 1
 		
 		# If the appropriate source is found, we create an update-object, and starts working.
-		update = Update.objects.create(source = source, time=datetime.datetime.now())
+		if(update == None):
+			update = Update.objects.create(source = source, time=datetime.datetime.now())
+			source = update.source
 
 		filetype = mimetypes.guess_type(filename)
 		if(filetype[0] == 'text/plain'):
