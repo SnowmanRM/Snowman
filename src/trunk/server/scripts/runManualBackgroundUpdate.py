@@ -49,7 +49,27 @@ if __name__ == "__main__":
 		s, c = Source.objects.get_or_create(name=sourcename)
 		if(c):
 			logger.info("Created a new source during updates: %s", s)
+	else:
+		try:
+			s = Source.objects.get(name=sourcename)
+		except:
+			logger.warning("Could not find a source for the manual update.")
+			sys.exit(1)
 
+	if(s.locked):
+		logger.info("Could not update '%s', as there seems to already be an update going for this source." % s.name)
+		sys.exit(1)
+	else:
+		s.locked = True
+		s.save()
+		logger.info("Starting the update from %s, with PID:%d." % (s.name, os.getpid()))
+	
 	# Start doing the update.
-	UpdateTasks.runUpdate(filename, sourcename)
-	logger.info("Finished the update, with PID:%d, from: %s" % (os.getpid(), filename))
+	try:
+		UpdateTasks.runUpdate(filename, sourcename)
+		logger.info("Finished the update, with PID:%d, from: %s" % (os.getpid(), filename))
+	except:
+		logger.warnign("Something happened while doing a manual update of %s", s.name)
+	finally:
+		s.locked = False
+		s.save()

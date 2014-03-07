@@ -11,7 +11,7 @@ import tarfile
 import zipfile
 
 from srm.settings import BASE_DIR
-from update.models import Source, Update
+from update.models import Source, Update, UpdateLog
 import util.logger
 
 class UpdateTasks:
@@ -36,12 +36,15 @@ class UpdateTasks:
 		filetype = mimetypes.guess_type(filename)
 		if(filetype[0] == 'text/plain'):
 			logger.debug("%d File is identified as plaintext" % os.getpid())
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="10 Started to parse the file.")
 			update.parseConfigFile(filename)
 
 		#elif(filetype[0] == 'application/x-tar'):
 		elif(tarfile.is_tarfile(filename)):
 			logger.debug("%d File is identified as a tar-archive" % os.getpid())
+
 			# Create a temporary working-directory
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="1 Unpacking downloaded archive")
 			tmpdirectory = tempfile.mkdtemp()
 
 			# Unpack the archive
@@ -52,15 +55,18 @@ class UpdateTasks:
 				logger.error("%d Could not recognize the compression used in tarfile '%s'. Update is therefore not performed." % (os.getpid(), filename))
 			else:
 				# Process the content
+				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="10 Starting to parse the archive")
 				UpdateTasks.processFolder(tmpdirectory, source.name, update=update)
 	
 				# Delete the temporary folder
+				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="98 Cleaning up.")
 				shutil.rmtree(tmpdirectory)
 
 		elif(filetype[0] == 'application/zip'):
 			logger.debug("%d File is identified as a zip-archive" % os.getpid())
 
 			# Create a temporary working-directory
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="1 Unpacking downloaded archive")
 			tmpdirectory = tempfile.mkdtemp()
 
 			# Unpack the archive
@@ -69,15 +75,19 @@ class UpdateTasks:
 				z.extractall(tmpdirectory)
 
 			# Process the content
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="10 Starting to parse the archive")
 			UpdateTasks.processFolder(tmpdirectory, source.name, update=update)
 
 			# Delete the temporary folder
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="98 Cleaning up.")
 			shutil.rmtree(tmpdirectory)
 
 		elif(os.path.isdir(filename)):		
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="10 Starting to parse the folder")
 			logger.debug("%d File is identified as a folder" % os.getpid())
 			UpdateTasks.processFolder(filename, source.name, update=update)
 		
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="100 Finished the update.")
 		logger.info("%d Finished update from %s with %s" % (os.getpid(), sourcename, filename))
 
 	@staticmethod
@@ -105,6 +115,8 @@ class UpdateTasks:
 		
 		# Walk through the directory structure and extract the absolute path
 		# of all interesting files:
+		noFiles = 0
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="12 Collecting files")
 		for dirpath, dirnames, filenames in os.walk(path):
 			for updateFile in filenames:
 				# Create a tuple with (absolute filepath, root folder path)
@@ -115,18 +127,24 @@ class UpdateTasks:
 				
 				if updateFile.endswith(".rules"):
 					ruleFiles.append(fileTuple)
+					noFiles += 1
 				elif updateFile == classificationFile:
 					foundClassifications = True
 					classificationFile = fileTuple
+					noFiles += 1
 				elif updateFile == genMsgFile:
 					foundGenMsg = True
 					genMsgFile = fileTuple
+					noFiles += 1
 				elif updateFile == referenceConfigFile:
 					foundReferences = True
 					referenceConfigFile = fileTuple
+					noFiles += 1
 				elif updateFile == sidMsgFile:
 					sidMsgFile = fileTuple
+					noFiles += 1
 		
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="13 Found %d files to parse" % noFiles)
 		
 		# Update must parse files in the following order:
 		# 1. Read and update the classifications
@@ -136,15 +154,23 @@ class UpdateTasks:
 		# 5. Read and update the rule messages (which includes references)
 		
 		if(foundClassifications):
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="15 Parsing %s" % classificationFile[1])
 			update.parseClassificationFile(classificationFile)
 		if(foundGenMsg):
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="17 Parsing %s" % genMsgFile[1])
 			update.parseGenMsgFile(genMsgFile)
 		if(foundReferences):
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="19 Parsing %s" % referenceConfigFile[1])
 			update.parseReferenceConfigFile(referenceConfigFile)
 		
+		current = 20
+		step = float(50) / float(len(ruleFiles))
 		for updateFile in ruleFiles:
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="%d Parsing %s" % (int(current), updateFile[1]))
 			update.parseRuleFile(updateFile)
+			current = current + step
 	
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="70 Parsing %s" % sidMsgFile[1])
 		update.parseSidMsgFile(sidMsgFile)
 		
 		logger.info("Finished processing the update-folder: %s" % path)
