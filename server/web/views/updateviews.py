@@ -2,15 +2,17 @@
 The views related to the update-pages.
 """
 
+import json
 import logging
 import os
+import re
 import subprocess
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from srm.settings import BASE_DIR
-from update.models import Source
+from update.models import Source, Update, UpdateLog
 from util.config import Config
 from web.views.updateforms import ManualUpdateForm, DailySelector, WeeklySelector, MonthlySelector, NewSourceForm
 from web.views.updateutils import createForm, createSourceList
@@ -45,12 +47,13 @@ def index(request):
 			upload.close()
 			
 			# Generate a message for the user
-			# TODO: LIVE statusupdates instead of this message.
-			data['uploadMessage'] = "The ruleset is now uploaded, and the processing of the file is started. This might take a while however, depending on the size of the file."
-			
-			# Call the background-update script.
 			source = Source.objects.get(pk=request.POST['source'])
-			subprocess.call([os.path.join(BASE_DIR, 'scripts/runManualBackgroundUpdate.py'), filename, source.name])
+			if(source.locked):
+				data['uploadMessage'] = "There are already an update going for this source"
+			else:
+				data['uploadMessage'] = "The ruleset is now uploaded, and the processing of the file is started. This might take a while however, depending on the size of the file."
+				# Call the background-update script.
+				subprocess.call([os.path.join(BASE_DIR, 'scripts/runManualBackgroundUpdate.py'), filename, source.name])
 	
 	# If nothing is posted, create an empty form
 	else:
@@ -197,9 +200,32 @@ def runUpdate(request, id):
 	except Source.DoesNotExist:
 		raise Http404
 	
-	data['message'] = "Started en update from %s.\nThis might take a while, and currently no feedback is given if things are happening or not. Be patient :)" % source.name
+	if source.locked:
+		data['message'] = "There are already an update running for %s" % source.name
+	else:
+		data['message'] = "Started en update from %s." % source.name
 	
-	# Call the background-update script.
-	subprocess.call([os.path.join(BASE_DIR, 'scripts/runBackgroundUpdate.py'), str(source.id)])
+		# Call the background-update script.
+		subprocess.call([os.path.join(BASE_DIR, 'scripts/runBackgroundUpdate.py'), str(source.id)])
 	
 	return render(request, "message.tpl", data)
+
+def getStatus(request, id):
+	data = {}
+
+	# If we cannot find a source with the requested ID, raise an 404 error.
+	try:
+		source = Source.objects.get(pk=id)
+	except Source.DoesNotExist:
+		raise Http404
+	
+	data['status'] = source.locked 
+	if source.locked:
+		lastUpdate = source.updates.last()
+		lastLogLine = lastUpdate.logEntries.filter(logType=UpdateLog.PROGRESS).last()
+		match = re.match(r"(\d+)\ (.*)", lastLogLine.text)
+		data['progress'] = match.group(1)
+		data['message'] = match.group(2)
+		data['time'] = str(lastLogLine.time)
+
+	return HttpResponse(json.dumps(data), content_type="application/json")

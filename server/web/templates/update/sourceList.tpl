@@ -7,12 +7,29 @@
 				<p>Schedule: {{source.source.schedule}}</p>
 				<p>Url: {{source.source.url}}</p>
 				<p>Md5Url: {{source.source.md5url}}</p>
-				<p><button class="runUpdate" id={{source.source.id}}>Run update now</button>
-					<button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
+				<div id="updateMessage-{{source.source.id}}">
+					{% if source.source.locked %}
+						<p>There are currently an update running for this source.</p>
+					{% else %}
+						<p><button class="runUpdate" id={{source.source.id}}>Run update now</button>
+							<button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
+					{% endif %}
+				</div>
 			{% else %}
 				<p>Last Updated: {{source.lastUpdate}}</p>
-				<p><button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
+				<div id="updateMessage-{{source.source.id}}">
+					{% if source.source.locked == True %}
+						<p>There are currently an update running for this source.</p>
+					{% else %}
+						<p><button data-toggle="modal" data-target="#editSource-{{source.source.id}}">Edit source</button></p>
+					{% endif %}
+				</div>
 			{% endif %}
+			
+			<div class="progress" id="progressouter-{{source.source.id}}">
+				<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;" id="progress-{{source.source.id}}">
+				</div>
+			</div>
 
 			<h4>Last 5 updates:</h4>
 			<ul>
@@ -50,6 +67,7 @@
 				</div>
 			</div>
 		</li>
+		<script>startProgressBar({{source.source.id}});</script>
 	{% endfor %}
 {% else %}
 	<li class="list-group-item odd">No update-sources is available.</li>

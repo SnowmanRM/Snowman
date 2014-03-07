@@ -22,7 +22,7 @@ doubleFork()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
-from update.models import Update, Source
+from update.models import Update, Source, UpdateLog
 from update.tasks import UpdateTasks
 from util.config import Config
 import util.logger
@@ -45,7 +45,13 @@ if __name__ == "__main__":
 		logger.error("Could not find source with ID:%d" % sourceID)
 		sys.exit(1)
 
-	logger.info("Starting the update from %s, with PID:%d." % (source.name, os.getpid()))
+	if(source.locked):
+		logger.info("Could not update '%s', as there seems to already be an update going for this source.")
+		sys.exit(1)
+	else:
+		source.locked = True
+		source.save()
+		logger.info("Starting the update from %s, with PID:%d." % (source.name, os.getpid()))
 	
 	if(len(source.md5url) > 0):
 		try:
@@ -89,6 +95,8 @@ if __name__ == "__main__":
 
 		except urllib2.HTTPError as e:
 			logger.error("Error during download: %s" % str(e))
+			source.locked = False
+			source.save()
 			sys.exit(1)
 
 		logger.debug("Downloaded-MD5:'%s'" % str(_hash.hexdigest()))
@@ -101,6 +109,8 @@ if __name__ == "__main__":
 			except Exception as e:
 				logger.critical("Hit exception while running update: %s" % str(e))
 				logger.debug("%s" % (traceback.format_exc()))
+				source.locked = False
+				source.save()
 				sys.exit(1)
 		
 			logger.info("Storing md5 of this update: %s" % (_hash.hexdigest()))
@@ -112,3 +122,5 @@ if __name__ == "__main__":
 		logger.info("We already have the latest version of the %s ruleset. Skipping download." % source.name)
 
 	logger.info("Finished the update, with PID:%d, from: %s" % (os.getpid(), source.name))
+	source.locked = False
+	source.save()

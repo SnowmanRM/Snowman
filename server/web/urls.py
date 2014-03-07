@@ -36,6 +36,7 @@ urlpatterns += patterns('web.views.updateviews',
     url(r'^update/getManualUpdateForm/$', 'getManualUpdateForm'),
 	url(r'^update/getTimeSelector/(?P<interval>[wdmn])/$', 'getTimeSelector'),
 	url(r'^update/runUpdate/(?P<id>\d+)/$', 'runUpdate'),
+	url(r'^update/getStatus/(?P<id>\d+)/$', 'getStatus'),
 )
 urlpatterns += patterns('web.views.ruleviews',
     url(r'^rules/$', 'index'),

@@ -1,6 +1,9 @@
-from django.db import models
+import datetime
 import logging
-import re, os
+import os
+import re
+
+from django.db import models
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	RuleReference, RuleReferenceType
@@ -46,6 +49,7 @@ class Source(models.Model):
 	md5url = models.CharField(max_length=160, null=True)
 	lastMd5 = models.CharField(max_length=80, null=True)
 	schedule = models.CharField(max_length=40, default="No automatic updates")
+	locked = models.BooleanField(default = False)
 	
 	def __repr__(self):
 		return "<Source name:%s, schedule:%s, url:%s, md5url:%s, lastMd5:%s>" % (self.name, str(self.schedule), self.url, self.md5url, self.lastMd5)
@@ -577,3 +581,21 @@ class UpdateFile(models.Model):
 
 	def __str__(self):
 		return "<UpdateFile name:%s, update:%s-%s>" % (self.name, self.update.source.name, self.update.time)
+
+class UpdateLog(models.Model):
+	"""The Log is the place an update stores the events that is happening while parsing a ruleset.
+	The webinterface uses the log to tell the user the status of the on-going update."""
+	
+	MESSAGE = 1
+	PROGRESS = 2
+	
+	update = models.ForeignKey('Update', related_name="logEntries")
+	logType = models.IntegerField(default = 1)
+	time = models.DateTimeField(default = datetime.datetime.now())
+	text = models.CharField(max_length = 250)
+	
+	def __repr__(self):
+		return "<Log update:%s-%s, time:%s, text:%s>" % (self.update.source.name, self.update.time, self.time, self.text)
+	
+	def __str__(self):
+		return "<Log update:%s-%s, time:%s, text:%s>" % (self.update.source.name, self.update.time, self.time, self.text)

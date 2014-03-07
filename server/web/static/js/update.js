@@ -136,7 +136,34 @@ function initializeNewSourceButton() {
 	$('#newSource').find("button").click(loadNewSourceForm);
 }
 
+function startProgressBar(sourceid) {
+	var progresspump = setInterval(function(){
+		/* query the completion percentage from the server */
+		$.get("/web/update/getStatus/" + sourceid + "/", function(data){
+			if(data.status == true) {
+				$("#progressouter-" + sourceid).css('display', 'block');
+				/* update the progress bar width */
+				$("#progress-" + sourceid).css('width',data.progress+'%');
+				/* and display the numeric value */
+				$("#progress-" + sourceid).html(data.progress+'%');
+				$("#updateMessage-" + sourceid).html("<p>" + data.message + "</p>");
+				
+				/* test to see if the job has completed */
+				if(data.progress > 99.999) {
+					//clearInterval(progresspump);
+					//$("#progressouter").removeClass("active");
+					$("#progress-" + sourceid).html("Done");
+				$("#updateMessage-" + sourceid).html("<p>Update complete</p>");
+				}
+			} else {
+				$("#progressouter-" + sourceid).css('display', 'none');
+			}
+		})
+	}, 1000);
+}
+
 // When the documents is finished loading, initialize everything.
 $(document).ready(function(){
 	initialize();
+	startProgressBar(1);
 });
