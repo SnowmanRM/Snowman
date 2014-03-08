@@ -11,8 +11,8 @@
   		<label for="track" class="col-sm-2 control-label">Track:</label>
   		<div class="col-sm-10">
   			<select class="form-control" id="track" name="track">
-  				<option value="0">By Source</option>
-  				<option value="1">By Destination</option>
+  				<option value="1">By Source</option>
+  				<option value="2">By Destination</option>
   			</select>
   		</div>
   	</div>

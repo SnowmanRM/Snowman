@@ -164,7 +164,7 @@ $(document).ready(function(){
 			dataType: "json",
 			data: $(event).serialize(),
 			success: function(data) {
-				var button;
+				var success, warning, error = false;
 				$('#thresholdForm .alert').remove();
 				$.each(data, function() {
 					
@@ -177,7 +177,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#formContent .alert').show("highlight");
 						
-						button = "success";
+						success = true;
 					}
 					else if(this.response == "thresholdExists") {
 						
@@ -187,7 +187,7 @@ $(document).ready(function(){
 						
 						$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
 						
-						button = "warning";
+						warning = true;
 					}
 					else if(this.response == "allSensors") {
 						
@@ -197,7 +197,7 @@ $(document).ready(function(){
 						
 						$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
 						
-						button = "warning";
+						warning = true;
 					}
 					else if(this.response == "noComment") {
 						
@@ -207,7 +207,7 @@ $(document).ready(function(){
 						
 						$('#thresholdForm div#comment div.col-sm-10 .alert').show("highlight");
 
-						button = "warning";
+						warning = true;
 					}
 					else if (this.response == "invalidGIDSIDFormat") {
 						
@@ -217,7 +217,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "gidDoesNotExist") {
 						
@@ -227,7 +227,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "sidDoesNotExist") {
 						
@@ -237,7 +237,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "sensorDoesNotExist") {
 						
@@ -247,7 +247,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "ruleDoesNotExist") {
 						
@@ -257,7 +257,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "typeOutOfRange") {
 						
@@ -267,7 +267,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "trackOutOfRange") {
 						
@@ -277,7 +277,7 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if(this.response == "addThresholdFailure") {
 						
@@ -289,13 +289,13 @@ $(document).ready(function(){
 								
 						$('#thresholdForm div#formContent .alert').show("highlight");
 						
-						button = "error";
+						error = true;
 					}
 					
 					
 				});
 				
-				if( button == "success" ) {
+				if( success ) {
 					
 					
 					$('#thresholdForm input#force').val('False');
@@ -307,25 +307,19 @@ $(document).ready(function(){
 					
 					setTimeout(function() {$('#thresholdFormModal').modal('hide')}, 3000);
 					setTimeout(function() {location.reload(true)}, 1000);
-					/*
-					$('button#threshold-submit').prop("disabled",false);
-					$('button#threshold-submit').attr('class','btn btn-primary');
-					$('button#threshold-submit').html('Save changes');
-					*/
-				}
-				else if( button == "warning" ) {
-					
-					$('#thresholdForm input#force').val('True');
-					$('button#threshold-submit').attr('class','btn btn-warning');
-					$('button#threshold-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
 					
 				}
-				else if( button == "error" ) {
-					
-					
-					$('button#threshold-submit').attr('class','btn btn-danger');
-					$('button#threshold-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
-					
+				else if( warning || error ) {
+					if (error) {
+						$('#thresholdForm input#force').val('False');
+						$('button#threshold-submit').attr('class','btn btn-danger');
+						$('button#threshold-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+					}
+					else {
+						$('#thresholdForm input#force').val('True');
+						$('button#threshold-submit').attr('class','btn btn-warning');
+						$('button#threshold-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+					}
 				}
 			}
 			
@@ -341,7 +335,7 @@ $(document).ready(function(){
 			dataType: "json",
 			data: $(event).serialize(),
 			success: function(data) {
-				var button;
+				var success, warning, error = false;
 				$('#suppressForm .alert').remove();
 				$.each(data, function() {
 					
@@ -354,7 +348,7 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#formContent .alert').show("highlight");
 						
-						button = "success";
+						success = true;
 					}
 					else if(this.response == "suppressExists") {
 						
@@ -364,7 +358,7 @@ $(document).ready(function(){
 						
 						$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
 						
-						button = "warning";
+						warning = true;
 					}
 					else if(this.response == "allSensors") {
 						
@@ -374,7 +368,7 @@ $(document).ready(function(){
 						
 						$('#suppressForm div#sensors div.col-sm-10 .alert').show("highlight");
 						
-						button = "warning";
+						warning = true;
 					}
 					else if(this.response == "noComment") {
 						
@@ -384,7 +378,7 @@ $(document).ready(function(){
 						
 						$('#suppressForm div#comment div.col-sm-10 .alert').show("highlight");
 
-						button = "warning";
+						warning = true;
 					}
 					else if (this.response == "invalidGIDSIDFormat") {
 						
@@ -394,7 +388,7 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "gidDoesNotExist") {
 						
@@ -404,7 +398,7 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "sidDoesNotExist") {
 						
@@ -414,7 +408,7 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "sensorDoesNotExist") {
 						
@@ -424,7 +418,7 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#sensors div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "ruleDoesNotExist") {
 						
@@ -434,7 +428,7 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if (this.response == "trackOutOfRange") {
 						
@@ -444,7 +438,7 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#type div.col-sm-10 .alert').show("highlight");
 								
-						button = "error";
+						error = true;
 					}
 					else if(this.response == "addSuppressFailure") {
 						
@@ -456,14 +450,42 @@ $(document).ready(function(){
 								
 						$('#suppressForm div#formContent .alert').show("highlight");
 						
-						button = "error";
+						error = true;
 					}
-					
+					else if (this.response == "badIP") {
+						
+						$('#suppressForm div#ip div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.ips+' '+this.text+'</div></div>');
+								
+						$('#suppressForm div#ip div.col-sm-10 .alert').show("highlight");
+								
+						error = true;
+					}
+					else if (this.response == "noIPGiven") {
+						
+						$('#suppressForm div#ip div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>');
+								
+						$('#suppressForm div#ip div.col-sm-10 .alert').show("highlight");
+								
+						error = true;
+					}
+					else if (this.response == "addSuppressAddressFailure") {
+						
+						$('#suppressForm div#ip div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>');
+								
+						$('#suppressForm div#ip div.col-sm-10 .alert').show("highlight");
+								
+						error = true;
+					}
 					
 				});
 				
-				if( button == "success" ) {
-					
+				if( success ) {
 					
 					$('#suppressForm input#force').val('False');
 					$('button#suppress-submit').hide();
@@ -473,22 +495,20 @@ $(document).ready(function(){
 					$('button#suppress-submit').show("highlight");
 					
 					setTimeout(function() {$('#suppressFormModal').modal('hide')}, 3000);
-					location.reload(true);
-					
+					setTimeout(function() {location.reload(true)}, 1000);
+				
 				}
-				else if( button == "warning" ) {
-					
-					$('#suppressForm input#force').val('True');
-					$('button#suppress-submit').attr('class','btn btn-warning');
-					$('button#suppress-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
-					
-				}
-				else if( button == "error" ) {
-					
-					
-					$('button#suppress-submit').attr('class','btn btn-danger');
-					$('button#suppress-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
-					
+				else if( warning || error ) {
+					if (error) {
+						$('#suppressForm input#force').val('False');
+						$('button#suppress-submit').attr('class','btn btn-danger');
+						$('button#suppress-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+					}
+					else {
+						$('#suppressForm input#force').val('True');
+						$('button#suppress-submit').attr('class','btn btn-warning');
+						$('button#suppress-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+					}
 				}
 			}
 			

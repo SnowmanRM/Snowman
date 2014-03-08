@@ -239,19 +239,18 @@ def setSuppressOnRule(request):
 					r = Rule.objects.get(id=ruleId)
 					if r.suppress.filter(sensor=s).count() > 0:
 						if len(response) == 0:
-							response.append({'response': 'thresholdExists', 'text': 'Suppressions already exists, do you want to overwrite?.', 'sids': []})
+							response.append({'response': 'suppressExists', 'text': 'Suppressions already exists, do you want to overwrite?.', 'sids': []})
 						response[0]['sids'].append(r.SID)
 						response[0]['sids']=list(set(response[0]['sids']))
 				except Rule.DoesNotExist:
 					response.append({'response': 'ruleDoesNotExist', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
 					return HttpResponse(json.dumps(response))
 		
-		#TODO: add check for IPs
 		
 		ipString = request.POST['ip']
 		
 		if ipString == "":
-			response.append({'response': 'noIPGiven', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
+			response.append({'response': 'noIPGiven', 'text': 'You need to supply one or more IP addresses.'})
 			return HttpResponse(json.dumps(response))
 		
 		badIps = []
@@ -291,6 +290,9 @@ def setSuppressOnRule(request):
 		
 		#Do IP work
 		ipString = request.POST['ip']
+		if ipString == "":
+			response.append({'response': 'noIPGiven', 'text': 'You need to supply one or more IP addresses.'})
+			return HttpResponse(json.dumps(response))
 		goodIps = []
 		ipPattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$")
 		
@@ -323,11 +325,13 @@ def setSuppressOnRule(request):
 					s = Suppress.objects.filter(rule=srule, sensor=ssensor).count();
 					if s > 0:
 						Suppress.objects.filter(rule=srule, sensor=ssensor).update(comment=commentString, track=strack)
-						Suppress.objects.filter(rule=srule, sensor=ssensor).addresses.add(suppressAddressList)
+						s = Suppress.objects.get(rule=srule, sensor=ssensor)
+						for address in suppressAddressList:
+							s.addresses.add(address)
 					elif s == 0:
-						s = Suppress(rule=srule, sensor=ssensor, comment=commentString, track=strack)
-						s.addresses.add(suppressAddressList)
-						s.save()
+						s = Suppress.objects.create(rule=srule, sensor=ssensor, comment=commentString, track=strack)
+						for address in suppressAddressList:
+							s.addresses.add(address)
 			
 			response.append({'response': 'suppressAdded', 'text': 'Suppression successfully added.'})
 			return HttpResponse(json.dumps(response))
