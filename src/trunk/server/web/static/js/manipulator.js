@@ -1,5 +1,49 @@
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 function initializeButtons() {
+	$('#manipulator button#enable').click(function(event){
+
+		// Get all selected rules and put their SIDs in a list:
+		sids=$('#checkbox input:checked');
+		if (sids.length > 0) {
+			sidlist = [];
+			$(sids).each(function(){
+				sidlist.push($(this).attr('sid'))
+			});
+			
+			// Call function to enable selected rules
+			modifyRule("enable", sidlist);	
+		}
+	});
+	
+	$('#manipulator button#disable').click(function(event){
+
+		// Get all selected rules and put their SIDs in a list:
+		sids=$('#checkbox input:checked');
+		if (sids.length > 0) {
+			sidlist = [];
+			$(sids).each(function(){
+				sidlist.push($(this).attr('sid'))
+			});
+			
+			// Call function to disable selected rules
+			modifyRule("disable", sidlist);	
+		}
+	});	
 	
 	$('#manipulator button#threshold').click(function(event){
 		// Ajax the form.
@@ -49,6 +93,37 @@ function initializeButtons() {
 		});
 	});
 
+}
+
+/**
+ * Function for turning a rule on or off globally.
+ * Sends and AJAX request to the enableRule function
+ * with a list of SIDs and a mode argument.
+ *
+ * mode = enable|disable
+ * sidList = a plain list of strings representing SIDs
+ */
+function modifyRule(mode, sidList){
+
+	// Get token and put it in the request header:
+	var csrftoken = getCookie('csrftoken');	
+	
+	$.ajaxSetup({
+	    beforeSend: function(xhr, settings) {
+	            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+	    }
+	});			
+	
+	// Execute the AJAX-request to modify rules in sidList:
+	$.ajax({
+		url: "/web/tuning/modifyRule",
+		type: "post",
+		dataType: "json",
+		data: {mode: JSON.stringify(mode), sids: JSON.stringify(sidList)},
+		success: function(data) {
+			console.log("Modify rules "+sidlist+". Mode: "+mode);
+		}
+	});
 }
 
 $(document).ready(function(){ 
