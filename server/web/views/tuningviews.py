@@ -43,6 +43,28 @@ def getSuppressForm(request):
 	
 	return render(request, 'tuning/suppressForm.tpl', context)
 
+def modifyRule(request):
+	logger = logging.getLogger(__name__)
+	
+	sids = json.loads(request.POST.get('sids'))
+	mode = json.loads(request.POST.get('mode'))
+	
+	if mode == "enable":
+		active = True
+	elif mode == "disable":
+		active = False
+	else:
+		logger.error("Invalid mode '"+mode+"'. Rule(s) not modified.")
+		return
+
+	for sid in sids:
+		r = Rule.objects.get(SID=sid)
+		r.active = active
+		r.save()
+		logger.info("Rule "+str(r)+" is now "+mode+"d.")
+		
+	return HttpResponse("json.dumps(response)")
+
 def setThresholdOnRule(request):
 	
 	ruleIds = request.POST.getlist('id')
