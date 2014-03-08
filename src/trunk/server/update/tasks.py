@@ -2,17 +2,12 @@ import datetime
 import logging
 import mimetypes
 import os
-import sys
-import time
 import tempfile
 import shutil
-import subprocess
 import tarfile
 import zipfile
 
-from srm.settings import BASE_DIR
 from update.models import Source, Update, UpdateLog
-import util.logger
 
 class UpdateTasks:
 	"""This class exposes the different method which we use for processing update-files."""
@@ -53,7 +48,7 @@ class UpdateTasks:
 			try:
 				tar = tarfile.open(filename, "r")
 				tar.extractall(tmpdirectory)
-			except CompressionError:
+			except tarfile.CompressionError:
 				logger.error("%d Could not recognize the compression used in tarfile '%s'. Update is therefore not performed." % (os.getpid(), filename))
 			else:
 				# Process the content
@@ -155,12 +150,17 @@ class UpdateTasks:
 		# 4. Read and update the rules
 		# 5. Read and update the rule messages (which includes references)
 		
+		# Cache objects across files to save time:
+		rulesets = {}
+		ruleclasses = {}
+		generators = {}		
+		
 		if(foundClassifications):
 			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="15 Parsing %s" % classificationFile[1])
-			update.parseClassificationFile(classificationFile)
+			update.parseClassificationFile(classificationFile, ruleclasses=ruleclasses)
 		if(foundGenMsg):
 			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="17 Parsing %s" % genMsgFile[1])
-			update.parseGenMsgFile(genMsgFile)
+			update.parseGenMsgFile(genMsgFile, generators=generators)
 		if(foundReferences):
 			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="19 Parsing %s" % referenceConfigFile[1])
 			update.parseReferenceConfigFile(referenceConfigFile)
@@ -169,7 +169,7 @@ class UpdateTasks:
 		step = float(50) / float(len(ruleFiles))
 		for updateFile in ruleFiles:
 			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="%d Parsing %s" % (int(current), updateFile[1]))
-			update.parseRuleFile(updateFile)
+			update.parseRuleFile(updateFile, rulesets=rulesets, ruleclasses=ruleclasses, generators=generators)
 			current = current + step
 	
 		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="70 Parsing %s" % sidMsgFile[1])
