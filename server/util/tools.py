@@ -49,7 +49,7 @@ def doubleFork():
 	# Determine how many filedescriptors that might be present.
 	maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
 	if (maxfd == resource.RLIM_INFINITY):
-		maxfd = MAXFD
+		maxfd = resource.MAXFD
 	
 	# Iterate through and close all file descriptors.
 	for fd in range(0, maxfd):

@@ -23,11 +23,12 @@ class TestUpdate(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	@unittest.skip("Skipping testUpdateRule")
 	def testParseFile(self):
 		# Try to add two identical updates with a single rule file. 
 		# Should notify that update #2 contains a file with the same
 		# hash as the previous.
-		ruleFile = "ruleFile2.rules"
+		ruleFile = ("/home/echo","ruleFile2.rules")
 		self.update.parseRuleFile(ruleFile)
 		try:
 			newFile = self.update.source.files.get(name=ruleFile)
@@ -50,7 +51,7 @@ class TestUpdate(unittest.TestCase):
 			self.assertTrue(rule.ruleClass.classtype==classtype)
 			
 		
-	@unittest.skip("Skipping testUpdateRule")
+	
 	def testUpdateRule(self):
 		# == TEST FOR ABNORMAL RULE DETECTION ==
 		print "Testing if AbnormalRuleError is raised for rule with gid != 1"
@@ -75,15 +76,18 @@ class TestUpdate(unittest.TestCase):
 			pass
 		
 		# Add rule with ruleset=testset1 then testset2:
-		self.update.updateRule(rulestring, "/home/testset1.rules")
-		self.update.updateRule(rulestring, "/home/testset2.rules")
+		self.update.updateRule(rulestring, "testset1.rules")
+		self.update.updateRule(rulestring, "testset2.rules")
 		originalSet = RuleSet.objects.get(name="testset1")
 		newSet = RuleSet.objects.get(name="testset2")
 		
 		ruleChange = RuleChanges.objects.get(update_id=self.update.id)
 		self.assertTrue(ruleChange.originalSet_id == originalSet.id)
 		self.assertTrue(ruleChange.newSet_id == newSet.id)
-
+		
+		multireferenceRule = 'alert tcp $HOME_NET any -> 50.116.1.225 22 (msg:"ET CNC Shadowserver Reported CnC Server Port 22 Group 1"; flags:S; reference:url,doc.emergingthreats.net/bin/view/Main/BotCC; reference:url,www.shadowserver.org; threshold: type limit, track by_src, seconds 360, count 1; classtype:trojan-activity; flowbits:set,ET.Evil; flowbits:set,ET.BotccIP; sid:14050000; rev:3388;)'
+		self.update.updateRule(multireferenceRule, "testset1.rules")
+		
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testName']
 	unittest.main()

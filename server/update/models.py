@@ -138,15 +138,15 @@ class Update(models.Model):
 		filename = os.path.basename(path[0])
 		self.parseFile(self.updateRule, path, filename=filename, currentRules=currentRules, rulesets=rulesets, ruleclasses=ruleclasses, generators=generators)()
 
-	def parseClassificationFile(self, path):
+	def parseClassificationFile(self, path, ruleclasses = {}):
 		"""Method for parsing classification.config. File is read line by line
 		and classifications are updated in the database."""
-		self.parseFile(self.updateClassification, path)()
+		self.parseFile(self.updateClassification, path, ruleclasses=ruleclasses)()
 		
-	def parseGenMsgFile(self, path):
+	def parseGenMsgFile(self, path, generators = {}):
 		"""Method for parsing gen-msg.map. File is read line by line
 		and generators are updated in the database."""		
-		self.parseFile(self.updateGenMsg, path)()
+		self.parseFile(self.updateGenMsg, path, generators=generators)()
 		
 	def parseReferenceConfigFile(self, path):
 		"""Method for parsing reference.config which contains all ruleReferenceTypes.
@@ -188,19 +188,17 @@ class Update(models.Model):
 		# Construct a regex to match all elements a raw rulestring 
 		# must have in order to be considered a valid rule
 		# (sid, rev, message and classtype):
-		matchPattern = r"(.*)alert(?=.*sid:(\d+))(?=.*rev:(\d+))"
-		matchPattern += r"(?=.*msg:\"(.*?)\";)"
-		matchPattern += r"(?=.*classtype:(.*?);)"
+		matchPattern = ConfigPatterns.RULE
 		pattern = re.compile(matchPattern)
 		
 		# Construct regexes for elements that MIGHT appear in a raw rulestring
 		# (ruleset, ):
 		
 		# Match ruleset name
-		ruleset = re.match(r".*ruleset (.*?)[,;]", raw)
+		ruleset = re.match(ConfigPatterns.RULESET, raw)
 		
 		# Match reference (group1: name, group2: reference):
-		references = re.findall(r"reference:(.*?),(.*?);", raw)
+		references = re.findall(ConfigPatterns.RULEREFERENCE, raw)
 		
 		# If the raw rule matched the regex: 
 		result = pattern.match(raw)
@@ -304,7 +302,7 @@ class Update(models.Model):
 			else:
 				logger.debug("Rule %s/%s is already up to date" % (ruleSID, ruleRev))
 				
-	def updateClassification(self, raw):
+	def updateClassification(self, raw, ruleclasses = {}):
 		"""Method for updating the database with a new classification.
 		Classification data consists of three comma-separated strings which are
 		extracted with a regex, and split up in the three respective parts:
@@ -314,7 +312,7 @@ class Update(models.Model):
 		
 		# Regex: Match "config classification: " (group 0),
 		# and everything that comes after (group 1), which is the classification data. 
-		matchPattern = r"config classification: (.*)"
+		matchPattern = ConfigPatterns.CLASS
 		pattern = re.compile(matchPattern)
 		result = pattern.match(raw)
 		
@@ -331,12 +329,15 @@ class Update(models.Model):
 					ruleclassification.save()
 				except RuleClass.DoesNotExist:
 					# Add new classification
-					RuleClass.objects.create(classtype=classification[0], description=classification[1], priority=classification[2])
+					ruleclassification = RuleClass.objects.create(classtype=classification[0], description=classification[1], priority=classification[2])
 			except IndexError:
 				# If one or more indexes are invalid, the classification is badly formatted
 				raise BadFormatError("Badly formatted rule classification")
+			
+			# Save classification in cache
+			ruleclasses[ruleclassification.classtype] = ruleclassification
 				
-	def updateGenMsg(self, raw):
+	def updateGenMsg(self, raw, generators = {}):
 		"""Method for updating the database with a new generator.
 		Generator data consists of two numbers and a message string, all three
 		separated with a ||. All lines conforming to this pattern are split up
@@ -347,7 +348,7 @@ class Update(models.Model):
 				
 		# Regex: Match a generator definition: number || number || message
 		# If the line matches, it is stored in group(0)
-		matchPattern = r"(\d+ \|\| )+.*"
+		matchPattern = ConfigPatterns.GENMSG
 		pattern = re.compile(matchPattern)
 		result = pattern.match(raw)
 		
@@ -359,19 +360,21 @@ class Update(models.Model):
 			# Overwrite existing, or create new, generator:
 			try:
 				try:					
-					oldGenerator = Generator.objects.get(GID=generator[0], alertID=generator[1])
-					oldGenerator.message = generator[2]
-					oldGenerator.save()
+					generatorObject = Generator.objects.get(GID=generator[0], alertID=generator[1])
+					generatorObject.message = generator[2]
+					generatorObject.save()
 				except Generator.DoesNotExist:
-					Generator.objects.create(GID=generator[0], alertID=generator[1], message=generator[2])
+					generatorObject = Generator.objects.create(GID=generator[0], alertID=generator[1], message=generator[2])
 			except IndexError:
 				# If one or more indexes are invalid, the generator is badly formatted
 				raise BadFormatError("Badly formatted generator")
+			
+			generators[generatorObject.GID] = generatorObject
 		
 	def updateReferenceConfig(self, raw):
 		logger = logging.getLogger(__name__)
 		
-		matchPattern = r"config reference: (.*) (http(s)?://.*)"
+		matchPattern = ConfigPatterns.REFERENCE
 		pattern = re.compile(matchPattern)
 		result = pattern.match(raw)
 		
@@ -396,12 +399,9 @@ class Update(models.Model):
 			referenceType = RuleReferenceType.objects.create(name=referenceTypeName)
 			logger.info("Created new referencetype "+str(referenceType)+" WITHOUT urlprefix!")
 			
-		try:
-			reference = referenceType.references.get(rulerevision=ruleRevision)
-			reference.reference = referenceData
-			reference.save()
-		except RuleReference.DoesNotExist:
-			reference = referenceType.references.create(reference=referenceData, rulerevision=ruleRevision)
+
+		# Create the reference
+		referenceType.references.create(reference=referenceData, rulerevision=ruleRevision)
 		
 				
 		
@@ -417,7 +417,7 @@ class Update(models.Model):
 		
 		# Regex: Match a generator definition: SID || message (|| reference)*
 		# SID is stored in group(1), and "message (|| reference)*" in group(2)
-		matchPattern = r"(\d+) \|\| ((.*\|\|)* .*)"
+		matchPattern = ConfigPatterns.SIDMSG
 		pattern = re.compile(matchPattern)
 		result = pattern.match(raw)
 		
