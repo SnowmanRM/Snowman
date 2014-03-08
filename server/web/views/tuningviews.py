@@ -82,32 +82,39 @@ def setThresholdOnRule(request):
 		
 					
 	if force == "False":
+				
+		sensorList = []
 		
 		if sensors[0] != "all":
 			for sensor in sensors:
+				sensorList.append(sensor)
 				try:
 					Sensor.objects.get(id=sensor)
 				except Sensor.DoesNotExist:
 					response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
 					return HttpResponse(json.dumps(response))	
-		
-		for ruleId in ruleIds:
-			try:
-				r = Rule.objects.get(id=ruleId)
-				if r.thresholds.count() > 0:
-					if len(response) == 0:
-						response.append({'response': 'thresholdExists', 'text': 'Thresholds already exists, do you want to overwrite?.', 'sids': []})
-					response[0]['sids'].append(r.SID)
-			except Rule.DoesNotExist:
-				response.append({'response': 'ruleDoesNotExist', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
-				return HttpResponse(json.dumps(response))
+		elif sensors[0] == "all":
+			sensorList = Sensor.objects.values_list('id', flat=True)
+			
+		for sensor in sensorList:
+			s = Sensor.objects.get(id=sensor)
+			for ruleId in ruleIds:
+				try:
+					r = Rule.objects.get(id=ruleId)
+					if r.thresholds.filter(sensor=s).count() > 0:
+						if len(response) == 0:
+							response.append({'response': 'thresholdExists', 'text': 'Thresholds already exists, do you want to overwrite?.', 'sids': []})
+						response[0]['sids'].append(r.SID)
+						response[0]['sids']=list(set(response[0]['sids']))
+				except Rule.DoesNotExist:
+					response.append({'response': 'ruleDoesNotExist', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
+					return HttpResponse(json.dumps(response))
 			
 		if commentString == "":
 			response.append({'response': 'noComment', 'text': 'You have not set any comments on this action, are you sure you want to proceed?.'})
 		
 		if sensors[0] == "all":
 			response.append({'response': 'allSensors', 'text': 'You are setting this threshold on all sensors, are you sure you want to do that?.'})
-			return HttpResponse(json.dumps(response))
 		
 		if len(response) > 0:
 			return HttpResponse(json.dumps(response))
@@ -190,33 +197,60 @@ def setSuppressOnRule(request):
 	
 	if force == "False":
 		
+		sensorList = []
+		
 		if sensors[0] != "all":
 			for sensor in sensors:
+				sensorList.append(sensor)
 				try:
 					Sensor.objects.get(id=sensor)
 				except Sensor.DoesNotExist:
 					response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
 					return HttpResponse(json.dumps(response))	
-		
-		for ruleId in ruleIds:
-			try:
-				r = Rule.objects.get(id=ruleId)
-				if r.suppress.count() > 0:
-					if len(response) == 0:
-						response.append({'response': 'suppressExists', 'text': 'Suppressions already exists, do you want to overwrite?.', 'sids': []})
-					response[0]['sids'].append(r.SID)
-			except Rule.DoesNotExist:
-				response.append({'response': 'ruleDoesNotExist', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
-				return HttpResponse(json.dumps(response))
+		elif sensors[0] == "all":
+			sensorList = Sensor.objects.values_list('id', flat=True)
+			
+		for sensor in sensorList:
+			s = Sensor.objects.get(id=sensor)
+			for ruleId in ruleIds:
+				try:
+					r = Rule.objects.get(id=ruleId)
+					if r.suppress.filter(sensor=s).count() > 0:
+						if len(response) == 0:
+							response.append({'response': 'thresholdExists', 'text': 'Suppressions already exists, do you want to overwrite?.', 'sids': []})
+						response[0]['sids'].append(r.SID)
+						response[0]['sids']=list(set(response[0]['sids']))
+				except Rule.DoesNotExist:
+					response.append({'response': 'ruleDoesNotExist', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
+					return HttpResponse(json.dumps(response))
 		
 		#TODO: add check for IPs
 		
+		ipString = request.POST['ip']
+		
+		if ipString == "":
+			response.append({'response': 'noIPGiven', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
+			return HttpResponse(json.dumps(response))
+		
+		badIps = []
+		badIpTest = False
+		
+		ipPattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$")
+		
+		for ip in re.finditer("[^,;\s]+", ipString):
+			test = ipPattern.match(ip.group(0))
+			if not test:
+				badIps.append(ip.group(0))
+				badIpTest = True
+		
+		
+		if badIpTest:
+			response.append({'response': 'badIP', 'text': 'is not valid IPv4.', 'ips': badIps})
 		if commentString == "":
 			response.append({'response': 'noComment', 'text': 'You have not set any comments on this action, are you sure you want to proceed?.'})
 		
 		if sensors[0] == "all":
 			response.append({'response': 'allSensors', 'text': 'You are setting this suppression on all sensors, are you sure you want to do that?.'})
-			return HttpResponse(json.dumps(response))
 		
 		if len(response) > 0:
 			return HttpResponse(json.dumps(response))
@@ -233,6 +267,32 @@ def setSuppressOnRule(request):
 		if sensors[0] == "all":
 			sensors = Sensor.objects.values_list('id', flat=True)
 		
+		#Do IP work
+		ipString = request.POST['ip']
+		goodIps = []
+		ipPattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$")
+		
+		for ip in re.finditer("[^,;\s]+", ipString):
+			test = ipPattern.match(ip.group(0))
+			if test:
+				goodIps.append(ip.group(0))
+				
+		suppressAddressList = []
+		
+		try:
+			for ip in goodIps:
+				sa = SuppressAddress.objects.filter(ipAddress=ip).count()
+				if sa > 0:
+					suppressAddressList.append(SuppressAddress.objects.get(ipAddress=ip))
+				else:
+					sa = SuppressAddress.objects.create(ipAddress=ip)
+					suppressAddressList.append(sa)
+				
+		except:
+			response.append({'response': 'addSuppressAddressFailure', 'text': 'Failed when trying to add suppression addresses.'})
+			return HttpResponse(json.dumps(response))
+		
+		# Create the suppress objects
 		try:
 			for ruleId in ruleIds:
 				for sensorId in sensors:
@@ -240,9 +300,11 @@ def setSuppressOnRule(request):
 					ssensor = Sensor.objects.get(id=sensorId)
 					s = Suppress.objects.filter(rule=srule, sensor=ssensor).count();
 					if s > 0:
-						Suppress.objects.filter(rule=srule, sensor=ssensor).update()
+						Suppress.objects.filter(rule=srule, sensor=ssensor).update(comment=commentString, track=strack)
+						Suppress.objects.filter(rule=srule, sensor=ssensor).addresses.add(suppressAddressList)
 					elif s == 0:
-						s = Suppress()
+						s = Suppress(rule=srule, sensor=ssensor, comment=commentString, track=strack)
+						s.addresses.add(suppressAddressList)
 						s.save()
 			
 			response.append({'response': 'suppressAdded', 'text': 'Suppression successfully added.'})

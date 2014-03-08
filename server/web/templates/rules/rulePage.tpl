@@ -53,8 +53,8 @@
 				{{ rule.ruleSet.name }}
 			</td>
 			<td class="text-right">
-				<span class="badge btn-warning">T</span>
-				<span class="badge btn-warning">S</span>
+				{% if rule.thresholds.count %}<span class="badge btn-warning">T</span>{% endif %}
+				{% if rule.suppress.count %}<span class="badge btn-warning">S</span>{% endif %}
 				|
 				<span class="badge btn-success">{{ rule.ruleSet.sensors.count }}</span>
 				<span class="badge btn-danger">{{ sensorcount|add:rule.ruleSet.sensors.count|cut:"-" }}</span>

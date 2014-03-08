@@ -41,7 +41,7 @@ class SuppressAddress(models.Model):
 	"""SupressAddress is simply a container for an address that is
 	assigned to a Suppress"""
 	
-	supress = models.ForeignKey('Suppress', related_name = 'addresses')
+	suppress = models.ManyToManyField('Suppress', related_name = 'addresses')
 	ipAddress = models.CharField(max_length = 38)
 	
 	def __repr__(self):
