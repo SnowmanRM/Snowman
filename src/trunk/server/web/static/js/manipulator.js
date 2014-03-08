@@ -231,7 +231,7 @@ $(document).ready(function(){
 					$('button#threshold-submit').show("highlight");
 					
 					setTimeout(function() {$('#thresholdFormModal').modal('hide')}, 3000);
-					location.reload(true);
+					setTimeout(function() {location.reload(true)}, 1000);
 					/*
 					$('button#threshold-submit').prop("disabled",false);
 					$('button#threshold-submit').attr('class','btn btn-primary');
