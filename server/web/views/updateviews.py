@@ -12,7 +12,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from srm.settings import BASE_DIR
-from update.models import Source, Update, UpdateLog
+from update.models import Source, Update, UpdateLog, RuleChanges
 from util.config import Config
 from web.views.updateforms import ManualUpdateForm, DailySelector, WeeklySelector, MonthlySelector, NewSourceForm
 from web.views.updateutils import createForm, createSourceList
@@ -60,6 +60,58 @@ def index(request):
 		data['manualUpdateForm'] = ManualUpdateForm()
 				
 	return render(request, "update/index.tpl", data)
+
+def changes(request):
+	CHANGE = 1
+	KEEP = 2
+
+	logger = logging.getLogger(__name__)
+	if request.POST:
+		checkBox = re.compile(r"change-(\d+)")
+		button = re.compile(r"btn-(.+)")
+		
+		changes = []
+		action = None
+		
+		for element in request.POST:
+			btn = button.match(element)
+			cb = checkBox.match(element)
+			
+			if btn:
+				if(btn.group(1) == "change"):
+					action = CHANGE
+				elif(btn.group(1) == "keep"):
+					action = KEEP
+			elif cb:
+				changes.append(int(cb.group(1)))
+		
+		if(action):		
+			for change in changes:
+				try:
+					c = RuleChanges.objects.get(pk=change)
+				except RuleChanges.DoesNotExist:
+					logger.error("Could not get change with ID %d" % change)
+				else:
+					if(action == CHANGE):
+						if(c.moved):
+							c.rule.ruleSet = c.originalSet
+						else:
+							c.rule.ruleSet = c.newSet
+						c.rule.save()
+					c.delete()
+			
+	data = {}
+	data['updates'] = []
+
+	lastUpdate = None
+	for change in RuleChanges.objects.all():
+		if(lastUpdate != change.update.id):
+			lastUpdate = change.update.id
+			data['updates'].append([])
+
+		data['updates'][-1].append(change)
+
+	return render(request, "update/changes.tpl", data)
 
 def newSource(request):
 	"""This view recieves data from the "newSource" form. If the data recieved is valid, a new source is created.

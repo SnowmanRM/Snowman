@@ -18,7 +18,7 @@ parentdir = os.path.dirname(scriptdir)
 sys.path.append(parentdir)
 
 from util.tools import doubleFork
-#doubleFork()
+doubleFork()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 	
 	
 	if(len(str(md5)) == 0 or str(md5) != str(source.lastMd5)):
-		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="2 Starting to download ruleset from source.")
+		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="2 Downloading ruleset from source.")
 		logger.info("Starting to download %s" % source.url)
 		storagelocation = Config.get("storage", "inputFiles")		
 		filename = storagelocation + source.url.split("/")[-1]
