@@ -1,4 +1,4 @@
-\documentclass[english]{gucthesis}
+\documentclass[BIS,english,oneside]{gucthesis}
 
 \usepackage{style}
 \usepackage{graphicx}
@@ -7,11 +7,13 @@
 
 \begin{document}
 
+\input{./tex/thesis_data.tex}
+
 \input{./tex/title.tex}
 
 \newpage
-\chapter{Preface}
-Hei
+\chapter*{Preface}
+This is the preface.
 \newpage
 
 \tableofcontents
@@ -23,7 +25,8 @@ Hei
 \input{./tex/existing_solutions.tex}
 \input{./tex/requirements_specification.tex}
 \input{./tex/design.tex}
-\input{./tex/implementation.tex}
+\input{./tex/implementation/implementation.tex}
+\input{./tex/optimization/optimization.tex}
 \input{./tex/testing.tex}
 \input{./tex/results.tex}
 \input{./tex/analysis_of_results.tex}
