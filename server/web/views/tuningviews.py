@@ -349,7 +349,7 @@ def setSuppressOnRule(request):
 		if sensors[0] == "all":
 			sensors = Sensor.objects.values_list('id', flat=True)
 		
-		# We do the IP matching again since we could have submitted again.
+		# We do the IP matching again since we could have submitted them again since last check.
 		# Since this form lets the user input one or more IPv4 addresses, we have to check them.
 		ipString = request.POST['ip']
 		
@@ -388,12 +388,13 @@ def setSuppressOnRule(request):
 			response.append({'response': 'addSuppressAddressFailure', 'text': 'Failed when trying to add suppression addresses.'})
 			return HttpResponse(json.dumps(response))
 		
-		# Create the suppress objects
+		# We iterate over all the rules and sensors to implement the suppression.
 		try:
 			for ruleId in ruleIds:
 				for sensorId in sensors:
 					srule = Rule.objects.get(id=ruleId)
 					ssensor = Sensor.objects.get(id=sensorId)
+					# We check to see if a suppression already exists, in that case we just update it. If not, we create one.
 					s = Suppress.objects.filter(rule=srule, sensor=ssensor).count();
 					if s > 0:
 						Suppress.objects.filter(rule=srule, sensor=ssensor).update(comment=commentString, track=strack)
@@ -410,5 +411,4 @@ def setSuppressOnRule(request):
 		except: # Something went wrong.
 			response.append({'response': 'addSuppressFailure', 'text': 'Failed when trying to add suppressions.'})
 			return HttpResponse(json.dumps(response))
-	
-	return HttpResponse(ruleIds);
+
