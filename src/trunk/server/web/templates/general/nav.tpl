@@ -29,7 +29,13 @@
 					<li><a href="/web/tuning/byrule/">Rules</a></li>
 					</ul>
 				</li>
-				<li><a href="/web/update/">Update</a></li>
+				<li class="dropdown">
+					<a href="/web/update/" class="dropdown-toggle" data-toggle="dropdown">Update <b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class=""><a href="/web/update/">Update</a></li>
+						<li><a href="/web/update/changes/">Changes</a></li>
+					</ul>
+				</li>
 			</ul>
 		</div>
 	</div>
