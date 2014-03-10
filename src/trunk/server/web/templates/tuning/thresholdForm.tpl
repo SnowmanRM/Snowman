@@ -1,3 +1,7 @@
+{# thresholdForm.tpl is the template for the form used to input thresholds. #} 
+{# It consists of various form elements needed for a threshold. #}
+{#  #}
+
 	{% csrf_token %}
 	<input type="hidden" id="force" name="force" value="False">
   	<div class="form-group" id="sid">
