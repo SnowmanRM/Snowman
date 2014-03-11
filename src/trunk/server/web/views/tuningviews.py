@@ -78,6 +78,9 @@ def setThresholdOnRule(request):
 	If everything is ok or the force flag is set, it will either update or create the Threshold objects requested.
 	"""
 	
+	#TODO: Put logging in here!
+	logger = logging.getLogger(__name__)
+	
 	# Get some initial post values for processing.
 	ruleIds = request.POST.getlist('id')
 	sensors = request.POST.getlist('sensors')
@@ -219,6 +222,9 @@ def setSuppressOnRule(request):
 	
 	If everything is ok or the force flag is set, it will either update or create the Suppress objects requested.
 	"""
+	
+	#TODO: Put logging in here!
+	logger = logging.getLogger(__name__)
 	
 	# Get some initial post values for processing.
 	ruleIds = request.POST.getlist('id')

@@ -4,7 +4,7 @@
 
 {% if rulesearch %}<div id="searchresult" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" searchstring="{{ searchstring }}">{% endif %}
 <table id="{{ pagenr }}" class="table table-responsive table-bordered table-hover
-{% if pagenr == 1 %} current{% endif %}"{% if ishidden %} style="display: none;"{% endif %}>
+{% if pagenr == 1 %} current{% endif %}"{% if ishidden %} style="display: none;"{% endif %} itemcount="{{ itemcount }}" pagelength="{{ pagelength }}">
 	<thead>
 	<tr>
 		<th id="checkbox-all" class="text-left">
@@ -26,6 +26,12 @@
 			Ruleset
 		</th>
 		<th class="text-center">
+			Class
+		</th>
+		<th class="text-center">
+			Priority
+		</th>
+		<th class="text-center">
 			Status
 		</th>
 	</tr>
@@ -35,7 +41,8 @@
 		{% for rule in rule_list %}
 		<tr class="odd">
 			<td id="checkbox" class="text-left">
-				<input id="{{rule.id}}" gid="{{ rule.generator_id }}" sid="{{ rule.SID }}" status="T S" type="checkbox">
+				<input id="{{rule.id}}" gid="{{ rule.generator_id }}" sid="{{ rule.SID }}" status="{% if rule.thresholds.count %} T{% endif %}
+				{% if rule.suppress.count %} S{% endif %}" type="checkbox">
 			</td>
 			<td class="text-right">
 				{{ rule.SID }}
@@ -52,6 +59,12 @@
 			<td class="text-center">
 				{{ rule.ruleSet.name }}
 			</td>
+			<td class="text-center">
+				{{ rule.ruleClass.classtype }}
+			</td>
+			<td class="text-center">
+				<span class="badge btn-primary">{{ rule.ruleClass.priority }}</span>
+			</td>
 			<td class="text-right">
 				{% if rule.thresholds.count %}<span class="badge btn-warning">T</span>{% endif %}
 				{% if rule.suppress.count %}<span class="badge btn-warning">S</span>{% endif %}
@@ -63,7 +76,7 @@
 			</td>
 		</tr>
 		<tr class="even" style="display: none">
-			<td colspan="7">
+			<td colspan="9">
 				<div class="row container-fluid">
 					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 						<div class="panel panel-default">
@@ -105,7 +118,7 @@
 		 {% endfor %}
 	    
 	    {% else %}
-	    <tr class="even"><td colspan="7">No rules are available.</tr></tr>
+	    <tr class="even"><td colspan="9">No rules are available.</tr></tr>
 		{% endif %}
 	</tbody>
 </table>

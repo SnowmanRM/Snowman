@@ -17,12 +17,6 @@ def index(request):
 	return redirect('web.views.ruleviews.index')
 
 """TODO:"""
-	
-def ruleSet(request):
-	"""This method temporary redirects to rules. 
-	
-	TODO: Make this."""
-	return redirect('web.views.ruleviews.index')
 
 def ruleSetBySensorActive(request):
 	"""This method temporary redirects to rules. 
@@ -36,7 +30,7 @@ def ruleSetBySensorNew(request):
 	TODO: Make this."""
 	return redirect('web.views.ruleviews.index')
 
-def ruleclass(request):
+def ruleClass(request):
 	"""This method temporary redirects to rules. 
 	
 	TODO: Make this."""

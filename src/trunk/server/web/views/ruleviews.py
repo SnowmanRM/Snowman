@@ -80,7 +80,7 @@ def getRulePage(request, pagenr):
 	context['ishidden'] = True
 	
 	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
-	minrange = pagelength * int(pagenr)
+	minrange = pagelength * (int(pagenr)-1)
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
 	maxrange = int(minrange) + pagelength
@@ -138,12 +138,8 @@ def getRulesBySearch(request, pagenr):
 	# We want the searchstring with us in the template.
 	context['searchstring'] = searchstring
 	
-	# If this is the first page or there is only one page, minrange must be 0.
-	if pagenr=='1':
-		minrange=0
-	else:
-		# We multiply the paglength with the requested pagenr, this should give us the minimum range.
-		minrange = pagelength * int(pagenr)
+	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
+	minrange = pagelength * (int(pagenr)-1)
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
 	maxrange = int(minrange) + pagelength
@@ -172,3 +168,130 @@ def getRulesBySearch(request, pagenr):
 	
 	return render(request, 'rules/rulePage.tpl', context)
 
+def getRulesByRuleSet(request, ruleSetID, pagenr):
+	"""	This method is loaded when the /rules/search/<int> url is called. This url is called when a user has typed a string into 
+		the search bar on the /rules page. 
+		
+		The method does a search in the database based on the searchfield and searchstring requested, and the item range based on the page requested.
+		
+		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
+	
+	"""
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	# Get the two values from the HTTP POST request.
+
+	
+	# Get pagelength from the utility class.
+	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# We set this value to true so that we can differentiate in the template.
+	context['rulesearch'] = False
+	
+	# We want pagenr with us in the template, but we modify it.
+	context['pagenr'] = int(pagenr)
+	
+	# We want pagelength with us in the template.
+	context['pagelength'] = int(pagelength)
+	
+	# The first page isnt hidden.
+	if int(pagenr) == 1:
+		context['ishidden'] = False
+	else:
+		context['ishidden'] = True
+	
+	# We want the searchstring with us in the template.
+	#context['searchstring'] = searchstring
+	
+	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
+	minrange = pagelength * (int(pagenr)-1)
+	
+	# We add pagelength to the minumum range, this gives us the maximum range.
+	maxrange = int(minrange) + pagelength
+	
+	try:
+		# Get the current sensor count, but we want it in a negative value.
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
+		
+		# We do different queries based on the searchfield string.
+		
+		# We need to know how many rules the search will produce.
+		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID).count()
+		# Get matching rules, within the set range.
+		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID)[minrange:maxrange]
+		
+
+	except Rule.DoesNotExist:
+		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
+		raise Http404
+	
+	
+	return render(request, 'rules/rulePage.tpl', context)
+
+def getRulesByRuleClass(request, ruleClassID, pagenr):
+	"""	This method is loaded when the /rules/search/<int> url is called. This url is called when a user has typed a string into 
+		the search bar on the /rules page. 
+		
+		The method does a search in the database based on the searchfield and searchstring requested, and the item range based on the page requested.
+		
+		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
+	
+	"""
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	# Get the two values from the HTTP POST request.
+
+	
+	# Get pagelength from the utility class.
+	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# We set this value to true so that we can differentiate in the template.
+	context['rulesearch'] = False
+	
+	# We want pagenr with us in the template, but we modify it.
+	context['pagenr'] = int(pagenr)
+	
+	# We want pagelength with us in the template.
+	context['pagelength'] = int(pagelength)
+	
+	# The first page isnt hidden.
+	if int(pagenr) == 1:
+		context['ishidden'] = False
+	else:
+		context['ishidden'] = True
+	
+	# We want the searchstring with us in the template.
+	#context['searchstring'] = searchstring
+	
+	# If this is the first page or there is only one page, minrange must be 0.
+	minrange = pagelength * (int(pagenr)-1)
+	
+	# We add pagelength to the minumum range, this gives us the maximum range.
+	maxrange = int(minrange) + pagelength
+	
+	try:
+		# Get the current sensor count, but we want it in a negative value.
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
+		
+		# We do different queries based on the searchfield string.
+		
+		# We need to know how many rules the search will produce.
+		context['itemcount'] = Rule.objects.filter(ruleClass__id=ruleClassID).count()
+		# Get matching rules, within the set range.
+		context['rule_list'] = Rule.objects.filter(ruleClass__id=ruleClassID)[minrange:maxrange]
+		
+
+	except Rule.DoesNotExist:
+		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
+		raise Http404
+	
+	
+	return render(request, 'rules/rulePage.tpl', context)
