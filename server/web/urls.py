@@ -12,7 +12,6 @@ urlpatterns = patterns('',
     
     url(r'^ruleset/bysensor/active/$', 'web.views.views.ruleSetBySensorActive'),
     url(r'^ruleset/bysensor/new/$', 'web.views.views.ruleSetBySensorNew'),
-    url(r'^sensors/$', 'web.views.views.sensors'),
     url(r'^tuning/bysensor/$', 'web.views.views.tuningBySensor'),
     url(r'^tuning/byrule/$', 'web.views.views.tuningByRule'),
     url(r'^tuning/bysensor/(?P<sensorname>\w+)/$', 'web.views.views.tuningBySensorName'),
@@ -27,6 +26,14 @@ urlpatterns = patterns('',
     #url(r'^update/(?P<sensorname>\w+)/updates$', 'web.views.requests.getSensorUpdatesBySensorName'),
 )
 
+urlpatterns += patterns('web.views.sensorviews',
+    url(r'^sensors/$', 'index'),
+
+	# AJAX-Calls
+    url(r'^sensors/new/$', 'new'),
+    url(r'^sensors/getSensorList/$', 'getSensorList'),
+    url(r'^sensors/regenerateSecret/$', 'regenerateSecret'),
+)
 urlpatterns += patterns('web.views.updateviews',
     url(r'^update/$', 'index'),
     url(r'^update/changes/$', 'changes'),
