@@ -1,7 +1,9 @@
+import datetime
 import logging
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.timezone import utc
 
 from srm.settings import DATABASES
 
@@ -259,6 +261,11 @@ class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
 	contains name, address and the secret used for authentication."""
 
+	AVAILABLE = 0
+	UNAVAILABLE = 1
+	INACTIVE = 2
+	AUTONOMOUS = 3
+	
 	parent = models.ForeignKey('Sensor', null=True, related_name='childSensors')
 	name = models.CharField(max_length=30, unique=True)
 	user = models.ForeignKey(User, related_name='sensor')
@@ -275,3 +282,16 @@ class Sensor(models.Model):
 
 	def __str__(self):
 		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
+	
+	def getStatus(self):
+		now = datetime.datetime.utcnow().replace(tzinfo=utc)
+		delta = datetime.timedelta(hours=1)
+
+		if(self.autonomous):
+			return self.AUTONOMOUS
+		elif(not self.active):
+			return self.INACTIVE
+		elif(self.user.last_login + delta > now):
+			return self.AVAILABLE
+		else:
+			return self.UNAVAILABLE

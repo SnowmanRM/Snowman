@@ -30,7 +30,7 @@ for i in range(1, 10):
 	else:
 		logger.info("User '%s' already exists.", username)
 
-	sensor, created = Sensor.objects.get_or_create(name=username, user=user, active=True, ipAddress="127.0.0.%d" % i)
+	sensor, created = Sensor.objects.get_or_create(name=username, user=user, active=True, ipAddress="")
 	if(created):
 		logger.info("Created the sensor '%s'" % username)
 	else:
