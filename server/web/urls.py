@@ -9,10 +9,9 @@ urlpatterns = patterns('',
     url(r'^$', 'web.views.views.index'),
 
     #TODO:
-    url(r'^ruleset/$', 'web.views.views.ruleSet'),
+    
     url(r'^ruleset/bysensor/active/$', 'web.views.views.ruleSetBySensorActive'),
     url(r'^ruleset/bysensor/new/$', 'web.views.views.ruleSetBySensorNew'),
-    url(r'^ruleclass/$', 'web.views.views.ruleclass'),
     url(r'^sensors/$', 'web.views.views.sensors'),
     url(r'^tuning/bysensor/$', 'web.views.views.tuningBySensor'),
     url(r'^tuning/byrule/$', 'web.views.views.tuningByRule'),
@@ -42,8 +41,21 @@ urlpatterns += patterns('web.views.updateviews',
 urlpatterns += patterns('web.views.ruleviews',
     url(r'^rules/$', 'index'),
     url(r'^rules/page/search/(?P<pagenr>\d+)/$', 'getRulesBySearch'),
+    url(r'^rules/ruleSet/(?P<ruleSetID>\d+)/(?P<pagenr>\d+)/$', 'getRulesByRuleSet'),
+    url(r'^rules/ruleClass/(?P<ruleClassID>\d+)/(?P<pagenr>\d+)/$', 'getRulesByRuleClass'),
     url(r'^rules/page/(?P<pagenr>\d+)/$', 'getRulePage'),
 )
+urlpatterns += patterns('web.views.rulesetviews',
+    url(r'^ruleset/$', 'index'),
+   # url(r'^ruleset/children/(?P<ruleSetID>\d+)/$', 'getRuleSetChildren'),
+
+)
+urlpatterns += patterns('web.views.ruleclassviews',
+    url(r'^ruleclass/$', 'index'),
+   # url(r'^ruleset/children/(?P<ruleSetID>\d+)/$', 'getRuleSetChildren'),
+
+)
+
 urlpatterns += patterns('web.views.tuningviews',
     url(r'^tuning/getSuppressForm$', 'getSuppressForm'),
     url(r'^tuning/getThresholdForm$', 'getThresholdForm'), 

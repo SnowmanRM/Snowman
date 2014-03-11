@@ -253,8 +253,8 @@ function searchField() {
 					// We retrieve some details about the search result to set page variables.
 					searchitemcount = $('#content #searchresult').attr('itemcount');
 					searchpagelength = $('#content #searchresult').attr('pagelength');
-					searchpagecount = Math.ceil(searchitemcount / searchpagelength);
-					if (searchitemcount%searchpagelength == 0) {searchpagecount--}
+					searchpagecount = Math.floor(searchitemcount / searchpagelength);
+					if (searchitemcount%searchpagecount == 0) {searchpagecount--}
 					if (searchpagecount < 1) {searchpagecount=1}
 	
 					// Load the paginator with the page variables for the search.
@@ -289,8 +289,8 @@ $(document).ready(function(){
 	// Variables needed.
 	var pagelength = $('#paginator').attr('pagelength');
 	var itemcount = $('#paginator').attr('itemcount');
-	pagecount =  Math.ceil(itemcount / pagelength);
-	if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
+	pagecount =  Math.floor(itemcount / pagelength);
+	if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
 	
 	// We get a hash value if there is one.
 	var hash = parseInt(window.location.hash.slice(1));
