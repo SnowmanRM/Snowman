@@ -12,7 +12,6 @@ function loadNextPages(ruleSet, currentpage, pagecount) {
 		// We dont want negative page numbers or 
 		// pages outside the actual page range
 		if (_currentpage+i > 1 && _currentpage+i < _pagecount && _currentpage+i != _currentpage) {
-			
 			// Try to find a page element with this id nr.
 			var _pageexists = $('#content .ruleset-panel#'+_ruleSet+' #rules .table#'+(_currentpage+i)+'').length;
 			// If the page doesnt exist, we need to load it.
@@ -72,16 +71,60 @@ function getPage(ruleSet,pageNr){
 }
 
 function listInitialize() {
+	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('.panel .panel-heading #checkbox-all').click(function(event){
+				
+		if ($(".panel #checkbox-all").is(':checked')) {
+            $(".panel .panel-heading #checkbox").each(function () {
+                $(this).prop("checked", true);
+            });
+
+        } else {
+            $(".panel .panel-heading #checkbox").each(function () {
+                $(this).prop("checked", false);
+            });
+        }
+		
+	});
 	
+	$('table thead th#checkbox-all input').click(function(event){
+		
+		if ($("table thead th#checkbox-all input").is(':checked')) {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
+                $(this).prop("checked", true);
+            });
+
+        } else {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
+                $(this).prop("checked", false);
+            });
+        }
+		
+	});
+
 	
-	// Initializes the switchbuttons
-	//$(".ruleswitch").bootstrapSwitch()
+	// Installs click events on all rows.
+	$('table tbody tr.odd').unbind('click');
+	$('table tbody tr.odd').click(function(event){
+		// This is to make sure a click on the switch doesnt trigger a row open.
+		if($(event.target).is('#checkbox')||$(event.target).is('#checkbox')){
+            //event.preventDefault();
+            return;
+        }
+		
+		// Toggles clicked row on the 'active' css class so it changes color
+		$(this).toggleClass("bg-primary");
+		// Shows or hides the next row which is hidden by default.
+		$(this).next().toggle();
+	
+	});
+
 	
 	// Installs click events on all rows.
 	$('div.panel-heading').unbind('click');
 	$('div.panel-heading').click(function(event){
 		// This is to make sure a click on the switch doesnt trigger a row open.
-		if($(event.target).is('table td#checkbox')||$(event.target).is('input')||$(event.target).is('a')){
+		if($(event.target).is('#checkbox')||$(event.target).is('input')||$(event.target).is('a')){
             //event.preventDefault();
 			
             return;
@@ -154,8 +197,9 @@ function loadRuleSetRules (ruleSet) {
 
 		loadPaginator(_ruleSet, currentpage, pagecount);
 		loadNextPages(_ruleSet, currentpage, pagecount);
-		getPage(_ruleSet, pagecount);
-		
+		if (pagecount > currentpage) {
+			getPage(_ruleSet, pagecount);
+		}
 	});
 }
 

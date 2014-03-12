@@ -2,7 +2,7 @@
  * This javascript contains all the code used for the little button box on the left.
  * 
  */
-
+/*
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie != '') {
@@ -18,37 +18,115 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-
+*/
 // This function binds all the button clicks in the manipulator.
 function initializeButtons() {
 	
+	
 	$('#manipulator button#enable').click(function(event){
-
+		// Reset this button in the form to default just in case.
+		$('button#modify-submit').prop("disabled",false);
+		$('button#modify-submit').attr('class','btn btn-primary');
+		$('button#modify-submit').html('Save changes');
+		
 		// Get all selected rules and put their SIDs in a list:
-		sids=$('#checkbox input:checked');
+		sids=$('#checkbox:checked');
+		//console.log(sids);
 		if (sids.length > 0) {
 			sidlist = [];
+			setlist = [];
+			setnames = [];
 			$(sids).each(function(){
-				sidlist.push($(this).attr('sid'))
+				if($(this).is('[sid]')) {
+					sidlist.push($(this).attr('sid'));
+				}
+				else if ($(this).is('[ruleset]')) {
+					setlist.push($(this).attr('ruleset'));
+					setnames.push($(this).attr('rulesetname'));
+				}
 			});
-			
-			// Call function to enable selected rules
-			modifyRule("enable", sidlist);	
+			token = $(this).find('input[name="csrfmiddlewaretoken"]').val();
+			if(setlist.length > 0) {
+				$.get('/web/tuning/getModifyForm', function(html){
+					// Put the form content into the container.
+					$('#modifyFormModal #formContent').html(html);
+					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="enable">');
+					$(setlist,setnames).each(function(i){
+						$('#modifyFormModal #formContent').prepend('<input type="hidden" id="ruleset" name="ruleset" value="'+setlist[i]+'">');
+						$('#modifyFormModal #formContent select#ruleset').append('<option>'+setnames[i]+'</option>');
+					});
+					$('#modifyForm #global').click(function(event){
+						if ($('#modifyForm #global').is(':checked')) {
+							$('#modifyForm select#sensors').prop("disabled", true);
+				        } else {
+				        	$('#modifyForm select#sensors').prop("disabled", false);
+				        }
+					});
+					$('#modifyForm').submit(function(event) { event.preventDefault(); modifyRuleSet(this) });
+					$('#modifyFormModal').modal('show');
+					
+					
+				});
+				
+			}
+			if (sidlist.length > 0) {
+				// Call function to enable selected rules
+				modifyRule("enable", sidlist, token);
+			}
+
 		}
 	});
 	
 	$('#manipulator button#disable').click(function(event){
-
+		// Reset this button in the form to default just in case.
+		$('button#modify-submit').prop("disabled",false);
+		$('button#modify-submit').attr('class','btn btn-primary');
+		$('button#modify-submit').html('Save changes');
 		// Get all selected rules and put their SIDs in a list:
-		sids=$('#checkbox input:checked');
+		sids=$('#checkbox:checked');
+		//console.log(sids);
 		if (sids.length > 0) {
 			sidlist = [];
+			setlist = [];
+			setnames = [];
 			$(sids).each(function(){
-				sidlist.push($(this).attr('sid'))
+				if($(this).is('[sid]')) {
+					sidlist.push($(this).attr('sid'));
+				}
+				else if ($(this).is('[ruleset]')) {
+					setlist.push($(this).attr('ruleset'));
+					setnames.push($(this).attr('rulesetname'));
+				}
 			});
-			
-			// Call function to disable selected rules
-			modifyRule("disable", sidlist);	
+			token = $(this).find('input[name="csrfmiddlewaretoken"]').val();
+			if(setlist.length > 0) {
+				$.get('/web/tuning/getModifyForm', function(html){
+					// Put the form content into the container.
+					$('#modifyFormModal #formContent').html(html);
+					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="disable">');
+					$(setlist,setnames).each(function(i){
+						$('#modifyFormModal #formContent').prepend('<input type="hidden" id="ruleset" name="ruleset" value="'+setlist[i]+'">');
+						$('#modifyFormModal #formContent select#ruleset').append('<option>'+setnames[i]+'</option>');
+					});
+					$('#modifyForm #global').click(function(event){
+						if ($('#modifyForm #global').is(':checked')) {
+							$('#modifyForm select#sensors').prop("disabled", true);
+				        } else {
+				        	$('#modifyForm select#sensors').prop("disabled", false);
+				        }
+					});
+					$('#modifyForm').submit(function(event) { event.preventDefault(); modifyRuleSet(this) });
+					$('#modifyFormModal').modal('show');
+					
+					
+				});
+				
+			}
+			if (sidlist.length > 0) {
+				// Call function to enable selected rules
+				modifyRule("disable", sidlist, token);
+			}
+
 		}
 	});	
 	
@@ -59,7 +137,7 @@ function initializeButtons() {
 			// Put the form content into the container.
 			$('#thresholdFormModal #formContent').html(html);
 			// Get all checked checkboxes.
-			sids=$('#checkbox input:checked');
+			sids=$('#checkbox:checked');
 			// If there are checkboxes checked, we need to do some extra stuff.
 			if (sids.length > 0) {
 				// We replace the input with a disabled select that displays the checked rules.
@@ -88,7 +166,7 @@ function initializeButtons() {
 			// Put the form content into the container.
 			$('#suppressFormModal #formContent').html(html);
 			// Get all checked checkboxes.
-			sids=$('#checkbox input:checked');
+			sids=$('#checkbox:checked');
 			// If there are checkboxes checked, we need to do some extra stuff.
 			if (sids.length > 0) {
 				// We replace the input with a disabled select that displays the checked rules.
@@ -109,7 +187,74 @@ function initializeButtons() {
 	});
 
 }
+function modifyRuleSet(form){
+	console.log(form);
+	// Execute the AJAX-request to modify rules in sidList:
+	$.ajax({
+		url: "/web/tuning/modifyRule",
+		type: "post",
+		dataType: "json",
+		data: $(form).serialize(),
+		success: function(data) {
+			// These are flags that determine the outcome of the response.
+			var success, warning, error = false;
+			var alertstring = [];
+			// Clean up any old alerts in the form.
+			$('#modifyForm .alert').remove();
+			// We might get more than one response, so we iterate over them.
+			$.each(data, function() {
+				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
+				// We also set the outcome flags appropriately so we can handle things differently.
+				if(this.response == "ruleSetModificationSuccess") {
+					$.each(this.sets, function() {
+						if(this.mode == "enable"){
+							parent = $('.panel .panel-heading #checkbox[ruleset="'+this.set+'"]').prop('checked', false).parent().parent();
+							$(parent).find('span#onoff').switchClass('btn-danger', 'btn-success').html('ON');
+							$(parent).effect("highlight");
+						}
+						else {
+							parent = $('.panel .panel-heading #checkbox[ruleset="'+this.set+'"]').prop('checked', false).parent().parent();
+							$(parent).find('span#onoff').switchClass('btn-success', 'btn-danger').html('OFF');
+							$(parent).effect("highlight");
+						}
+					});
+					
+					success = true;
+				}
+				else if(this.response == "invalidMode") {
+					alertstring.append(this.text);
+							
+					error = true;
+				}
+				else if(this.response == "ruleSetDoesNotExist") {
+						
+					alertstring.append(this.text);
+							
+					warning = true;
+				}
+			});
+			if ( success && !warning && !error ) {
+				
+				//$('button#modify-submit').hide();
+				$('button#modify-submit').prop("disabled",true);
+				$('button#modify-submit').attr('class','btn btn-success');
+				$('button#modify-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
+				$('button#modify-submit').effect("highlight");
+				
+				setTimeout(function() {$('#modifyFormModal').modal('hide')}, 1500);
+				
+				//setTimeout(function() {location.reload(true)}, 3000);
+			}
+			else if( warning || error ) {
+			
+				alert(alertstring);
+				setTimeout(function() {$('#modifyFormModal').modal('hide')}, 1500);
+				//setTimeout(function() {location.reload(true)}, 3000);
+			}
+		}
+	});
 
+}
 /**
  * Function for turning a rule on or off globally.
  * Sends and AJAX request to the enableRule function
@@ -118,8 +263,8 @@ function initializeButtons() {
  * mode = enable|disable
  * sidList = a plain list of strings representing SIDs
  */
-function modifyRule(mode, sidList){
-
+function modifyRule(mode, sidList, token){
+/*
 	// Get token and put it in the request header:
 	var csrftoken = getCookie('csrftoken');	
 	
@@ -128,15 +273,58 @@ function modifyRule(mode, sidList){
 	            xhr.setRequestHeader("X-CSRFToken", csrftoken);
 	    }
 	});			
-	
+	*/
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
 		url: "/web/tuning/modifyRule",
 		type: "post",
 		dataType: "json",
-		data: {mode: JSON.stringify(mode), sids: JSON.stringify(sidList)},
+		data: {mode: mode, sids: JSON.stringify(sidList), csrfmiddlewaretoken: token},
 		success: function(data) {
-			console.log("Modify rules "+sidlist+". Mode: "+mode);
+			// These are flags that determine the outcome of the response.
+			var success, warning, error = false;
+			var alertstring = [];
+			// We might get more than one response, so we iterate over them.
+			$.each(data, function() {
+				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
+				// We also set the outcome flags appropriately so we can handle things differently.
+				if(this.response == "ruleModificationSuccess") {
+					
+					$.each(this.sids, function() {
+						if(this.mode == "enable"){
+							parent = $('table #checkbox[sid="'+this.sid+'"]').prop('checked', false).parent().parent();
+							$(parent).find('span#onoff').switchClass('btn-danger', 'btn-success').html('ON');
+							$(parent).effect("highlight");
+						}
+						else {
+							parent = $('table #checkbox[sid="'+this.sid+'"]').prop('checked', false).parent().parent();
+							$(parent).find('span#onoff').switchClass('btn-success', 'btn-danger').html('OFF');
+							$(parent).effect("highlight");
+						}
+					});
+					
+					success = true;
+				}
+				else if(this.response == "invalidMode") {
+					alertstring.push(this.text);
+							
+					error = true;
+				}
+				else if(this.response == "ruleDoesNotExist") {
+						
+					alertstring.push(this.text);
+							
+					warning = true;
+				}
+			});
+			if ( success && !warning && !error ) {
+				//setTimeout(function() {location.reload(true)}, 3000);
+			}
+			else if( warning || error ) {
+			
+				alert(alertstring);
+				//setTimeout(function() {location.reload(true)}, 3000);
+			}
 		}
 	});
 }

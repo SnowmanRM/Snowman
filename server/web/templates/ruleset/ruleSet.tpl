@@ -33,9 +33,9 @@
 		<!-- Default panel contents -->
 		<div class="panel-heading row">
 			<div class="col-xs-1 col-sm-1 col-md-1">
-				<input type="checkbox" class="">
+				<input type="checkbox" id="checkbox-all">
 			</div>
-			<div class="col-xs-8 col-sm-8 col-md-8">
+			<div class="col-xs-7 col-sm-7 col-md-7">
 				<h4>Ruleset Name</h4>
 			</div>
 			<div class="col-xs-1 col-sm-1 col-md-1">
@@ -43,6 +43,9 @@
 			</div>
 			<div class="col-xs-1 col-sm-1 col-md-1">
 				<h4># Active</h4>
+			</div>
+			<div class="col-xs-1 col-sm-1 col-md-1">
+				<h4>Sensors</h4>
 			</div>
 			<div class="col-xs-1 col-sm-1 col-md-1">
 				<h4>On/Off</h4>
@@ -55,9 +58,9 @@
 			<!-- Default panel contents -->
 			<div class="panel-heading row">
 				<div class="col-xs-1 col-sm-1 col-md-1">
-					<input type="checkbox" class="">
+					<input type="checkbox" id="checkbox" ruleset="{{ ruleset.id }}" rulesetname="{{ ruleset.name }}">
 				</div>
-				<div class="col-xs-8 col-sm-8 col-md-8">
+				<div class="col-xs-7 col-sm-7 col-md-7">
 					<h4>{{ ruleset.name }}</h4>
 				</div>
 				<div class="col-xs-1 col-sm-1 col-md-1">
@@ -68,8 +71,12 @@
 					<span class="badge btn-danger">{{ sensorcount|add:ruleset.sensors.count|cut:"-" }}</span>
 				</div>
 				<div class="col-xs-1 col-sm-1 col-md-1">
-					{% if ruleset.active %}<span class="badge btn-success">ON</span>
-					{% else %} <span class="badge btn-danger">OFF</span> 
+					<span class="badge btn-success">{{ ruleset.sensors.count }}</span>
+					<span class="badge btn-danger">{{ sensorcount|add:ruleset.sensors.count|cut:"-" }}</span>
+				</div>
+				<div class="col-xs-1 col-sm-1 col-md-1">
+					{% if ruleset.active %}<span id="onoff" class="badge btn-success">ON</span>
+					{% else %} <span id="onoff" class="badge btn-danger">OFF</span> 
 					{% endif %}
 				</div>
 			</div>

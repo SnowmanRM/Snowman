@@ -146,6 +146,11 @@
 	white-space:nowrap;
 	
 }
+#content .table tbody td.row div {
+	padding-left:2px;
+	padding-right:2px;
+	text-align: center;
+}
 
 #content .table tbody tr td.wrappable {
 	white-space:normal;

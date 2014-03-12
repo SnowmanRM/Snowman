@@ -33,7 +33,7 @@
 		<!-- Default panel contents -->
 		<div class="panel-heading row">
 			<div class="col-xs-1 col-sm-1 col-md-1">
-				<input type="checkbox" class="">
+				<input type="checkbox" id="checkbox-all">
 			</div>
 			<div class="col-xs-9 col-sm-9 col-md-9">
 				<h4>Class Name</h4>
@@ -52,7 +52,7 @@
 			<!-- Default panel contents -->
 			<div class="panel-heading row">
 				<div class="col-xs-1 col-sm-1 col-md-1">
-					<input type="checkbox" class="">
+					<input type="checkbox" id="checkbox" ruleclass="{{ ruleclass.id }}">
 				</div>
 				<div class="col-xs-9 col-sm-9 col-md-9">
 					<h4>{{ ruleclass.classtype }}</h4>
@@ -66,8 +66,8 @@
 				
 			</div>
 			
-			<div class="panel-body text-center" style="display:none;">
-			<pre>{{ ruleclass.description }}</pre>
+			<div class="panel-body" style="display:none;">
+			<pre class="text-center">{{ ruleclass.description }}</pre>
 			{% if ruleclass.rules.count %}
 				<div id="rules" class="rules-panel panel panel-default">
 					<!-- Default panel contents -->

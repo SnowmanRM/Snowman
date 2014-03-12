@@ -1,7 +1,7 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
-from core.models import Rule, RuleRevision, Sensor, Generator
+from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet
 from tuning.models import Threshold, Suppress, SuppressAddress
 from web.utilities import UserSettings
 import logging, json, re
@@ -47,27 +47,130 @@ def getSuppressForm(request):
 	# Send to template.
 	return render(request, 'tuning/suppressForm.tpl', context)
 
-def modifyRule(request):
+def getModifyForm(request):
+	"""This method is loaded when the /tuning/getModifyForm is called. 
+	It delivers a form for suppression. """
+	
 	logger = logging.getLogger(__name__)
 	
-	sids = json.loads(request.POST.get('sids'))
-	mode = json.loads(request.POST.get('mode'))
+	context = {}
 	
+	try:
+	# Get a complete list of sensors..
+	
+		context['allsensors'] = Sensor.objects.all()
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	# Send to template.
+	return render(request, 'tuning/modifyForm.tpl', context)
+
+def modifyRule(request):
+	logger = logging.getLogger(__name__)
+	response = []
+	sids = []
+	ruleSets = []
+	
+	if request.POST.get('sids'):
+		sids = json.loads(request.POST.get('sids'))
+	if request.POST.get('ruleset'):
+		ruleSets = request.POST.getlist('ruleset')
+	mode = request.POST.get('mode')
+	
+
 	if mode == "enable":
 		active = True
 	elif mode == "disable":
 		active = False
 	else:
 		logger.error("Invalid mode '"+mode+"'. Rule(s) not modified.")
-		return
-
-	for sid in sids:
-		r = Rule.objects.get(SID=sid)
-		r.active = active
-		r.save()
-		logger.info("Rule "+str(r)+" is now "+mode+"d.")
+		response.append({'response': 'invalidMode', 'text': 'Rule modification failed, invalid mode. \nContact administrator.\n\n'})
+		return HttpResponse(json.dumps(response))
+	
+	if len(sids) == 0:
+		response.append({'response': 'noSids'})
 		
-	return HttpResponse("json.dumps(response)")
+	else: 
+		goodsids = []
+		for sid in sids:
+			try:
+				r = Rule.objects.filter(SID=sid).update(active=active)
+				goodsids.append({'sid': sid, 'mode': mode})
+				logger.info("Rule "+str(r)+" is now "+mode+"d.")
+			except Rule.DoesNotExist:
+				response.append({'response': 'ruleDoesNotExist', 'text': 'Rule '+sid+' could not be found. \nIt has not been modified.\n\n'})
+				logger.warning("Rule "+sid+" could not be found.")
+				
+		response.append({'response': 'ruleModificationSuccess', 'sids': goodsids})
+		
+	if len(ruleSets) == 0:
+		response.append({'response': 'noSets'})
+	else: 
+		
+		goodRuleSets = []
+		if request.POST.get('global'):
+			globalmodify = request.POST['global']
+		else:
+			globalmodify = ""
+		if globalmodify == "on":
+			for ruleSet in ruleSets:
+				try:
+					r = RuleSet.objects.filter(id=ruleSet).update(active=active)
+					goodRuleSets.append({'set': ruleSet, 'mode': mode})
+					logger.info("RuleSet "+str(r)+" is now "+mode+"d.")
+				except RuleSet.DoesNotExist:
+					response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
+					logger.warning("RuleSet "+ruleSet+" could not be found.")
+					
+			response.append({'response': 'ruleSetModificationSuccess', 'sets': goodRuleSets})
+		else:
+			sensors = request.POST.getlist('sensors')
+			# If we didnt pick all sensors, we gotta check to see if the selected ones exist. 
+			# We also populate a list for later use.
+			if sensors[0] != "all":
+				for sensor in sensors:
+					try:
+						s = Sensor.objects.get(id=sensor)
+						for ruleSet in ruleSets:
+							try:
+								r = RuleSet.objects.get(id=ruleSet)
+								if active:
+									r.sensors.add(s)
+								else:
+									r.sensors.remove(s)
+								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor})
+								logger.info("RuleSet "+str(r)+" is now "+mode+"d on sensor "+str(s)+".")
+							except RuleSet.DoesNotExist:
+								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
+								logger.warning("RuleSet "+ruleSet+" could not be found.")
+					except Sensor.DoesNotExist:
+						response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
+						logger.warning("Sensor "+sensor+" could not be found.")
+			# If we selected all sensors, generate a list of all of their ids.	
+			elif sensors[0] == "all":
+				try:
+					for sensor in Sensor.objects.all():
+						for ruleSet in ruleSets:
+							try:
+								r = RuleSet.objects.get(id=ruleSet)
+								if active:
+									r.sensors.add(sensor)
+								else:
+									r.sensors.remove(sensor)
+								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor.id})
+								logger.info("RuleSet "+str(r)+" is now "+mode+"d on sensor "+str(sensor)+".")
+							except RuleSet.DoesNotExist:
+								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
+								logger.warning("RuleSet "+ruleSet+" could not be found.")
+				except Sensor.DoesNotExist:
+					response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
+					logger.warning("Sensor "+sensor+" could not be found.")
+					
+			response.append({'response': 'ruleSetModificationSuccess', 'sets': goodRuleSets})
+	
+	return HttpResponse(json.dumps(response))
 
 def setThresholdOnRule(request):
 	"""This method is loaded when the /tuning/setThresholdOnRule is called.
@@ -82,7 +185,7 @@ def setThresholdOnRule(request):
 	logger = logging.getLogger(__name__)
 	
 	# Get some initial post values for processing.
-	ruleIds = request.POST.getlist('id')
+	ruleIds = request.POST.getlist('rid')
 	sensors = request.POST.getlist('sensors')
 	commentString = request.POST['comment']
 	force = request.POST['force']
@@ -227,7 +330,7 @@ def setSuppressOnRule(request):
 	logger = logging.getLogger(__name__)
 	
 	# Get some initial post values for processing.
-	ruleIds = request.POST.getlist('id')
+	ruleIds = request.POST.getlist('rid')
 	sensors = request.POST.getlist('sensors')
 	commentString = request.POST['comment']
 	force = request.POST['force']
