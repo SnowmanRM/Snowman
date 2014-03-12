@@ -7,16 +7,28 @@
 
 // This function starts all click events within the rule list.
 function listInitialize() {
-	
-	
-	// Initializes the switchbuttons
-	//$(".ruleswitch").bootstrapSwitch()
+	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('table thead th#checkbox-all input').click(function(event){
+				
+		if ($("table thead th#checkbox-all input").is(':checked')) {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
+                $(this).prop("checked", true);
+            });
+
+        } else {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
+                $(this).prop("checked", false);
+            });
+        }
+		
+	});
+
 	
 	// Installs click events on all rows.
 	$('table tbody tr.odd').unbind('click');
 	$('table tbody tr.odd').click(function(event){
 		// This is to make sure a click on the switch doesnt trigger a row open.
-		if($(event.target).is('table td#checkbox')||$(event.target).is('table tr.odd td#checkbox input')){
+		if($(event.target).is('#checkbox')||$(event.target).is('td#checkbox')){
             //event.preventDefault();
             return;
         }
@@ -276,13 +288,7 @@ function searchField() {
 }
 
 $(document).ready(function(){
-	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
-	$('table thead th#checkbox-all input').click(function(event){
-		
-		checkBoxes = $('table.current td#checkbox input');
-		checkBoxes.prop("checked", !checkBoxes.prop("checked"));
-		
-	});
+	
 	// Calls function to initialize click events and buttons.
 	listInitialize();
 	

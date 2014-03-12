@@ -40,8 +40,8 @@
 		{% if rule_list %}
 		{% for rule in rule_list %}
 		<tr class="odd">
-			<td id="checkbox" class="text-left">
-				<input id="{{rule.id}}" gid="{{ rule.generator_id }}" sid="{{ rule.SID }}" status="{% if rule.thresholds.count %} T{% endif %}
+			<td class="text-left">
+				<input id="checkbox" rid="{{rule.id}}" gid="{{ rule.generator_id }}" sid="{{ rule.SID }}" status="{% if rule.thresholds.count %} T{% endif %}
 				{% if rule.suppress.count %} S{% endif %}" type="checkbox">
 			</td>
 			<td class="text-right">
@@ -66,13 +66,17 @@
 				<span class="badge btn-primary">{{ rule.ruleClass.priority }}</span>
 			</td>
 			<td class="text-right">
-				{% if rule.thresholds.count %}<span class="badge btn-warning">T</span>{% endif %}
-				{% if rule.suppress.count %}<span class="badge btn-warning">S</span>{% endif %}
-				|
-				<span class="badge btn-success">{{ rule.ruleSet.sensors.count }}</span>
-				<span class="badge btn-danger">{{ sensorcount|add:rule.ruleSet.sensors.count|cut:"-" }}</span>
-				|
-				{% if rule.active %}<span class="badge btn-success">ON</span>{% else %} <span class="badge btn-danger">OFF</span> {% endif %}
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					{% if rule.thresholds.count %}<span class="badge btn-warning">T</span>{% endif %}
+					{% if rule.suppress.count %}<span class="badge btn-warning">S</span>{% endif %}
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					<span class="badge btn-success">{{ rule.ruleSet.sensors.count }}</span>
+					<span class="badge btn-danger">{{ sensorcount|add:rule.ruleSet.sensors.count|cut:"-" }}</span>
+				</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+					{% if rule.active %}<span id="onoff" class="badge btn-success">ON</span>{% else %} <span id="onoff" class="badge btn-danger">OFF</span> {% endif %}
+				</div>
 			</td>
 		</tr>
 		<tr class="even" style="display: none">
@@ -102,10 +106,6 @@
   				<div class="row container-fluid">
 					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 						<div class="panel panel-default">
-							<div class="panel-heading">Tuning</div>
-							<div class="panel-body">
-								Stuff
-							</div>
 							<div class="panel-heading">Rule</div>
 							<div class="panel-body">
 								<pre>{{ rule.getCurrentRevision.raw }}</pre>

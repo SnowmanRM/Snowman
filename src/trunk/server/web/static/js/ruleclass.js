@@ -72,16 +72,59 @@ function getPage(ruleClass,pageNr){
 }
 
 function listInitialize() {
+	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('.panel .panel-heading #checkbox-all').click(function(event){
+		
+		if ($(".panel #checkbox-all").is(':checked')) {
+            $(".panel .panel-heading input[type=checkbox]").each(function () {
+                $(this).prop("checked", true);
+            });
+
+        } else {
+            $(".panel .panel-heading input[type=checkbox]").each(function () {
+                $(this).prop("checked", false);
+            });
+        }
+		
+	});
+	$('table thead th#checkbox-all input').click(function(event){
+				
+		if ($("table thead th#checkbox-all input").is(':checked')) {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
+                $(this).prop("checked", true);
+            });
+
+        } else {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
+                $(this).prop("checked", false);
+            });
+        }
+		
+	});
+
 	
+	// Installs click events on all rows.
+	$('table tbody tr.odd').unbind('click');
+	$('table tbody tr.odd').click(function(event){
+		// This is to make sure a click on the switch doesnt trigger a row open.
+		if($(event.target).is('#checkbox')||$(event.target).is('#checkbox')){
+            //event.preventDefault();
+            return;
+        }
+		
+		// Toggles clicked row on the 'active' css class so it changes color
+		$(this).toggleClass("bg-primary");
+		// Shows or hides the next row which is hidden by default.
+		$(this).next().toggle();
 	
-	// Initializes the switchbuttons
-	//$(".ruleswitch").bootstrapSwitch()
+	});
+
 	
 	// Installs click events on all rows.
 	$('div.panel-heading').unbind('click');
 	$('div.panel-heading').click(function(event){
 		// This is to make sure a click on the switch doesnt trigger a row open.
-		if($(event.target).is('table td#checkbox')||$(event.target).is('input')||$(event.target).is('a')){
+		if($(event.target).is('#checkbox')||$(event.target).is('input')||$(event.target).is('a')){
             //event.preventDefault();
 			
             return;
@@ -98,8 +141,8 @@ function listInitialize() {
 				;
 			}
 			else {
-				var ruleSet = $(this).parent().attr('id');
-				loadRuleClassRules(ruleSet);
+				var ruleClass = $(this).parent().attr('id');
+				loadRuleClassRules(ruleClass);
 				$(this).toggleClass("loaded");
 			}
 			
@@ -154,7 +197,10 @@ function loadRuleClassRules (ruleClass) {
 
 		loadPaginator(_ruleClass, currentpage, pagecount);
 		loadNextPages(_ruleClass, currentpage, pagecount);
-		getPage(_ruleClass, pagecount);
+		
+		if (pagecount > currentpage) {
+			getPage(_ruleClass, pagecount);
+		}
 		
 	});
 }
