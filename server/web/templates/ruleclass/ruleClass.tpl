@@ -35,7 +35,7 @@
 			<div class="col-xs-1 col-sm-1 col-md-1">
 				<input type="checkbox" id="checkbox-all">
 			</div>
-			<div class="col-xs-9 col-sm-9 col-md-9">
+			<div class="col-xs-7 col-sm-7 col-md-7">
 				<h4>Class Name</h4>
 			</div>
 			<div class="col-xs-1 col-sm-1 col-md-1">
@@ -44,31 +44,37 @@
 			<div class="col-xs-1 col-sm-1 col-md-1">
 				<h4># Rules</h4>
 			</div>
+			<div class="col-xs-2 col-sm-2 col-md-2">
+				<h4># Active</h4>
+			</div>
 		</div>
 	</div>
-	{% if ruleset_list %}
-	{% for ruleclass in ruleset_list %}
-		<div id="{{ ruleclass.id }}" class="ruleclass-panel panel panel-default">
+	{% if ruleclass_list %}
+	{% for ruleclass in ruleclass_list %}
+		<div id="{{ ruleclass.ruleClassID }}" class="ruleclass-panel panel panel-default">
 			<!-- Default panel contents -->
 			<div class="panel-heading row">
 				<div class="col-xs-1 col-sm-1 col-md-1">
-					<input type="checkbox" id="checkbox" ruleclass="{{ ruleclass.id }}">
+					<input type="checkbox" id="checkbox" ruleclass="{{ ruleclass.ruleClassID }}">
 				</div>
-				<div class="col-xs-9 col-sm-9 col-md-9">
-					<h4>{{ ruleclass.classtype }}</h4>
-				</div>
-				<div class="col-xs-1 col-sm-1 col-md-1">
-					<span class="badge btn-danger">{{ ruleclass.priority }}</span>
+				<div class="col-xs-7 col-sm-7 col-md-7">
+					<h4>{{ ruleclass.ruleClassName }}</h4>
 				</div>
 				<div class="col-xs-1 col-sm-1 col-md-1">
-					<span class="badge btn-warning">{{ ruleclass.rules.count }}</span>
+					<span class="badge {{ ruleclass.ruleClassPriorityColor }}">{{ ruleclass.ruleClassPriority }}</span>
 				</div>
-				
+				<div class="col-xs-1 col-sm-1 col-md-1">
+					<span class="badge label-default">{{ ruleclass.ruleClassRulesCount }}</span>
+				</div>
+				<div class="col-xs-1 col-sm-1 col-md-1">
+					<span class="badge btn-success">{{ ruleclass.ruleClassActiveRulesCount }}</span>
+					<span class="badge btn-danger">{{ ruleclass.ruleClassInActiveRulesCount }}</span>
+				</div>
 			</div>
 			
 			<div class="panel-body" style="display:none;">
-			<pre class="text-center">{{ ruleclass.description }}</pre>
-			{% if ruleclass.rules.count %}
+			<pre class="text-center">{{ ruleclass.ruleClassDescription }}</pre>
+			{% if ruleclass.ruleClassRulesCount %}
 				<div id="rules" class="rules-panel panel panel-default">
 					<!-- Default panel contents -->
 					<div class="panel-heading row">
@@ -80,7 +86,7 @@
 						</div>
 						<div id="paginator-container" class="col-xs-5 col-sm-5 col-md-5">
 							<div class="pull-right">
-								<ul id="paginator" ruleclass="{{ ruleclass.id }}" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination"></ul>
+								<ul id="paginator" ruleclass="{{ ruleclass.ruleClassID }}" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination"></ul>
 							</div>
 						</div>
 						
@@ -96,7 +102,7 @@
 	{% endfor %}
 		    
 	{% else %}
-	<li class="list-group-item odd">No rulesets are available.</li>
+	<li class="list-group-item odd">No ruleclasses are available.</li>
 	{% endif %}
 </div>
 

@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
 from core.models import Rule, RuleRevision, Sensor, RuleSet
-from web.utilities import UserSettings
+from web.utilities import UserSettings, ruleSetsToTemplate
 import logging
 
 def index(request):
@@ -27,17 +27,18 @@ def index(request):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		context['sensorcount'] =  Sensor.objects.count()
-		context['sensorcount'] = -context['sensorcount']
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
 		
 		# We need to know how many rules there are total.
 		context['itemcount'] = RuleSet.objects.count()
 		# Get all rules, but limited by the set pagelength.
-		context['ruleset_list'] = RuleSet.objects.all()
+		context['ruleset_list'] = RuleSet.objects.all().order_by('name')
 
 	except RuleSet.DoesNotExist:
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
 		raise Http404
 	
-	
+	context['ruleset_list'] = ruleSetsToTemplate(context['ruleset_list'])
+	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
 	return render(request, 'ruleset/ruleSet.tpl', context)

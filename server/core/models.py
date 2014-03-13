@@ -221,7 +221,7 @@ class RuleRevision(models.Model):
 	rule = models.ForeignKey('Rule', related_name="revisions")
 	active = models.BooleanField(default=True)
 	threshold = models.TextField(default = "")
-	supress = models.TextField(default = "")
+	suppress = models.TextField(default = "")
 	rev = models.IntegerField()
 	raw = models.TextField()
 	msg = models.TextField()
