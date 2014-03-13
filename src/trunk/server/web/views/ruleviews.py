@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
 from core.models import Rule, RuleRevision, Sensor
-from web.utilities import UserSettings
+from web.utilities import UserSettings, rulesToTemplate
 import logging
 
 def index(request):
@@ -39,8 +39,8 @@ def index(request):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		context['sensorcount'] =  Sensor.objects.count()
-		context['sensorcount'] = -context['sensorcount']
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
 		
 		# We need to know how many rules there are total.
 		context['itemcount'] = Rule.objects.count()
@@ -51,7 +51,8 @@ def index(request):
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
 		raise Http404
 	
-	
+	context['rule_list']=rulesToTemplate(context['rule_list'])
+	#return HttpResponse(rulesToTemplate(context['rule_list']))
 	return render(request, 'rules/rules.tpl', context)
 
 def getRulePage(request, pagenr):
@@ -87,8 +88,8 @@ def getRulePage(request, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		context['sensorcount'] =  Sensor.objects.count()
-		context['sensorcount'] = -context['sensorcount']
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
 		
 		
 		# We need to know how many rules there are total.
@@ -99,6 +100,7 @@ def getRulePage(request, pagenr):
 		logger.warning("Page request /rules/page/"+str(pagenr)+" could not be resolved, objects in range "+str(minrange)+" - "+str(maxrange)+"not found.")
 		raise Http404
 	
+	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesBySearch(request, pagenr):
@@ -146,8 +148,8 @@ def getRulesBySearch(request, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		context['sensorcount'] =  Sensor.objects.count()
-		context['sensorcount'] = -context['sensorcount']
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
 		
 		# We do different queries based on the searchfield string.
 		if searchfield=='sid':
@@ -165,7 +167,7 @@ def getRulesBySearch(request, pagenr):
 		logger.warning("Page request /rules/search for string: "+searchstring+" in field "+searchfield+" could not be resolved, objects not found.")
 		raise Http404
 	
-	
+	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesByRuleSet(request, ruleSetID, pagenr):
@@ -214,8 +216,8 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		context['sensorcount'] =  Sensor.objects.count()
-		context['sensorcount'] = -context['sensorcount']
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
 		
 		# We do different queries based on the searchfield string.
 		
@@ -229,7 +231,7 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
 		raise Http404
 	
-	
+	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesByRuleClass(request, ruleClassID, pagenr):
@@ -278,8 +280,8 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		context['sensorcount'] =  Sensor.objects.count()
-		context['sensorcount'] = -context['sensorcount']
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
 		
 		# We do different queries based on the searchfield string.
 		
@@ -293,5 +295,5 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
 		raise Http404
 	
-	
+	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)

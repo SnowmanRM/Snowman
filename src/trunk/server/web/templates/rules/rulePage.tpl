@@ -41,41 +41,41 @@
 		{% for rule in rule_list %}
 		<tr class="odd">
 			<td class="text-left">
-				<input id="checkbox" rid="{{rule.id}}" gid="{{ rule.generator_id }}" sid="{{ rule.SID }}" status="{% if rule.thresholds.count %} T{% endif %}
-				{% if rule.suppress.count %} S{% endif %}" type="checkbox">
+				<input id="checkbox" rid="{{rule.ruleID}}" gid="{{ rule.ruleGID }}" sid="{{ rule.ruleSID }}" status="{% if rule.ruleThresholdCount %} T{% endif %}
+				{% if rule.ruleSuppressCount %} S{% endif %}" type="checkbox">
 			</td>
 			<td class="text-right">
-				{{ rule.SID }}
+				{{ rule.ruleSID }}
 			</td>
 			<td class="text-right">
-				{{ rule.getCurrentRevision.rev }}
+				{{ rule.ruleRev }}
 			</td>
 			<td class="text-right">
-				{{ rule.getCurrentRevision.update.first.time|date:"Y-m-d" }}
+				{{ rule.ruleUpdateTime|date:"Y-m-d" }}
 			</td>
 			<td class="wrappable">
-				{{ rule.getCurrentRevision.msg }}
+				{{ rule.ruleMsg }}
 			</td>
 			<td class="text-center">
-				{{ rule.ruleSet.name }}
+				{{ rule.ruleRuleSetName }}
 			</td>
 			<td class="text-center">
-				{{ rule.ruleClass.classtype }}
+				{{ rule.ruleClassName }}
 			</td>
 			<td class="text-center">
-				<span class="badge btn-primary">{{ rule.ruleClass.priority }}</span>
+				<span class="badge {{ rule.ruleClassPriorityColor }}">{{ rule.ruleClassPriority }}</span>
 			</td>
 			<td class="text-right">
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					{% if rule.thresholds.count %}<span class="badge btn-warning">T</span>{% endif %}
-					{% if rule.suppress.count %}<span class="badge btn-warning">S</span>{% endif %}
+					{% if rule.ruleThresholdCount %}<span class="badge btn-warning">T</span>{% endif %}
+					{% if rule.ruleSuppressCount %}<span class="badge btn-warning">S</span>{% endif %}
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					<span class="badge btn-success">{{ rule.ruleSet.sensors.count }}</span>
-					<span class="badge btn-danger">{{ sensorcount|add:rule.ruleSet.sensors.count|cut:"-" }}</span>
+					<span class="badge btn-success">{{ rule.ruleActiveOnSensorsCount }}</span>
+					<span class="badge btn-danger">{{ rule.ruleInActiveOnSensorsCount }}</span>
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					{% if rule.active %}<span id="onoff" class="badge btn-success">ON</span>{% else %} <span id="onoff" class="badge btn-danger">OFF</span> {% endif %}
+					{% if rule.ruleActive %}<span id="onoff" class="badge btn-success">ON</span>{% else %} <span id="onoff" class="badge btn-danger">OFF</span> {% endif %}
 				</div>
 			</td>
 		</tr>
@@ -86,8 +86,8 @@
 						<div class="panel panel-default">
 		  					<div class="panel-heading">References</div>
 							<div class="list-group">
-							{% for reference in rule.getCurrentRevision.references.all %}
-								<a class="list-group-item" href="{{ reference.referenceType.urlPrefix }}{{ reference.reference }}">{{ reference.referenceType.urlPrefix }}{{ reference.reference }}</a>
+							{% for reference in rule.ruleReferences %}
+								<a class="list-group-item" href="{{ reference.urlPrefix }}{{ reference.reference }}">{{ reference.urlPrefix }}{{ reference.reference }}</a>
 							{% endfor %}
 							</div>
 						</div>
@@ -96,8 +96,8 @@
 						<div class="panel panel-default">
 		  					<div class="panel-heading">Active On Sensors:</div>
 		  					<ul class="list-group">
-							{% for sensor in rule.ruleSet.sensors.all %}
-								<li class="list-group-item">{{ sensor.name }}</li>
+							{% for sensorName in rule.ruleActiveOnSensors %}
+								<li class="list-group-item">{{ sensorName }}</li>
 							{% endfor %}
 							</ul>
 		  				</div>
@@ -108,7 +108,7 @@
 						<div class="panel panel-default">
 							<div class="panel-heading">Rule</div>
 							<div class="panel-body">
-								<pre>{{ rule.getCurrentRevision.raw }}</pre>
+								<pre>{{ rule.ruleRaw }}</pre>
 							</div>
 						</div>
 					</div>

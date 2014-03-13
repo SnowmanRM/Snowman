@@ -11,12 +11,12 @@ function listInitialize() {
 	$('table thead th#checkbox-all input').click(function(event){
 				
 		if ($("table thead th#checkbox-all input").is(':checked')) {
-            $("table.current td#checkbox input[type=checkbox]").each(function () {
+            $("table.current #checkbox").each(function () {
                 $(this).prop("checked", true);
             });
 
         } else {
-            $("table.current td#checkbox input[type=checkbox]").each(function () {
+            $("table.current #checkbox").each(function () {
                 $(this).prop("checked", false);
             });
         }
