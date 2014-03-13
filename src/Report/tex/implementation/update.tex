@@ -1,7 +1,125 @@
 \section{Update module}
-The Update module 
+The purpose of the Update module is to fetch and read rules and configuration
+files from external sources, and populate the database with this information.
+Effectiveness in updates is a key issue, and a number of deliberate
+optimizations for performing updates, with the goal of saving time by omitting
+unnecessary operations, are explained in the following sections.
+
+The term Update is used to refer to the actual module, including all its classes
+and functions. To avoid confusion with the module, the term \em update-package
+\em is specifically used to refer to update data coming from external sources.
+
+This section will define an example rule to be used throughout subsequent
+sections and the remainder of the chapter, to illustrate the lifespan of a rule
+in the system.
+
+Word: rulestring.
+
+\subsection{Sources}
+
+\subsection{Update types}
+An update is either performed manually or automatically. Any \em Source \em in
+the system can be configured with a time-interval for automatic updates.
 
 \subsection{Files}
-MD5
-\subsection{Handling rule changes}
+\label{sec:update.files}
+\subsubsection{Rule files}
+A rule file is any file carrying the \em .rules \em file extension. These files
+contain raw rulestrings to be processed by Snort. A rulestring is basically a
+semicolon-separated list of rule options. There are several types of options,
+but only the general rule options are relevant for this
+project\footnote{http://manual.snort.org/node30.html: ``[General] options
+provide information about the rule but do not have any affect during
+detection''.}. Specific rule options used in this system are listed in table
+\ref{tab:ruleFormat}.
+
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+
+\begin{table}[tbp]
+  \centering
+  \begin{tabular}{l|p{8cm}|l}
+  	Data field  & Description & Presence \\
+    \hline
+    	\multicolumn{1}{c|}{sid} & Unique identifier for a rule. & required\\
+	    \multicolumn{1}{c|}{rev} & Rule revision number. & required \\
+	    \multicolumn{1}{c|}{msg} & Notification text when rule triggers. &
+	    required \\
+	    \multicolumn{1}{c|}{classtype} & Connects the rule with a specific class
+	    of attacks. & required \\
+	    \multicolumn{1}{c|}{gid} & Generator ID to identify which subsystem
+	    generates the event where this rule fires. & optional \\
+	    \multicolumn{1}{c|}{ruleset} & The ruleset this rule belongs to. & optional \\
+	    \multicolumn{1}{c|}{reference} & Reference to external resource with
+	    information about this attack. & optional \\
+	    \hline
+		\multicolumn{3}{p{12cm}}{Note: Presence column indicates whether a field is
+		required or not by the parser in this system. Information taken from \em
+		http://manual.snort.org/node31.html \em. }
+  \end{tabular}
+  \caption{Rule options used in this system.}
+  \label{tab:ruleFormat}
+\end{table}
+
+A badly formatted rulestring given to Snort will cause a crash, and Snort must
+be restarted.
+
+\subsection{Running an update}
+As an example scenario, consider a rule (name, figure reference, source,
+ruleset etc.). An update is triggered on the source at the predefined time
+
+The update is cancelled if the source is already up to date; the MD5-hashes of
+the latest update in the database, if any, and the latest update on the remote
+site are compared, and the process is terminated if these hashes are
+identical. Otherwise, the update is downloaded to a temporary directory and the
+update process continues. A file can be a tar-archive containing an arbitrary
+number of rulesets and configuration files, or it can be a plain text file
+containing Snort configuration (?).
+
+The tar-archive is extracted, and the update module recursively parses each
+file in each folder. In most cases the update-package will contain only minor
+changes in relation to its predecessor, e.g. only one file is different in the
+latest package, and parsing all files that has not changed would therefore be
+a waste. To address this issue and save processing time, the name, path and
+MD5-hash of every file is stored in the database per source. Every time the
+update module parses a file, it first creates a hash of the file and
+compares this with the respective file's hash in the database. If the file
+is present in the database and the two hashes coincide, the file is
+considered \em not new \em and is skipped. The following sections will elaborate
+on the parsing of files based on file type.
+
+parse files with regex.
+
+\subsubsection{Classification, Generator and Reference Type files}
+These files contain a sequence of their respective entities (section
+\ref{sec:update.files}), and are all parsed in the same manner. If a given entity is
+not already present in the database, it is created and stored. If the database
+already contains the entity, the existing entry in the database is overwritten.
+
+\subsubsection{Rule files}
+
+If any properties classified as \em required \em for a rule
+(table \ref{tab:ruleFormat})
+
+A rule always belogs to a ruleset which can be specified in the raw
+rulestring. If the parser does not find this attribute in the rulestring,
+the filename is considered to be the ruleset name.
+
+set rule properties.
+
+Non-existing rule sets, rule classes and
+generators are stored in the database
+
+After the initial parsing of the rulestring, the parser checks if the rule
+already exists in the database, and if so whether the incoming revision number
+is higher than the latest revision of the pre-existing rule. The parsing
+will continue only in the event of a new rule or a newer revision of an existing
+rule.
+
+rule moved to new ruleset.
+
+
+
+\subsubsection{Rule Message files}
+
 \subsection{Logging}

@@ -176,11 +176,13 @@ class RuleReference(models.Model):
 	about a specific rule. It is of a certain type (which contains an
 	urlPrefix), and a reference."""
 	
-	reference = models.TextField()
+	reference = models.CharField(max_length=100)
 	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
 	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 
-	# TODO: Unique: rulerevision+referencetype? 
+	class Meta:
+		# Avoid duplicate entries
+		unique_together = ('reference', 'referenceType', 'rulerevision')
 
 	def __repr__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
@@ -189,11 +191,8 @@ class RuleReference(models.Model):
 	def __str__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
 					self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
-		
-		
+
 	def splitReference(self):
-		
-		
 		return 0
 
 class RuleReferenceType(models.Model):
