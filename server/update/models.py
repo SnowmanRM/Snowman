@@ -3,7 +3,7 @@ import logging
 import os
 import re
 
-from django.db import models
+from django.db import models, IntegrityError
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
 	RuleReference, RuleReferenceType
@@ -300,6 +300,7 @@ class Update(models.Model):
 
 					# Add the ruleRevision to the update-object.
 					self.ruleRevisions.add(rev)
+					return rule
 			else:
 				logger.debug("Rule %s/%s is already up to date" % (ruleSID, ruleRev))
 				
@@ -402,7 +403,11 @@ class Update(models.Model):
 			
 
 		# Create the reference
-		referenceType.references.create(reference=referenceData, rulerevision=ruleRevision)
+		try:
+			referenceType.references.create(reference=referenceData, rulerevision=ruleRevision)
+		except IntegrityError:
+			logger.info("Cannot add new reference to rulerevision "+str(ruleRevision)+": An identical reference already exists!")
+		
 		
 				
 		

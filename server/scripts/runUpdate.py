@@ -10,7 +10,6 @@ The script can also be invoked manually. It is able to process a single textfile
 import logging
 import os
 import sys
-from datetime import datetime
 
 # Add the parent folder of the script to the path
 scriptpath = os.path.realpath(__file__)
@@ -19,14 +18,13 @@ parentdir = os.path.dirname(scriptdir)
 sys.path.append(parentdir)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
-from update.models import Update, Source
+from update.models import Source
 from update.tasks import UpdateTasks
-import util.logger
 
 if __name__ == "__main__":
 	logger = logging.getLogger(__name__)
 	
-	# Grab the parametres.
+	# Grab the parameters.
 	try:
 		filename = sys.argv[1]
 	except IndexError:
