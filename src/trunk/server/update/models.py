@@ -221,7 +221,8 @@ class Update(models.Model):
 			try:
 				ruleSetName = ruleset.group(1)
 			except AttributeError:
-				ruleSetName = filename.rstrip(".rules")			
+				#ruleSetName = filename.rstrip(".rules")			
+				ruleSetName = re.sub('\.rules$', '', filename)
 			
 			# If the rule is new, or is a newer version of a rule we already have:
 			if(int(ruleSID) not in currentRules or int(ruleRev) > currentRules[int(ruleSID)]):
