@@ -41,8 +41,6 @@ class Rule(models.Model):
 	generator = models.ForeignKey('Generator', related_name='rules')
 	ruleSet = models.ForeignKey('RuleSet', related_name='rules')
 	ruleClass = models.ForeignKey('RuleClass', related_name='rules')
-	threshold = models.TextField(default = "")
-	supress = models.TextField(default = "")
 	priority = models.IntegerField(null=True)
 
 	def __repr__(self):
@@ -222,6 +220,8 @@ class RuleRevision(models.Model):
 
 	rule = models.ForeignKey('Rule', related_name="revisions")
 	active = models.BooleanField(default=True)
+	threshold = models.TextField(default = "")
+	supress = models.TextField(default = "")
 	rev = models.IntegerField()
 	raw = models.TextField()
 	msg = models.TextField()
