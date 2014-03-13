@@ -41,6 +41,8 @@ class Rule(models.Model):
 	generator = models.ForeignKey('Generator', related_name='rules')
 	ruleSet = models.ForeignKey('RuleSet', related_name='rules')
 	ruleClass = models.ForeignKey('RuleClass', related_name='rules')
+	threshold = models.TextField(default = "")
+	supress = models.TextField(default = "")
 	priority = models.IntegerField(null=True)
 
 	def __repr__(self):

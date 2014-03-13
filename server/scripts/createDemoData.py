@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 logger.info("Started to create initial data.")
 
 # Create some demo-sensors.
-for i in range(1, 10):
+for i in range(1, 3):
 	username = "DemoSensor%d" % i
 	user, created = User.objects.get_or_create(username = username, first_name = "MySensor", last_name = str(i))
 	if(created):

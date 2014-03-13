@@ -104,7 +104,7 @@ def changes(request):
 	data['updates'] = []
 
 	lastUpdate = None
-	for change in RuleChanges.objects.all():
+	for change in RuleChanges.objects.order_by('update').all():
 		if(lastUpdate != change.update.id):
 			lastUpdate = change.update.id
 			data['updates'].append([])
