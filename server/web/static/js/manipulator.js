@@ -31,12 +31,14 @@ function initializeButtons() {
 		
 		// Get all selected rules and put their SIDs in a list:
 		sids=$('#checkbox:checked');
-		//console.log(sids);
+	
 		if (sids.length > 0) {
 			sidlist = [];
 			setlist = [];
 			setnames = [];
+			// For each of them.
 			$(sids).each(function(){
+				// You can select both rules and rulesets at the same time, so we differentiate.
 				if($(this).is('[sid]')) {
 					sidlist.push($(this).attr('sid'));
 				}
@@ -45,16 +47,22 @@ function initializeButtons() {
 					setnames.push($(this).attr('rulesetname'));
 				}
 			});
+			// Grab the CSRF token so Django is happy.
 			token = $(this).find('input[name="csrfmiddlewaretoken"]').val();
+			// If some rulesets were selected.
 			if(setlist.length > 0) {
+				// Load the form with AJAX.
 				$.get('/web/tuning/getModifyForm', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="enable">');
+					// For each of the rulesets, put their names into the disabled select list and create a hidden input with their ID.
 					$(setlist,setnames).each(function(i){
 						$('#modifyFormModal #formContent').prepend('<input type="hidden" id="ruleset" name="ruleset" value="'+setlist[i]+'">');
 						$('#modifyFormModal #formContent select#ruleset').append('<option>'+setnames[i]+'</option>');
 					});
+					
+					// If someone checks the global checkbox, we disable the sensor selection.
 					$('#modifyForm #global').click(function(event){
 						if ($('#modifyForm #global').is(':checked')) {
 							$('#modifyForm select#sensors').prop("disabled", true);
@@ -62,13 +70,16 @@ function initializeButtons() {
 				        	$('#modifyForm select#sensors').prop("disabled", false);
 				        }
 					});
+					// We set the submit event for the form.
 					$('#modifyForm').submit(function(event) { event.preventDefault(); modifyRuleSet(this) });
+					// We show the modal.
 					$('#modifyFormModal').modal('show');
 					
 					
 				});
-				
+			
 			}
+			// AND if some rules were selected.
 			if (sidlist.length > 0) {
 				// Call function to enable selected rules
 				modifyRule("enable", sidlist, token);
@@ -84,12 +95,14 @@ function initializeButtons() {
 		$('button#modify-submit').html('Save changes');
 		// Get all selected rules and put their SIDs in a list:
 		sids=$('#checkbox:checked');
-		//console.log(sids);
+
 		if (sids.length > 0) {
 			sidlist = [];
 			setlist = [];
 			setnames = [];
+			// For each of them.
 			$(sids).each(function(){
+				// You can select both rules and rulesets at the same time, so we differentiate.
 				if($(this).is('[sid]')) {
 					sidlist.push($(this).attr('sid'));
 				}
@@ -98,16 +111,22 @@ function initializeButtons() {
 					setnames.push($(this).attr('rulesetname'));
 				}
 			});
+			// Grab the CSRF token so Django is happy.
 			token = $(this).find('input[name="csrfmiddlewaretoken"]').val();
+			// If some rulesets were selected.
 			if(setlist.length > 0) {
+				// Load the form with AJAX.
 				$.get('/web/tuning/getModifyForm', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="disable">');
+					// For each of the rulesets, put their names into the disabled select list and create a hidden input with their ID.
 					$(setlist,setnames).each(function(i){
 						$('#modifyFormModal #formContent').prepend('<input type="hidden" id="ruleset" name="ruleset" value="'+setlist[i]+'">');
 						$('#modifyFormModal #formContent select#ruleset').append('<option>'+setnames[i]+'</option>');
 					});
+					
+					// If someone checks the global checkbox, we disable the sensor selection.
 					$('#modifyForm #global').click(function(event){
 						if ($('#modifyForm #global').is(':checked')) {
 							$('#modifyForm select#sensors').prop("disabled", true);
@@ -115,15 +134,18 @@ function initializeButtons() {
 				        	$('#modifyForm select#sensors').prop("disabled", false);
 				        }
 					});
+					// We set the submit event for the form.
 					$('#modifyForm').submit(function(event) { event.preventDefault(); modifyRuleSet(this) });
+					// We show the modal.
 					$('#modifyFormModal').modal('show');
 					
 					
 				});
 				
 			}
+			// AND if some rules were selected.
 			if (sidlist.length > 0) {
-				// Call function to enable selected rules
+				// Call function to disable selected rules
 				modifyRule("disable", sidlist, token);
 			}
 
@@ -144,7 +166,7 @@ function initializeButtons() {
 				$('#thresholdFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
 				// For each checked rule, we add them to the select list.
 				$(sids).each(function(){
-					$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('id')+'">');
+					$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
 					$('#thresholdFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
 				});
 			}
@@ -174,7 +196,7 @@ function initializeButtons() {
 				// For each checked rule, we add them to the select list.
 				$(sids).each(function(){
 					
-					$('#suppressFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('id')+'">');
+					$('#suppressFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
 					$('#suppressFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
 				});
 			}

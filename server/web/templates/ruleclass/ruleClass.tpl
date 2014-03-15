@@ -1,3 +1,6 @@
+{# manipulateForm.tpl is the template for displaying a list of ruleclasses.. #} 
+{#  #}
+
 {% extends "general/index.tpl" %}
 {% block content %}
 {% load staticfiles %}
