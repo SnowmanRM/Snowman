@@ -6,7 +6,11 @@ from web.utilities import UserSettings, ruleSetsToTemplate
 import logging
 
 def index(request):
-	"""This method does something."""
+	"""This method is called when the url /ruleset/ is called.
+	
+	It fetches ruleset objects and sends them to the render.
+	
+	"""
 	
 	logger = logging.getLogger(__name__)
 	
@@ -39,6 +43,7 @@ def index(request):
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
 		raise Http404
 	
+	# Process the objects before we give them to the template.
 	context['ruleset_list'] = ruleSetsToTemplate(context['ruleset_list'])
 	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
 	return render(request, 'ruleset/ruleSet.tpl', context)

@@ -51,6 +51,7 @@ def index(request):
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
 		raise Http404
 	
+	# Process the objects before we give them to the template.
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	#return HttpResponse(rulesToTemplate(context['rule_list']))
 	return render(request, 'rules/rules.tpl', context)
@@ -100,6 +101,7 @@ def getRulePage(request, pagenr):
 		logger.warning("Page request /rules/page/"+str(pagenr)+" could not be resolved, objects in range "+str(minrange)+" - "+str(maxrange)+"not found.")
 		raise Http404
 	
+	# Process the objects before we give them to the template.
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
@@ -167,14 +169,14 @@ def getRulesBySearch(request, pagenr):
 		logger.warning("Page request /rules/search for string: "+searchstring+" in field "+searchfield+" could not be resolved, objects not found.")
 		raise Http404
 	
+	# Process the objects before we give them to the template.
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesByRuleSet(request, ruleSetID, pagenr):
-	"""	This method is loaded when the /rules/search/<int> url is called. This url is called when a user has typed a string into 
-		the search bar on the /rules page. 
+	"""	This method is loaded when the /rules/getRulesByRuleSet url is called. 
 		
-		The method does a search in the database based on the searchfield and searchstring requested, and the item range based on the page requested.
+		The method fetches rules based on a ruleSetID.
 		
 		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
 	
@@ -231,14 +233,14 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
 		raise Http404
 	
+	# Process the objects before we give them to the template.
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesByRuleClass(request, ruleClassID, pagenr):
-	"""	This method is loaded when the /rules/search/<int> url is called. This url is called when a user has typed a string into 
-		the search bar on the /rules page. 
+	"""	This method is loaded when the /rules/getRulesByRuleClass url is called. 
 		
-		The method does a search in the database based on the searchfield and searchstring requested, and the item range based on the page requested.
+		The method fetches rules based on a ruleClassID.
 		
 		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
 	
@@ -295,5 +297,6 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
 		raise Http404
 	
+	# Process the objects before we give them to the template.
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)

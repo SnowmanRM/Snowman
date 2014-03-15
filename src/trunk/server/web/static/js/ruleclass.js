@@ -182,22 +182,26 @@ function loadPaginator(ruleClass, currentpage, pagecount) {
 	$('#paginator[ruleclass="'+ruleClass+'"]').bootstrapPaginator(options);
 	
 }
-
+//This function is used as a trigger when a ruleclasses is opened and is used to populate the table of rules within.
 function loadRuleClassRules (ruleClass) {
 	var _ruleClass = ruleClass;
+	// We get the first page first.
 	$.when(getPage(_ruleClass,1)).done(function(html){
-
+		// Grab some variables.
 		var pagelength = parseInt($('#content .ruleclass-panel#'+_ruleClass+' #rules table').attr('pagelength'));
 		var itemcount = parseInt($('#content .ruleclass-panel#'+_ruleClass+' #rules table').attr('itemcount'));
-
-		pagecount =  Math.ceil(itemcount / pagelength);
 		
+		// Calculates pagecounts.
+		pagecount =  Math.ceil(itemcount / pagelength);
 		if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
 		var currentpage = 1;
-
+		
+		// We load the paginator for this class.
 		loadPaginator(_ruleClass, currentpage, pagecount);
+		// We load the next pages of rules.
 		loadNextPages(_ruleClass, currentpage, pagecount);
 		
+		// We load the last page if theres more than one.
 		if (pagecount > currentpage) {
 			getPage(_ruleClass, pagecount);
 		}

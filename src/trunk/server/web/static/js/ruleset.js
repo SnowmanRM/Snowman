@@ -86,7 +86,7 @@ function listInitialize() {
         }
 		
 	});
-	
+	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
 	$('table thead th#checkbox-all input').click(function(event){
 		
 		if ($("table thead th#checkbox-all input").is(':checked')) {
@@ -183,20 +183,26 @@ function loadPaginator(ruleSet, currentpage, pagecount) {
 	
 }
 
+// This function is used as a trigger when a ruleset is opened and is used to populate the table of rules within.
 function loadRuleSetRules (ruleSet) {
 	var _ruleSet = ruleSet;
+	// We get the first page first.
 	$.when(getPage(_ruleSet,1)).done(function(html){
-		
+		// Grab some variables.
 		var pagelength = $('#content .ruleset-panel#'+_ruleSet+' #rules table').attr('pagelength');
 		var itemcount = $('#content .ruleset-panel#'+_ruleSet+' #rules table').attr('itemcount');
-
+		
+		// Calculates pagecounts.
 		pagecount =  Math.ceil(itemcount / pagelength);
-
 		if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
 		var currentpage = 1;
-
+		
+		// We load the paginator for this set.
 		loadPaginator(_ruleSet, currentpage, pagecount);
+		// We load the next pages of rules.
 		loadNextPages(_ruleSet, currentpage, pagecount);
+		
+		// We load the last page if theres more than one.
 		if (pagecount > currentpage) {
 			getPage(_ruleSet, pagecount);
 		}
