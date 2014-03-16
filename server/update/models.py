@@ -177,12 +177,12 @@ class Update(models.Model):
 		logger = logging.getLogger(__name__)
 		
 		try:
-			# If we find a gid element with a value other than 1, we are parsing the wrong file
-			gid = re.match(r"(?=.*gid:(.*?);)",raw).group(1)
+			# If we find a GID element with a value other than 1, we are parsing the wrong file
+			gid = re.match(ConfigPatterns.GID, raw).group(1)
 			if int(gid) != 1:
 				raise AbnormalRuleError
 		except AttributeError:
-			# No gid element, all is good.
+			# No GID element, all is good.
 			pass
 		
 		# Construct a regex to match all elements a raw rulestring 
@@ -191,13 +191,10 @@ class Update(models.Model):
 		matchPattern = ConfigPatterns.RULE
 		pattern = re.compile(matchPattern)
 		
-		# Construct regexes for elements that MIGHT appear in a raw rulestring
-		# (ruleset, ):
-		
-		# Match ruleset name
+		# Match ruleset name (optional)
 		ruleset = re.match(ConfigPatterns.RULESET, raw)
 		
-		# Match reference (group1: name, group2: reference):
+		# Match reference (optional, group1=name, group2=reference):
 		references = re.findall(ConfigPatterns.RULEREFERENCE, raw)
 		
 		# If the raw rule matched the regex: 
