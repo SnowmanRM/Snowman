@@ -16,21 +16,24 @@ in the system.
 Word: rulestring.
 
 \subsection{Sources}
-
-\subsection{Update types}
-An update is either performed manually or automatically. Any \em Source \em in
-the system can be configured with a time-interval for automatic updates.
+A \em source \em is used by Update to determine where the update-package is
+located. Normally this is on a remote site, and the source contains the URL
+pointing to the location of the update-package. A source can be configured to
+update at regular intervals, or the user can run an update manually on a source.
+To make the update process more effective, Update makes use of an MD5 URL which points to
+a file containing the MD5 hash of the update-package. This hash is stored for
+every source (if available) and is compared to any pre-existing hash to verify
+if the system is up to date or not. Update will only download and process an
+update-package when it encounters a new hash.
 
 \subsection{Files}
 \label{sec:update.files}
+An update-package may contain various files depending on the source it comes
+from. This section will describe files supported by Snowman.
 \subsubsection{Rule files}
 A rule file is any file carrying the \em .rules \em file extension. These files
 contain raw rulestrings to be processed by Snort. A rulestring is basically a
-semicolon-separated list of rule options. There are several types of options,
-but only the general rule options are relevant for this
-project\footnote{http://manual.snort.org/node30.html: ``[General] options
-provide information about the rule but do not have any affect during
-detection''.}. Specific rule options used in this system are listed in table
+semicolon-separated list of rule options. Specific rule options used in this system are listed in table
 \ref{tab:ruleFormat}.
 
 %Set row spacing:
@@ -53,9 +56,10 @@ detection''.}. Specific rule options used in this system are listed in table
 	    \multicolumn{1}{c|}{reference} & Reference to external resource with
 	    information about this attack. & optional \\
 	    \hline
-		\multicolumn{3}{p{12cm}}{Note: Presence column indicates whether a field is
-		required or not by the parser in this system. Information taken from \em
-		http://manual.snort.org/node31.html \em. }
+		\multicolumn{3}{p{12cm}}{Note: The \em presence \em column indicates whether a
+		field is required or not by the parser in this system. Information is gathered from the
+		Snort Users Manual \cite{SnortManual}(ch 3.4).
+		}
   \end{tabular}
   \caption{Rule options used in this system.}
   \label{tab:ruleFormat}
@@ -63,6 +67,15 @@ detection''.}. Specific rule options used in this system are listed in table
 
 A badly formatted rulestring given to Snort will cause a crash, and Snort must
 be restarted.
+
+\subsubsection{Classification, Generator and Reference Configuration files}
+The classification files are identified by their name \em classification.config
+\em and contain rule classification strings that are used by Snort to
+categorize event data. A classification file will normally appear once per
+update-package, and rarely changes between
+updates\footnote{https://www.snort.org/vrt/snort-conf-configurations/}.
+
+\subsubsection{Sid message files}
 
 \subsection{Running an update}
 As an example scenario, consider a rule (name, figure reference, source,
@@ -90,22 +103,12 @@ on the parsing of files based on file type.
 
 parse files with regex.
 
-\subsubsection{Classification, Generator and Reference Type files}
-These files contain a sequence of their respective entities (section
-\ref{sec:update.files}), and are all parsed in the same manner. If a given entity is
-not already present in the database, it is created and stored. If the database
-already contains the entity, the existing entry in the database is overwritten.
-
-\subsubsection{Rule files}
+\subsection{Rule parsing}
+Some options can be defined both in the rulestring (inline) and in a separate
+file (standalone).
 
 If any properties classified as \em required \em for a rule
-(table \ref{tab:ruleFormat})
-
-A rule always belogs to a ruleset which can be specified in the raw
-rulestring. If the parser does not find this attribute in the rulestring,
-the filename is considered to be the ruleset name.
-
-set rule properties.
+(table \ref{tab:ruleFormat}) are missing\ldots
 
 Non-existing rule sets, rule classes and
 generators are stored in the database
@@ -118,6 +121,34 @@ rule.
 
 rule moved to new ruleset.
 
+\subsubsection{Rule sets}
+A rule always belogs to a ruleset which can be specified in the raw
+rulestring. If the parser does not find this attribute in the rulestring,
+the filename is considered to be the ruleset name.
+
+\subsubsection{Threshold}
+A rule threshold defines a limit and/or threshold for the triggering of a
+specific rule, and can exist as an inline or standalone option.
+Rule thresholds are deprecated, and support for this functionality will cease in a
+future version of Snort\textregistered, where it is replaced by \em detection
+filters \em and \em event filters \em (see below) \cite{SnortManual}. To
+maintain compatibility with current rules, Snowman supports reading inline and
+standalone threshold definitions.
+
+\subsubsection{Detection filters}
+Please explain..
+
+\subsubsection{Event filters}
+Please explain..
+
+\subsubsection{Suppression}
+Always standalone.
+
+\subsection{Classification, Generator and Reference Type parsing}
+These files contain a sequence of their respective entities (section
+\ref{sec:update.files}), and are all parsed in the same manner. If a given entity is
+not already present in the database, it is created and stored. If the database
+already contains the entity, the existing entry in the database is overwritten.
 
 
 \subsubsection{Rule Message files}

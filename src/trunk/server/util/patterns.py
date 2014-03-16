@@ -9,6 +9,8 @@ class ConfigPatterns:
 	CLASS = r"config classification: (.*)"
 	GENMSG = r"(\d+ \|\| )+.*"
 	SIDMSG = r"(\d+) \|\| ((.*\|\|)* .*)"
+	GID = r"(?=.*gid:(.*?);)"
+	THRESHOLD = r".*threshold:\s*type\s*(.*),\s*track\s*(.*),\s*count\s*(\d*)\s*,\s*seconds\s*(\d*)\s*;"
 	
 	#GENMSG = r"(\d+)\s*\|\|\s*(\d+)\s*\|\|\s+(.*)"
 	#SIDMSG = r"(\d+)\s*\|\|\s*(.*)"

@@ -10,11 +10,8 @@
 \input{./tex/thesis_data.tex}
 
 \input{./tex/title.tex}
-
-\newpage
-\chapter*{Preface}
-This is the preface.
-\newpage
+\input{./tex/preface.tex}
+\input{./tex/glossary.tex}
 
 \tableofcontents
 \listoffigures
@@ -31,11 +28,14 @@ This is the preface.
 \input{./tex/results.tex}
 \input{./tex/analysis_of_results.tex}
 \input{./tex/conclusions.tex}
+
+\bibliographystyle{gucthesis}
+\bibliography{references}
  
 \appendix
 \input{./tex/appendix.tex}
  
- 
+
 % Bibliography:
 \clearpage
 \addcontentsline{toc}{chapter}{Bibliography}
