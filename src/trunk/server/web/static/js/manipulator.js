@@ -210,7 +210,7 @@ function initializeButtons() {
 
 }
 function modifyRuleSet(form){
-	console.log(form);
+
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
 		url: "/web/tuning/modifyRule",

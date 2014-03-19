@@ -297,7 +297,6 @@ $(document).ready(function(){
 	var itemcount = $('#paginator').attr('itemcount');
 	pagecount =  Math.ceil(itemcount / pagelength);
 	if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
-	
 	// We get a hash value if there is one.
 	var hash = parseInt(window.location.hash.slice(1));
 	

@@ -65,21 +65,21 @@
 	padding-right: 0;
 }
 
-#content .table {
+#content table.rules {
 
 	border: 0;
 	margin-bottom: 0;
 	
 }
 
-#content .table pre {
+#content table.rules pre {
 
 	white-space: normal;
 	word-break: normal;
 	margin: 0;
 }
 
-#content .table .row {
+#content table.rules .row {
 	
 	margin-right: 0;
 	margin-left: 0;
@@ -88,7 +88,7 @@
 	
 }
 
-#content .table .row .panel .list-group {
+#content table.rules .row .panel .list-group {
 	
 
 	overflow-y: scroll;
@@ -96,7 +96,7 @@
 	
 }
 
-#content .table tbody {
+#content table.rules tbody {
 
 	background-color: white;
 	font-size: 12px;
@@ -107,52 +107,52 @@
 	background-color: #f9f9f9;
 }
 
-#content .table tbody tr td:nth-child(-n+4) {
+#content table.rules tbody tr td:nth-child(-n+4) {
 
 	width: 1%;
 }
 
-#content .table-hover > tbody > tr.even:hover > td {
+#content table.rules .table-hover > tbody > tr.even:hover > td {
 
 	background-color: white;
 }
 
-#content .table thead tr:first-child th:first-child {
+#content table.rules thead tr:first-child th:first-child {
 
 	border-left: 0;
 }
 
-#content .table thead tr:first-child th:last-child {
+#content table.rules thead tr:first-child th:last-child {
 
 	border-right: 0;
 }
 
-#content .table tbody tr td:first-child {
+#content table.rules tbody tr td:first-child {
 
 	border-left: 0;
 }
 
-#content .table tbody tr td:last-child {
+#content table.rules tbody tr td:last-child {
 
 	border-right: 0;
 }
 
-#content .table tbody tr:last-child td {
+#content table.rules tbody tr:last-child td {
 
 	border-bottom: 0;
 }
 
-#content .table tbody td {
+#content table.rules tbody td {
 	white-space:nowrap;
 	
 }
-#content .table tbody td.row div {
+#content table.rules tbody td.row div {
 	padding-left:2px;
 	padding-right:2px;
 	text-align: center;
 }
 
-#content .table tbody tr td.wrappable {
+#content table.rules tbody tr td.wrappable {
 	white-space:normal;
 	
 }
@@ -179,13 +179,13 @@
 	margin-bottom: 10px;
 }
 
-#content .table .bg-primary:hover td {
+#content table.rules .bg-primary:hover td {
 	
 	color: #fff;
 	background-color: #428bca;
 	
 }
-#content .table .bg-primary {
+#content table.rules .bg-primary {
 	
 	background-color: #428bca !important;
 }
@@ -339,4 +339,8 @@ label.error {
 	margin: 5px 0 0 0;
 	padding: 5px;
 	
+}
+
+#ruleset-buttons {
+	margin-bottom: 5px;
 }
