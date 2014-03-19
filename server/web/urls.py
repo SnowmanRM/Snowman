@@ -54,7 +54,9 @@ urlpatterns += patterns('web.views.ruleviews',
 )
 urlpatterns += patterns('web.views.rulesetviews',
     url(r'^ruleset/$', 'index'),
-   # url(r'^ruleset/children/(?P<ruleSetID>\d+)/$', 'getRuleSetChildren'),
+	url(r'^ruleset/children/(?P<ruleSetID>\d+)/$', 'getRuleSetChildren'),
+	url(r'^ruleset/getCreateRuleSetForm/$', 'getCreateRuleSetForm'),
+	url(r'^ruleset/createRuleSet/$', 'createRuleSet'),
 
 )
 urlpatterns += patterns('web.views.ruleclassviews',
@@ -64,10 +66,10 @@ urlpatterns += patterns('web.views.ruleclassviews',
 )
 
 urlpatterns += patterns('web.views.tuningviews',
-    url(r'^tuning/getSuppressForm$', 'getSuppressForm'),
-    url(r'^tuning/getThresholdForm$', 'getThresholdForm'), 
-    url(r'^tuning/getModifyForm$', 'getModifyForm'),
-    url(r'^tuning/modifyRule$', 'modifyRule'),
-    url(r'^tuning/setSuppressOnRule$', 'setSuppressOnRule'), 
-    url(r'^tuning/setThresholdOnRule$', 'setThresholdOnRule'),
+    url(r'^tuning/getSuppressForm/$', 'getSuppressForm'),
+    url(r'^tuning/getThresholdForm/$', 'getThresholdForm'), 
+    url(r'^tuning/getModifyForm/$', 'getModifyForm'),
+    url(r'^tuning/modifyRule/$', 'modifyRule'),
+    url(r'^tuning/setSuppressOnRule/$', 'setSuppressOnRule'), 
+    url(r'^tuning/setThresholdOnRule/$', 'setThresholdOnRule'),
 )

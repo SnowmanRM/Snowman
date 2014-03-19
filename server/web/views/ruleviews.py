@@ -82,7 +82,7 @@ def getRulePage(request, pagenr):
 	context['ishidden'] = True
 	
 	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
-	minrange = pagelength * int(pagenr)
+	minrange = pagelength * (int(pagenr)-1)
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
 	maxrange = int(minrange) + pagelength
@@ -143,7 +143,7 @@ def getRulesBySearch(request, pagenr):
 	context['searchstring'] = searchstring
 	
 	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
-	minrange = pagelength * int(pagenr)
+	minrange = pagelength * (int(pagenr)-1)
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
 	maxrange = int(minrange) + pagelength
@@ -211,7 +211,7 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 	#context['searchstring'] = searchstring
 	
 	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
-	minrange = pagelength * int(pagenr)
+	minrange = pagelength * (int(pagenr)-1)
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
 	maxrange = int(minrange) + pagelength
@@ -275,7 +275,7 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 	#context['searchstring'] = searchstring
 	
 	# If this is the first page or there is only one page, minrange must be 0.
-	minrange = pagelength * int(pagenr)
+	minrange = pagelength * (int(pagenr)-1)
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
 	maxrange = int(minrange) + pagelength

@@ -123,13 +123,14 @@ function listInitialize() {
 	// Installs click events on all rows.
 	$('div.panel-heading').unbind('click');
 	$('div.panel-heading').click(function(event){
+		
 		// This is to make sure a click on the switch doesnt trigger a row open.
 		if($(event.target).is('#checkbox')||$(event.target).is('input')||$(event.target).is('a')){
             //event.preventDefault();
 			
             return;
         }
-		
+		//console.log($(this).parent().is('.ruleset-panel'));
 		if($(this).parent().is('.rules-panel')) {
 			// Toggles clicked row on the 'active' css class so it changes color
 			$(this).parent().toggleClass("panel-success");			
@@ -137,13 +138,27 @@ function listInitialize() {
 		else if($(this).parent().is('.ruleset-panel')) {
 			// Toggles clicked row on the 'active' css class so it changes color
 			$(this).parent().toggleClass("panel-primary");
-			if($(this).is('.loaded')) {
+
+			if($(this).is('.rulesets-loaded') || $(this).parent().attr('tree-type') == "child") {
+				;
+			}
+			else {
+				
+				$(this).parent().find('.panel-body .ruleset-panel[tree-type="parent"]').each(function(){
+					loadRuleSetChildren(this.id);
+					
+				});
+				listInitialize();
+				$(this).toggleClass("rulesets-loaded");
+			}
+			
+			if($(this).is('.rules-loaded') || $(this).parent().attr('has-rules') == "False") {
 				;
 			}
 			else {
 				var ruleSet = $(this).parent().attr('id');
 				loadRuleSetRules(ruleSet);
-				$(this).toggleClass("loaded");
+				$(this).toggleClass("rules-loaded");
 			}
 			
 		}
@@ -151,11 +166,60 @@ function listInitialize() {
 			$(this).parent().toggleClass("panel-primary");
 		}
 		// Shows or hides the next row which is hidden by default.
+		
 		$(this).next().toggle();
 	
 	});
-
+	
+	$('#ruleset-buttons #create').click(function(event){
+		// Load the form with AJAX.
+		$.get('/web/ruleset/getCreateRuleSetForm/', function(html){
+			// Put the form content into the container.
+			$('#createRuleSetModal #formContent').html(html);
+			
+			// Install validators on a few of the form fields and set up the submit handler.
+			$('#createRuleSetForm').validate({
+				submitHandler: function(form) {
+					
+					submitCreateRuleSetForm(form);
+				}
+				
+			});
+			
+			/*// Get all checked checkboxes.
+			sids=$('#checkbox:checked');
+			// If there are checkboxes checked, we need to do some extra stuff.
+			if (sids.length > 0) {
+				// We replace the input with a disabled select that displays the checked rules.
+				$('#thresholdFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
+				// For each checked rule, we add them to the select list.
+				$(sids).each(function(){
+					$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
+					$('#thresholdFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
+				});
+			}
+			
+			// Reset this button in the form to default just in case.
+			$('button#threshold-submit').prop("disabled",false);
+			$('button#threshold-submit').attr('class','btn btn-primary');
+			$('button#threshold-submit').html('Save changes');*/
+			
 		
+		});
+
+	});
+}
+
+function submitCreateRuleSetForm(form){
+	
+	// We send the form serialized to the server.
+	$.ajax({
+		url: "/web/ruleset/createRuleSet/",
+		type: "post",
+		dataType: "json",
+		data: $(form).serialize()
+	});
+	
 }
 
 function loadPaginator(ruleSet, currentpage, pagecount) {
@@ -209,12 +273,34 @@ function loadRuleSetRules (ruleSet) {
 	});
 }
 
+function loadRuleSetChildren (ruleSet) {
+	var _ruleSet = ruleSet
+	var _treeLevel = $('#content .ruleset-panel#'+_ruleSet+'').attr('tree-level')
+	
+	$.get('/web/ruleset/children/'+_ruleSet+'/', function(html){
+		
+		$('#content .ruleset-panel#'+_ruleSet+' .panel-body').append(html);
+		$('#content .ruleset-panel#'+_ruleSet+' .panel-body .ruleset-panel').attr("tree-level", parseInt(_treeLevel)+1);
+		
+	});
+	
+}
+
 $(document).ready(function(){	
 	
-	// Calls function to initialize click events and buttons.
-	listInitialize();
+	
 	
 	// Make the manipulator follow you when you scroll.
 	animateManipulator();
 	
+	$('#content .ruleset-panel').not('.panel-info').each(function(){
+		
+		loadRuleSetChildren(this.id);
+	});
+	
+	// Calls function to initialize click events and buttons.
+	listInitialize();
+	
+	
+
 });
