@@ -57,6 +57,9 @@ urlpatterns += patterns('web.views.rulesetviews',
 	url(r'^ruleset/children/(?P<ruleSetID>\d+)/$', 'getRuleSetChildren'),
 	url(r'^ruleset/getCreateRuleSetForm/$', 'getCreateRuleSetForm'),
 	url(r'^ruleset/createRuleSet/$', 'createRuleSet'),
+	url(r'^ruleset/getEditRuleSetForm/(?P<ruleSetID>\d+)/$', 'getEditRuleSetForm'),
+	url(r'^ruleset/editRuleSet/$', 'editRuleSet'),
+	url(r'^ruleset/deleteRuleSet/$', 'deleteRuleSet'),
 
 )
 urlpatterns += patterns('web.views.ruleclassviews',

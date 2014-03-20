@@ -344,3 +344,10 @@ label.error {
 #ruleset-buttons {
 	margin-bottom: 5px;
 }
+
+#deleteRuleSetForm .row {
+	margin-left: 0;
+	margin-right: 0;
+	
+}
+
