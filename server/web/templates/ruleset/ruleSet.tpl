@@ -11,10 +11,9 @@
 	{% csrf_token %}
 	<div id="ruleset-buttons" class="btn-group pull-right">
 		<button id="create" type="button" class="btn btn-default" data-toggle="modal" data-target="#createRuleSetModal">Create Ruleset</button>
-		<button id="edit" type="button" class="btn btn-default" data-toggle="modal" data-target="#ruleSetModal">Edit Ruleset</button>
-		<button id="edit" type="button" class="btn btn-danger" data-toggle="modal" data-target="#ruleSetModal"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Delete Ruleset</button>
-		<button id="organize" type="button" class="btn btn-default" data-toggle="modal" data-target="#ruleSetModal">Organize Rulesets</button>
-		<button id="organize" type="button" class="btn btn-default" data-toggle="modal" data-target="#ruleSetModal">Organize Rules</button>
+		<button id="edit" type="button" class="btn btn-default" data-toggle="modal" data-target="#editRuleSetModal">Edit Ruleset</button>
+		<button id="delete" type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRuleSetModal"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Delete Ruleset(s)</button>
+		<button id="reorganize" type="button" class="btn btn-default" data-toggle="modal" data-target="#reorganizeRulesModal">Reorganize Rules</button>
 	</div>	
 	
 </div>
@@ -74,6 +73,76 @@
 		<div class="modal-footer">
 		  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 		  <button type="submit" class="btn btn-primary" id="create-submit" name="create-submit">Save changes</button>
+		  </form>
+		</div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editRuleSetModal" tabindex="-1" role="dialog" aria-labelledby="editRuleSetModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+		   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		   <h4 class="modal-title" id="editRuleSetModal">Edit Ruleset</h4>
+		 </div>
+		<div class="modal-body">
+		  <form id="editRuleSetForm" class="form-horizontal" role="form">
+		  	<div id="formContent">
+		  		
+		  	</div>
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  <button type="submit" class="btn btn-primary" id="edit-submit" name="edit-submit">Save changes</button>
+		  </form>
+		</div>
+      
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteRuleSetModal" tabindex="-1" role="dialog" aria-labelledby="deleteRuleSetModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+		   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		   <h4 class="modal-title" id="deleteRuleSetModal">Delete Ruleset(s)</h4>
+		 </div>
+		<div class="modal-body">
+		  <form id="deleteRuleSetForm" class="form-horizontal" role="form">
+		  	<div id="formContent">
+		  	{% csrf_token %}
+		  		<div class="alert alert-danger row">
+		  			<div class="col-sm-1">
+		  			<span class="glyphicon glyphicon-warning-sign"></span>
+		  			</div>
+		  			<div class="col-sm-11">
+		  				<strong>Are you absolutely sure you want to delete the Ruleset(s)? <br /><br />This cannot be reversed!</strong>
+		  			</div>
+		  		</div>
+		  		<div class="alert alert-danger row">
+		  			<div class="col-sm-1">
+		  			<span class="glyphicon glyphicon-warning-sign"></span>
+		  			</div>
+		  			<div class="col-sm-11">
+		  				<p>Any rules attached to the ruleset(s) will also be deleted!</p>
+		  			</div>
+		  		</div>
+		  		<div class="alert alert-warning row">
+		  			<div class="col-sm-1">
+		  			<span class="glyphicon glyphicon-warning-sign"></span>
+		  			</div>
+		  			<div class="col-sm-11">
+		  				<p>The parent of the ruleset(s) will inherit any child rulesets attached.</p>
+		  			</div>
+		  		</div>
+		  	</div>
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  <button type="submit" class="btn btn-danger" id="delete-submit" name="delete-submit"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Delete Ruleset(s)</button>
 		  </form>
 		</div>
       
