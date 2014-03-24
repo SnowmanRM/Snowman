@@ -242,7 +242,7 @@ function searchField() {
 			var itemcount = $('#paginator').attr('itemcount');
 			pagecount =  Math.floor(itemcount / pagelength);
 			if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
-			
+			if (pagecount == 0) pagecount++;
 			// Switch back to the current page.
 			switchPage(currentpage);
 			// Reload the paginator to its former state.
@@ -297,6 +297,7 @@ $(document).ready(function(){
 	var itemcount = $('#paginator').attr('itemcount');
 	pagecount =  Math.ceil(itemcount / pagelength);
 	if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
+	if (pagecount == 0) pagecount++;
 	// We get a hash value if there is one.
 	var hash = parseInt(window.location.hash.slice(1));
 	

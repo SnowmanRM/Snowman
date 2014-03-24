@@ -149,4 +149,27 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="reorganizeRulesModal" tabindex="-1" role="dialog" aria-labelledby="reorganizeRulesModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+		   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		   <h4 class="modal-title" id="reorganizeRulesModal">Edit Ruleset</h4>
+		 </div>
+		<div class="modal-body">
+		  <form id="reorganizeRulesForm" class="form-horizontal" role="form">
+		  	<div id="formContent">
+		  		
+		  	</div>
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  <button type="submit" class="btn btn-primary" id="reorganize-submit" name="reorganize-submit-submit">Save changes</button>
+		  </form>
+		</div>
+      
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -223,7 +223,8 @@
 	margin-bottom: 0;
 }
 .ruleset .panel,
-.ruleclass .panel {
+.ruleclass .panel,
+.changes .panel {
 	margin-bottom: 3px;
 }
 
@@ -351,3 +352,9 @@ label.error {
 	
 }
 
+.changes .panel-heading h3,
+.changes .panel-heading h4 {
+	
+	margin-top: 0;
+	margin-bottom: 0;
+}

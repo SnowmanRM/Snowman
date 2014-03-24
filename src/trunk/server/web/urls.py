@@ -51,6 +51,9 @@ urlpatterns += patterns('web.views.ruleviews',
     url(r'^rules/ruleSet/(?P<ruleSetID>\d+)/(?P<pagenr>\d+)/$', 'getRulesByRuleSet'),
     url(r'^rules/ruleClass/(?P<ruleClassID>\d+)/(?P<pagenr>\d+)/$', 'getRulesByRuleClass'),
     url(r'^rules/page/(?P<pagenr>\d+)/$', 'getRulePage'),
+    url(r'^rules/reorganizeRules/$', 'reorganizeRules'),
+    url(r'^rules/ruleSetNewRules/(?P<ruleSetID>\d+)/(?P<pagenr>\d+)/(?P<update>\d+)/$', 'getRulesByRuleSetNewRules'),
+    
 )
 urlpatterns += patterns('web.views.rulesetviews',
     url(r'^ruleset/$', 'index'),
@@ -60,6 +63,9 @@ urlpatterns += patterns('web.views.rulesetviews',
 	url(r'^ruleset/getEditRuleSetForm/(?P<ruleSetID>\d+)/$', 'getEditRuleSetForm'),
 	url(r'^ruleset/editRuleSet/$', 'editRuleSet'),
 	url(r'^ruleset/deleteRuleSet/$', 'deleteRuleSet'),
+	url(r'^ruleset/getReorganizeRulesForm/$', 'getReorganizeRulesForm'),
+	url(r'^ruleset/updateSets/(?P<updateID>\d+)/$', 'getRuleSetByUpdate'),
+	url(r'^ruleset/updateRules/(?P<updateID>\d+)/$', 'getRuleSetByUpdateNewRules'),
 
 )
 urlpatterns += patterns('web.views.ruleclassviews',

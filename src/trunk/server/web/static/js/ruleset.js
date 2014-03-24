@@ -90,12 +90,12 @@ function listInitialize() {
 	$('table thead th#checkbox-all input').click(function(event){
 		
 		if ($("table thead th#checkbox-all input").is(':checked')) {
-            $("table.current td#checkbox input[type=checkbox]").each(function () {
+            $("table.current #checkbox").each(function () {
                 $(this).prop("checked", true);
             });
 
         } else {
-            $("table.current td#checkbox input[type=checkbox]").each(function () {
+            $("table.current #checkbox").each(function () {
                 $(this).prop("checked", false);
             });
         }
@@ -130,7 +130,7 @@ function listInitialize() {
 			
             return;
         }
-		//console.log($(this).parent().is('.ruleset-panel'));
+		
 		if($(this).parent().is('.rules-panel')) {
 			// Toggles clicked row on the 'active' css class so it changes color
 			$(this).parent().toggleClass("panel-success");			
@@ -262,20 +262,62 @@ function listInitialize() {
 	$('#ruleset-buttons #delete').click(function(event){
 		
 		var _ruleSets = $('#checkbox:checked[ruleset]');
-		console.log(_ruleSets);
+		
 		if (_ruleSets.length > 0) {
 			
 			// For each checked rule, we add them to the select list.
 			$(_ruleSets).each(function(){
+				
 				$('#deleteRuleSetModal #formContent').append('<input type="hidden" id="id" name="id" value="'+$(this).attr('ruleset')+'">');
 			});
 			
 			// Install validators on a few of the form fields and set up the submit handler.
-			$('#deleteRuleSetForm').submit(function(event){ event.preventDefault(); submitDeleteRuleSetForm(this)});			
+						
 		
 		}
 		else {
 			setTimeout(function() {$('#deleteRuleSetModal').modal('hide')}, 1);
+		}
+	});
+	
+	$('#ruleset-buttons #reorganize').click(function(event){
+		
+		sids=$('#checkbox:checked[sid]');
+		
+		if (sids.length > 0) {
+			// Reset this button in the form to default just in case.
+			$('button#reorganize-submit').prop("disabled",false);
+			$('button#reorganize-submit').attr('class','btn btn-primary');
+			$('button#reorganize-submit').html('Save changes');
+			
+			// Load the form with AJAX.
+			$.get('/web/ruleset/getReorganizeRulesForm/', function(html){
+				// Put the form content into the container.
+				$('#reorganizeRulesModal #formContent').html(html);
+				
+				// Install validators on a few of the form fields and set up the submit handler.
+				$('#reorganizeRulesForm').validate({
+					submitHandler: function(form) {
+						
+						submitReorganizeRulesForm(form);
+					}
+					
+				});
+				
+					
+				// For each checked rule, we add them to the select list.
+				$(sids).each(function(){
+					$('#reorganizeRulesModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
+					$('#reorganizeRulesModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
+				});
+				
+				
+				
+			
+			});
+		}
+		else {
+			setTimeout(function() {$('#reorganizeRulesModal').modal('hide')}, 1);
 		}
 	});
 }
@@ -494,7 +536,6 @@ function submitEditRuleSetForm(form){
 }
 
 function submitDeleteRuleSetForm(form){
-	
 	// We send the form serialized to the server.
 	$.ajax({
 		url: "/web/ruleset/deleteRuleSet/",
@@ -533,14 +574,14 @@ function submitDeleteRuleSetForm(form){
 				else if(this.response == "noIDsGiven") {
 					
 					
-					text = '<div class="alert alert-success row" style="display: none;">\
-						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
+					text = '<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 						<div class="col-sm-11">'+this.text+'</div></div>'
 					$('#deleteRuleSetForm div#formContent').append(text).prepend(text);
 							
 					$('#deleteRuleSetForm div#formContent .alert').show("highlight");
-					
-					success = true;
+							
+					error = true;
 				}
 				
 				// If the success-flag was set to true, everything went ok and we can show the user this outcome and close the modal.
@@ -575,6 +616,120 @@ function submitDeleteRuleSetForm(form){
 			});
 		}
 	});
+	
+}
+
+function submitReorganizeRulesForm(form) {
+	// We send the form serialized to the server.
+	$.ajax({
+		url: "/web/rules/reorganizeRules/",
+		type: "post",
+		dataType: "json",
+		data: $(form).serialize(),
+		success: function(data) {
+			// These are flags that determine the outcome of the response.
+			var success, warning, error = false;
+			// We might get more than one response, so we iterate over them.
+			$.each(data, function() {
+				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
+				// We also set the outcome flags appropriately so we can handle things differently.
+				if(this.response == "rulesSuccessfullyReorganized") {
+					
+					text = '<div class="alert alert-success row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#reorganizeRulesForm div#formContent').append(text).prepend(text);
+							
+					$('#reorganizeRulesForm div#formContent .alert').show("highlight");
+					
+					success = true;
+				}
+				else if(this.response == "ruleSetDoesNotExists") {
+					
+					$('#reorganizeRulesForm div#parent div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#reorganizeRulesForm div#parent div.col-sm-10 .alert').show("highlight");
+					
+					error = true;
+				}
+				else if(this.response == "ruleDoesNotExist") {
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10 .alert').show("highlight");
+					
+					error = true;
+				}
+				else if(this.response == "ruleDoesNotExist") {
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10 .alert').show("highlight");
+					
+					error = true;
+				}
+				else if(this.response == "noIDsGiven") {
+					
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10 .alert').show("highlight");
+					
+					error = true;
+				}
+				else if(this.response == "noParentGiven") {
+					
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#reorganizeRulesForm div#sid div.col-sm-10 .alert').show("highlight");
+					
+					error = true;
+				}
+				
+				// If the success-flag was set to true, everything went ok and we can show the user this outcome and close the modal.
+				if( success ) {
+					
+					
+					$('button#reorganize-submit').hide();
+					$('button#reorganize-submit').prop("disabled",true);
+					$('button#reorganize-submit').attr('class','btn btn-success');
+					$('button#reorganize-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
+					$('button#reorganize-submit').show("highlight");
+					
+					setTimeout(function() {$('#reorganizeRulesModal').modal('hide')}, 3000);
+					setTimeout(function() {location.reload(true)}, 1000);
+				
+				}
+				// If the outcome was not a success, we have to show this to the user.
+				else if( warning || error ) {
+					// If there was an error, we dont force a DB commit next time. The user has to fix the problem and recheck.
+					if (error) {
+						
+						$('button#reorganize-submit').attr('class','btn btn-danger');
+						$('button#reorganize-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+					}
+					// If there is only a warning, we force a DB commit next time, but we warn the user of some things first, just in case.
+					else {
+						
+						$('button#reorganize-submit').attr('class','btn btn-warning');
+						$('button#reorganize-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+					}
+				}
+			});
+		}
+	});
+	
 	
 }
 
@@ -615,6 +770,7 @@ function loadRuleSetRules (ruleSet) {
 		// Calculates pagecounts.
 		pagecount =  Math.ceil(itemcount / pagelength);
 		if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
+		if (pagecount == 0) pagecount++;
 		var currentpage = 1;
 		
 		// We load the paginator for this set.
@@ -657,6 +813,6 @@ $(document).ready(function(){
 	// Calls function to initialize click events and buttons.
 	listInitialize();
 	
-	
+	$('#deleteRuleSetForm').submit(function(event){ event.preventDefault(); submitDeleteRuleSetForm(this)});
 
 });

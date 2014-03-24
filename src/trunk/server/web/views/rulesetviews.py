@@ -1,8 +1,10 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
+from django.db.models import Count
 
 from core.models import Rule, RuleRevision, Sensor, RuleSet
-from web.utilities import UserSettings, ruleSetsToTemplate, ruleSetHierarchyListToTemplate
+from update.models import Update
+from web.utilities import UserSettings, ruleSetsToTemplate, ruleSetHierarchyListToTemplate, ruleSetsWithNewRulesToTemplate
 import logging, json
 
 def index(request):
@@ -47,6 +49,105 @@ def index(request):
 	context['ruleset_list'] = ruleSetsToTemplate(context['ruleset_list'])
 	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
 	return render(request, 'ruleset/ruleSet.tpl', context)
+
+def getRuleSetByUpdate(request, updateID):
+	"""This method is called when the url /ruleset/ is called.
+	
+	It fetches ruleset objects and sends them to the render.
+	
+	"""
+	
+	logger = logging.getLogger(__name__)
+	
+	# Spool up context.
+	context = {}
+	
+	# Get pagelength from the utility class.
+	#pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# This is always page nr 1.
+	#context['pagenr'] = 1
+	
+	# We want pagelength with us in the template.
+	#context['pagelength'] = pagelength
+	
+	# The first page isnt hidden.
+	context['ismain'] = True
+	
+	try:
+		update = Update.objects.get(id=updateID)
+	except Update.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	try:
+		# Get the current sensor count, but we want it in a negative value.
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
+		
+		# We need to know how many rules there are total.
+		context['itemcount'] = RuleSet.objects.count()
+		# Get all rules, but limited by the set pagelength.
+		context['ruleset_list'] = update.ruleSets.order_by('name').all()
+
+	except RuleSet.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	# Process the objects before we give them to the template.
+	context['ruleset_list'] = ruleSetsToTemplate(context['ruleset_list'])
+	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
+	return render(request, 'ruleset/ruleSetListItems.tpl', context)
+	
+def getRuleSetByUpdateNewRules(request, updateID):
+	"""This method is called when the url /ruleset/ is called.
+	
+	It fetches ruleset objects and sends them to the render.
+	
+	"""
+	
+	logger = logging.getLogger(__name__)
+	
+	# Spool up context.
+	context = {}
+	
+	# Get pagelength from the utility class.
+	#pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# This is always page nr 1.
+	#context['pagenr'] = 1
+	
+	# We want pagelength with us in the template.
+	#context['pagelength'] = pagelength
+	
+	# The first page isnt hidden.
+	context['ismain'] = True
+	
+	try:
+		update = Update.objects.get(id=updateID)
+	except Update.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	try:
+		# Get the current sensor count, but we want it in a negative value.
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
+		
+		# We need to know how many rules there are total.
+		context['itemcount'] = RuleSet.objects.count()
+		# Get all rules, but limited by the set pagelength.
+		context['ruleset_list'] = RuleSet.objects.annotate(c=Count('rules')).filter(c__gt=0).order_by('name')
+
+	except RuleSet.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	# Process the objects before we give them to the template.
+	context['ruleset_list'] = ruleSetsWithNewRulesToTemplate(context['ruleset_list'], update)
+	
+	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
+	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
 def getRuleSetChildren(request,ruleSetID):
 	"""This method is called when the url /ruleset/ is called.
@@ -140,6 +241,24 @@ def getEditRuleSetForm(request, ruleSetID):
 	# Send to template.
 	#return HttpResponse(context['ruleSetChildren'])
 	return render(request, 'ruleset/editRuleSetForm.tpl', context)
+
+def getReorganizeRulesForm(request):
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	try:
+		# Get a complete list of sensors.
+		context['ruleset_list'] = RuleSet.objects.filter(parent=None).order_by('name')
+	
+	except RuleSet.DoesNotExist:
+		logger.warning("No RuleSet found.")
+		raise Http404
+	
+	context['ruleset_list'] = ruleSetHierarchyListToTemplate(context['ruleset_list'], 0)
+	# Send to template.
+	#return HttpResponse(context['ruleset_list'])
+	return render(request, 'ruleset/reorganizeRulesForm.tpl', context)
 
 def createRuleSet(request):
 	
@@ -348,23 +467,24 @@ def deleteRuleSet(request):
 	for ruleSetID in ruleSetIDs:
 		try:
 			ruleSet = RuleSet.objects.get(id=ruleSetID)
-			
-			if ruleSet.childSets.count() > 0:
+
+		except RuleSet.DoesNotExist:
+			response.append({'response': 'ruleSetDoesNotExists', 'text': 'RuleSet ID '+ruleSetID+' could not be found.'})
+			logger.warning("RuleSet ID "+str(ruleSet)+" could not be found.")
+			return HttpResponse(json.dumps(response))
+	
+		if ruleSet.childSets.count() > 0:
 				for child in ruleSet.childSets.all():
 					child.parent = ruleSet.parent
 					child.save()
 					logger.info("RuleSet "+str(child)+" is now child of RuleSet "+str(ruleSet.parent)+".")
 			
-			ruleSet.parent = None
-			ruleSet.save()
-			
-			ruleSet.delete()
-			logger.info("RuleSet "+str(ruleSet)+" has been deleted, along with all its rules.")
-			
-		except RuleSet.DoesNotExist:
-			response.append({'response': 'ruleSetDoesNotExists', 'text': 'RuleSet ID '+ruleSetID+' could not be found.'})
-			logger.warning("RuleSet ID "+str(ruleSet)+" could not be found.")
-			return HttpResponse(json.dumps(response))
+		ruleSet.parent = None
+		ruleSet.save()
+		
+		logger.info("RuleSet "+str(ruleSet)+" has been deleted, along with all its rules.")
+		
+		ruleSet.delete()
 	
 	response.append({'response': 'ruleSetSuccessfulDeletion', 'text': 'Ruleset(s) was successfully deleted.'})
 	return HttpResponse(json.dumps(response))
