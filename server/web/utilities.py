@@ -151,6 +151,77 @@ def ruleSetsToTemplate(ruleSetList):
 	# Once all rulesets are iterated over, we send the clean objects back.
 	return chewedRuleSets
 
+def ruleSetsWithNewRulesToTemplate(ruleSetList, update):
+	""""
+	This method takes Django Query objects containing a list of rulesets. 
+	
+	It returns a list of objects that can be put directly into the template without any additional processing.
+	"""
+	
+	ruleIDs = update.rules.values_list('id', flat=True)
+	
+	# We get the count of all sensors in the system.
+	sensorCount = Sensor.objects.count()
+	
+	# This list will be whats returned.
+	chewedRuleSets = []
+	
+	# We iterate over all the rulesets.
+	for ruleSet in ruleSetList:
+		ruleSetRuleIDs = ruleSet.rules.values_list('id', flat=True)
+		
+		if(len(set(ruleSetRuleIDs).intersection(ruleIDs))):
+			
+			# We go get a number of variables.
+			ruleSetID = ruleSet.id
+			ruleSetName = ruleSet.name
+			ruleSetActive = ruleSet.active
+			
+			#TODO: comment this
+			if ruleSet.childSets.count() > 0:
+				ruleSetHasChildren = True
+				
+				ruleSetRulesCount = ruleSet.rules.filter(id__in=ruleIDs).count()
+				if ruleSetRulesCount:
+					ruleSetHasRules = 1
+					ruleSetActiveRulesCount = ruleSet.rules.filter(active=True, id__in=ruleIDs).count()
+				else:
+					ruleSetHasRules = False
+					ruleSetActiveRulesCount = 0
+				
+				ruleSetInActiveRulesCount = ruleSetRulesCount - ruleSetActiveRulesCount
+			else:
+				# We calculate the number of rules the ruleset has.
+				ruleSetHasChildren = False
+				ruleSetRulesCount = ruleSet.rules.filter(id__in=ruleIDs).count()
+				if ruleSetRulesCount:
+					ruleSetHasRules = True
+				else:
+					ruleSetHasRules = False
+				ruleSetActiveRulesCount = ruleSet.rules.filter(active=True, id__in=ruleIDs).count()
+				ruleSetInActiveRulesCount = ruleSetRulesCount - ruleSetActiveRulesCount
+			
+			
+			# If the ruleset is active, we calculate how many sensors its active on.
+			if (ruleSetActive):
+				ruleSetActiveOnSensors = ruleSet.sensors.values_list('name', flat=True)
+				ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
+				ruleSetInActiveOnSensorsCount = sensorCount - ruleSetActiveOnSensorsCount
+			else: # If the ruleset isnt active, it wont be active on any sensors
+				ruleSetActiveOnSensors = []
+				ruleSetActiveOnSensorsCount = 0
+				ruleSetInActiveOnSensorsCount = sensorCount
+	
+			# Finally we feed all the variables into an object and append it to the return list.
+			chewedRuleSets.append({'ruleSetID':ruleSetID,'ruleSetName':ruleSetName,'ruleSetRulesCount':ruleSetRulesCount,'ruleSetActiveRulesCount':ruleSetActiveRulesCount,
+								'ruleSetInActiveRulesCount':ruleSetInActiveRulesCount,'ruleSetActiveOnSensors':ruleSetActiveOnSensors,'ruleSetActiveOnSensorsCount':ruleSetActiveOnSensorsCount,
+								'ruleSetInActiveOnSensorsCount':ruleSetInActiveOnSensorsCount,'ruleSetActive':ruleSetActive, 'ruleSetHasChildren':ruleSetHasChildren,
+								'ruleSetHasRules':ruleSetHasRules})
+		
+	
+	# Once all rulesets are iterated over, we send the clean objects back.
+	return chewedRuleSets
+	
 def ruleSetHierarchyListToTemplate(ruleSetList, level):
 	
 	# This list will be whats returned.

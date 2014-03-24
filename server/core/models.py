@@ -71,6 +71,9 @@ class Rule(models.Model):
 			
 		return self.revisions.filter(active=True).last()
 
+	def getRevisionCount(self):
+		
+		return self.revisions.count()
 	
 	def updateRule(self, raw, rev = None, msg = None):
 		"""This method recieves a rule, and if needed, creates a new RuleRevision object, and inserts into
@@ -176,13 +179,11 @@ class RuleReference(models.Model):
 	about a specific rule. It is of a certain type (which contains an
 	urlPrefix), and a reference."""
 	
-	reference = models.CharField(max_length=100)
+	reference = models.TextField()
 	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
 	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 
-	class Meta:
-		# Avoid duplicate entries
-		unique_together = ('reference', 'referenceType', 'rulerevision')
+
 
 	def __repr__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 

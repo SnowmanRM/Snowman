@@ -194,6 +194,7 @@ function loadRuleClassRules (ruleClass) {
 		// Calculates pagecounts.
 		pagecount =  Math.ceil(itemcount / pagelength);
 		if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
+		if (pagecount == 0) pagecount++;
 		var currentpage = 1;
 		
 		// We load the paginator for this class.

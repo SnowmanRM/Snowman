@@ -121,6 +121,9 @@ class Update(models.Model):
 	time = models.DateTimeField()
 	source = models.ForeignKey('Source', related_name="updates")
 	ruleRevisions = models.ManyToManyField(RuleRevision, related_name="update")
+	ruleSets = models.ManyToManyField(RuleSet, related_name="update")
+	rules = models.ManyToManyField(Rule, related_name="update")
+	isNew = models.BooleanField(default = True)
 	
 	def __repr__(self):
 		return "<Update source:%s, time:%s>" % (self.source.name, str(self.time))
@@ -232,6 +235,7 @@ class Update(models.Model):
 						ruleset = RuleSet.objects.get(name = ruleSetName)
 					except RuleSet.DoesNotExist:
 						ruleset = RuleSet.objects.create(name = ruleSetName, description=ruleSetName, active=True)
+						self.ruleSets.add(ruleset)
 						logger.info("Created new ruleset (" + str(ruleset) + ") while importing rule")
 					rulesets[ruleSetName] = ruleset
 						
@@ -283,6 +287,7 @@ class Update(models.Model):
 					logger.debug("Updated rule:" + str(rule))
 				except Rule.DoesNotExist:
 					rule = Rule.objects.create(SID=int(ruleSID), generator=generator, ruleSet=ruleset, ruleClass=ruleclass, active=ruleActive)
+					self.rules.add(rule)
 					logger.debug("Created a new rule: " + str(rule))
 				
 				rev = rule.updateRule(raw, ruleRev, ruleMessage)
