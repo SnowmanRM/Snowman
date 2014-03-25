@@ -4,17 +4,18 @@
 	{% load staticfiles %}
 	<script type="text/javascript" src="{% static 'js/update.js' %}"></script>
 
-	<div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
+	<div id="content" class="well row">
+		<div class="col-sm-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<p>Run manual update:</p>
+				<h2 class="no-margin">Manual update</h2>
 			</div>
 			<div class="panel-body">
 				{% if debug %}
 					<h1>{{debug}}</h1>
 				{% endif %}
 				
-				<h2>Manual update</h2>
+				
 				<p>To manually run a update, please use the following form to upload a single file, or an 
 				archive (.zip .tar .tar.gz) if the update contains more than one file (ie: .rule, 
 				gen-msg.map, sid-msg.map, classification.conf etc.).</p>
@@ -33,15 +34,14 @@
 				{% endif %}
 			</div>
 		</div>
-	</div>
-
-	<div id="content" class="col-xs-10 col-sm-10 col-md-10 pull-right well">
+		</div>
+		<div class="col-sm-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<p>Update status:</p>
+				<h2 class="no-margin">Update status</h2>
 			</div>
 			<div class="panel-body">
-				<h2>Create new source</h2>
+				<h2 class="no-margin">Create new source</h2>
 				<div id="newSource">
 					<p>Click the button if you would like to add a new update-source:</p>
 					<button>Create new source</button>
@@ -51,6 +51,7 @@
 					{% include "update/sourceList.tpl" %}
 				</div>
 			</div>
+		</div>
 		</div>
 	</div>
 {% endblock %}

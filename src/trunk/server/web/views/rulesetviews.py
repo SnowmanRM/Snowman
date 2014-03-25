@@ -4,7 +4,7 @@ from django.db.models import Count
 
 from core.models import Rule, RuleRevision, Sensor, RuleSet
 from update.models import Update
-from web.utilities import UserSettings, ruleSetsToTemplate, ruleSetHierarchyListToTemplate, ruleSetsWithNewRulesToTemplate
+from web.utilities import UserSettings, ruleSetsToTemplate, ruleSetHierarchyListToTemplate, ruleSetsWithNewRulesToTemplate, ruleSetsWithNewRuleRevisionsToTemplate
 import logging, json
 
 def index(request):
@@ -137,7 +137,7 @@ def getRuleSetByUpdateNewRules(request, updateID):
 		# We need to know how many rules there are total.
 		context['itemcount'] = RuleSet.objects.count()
 		# Get all rules, but limited by the set pagelength.
-		context['ruleset_list'] = RuleSet.objects.annotate(c=Count('rules')).filter(c__gt=0).order_by('name')
+		context['ruleset_list'] = RuleSet.objects.order_by('name')
 
 	except RuleSet.DoesNotExist:
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
@@ -145,6 +145,56 @@ def getRuleSetByUpdateNewRules(request, updateID):
 	
 	# Process the objects before we give them to the template.
 	context['ruleset_list'] = ruleSetsWithNewRulesToTemplate(context['ruleset_list'], update)
+	
+	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
+	return render(request, 'ruleset/ruleSetListItems.tpl', context)
+
+def getRuleSetByUpdateNewRuleRevisions(request, updateID):
+	"""This method is called when the url /ruleset/ is called.
+	
+	It fetches ruleset objects and sends them to the render.
+	
+	"""
+	
+	logger = logging.getLogger(__name__)
+	
+	# Spool up context.
+	context = {}
+	
+	# Get pagelength from the utility class.
+	#pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# This is always page nr 1.
+	#context['pagenr'] = 1
+	
+	# We want pagelength with us in the template.
+	#context['pagelength'] = pagelength
+	
+	# The first page isnt hidden.
+	context['ismain'] = True
+	
+	try:
+		update = Update.objects.get(id=updateID)
+	except Update.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	try:
+		# Get the current sensor count, but we want it in a negative value.
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
+		
+		# We need to know how many rules there are total.
+		context['itemcount'] = RuleSet.objects.count()
+		# Get all rules, but limited by the set pagelength.
+		context['ruleset_list'] = RuleSet.objects.order_by('name')
+
+	except RuleSet.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	# Process the objects before we give them to the template.
+	context['ruleset_list'] = ruleSetsWithNewRuleRevisionsToTemplate(context['ruleset_list'], update)
 	
 	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)

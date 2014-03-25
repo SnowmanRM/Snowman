@@ -5,22 +5,6 @@
 {% block content %}
 {% load staticfiles %}
 <script type="text/javascript" src="{% static 'js/ruleclass.js' %}"></script>
-<div id="search-container" class="ruleclass row col-xs-10 col-sm-10 col-md-10 pull-right">
-	
-	{% csrf_token %}
-	<div class="input-group col-xs-6 col-sm-6 col-md-6 col-lg-6 pull-right">
-		
-		<select id="searchfield" class="form-control">
-			<option value="sid">Name</option>
-			
-		</select>
-		<span class="input-group-btn">
-			<button class="btn btn-default" type="button">Search</button>
-		</span>
-		<input id="searchtext" type="text" class="form-control">
-	</div>
-	
-</div>
 
 {% block manipulator %}
 
