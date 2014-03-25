@@ -75,7 +75,7 @@
 #content table.rules pre {
 
 	white-space: normal;
-	word-break: normal;
+	//word-break: normal;
 	margin: 0;
 }
 
@@ -185,9 +185,16 @@
 	background-color: #428bca;
 	
 }
-#content table.rules .bg-primary {
+
+#content .bg-primary:hover {
 	
-	background-color: #428bca !important;
+	color: #fff;
+	background-color: #428bca;
+	
+}
+#content .bg-primary {
+	
+	background-color: #428bca;
 }
 /*
 #content .panel {
@@ -200,6 +207,15 @@
 	margin-left: 0;
 	margin-right: 0;
 }
+
+#content.row,
+#content-wrap.row{
+
+	margin-left: 0;
+	margin-right: 0;
+
+}
+
 #content .rules-panel .row {
 
 	padding: 2px;
@@ -328,6 +344,11 @@
 .no-radius {
 
 	border-radius: 0 !important;
+}
+
+.no-margin {
+
+	margin: 0 !important;
 }
 
 label.error {

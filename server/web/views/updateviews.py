@@ -133,6 +133,21 @@ def changes(request):
 	#return HttpResponse(data['updates'])
 	return render(request, "update/changes.tpl", data)
 
+def removeUpdate(request, updateID):
+	
+	logger = logging.getLogger(__name__)
+	
+	try:
+		update = Update.objects.get(id=updateID)
+	except Update.DoesNotExist:
+		logger.warning("Page request /rules/ could not be resolved, objects not found.")
+		raise Http404
+	
+	update.isNew = False
+	update.save()
+	
+	return HttpResponse('Success')
+
 def newSource(request):
 	"""This view recieves data from the "newSource" form. If the data recieved is valid, a new source is created.
 	Otherwise, the form is returned, with information on why the form is not valid.

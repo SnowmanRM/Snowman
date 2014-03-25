@@ -7,6 +7,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
 from core.models import Rule, RuleSet, RuleRevision, Sensor
+from update.models import Update
 from web.utilities import UserSettings, rulesToTemplate
 import logging, json
 
@@ -237,7 +238,7 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
-def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, update):
+def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, updateID):
 	"""	This method is loaded when the /rules/getRulesByRuleSet url is called. 
 		
 		The method fetches rules based on a ruleSetID.
@@ -288,9 +289,81 @@ def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, update):
 		# We do different queries based on the searchfield string.
 		
 		# We need to know how many rules the search will produce.
-		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=update).count()
+		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=updateID).count()
 		# Get matching rules, within the set range.
-		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=update)[minrange:maxrange]
+		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=updateID)[minrange:maxrange]
+		
+
+	except Rule.DoesNotExist:
+		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
+		raise Http404
+	
+	# Process the objects before we give them to the template.
+	context['rule_list']=rulesToTemplate(context['rule_list'])
+	return render(request, 'rules/rulePage.tpl', context)
+
+def getRulesByRuleSetNewRuleRevisions(request, ruleSetID, pagenr, updateID):
+	"""	This method is loaded when the /rules/getRulesByRuleSet url is called. 
+		
+		The method fetches rules based on a ruleSetID.
+		
+		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
+	
+	"""
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	# Get the two values from the HTTP POST request.
+
+	
+	# Get pagelength from the utility class.
+	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# We set this value to true so that we can differentiate in the template.
+	context['rulesearch'] = False
+	
+	# We want pagenr with us in the template, but we modify it.
+	context['pagenr'] = int(pagenr)
+	
+	# We want pagelength with us in the template.
+	context['pagelength'] = int(pagelength)
+	
+	# The first page isnt hidden.
+	if int(pagenr) == 1:
+		context['ishidden'] = False
+	else:
+		context['ishidden'] = True
+	
+	# We want the searchstring with us in the template.
+	#context['searchstring'] = searchstring
+	
+	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
+	minrange = pagelength * (int(pagenr)-1)
+	
+	# We add pagelength to the minumum range, this gives us the maximum range.
+	maxrange = int(minrange) + pagelength
+	
+	try:
+		update = Update.objects.get(id=updateID)
+	except Update.DoesNotExist:
+		logger.warning("Page request /rules/getRulesByRuleSetNewRuleRevisions could not be resolved, objects not found.")
+		raise Http404
+	
+	revList = update.ruleRevisions.values_list('rule__SID', flat=True)
+	
+	try:
+		# Get the current sensor count, but we want it in a negative value.
+		#context['sensorcount'] =  Sensor.objects.count()
+		#context['sensorcount'] = -context['sensorcount']
+		
+		# We do different queries based on the searchfield string.
+		
+		# We need to know how many rules the search will produce.
+		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID, SID__in=revList).count()
+		# Get matching rules, within the set range.
+		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, SID__in=revList)[minrange:maxrange]
 		
 
 	except Rule.DoesNotExist:

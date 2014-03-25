@@ -126,7 +126,7 @@
 					</div>
 				</div>
 				
-				<div class="panel panel-default">
+				<div class="new-revisions panel panel-default">
 					<div class="panel-heading row">
 						<div class="col-sm-8">
 							<h3>Rules with new revisions</h3>

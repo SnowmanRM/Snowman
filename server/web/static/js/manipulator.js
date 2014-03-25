@@ -52,7 +52,7 @@ function initializeButtons() {
 			// If some rulesets were selected.
 			if(setlist.length > 0) {
 				// Load the form with AJAX.
-				$.get('/web/tuning/getModifyForm', function(html){
+				$.get('/web/tuning/getModifyForm/', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="enable">');
@@ -116,7 +116,7 @@ function initializeButtons() {
 			// If some rulesets were selected.
 			if(setlist.length > 0) {
 				// Load the form with AJAX.
-				$.get('/web/tuning/getModifyForm', function(html){
+				$.get('/web/tuning/getModifyForm/', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="disable">');
@@ -155,7 +155,7 @@ function initializeButtons() {
 	
 	$('#manipulator button#threshold').click(function(event){
 		// Load the form with AJAX.
-		$.get('/web/tuning/getThresholdForm', function(html){
+		$.get('/web/tuning/getThresholdForm/', function(html){
 			// Put the form content into the container.
 			$('#thresholdFormModal #formContent').html(html);
 			// Get all checked checkboxes.
@@ -184,7 +184,7 @@ function initializeButtons() {
 	
 	$('#manipulator button#suppress').click(function(event){
 		// Load the form with AJAX.
-		$.get('/web/tuning/getSuppressForm', function(html){
+		$.get('/web/tuning/getSuppressForm/', function(html){
 			// Put the form content into the container.
 			$('#suppressFormModal #formContent').html(html);
 			// Get all checked checkboxes.
@@ -213,7 +213,7 @@ function modifyRuleSet(form){
 
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
-		url: "/web/tuning/modifyRule",
+		url: "/web/tuning/modifyRule/",
 		type: "post",
 		dataType: "json",
 		data: $(form).serialize(),
@@ -298,7 +298,7 @@ function modifyRule(mode, sidList, token){
 	*/
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
-		url: "/web/tuning/modifyRule",
+		url: "/web/tuning/modifyRule/",
 		type: "post",
 		dataType: "json",
 		data: {mode: mode, sids: JSON.stringify(sidList), csrfmiddlewaretoken: token},
@@ -357,7 +357,7 @@ function submitThresholdForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
-		url: "/web/tuning/setThresholdOnRule",
+		url: "/web/tuning/setThresholdOnRule/",
 		type: "post",
 		dataType: "json",
 		data: $(event).serialize(),
@@ -539,7 +539,7 @@ function submitSuppressForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
-		url: "/web/tuning/setSuppressOnRule",
+		url: "/web/tuning/setSuppressOnRule/",
 		type: "post",
 		dataType: "json",
 		data: $(event).serialize(),
