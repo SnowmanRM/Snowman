@@ -1,11 +1,117 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
-from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet
+from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet, Comment
 from tuning.models import Threshold, Suppress, SuppressAddress
 from web.utilities import UserSettings
 import logging, json, re
 
+
+def tuningByRule(request):
+	"""This method is loaded when the /tuning/getThresholdForm is called. 
+	It delivers a form for thresholding. """
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	# Get pagelength from the utility class.
+	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# We want pagenr with us in the template.
+	context['pagenr'] = 1
+	
+	# We want pagelength with us in the template.
+	context['pagelength'] = pagelength
+	
+	# The first page isnt hidden.
+	context['ishidden'] = False
+
+	
+	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
+	minrange = 0
+	
+	# We add pagelength to the minumum range, this gives us the maximum range.
+	maxrange = int(minrange) + (pagelength/2)
+	
+	
+	try:
+		# Get a complete list of sensors.
+		context['allsensors'] = Sensor.objects.all()
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	try:
+		context['itemcount'] = Threshold.objects.count()
+		context['itemcount'] += Suppress.objects.count()
+		# Get a complete list of sensors.
+		context['thresholdList'] = Threshold.objects.all()[minrange:maxrange]
+		context['suppressList'] = Suppress.objects.all()[minrange:maxrange]
+		
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	# Send to template.
+	#return HttpResponse(context['thresholdList'])
+	return render(request, 'tuning/byRule.tpl', context)
+
+def tuningByRulePage(request, pagenr):
+	"""This method is loaded when the /tuning/getThresholdForm is called. 
+	It delivers a form for thresholding. """
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	# Get pagelength from the utility class.
+	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# We want pagenr with us in the template.
+	context['pagenr'] = pagenr
+	
+	# We want pagelength with us in the template.
+	context['pagelength'] = pagelength
+	
+	# The first page isnt hidden.
+	if int(pagenr) == 1:
+		context['ishidden'] = False
+	else:
+		context['ishidden'] = True
+	
+	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
+	minrange = (pagelength/2) * (int(pagenr)-1)
+	
+	# We add pagelength to the minumum range, this gives us the maximum range.
+	maxrange = int(minrange) + (pagelength/2)
+	
+	
+	try:
+		# Get a complete list of sensors.
+		context['allsensors'] = Sensor.objects.all()
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	try:
+		context['itemcount'] = Threshold.objects.count()
+		context['itemcount'] += Suppress.objects.count()
+		# Get a complete list of sensors.
+		context['thresholdList'] = Threshold.objects.all()[minrange:maxrange]
+		context['suppressList'] = Suppress.objects.all()[minrange:maxrange]
+		
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	# Send to template.
+	#return HttpResponse(context['thresholdList'])
+	return render(request, 'tuning/tuningPage.tpl', context)
 
 def getThresholdForm(request):
 	"""This method is loaded when the /tuning/getThresholdForm is called. 
@@ -91,7 +197,7 @@ def modifyRule(request):
 	elif mode == "disable":
 		active = False
 	else:
-		logger.error("Invalid mode '"+mode+"'. Rule(s) not modified.")
+		logger.error("Invalid mode '"+str(mode)+"'. Rule(s) not modified.")
 		response.append({'response': 'invalidMode', 'text': 'Rule modification failed, invalid mode. \nContact administrator.\n\n'})
 		return HttpResponse(json.dumps(response))
 	
@@ -107,10 +213,10 @@ def modifyRule(request):
 			try:
 				r = Rule.objects.filter(SID=sid).update(active=active)
 				goodsids.append({'sid': sid, 'mode': mode})
-				logger.info("Rule "+str(r)+" is now "+mode+"d.")
+				logger.info("Rule "+str(r)+" is now "+str(mode)+"d.")
 			except Rule.DoesNotExist:
 				response.append({'response': 'ruleDoesNotExist', 'text': 'Rule '+sid+' could not be found. \nIt has not been modified.\n\n'})
-				logger.warning("Rule "+sid+" could not be found.")
+				logger.warning("Rule "+str(sid)+" could not be found.")
 				
 		response.append({'response': 'ruleModificationSuccess', 'sids': goodsids})
 		
@@ -133,10 +239,10 @@ def modifyRule(request):
 				try:
 					r = RuleSet.objects.filter(id=ruleSet).update(active=active)
 					goodRuleSets.append({'set': ruleSet, 'mode': mode})
-					logger.info("RuleSet "+str(r)+" is now "+mode+"d.")
+					logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d.")
 				except RuleSet.DoesNotExist:
 					response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
-					logger.warning("RuleSet "+ruleSet+" could not be found.")
+					logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
 					
 			response.append({'response': 'ruleSetModificationSuccess', 'sets': goodRuleSets})
 			
@@ -156,13 +262,13 @@ def modifyRule(request):
 								else:
 									r.sensors.remove(s) # This is where the ruleset is removed from the sensor.
 								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor})
-								logger.info("RuleSet "+str(r)+" is now "+mode+"d on sensor "+str(s)+".")
+								logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(s)+".")
 							except RuleSet.DoesNotExist:
 								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
-								logger.warning("RuleSet "+ruleSet+" could not be found.")
+								logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
 					except Sensor.DoesNotExist:
 						response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
-						logger.warning("Sensor "+sensor+" could not be found.")
+						logger.warning("Sensor "+str(sensor)+" could not be found.")
 			# If we selected all sensors, we just iterate over all of them. This could probably be optimized.
 			elif sensors[0] == "all":
 				try:
@@ -175,13 +281,13 @@ def modifyRule(request):
 								else:
 									r.sensors.remove(sensor) # This is where the ruleset is removed from the sensor.
 								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor.id})
-								logger.info("RuleSet "+str(r)+" is now "+mode+"d on sensor "+str(sensor)+".")
+								logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(sensor)+".")
 							except RuleSet.DoesNotExist:
 								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
-								logger.warning("RuleSet "+ruleSet+" could not be found.")
+								logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
 				except Sensor.DoesNotExist:
 					response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
-					logger.warning("Sensor "+sensor+" could not be found.")
+					logger.warning("Sensor "+str(sensor)+" could not be found.")
 					
 			response.append({'response': 'ruleSetModificationSuccess', 'sets': goodRuleSets})
 	
@@ -321,6 +427,9 @@ def setThresholdOnRule(request):
 		if sensors[0] == "all":
 			sensors = Sensor.objects.values_list('id', flat=True)
 		
+		# We create the comment object.
+		comment = Comment.objects.create(user=0,comment=commentString, type="newThreshold")
+
 		# We iterate over all the rules and sensors to implement the threshold.
 		try:
 			for ruleId in ruleIds:
@@ -330,15 +439,15 @@ def setThresholdOnRule(request):
 					# We check to see if a threshold already exists, in that case we just update it. If not, we create one.
 					t = Threshold.objects.filter(rule=trule, sensor=tsensor).count();
 					if t > 0:
-						Threshold.objects.filter(rule=trule, sensor=tsensor).update(comment=commentString, thresholdType=ttype, track=ttrack, count=tcount, seconds=tseconds)
-						logger.info("Threshold successfully updated on rule: "+trule+".")
+						Threshold.objects.filter(rule=trule, sensor=tsensor).update(comment=comment, thresholdType=ttype, track=ttrack, count=tcount, seconds=tseconds)
+						logger.info("Threshold successfully updated on rule: "+str(trule)+".")
 					elif t == 0:
-						t = Threshold(rule=trule, sensor=tsensor, comment=commentString, thresholdType=ttype, track=ttrack, count=tcount, seconds=tseconds)
+						t = Threshold(rule=trule, sensor=tsensor, comment=comment, thresholdType=ttype, track=ttrack, count=tcount, seconds=tseconds)
 						t.save()
-						logger.info("Threshold successfully added to rule: "+trule+".")
+						logger.info("Threshold successfully added to rule: "+str(trule)+".")
 			
 			response.append({'response': 'thresholdAdded', 'text': 'Threshold successfully added.'})
-			
+		
 			return HttpResponse(json.dumps(response))
 		except: # Something went wrong.
 			response.append({'response': 'addThresholdFailure', 'text': 'Failed when trying to add thresholds.'})
@@ -423,7 +532,7 @@ def setSuppressOnRule(request):
 		# If we selected all sensors, generate a list of all of their ids.
 		elif sensors[0] == "all":
 			sensorList = Sensor.objects.values_list('id', flat=True)
-			
+		
 		# We iterate through all selected sensors and rules to see if a threshold already exists.
 		# We warn the user if there are thresholds. We also check to see if the rule objects selected exist. 	
 		for sensor in sensorList:
@@ -537,6 +646,11 @@ def setSuppressOnRule(request):
 			logger.error("Failed when trying to add suppression addresses.")
 			return HttpResponse(json.dumps(response))
 		
+		try:
+			comment = Comment.objects.create(user=0,comment=commentString, type="newSuppression")
+		except:
+			logger.warning("Could not create Comment.")
+		
 		# We iterate over all the rules and sensors to implement the suppression.
 		try:
 			for ruleId in ruleIds:
@@ -546,13 +660,13 @@ def setSuppressOnRule(request):
 					# We check to see if a suppression already exists, in that case we just update it. If not, we create one.
 					s = Suppress.objects.filter(rule=srule, sensor=ssensor).count();
 					if s > 0:
-						Suppress.objects.filter(rule=srule, sensor=ssensor).update(comment=commentString, track=strack)
+						Suppress.objects.filter(rule=srule, sensor=ssensor).update(comment=comment, track=strack)
 						s = Suppress.objects.get(rule=srule, sensor=ssensor)
 						for address in suppressAddressList:
 							s.addresses.add(address)
 						logger.info("Suppression successfully updated on rule: "+srule+".")
 					elif s == 0:
-						s = Suppress.objects.create(rule=srule, sensor=ssensor, comment=commentString, track=strack)
+						s = Suppress.objects.create(rule=srule, sensor=ssensor, comment=comment, track=strack)
 						for address in suppressAddressList:
 							s.addresses.add(address)
 						logger.info("Suppression successfully updated on rule: "+srule+".")

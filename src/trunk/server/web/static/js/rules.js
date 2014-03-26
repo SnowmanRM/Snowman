@@ -317,7 +317,7 @@ $(document).ready(function(){
 	}
 	
 	// Preload the last page, but not if the hash points to the last page.
-	if (hash != pagecount) {
+	if (hash != pagecount && pagecount > 1) {
 		getPage(pagecount);
 	}
 	

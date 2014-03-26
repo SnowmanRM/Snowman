@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.models import Rule, Sensor
+from core.models import Rule, Sensor, Comment
 
 
 class RuleModifier(models.Model):
@@ -28,14 +28,14 @@ class Suppress(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'suppress')
 	sensor = models.ForeignKey(Sensor, related_name = 'suppress')
-	comment = models.TextField()
+	comment = models.ForeignKey(Comment, related_name= 'suppress')
 	track = models.IntegerField()
 	
 	def __repr__(self):
-		return "<Suppress Rule:%d, Sensor:%s, comment:'%s', track:%s>" % (self.rule.SID, self.sensor.name, self.comment, Suppress.TRACK[self.track])
+		return "<Suppress Rule:%d, Sensor:%s, comment:'%s', track:%s>" % (self.rule.SID, self.sensor.name, self.comment.comment, Suppress.TRACK[self.track])
 
 	def __str__(self):
-		return "<Suppress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
+		return "<Suppress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment.comment)
 
 class SuppressAddress(models.Model):
 	"""SupressAddress is simply a container for an address that is
@@ -67,7 +67,7 @@ class Threshold(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'thresholds')
 	sensor = models.ForeignKey(Sensor, related_name = 'thresholds')
-	comment = models.TextField()
+	comment = models.ForeignKey(Comment, related_name= 'threshold')
 	thresholdType = models.IntegerField()
 	track = models.IntegerField()
 	count = models.IntegerField()
@@ -75,8 +75,8 @@ class Threshold(models.Model):
 
 	def __repr__(self):
 		return "<Threshold Rule:%d, Sensor:%s, comment:'%s', type:%s, track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
-					self.comment, Threshold.TYPE[self.thresholdType], Threshold.TRACK[self.track], self.count, self.seconds)
+					self.comment.comment, Threshold.TYPE[self.thresholdType], Threshold.TRACK[self.track], self.count, self.seconds)
 
 	def __str__(self):
-		return "<Threshold Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
+		return "<Threshold Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment.comment)
 
