@@ -297,3 +297,17 @@ class Sensor(models.Model):
 			return self.AVAILABLE
 		else:
 			return self.UNAVAILABLE
+		
+		
+class Comment(models.Model):
+	user = models.IntegerField()
+	time = models.DateTimeField(default = datetime.datetime.now())
+	comment = models.TextField()
+	type = models.CharField(max_length=30)
+	foreignKey = models.IntegerField(null=True)
+	
+	def __repr__(self):
+			return "<Comment user:%s, time:None, comment:%s, type:'%s', foreignKey:%s>" % (self.user, self.time, self.comment, self.foreignKey)
+
+	def __str__(self):
+		return "<Comment time:%s, type:'%s', comment:'%s'>" % (self.time, self.type, self.comment)
