@@ -54,7 +54,7 @@ class DetectionFilter(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'detectionFilters')
 	sensor = models.ForeignKey(Sensor, related_name = 'detectionFilters')
-	comment = models.TextField()
+	comment = models.ForeignKey(Comment, related_name= 'threshold')
 	track = models.IntegerField()
 	count = models.IntegerField()
 	seconds = models.IntegerField()
