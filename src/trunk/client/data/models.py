@@ -97,75 +97,106 @@ class RuleSet(Base):
 	def __str__(self):
 		return "<RuleSet ('%s', '%s')>" % (self.name, self.description)
 
-class Supress(Base):
-	"""Supression of a single rule on certain addresses."""
-	__tablename__ = 'supress'
+class Suppress(Base):
+	"""Suppression of a single rule on certain addresses."""
+	__tablename__ = 'suppress'
+
+	TRACK = {1: "by_src", 2: "by_dst"}
 
 	id = Column(Integer, primary_key=True)
 	rule_id = Column(Integer, ForeignKey('rule.id'))
-	comment = Column(Text)
 	track = Column(Integer)
 	
 	# Assign foreign-key referrers
-	rule = relationship("Rule", backref=backref('supress', order_by=id))
+	rule = relationship("Rule", backref=backref('suppress', order_by=id))
 	
-	def __init__(self, comment, track):
-		self.comment = comment
+	def __init__(self, track):
 		self.track = track
 	
 	def __repr__(self):
-		return "<Supress ('%s', '%s', '%s')>" % (self.rule, self.comment, self.addresses)
+		return "<Suppress ('%s', '%s', '%s')>" % (self.rule, self.comment, self.addresses)
 
 	def __str__(self):
-		return "<Supress ('%s', '%s')>" % (self.rule, self.comment)
+		return "<Suppress ('%s', '%s')>" % (self.rule, self.comment)
+	
+	def getConfigString(self):
+		addresses = ""
+		for a in self.addresses:
+			if(len(addresses) > 0):
+				addresses += " "
+			addresses += str(a.address)
+		return "suppress gen_id 1, sig_id %d, track %s, ip %s" % (self.rule.SID, Suppress.TRACK[self.track], addresses)
 
-class SupressAddress(Base):
-	"""An IP-Address used by a supression."""
-	__tablename__ = 'supressaddress'
+class SuppressAddress(Base):
+	"""An IP-Address used by a suppression."""
+	__tablename__ = 'suppressaddress'
 
 	id = Column(Integer, primary_key=True)
-	supress_id = Column(Integer, ForeignKey('supress.id'))
+	suppress_id = Column(Integer, ForeignKey('suppress.id'))
 	address = Column(String(40))
 	
 	# Assign foreign-key referrers
-	supress = relationship("Supress", backref=backref('addresses', order_by=id))
+	suppress = relationship("Suppress", backref=backref('addresses', order_by=id))
 	
 	def __init__(self, address):
 		self.address = address
 
 	def __repr__(self):
-		return "<SupressAddress ('%s')>" % (self.address)
+		return "<SuppressAddress ('%s')>" % (self.address)
 
 	def __str__(self):
-		return "<SupressAddress ('%s')>" % (self.address)
+		return "<SuppressAddress ('%s')>" % (self.address)
 
-class Threshold(Base):
-	"""Thresholding a rule"""
-	__tablename__ = 'threshold'
+class DetectionFilter(Base):
+	__tablename__ = 'detectionfilter'
 
 	id = Column(Integer, primary_key=True)
 	rule_id = Column(Integer, ForeignKey('rule.id'))
-	comment = Column(Text)
-	thresholdType = Column(Integer)
 	track = Column(Integer)
 	count = Column(Integer)
 	seconds = Column(Integer)
 	
 	# Assign foreign-key referrers
-	rule = relationship("Rule", backref=backref('threshold', order_by=id))
+	rule = relationship("Rule", backref=backref('detectionfilter', order_by=id))
 
-	def __init__(self, comment, ttype, track, count, seconds):
-		self.comment = comment
-		self.thresholdType = ttype
+	def __init__(self, track, count, seconds):
 		self.track = track
 		self.count = count
 		self.seconds = seconds
 
 	def __repr__(self):
-		return "<Threshold ('%s','%d','%d','%d','%d')>" % (self.comment, self.thresholdType, self.track, self.count, self.seconds)
+		return "<DetectionFilter ('%d','%d','%d')>" % (self.track, self.count, self.seconds)
 
 	def __str__(self):
-		return "<Threshold ('%s','%d','%d','%d','%d')>" % (self.comment, self.thresholdType, self.track, self.count, self.seconds)
+		return "<DetectionFilter ('%d','%d','%d')>" % (self.track, self.count, self.seconds)
+
+class EventFilter(Base):
+	__tablename__ = 'eventfilter'
+	
+	TYPE = {1: "limit", 2: "threshold", 3:"both"}
+	TRACK = {1: "by_src", 2: "by_dst"}
+
+	id = Column(Integer, primary_key=True)
+	rule_id = Column(Integer, ForeignKey('rule.id'))
+	filtertype = Column(Integer)
+	track = Column(Integer)
+	count = Column(Integer)
+	seconds = Column(Integer)
+	
+	# Assign foreign-key referrers
+	rule = relationship("Rule", backref=backref('eventfilter', order_by=id))
+
+	def __init__(self, ttype, track, count, seconds):
+		self.filtertype = ttype
+		self.track = track
+		self.count = count
+		self.seconds = seconds
+
+	def __repr__(self):
+		return "<EventFilter ('%d', '%d','%d','%d')>" % (self.filtertype, self.track, self.count, self.seconds)
+
+	def __str__(self):
+		return "<EventFilter ('%d', '%d','%d','%d')>" % (self.filtertype, self.track, self.count, self.seconds)
 
 
 class StaticFile(Base):
@@ -215,7 +246,7 @@ class RuleReference(Base):
 	__tablename__ = 'rulereference'
 	
 	id = Column(Integer, primary_key=True)
-	reference = Column(String(160))
+	reference = Column(String(240))
 	rule_id = Column(Integer, ForeignKey('rule.id'))
 	referencetype_id = Column(Integer, ForeignKey('rulereferencetype.id'))
 	
@@ -240,7 +271,7 @@ class RuleReferenceType(Base):
 
 	id = Column(Integer, primary_key=True)
 	name = Column(String(80))
-	prefix = Column(String(160))
+	prefix = Column(String(200))
 	
 	def __init__(self, name, prefix):
 		self.name = name
@@ -251,5 +282,27 @@ class RuleReferenceType(Base):
 		
 	def __str__(self):
 		return "<RuleReferenceType ('%s')>" % (self.name)
+
+class Generator(Base):
+	"""The spesifications for a generator.
+	
+	Currently only used for gen-msg.map"""
+	__tablename__ = 'generator'
 		
+	id = Column(Integer, primary_key=True)
+	gid = Column(Integer)
+	alertId = Column(Integer)
+	message = Column(String(160))
+	
+	def __init__(self, gid, alertId, message):
+		self.gid = gid
+		self.alertId = alertId
+		self.message = message
+	
+	def __repr__(self):
+		return "<Generator ('%d', '%d', '%s')>" % (self.gid, self.alertID, self.message)
+		
+	def __str__(self):
+		return "<Generator ('%s')>" % (self.message)
+
 Session._initialize()
