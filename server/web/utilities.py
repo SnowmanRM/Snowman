@@ -30,7 +30,7 @@ def rulesToTemplate(ruleList):
 		ruleID = rule.id
 		ruleGID = rule.generator.GID
 		ruleSID = rule.SID
-		ruleThresholdCount = rule.thresholds.count()
+		ruleThresholdCount = rule.eventFilters.count()
 		ruleSuppressCount = rule.suppress.count()
 		ruleCurrentRevision = rule.getCurrentRevision()
 		ruleRev = ruleCurrentRevision.rev

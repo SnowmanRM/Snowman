@@ -2,8 +2,11 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
 from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet, Comment
-from tuning.models import Threshold, Suppress, SuppressAddress
+from core.exceptions import MissingObjectError
+from tuning.models import EventFilter, DetectionFilter, Suppress, SuppressAddress
+from util.patterns import ConfigStrings
 from web.utilities import UserSettings
+from web.exceptions import InvalidValueError
 import logging, json, re
 
 
@@ -293,15 +296,17 @@ def modifyRule(request):
 	
 	return HttpResponse(json.dumps(response))
 
-def setThresholdOnRule(request):
-	"""This method is loaded when the /tuning/setThresholdOnRule is called.
+def setFilterOnRule(request):
+	"""This method is loaded when /tuning/setFilterOnRule is called.
 	The request should contain a POST of a form with all required fields. 
 	
 	The function will check all values for errors and return a warning if something isnt right.
 	
-	If everything is ok or the force flag is set, it will either update or create the Threshold objects requested.
+	If everything is ok or the force flag is set, it will either update or create the EventFilter objects requested.
 	
 	It returns JSON objects containing the results.
+	
+	This method will raise a MultiValueDictKeyError (django.utils.datastructures) when element in request.POST[element] does not exist.
 	"""
 	
 	logger = logging.getLogger(__name__)
@@ -353,32 +358,28 @@ def setThresholdOnRule(request):
 		
 	# If force is false, it means we have to check everything.				
 	if force == "False":
-				
-		sensorList = []
 		
-		# If we didnt pick all sensors, we gotta check to see if the selected ones exist. 
-		# We also populate a list for later use.
-		if sensors[0] != "all":
-			for sensor in sensors:
-				sensorList.append(sensor)
-				try:
-					Sensor.objects.get(id=sensor)
-				except Sensor.DoesNotExist:
-					response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
-					logger.warning("Sensor with DB ID "+str(sensor)+" could not be found.")
-					return HttpResponse(json.dumps(response))
-		# If we selected all sensors, generate a list of all of their ids.	
-		elif sensors[0] == "all":
-			sensorList = Sensor.objects.values_list('id', flat=True)
+		# If "all sensors" is selected, put its correct name in the list: 
+		if sensors[0] == "All":
+			sensors = [ConfigStrings.ALL_SENSORS_NAME]
+			
+		for sensor in sensors:
+			try:
+				Sensor.objects.get(id=sensor)
+			except Sensor.DoesNotExist:
+				response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
+				logger.warning("Sensor with DB ID "+str(sensor)+" could not be found.")
+				return HttpResponse(json.dumps(response))			
 		
 		# We iterate through all selected sensors and rules to see if a threshold already exists.
 		# We warn the user if there are thresholds. We also check to see if the rule objects selected exist. 	
-		for sensor in sensorList:
+		for sensor in sensors:
 			s = Sensor.objects.get(id=sensor)
+
 			for ruleId in ruleIds:
 				try:
 					r = Rule.objects.get(id=ruleId)
-					if r.thresholds.filter(sensor=s).count() > 0:
+					if r.eventFilters.filter(sensor=s).count() > 0:
 						if len(response) == 0:
 							response.append({'response': 'thresholdExists', 'text': 'Thresholds already exists, do you want to overwrite?.', 'sids': []})
 						response[0]['sids'].append(r.SID)
@@ -393,7 +394,7 @@ def setThresholdOnRule(request):
 			response.append({'response': 'noComment', 'text': 'You have not set any comments on this action, are you sure you want to proceed?.'})
 		
 		# Warn the user since all sensors is default.
-		if sensors[0] == "all":
+		if sensors[0] == ConfigStrings.ALL_SENSORS_NAME:
 			response.append({'response': 'allSensors', 'text': 'You are setting this threshold on all sensors, are you sure you want to do that?.'})
 		
 		# If any responses were triggered, return them. Else, we set force to true and implement the threshold.
@@ -404,6 +405,7 @@ def setThresholdOnRule(request):
 	
 	# The user either wants us to continue or there were no warnings.
 	if force == "True":
+		filterType = request.POST['filterType']
 		tcount = int(request.POST['count'])
 		tseconds = int(request.POST['seconds'])
 		
@@ -423,9 +425,9 @@ def setThresholdOnRule(request):
 			logger.warning("Track value out of range: "+str(ttrack)+".")
 			return HttpResponse(json.dumps(response))
 		
-		# If we selected all sensors, generate a list of all of their ids.
-		if sensors[0] == "all":
-			sensors = Sensor.objects.values_list('id', flat=True)
+		# If "all sensors" is selected, put its correct name in the list: 
+		if sensors[0] == "All":
+			sensors = [ConfigStrings.ALL_SENSORS_NAME]
 		
 		# We create the comment object.
 		comment = Comment.objects.create(user=0,comment=commentString, type="newThreshold")
@@ -436,6 +438,33 @@ def setThresholdOnRule(request):
 				for sensorId in sensors:
 					trule = Rule.objects.get(id=ruleId)
 					tsensor = Sensor.objects.get(id=sensorId)
+<<<<<<< .mine
+					
+					try:
+						if filterType == 'eventFilter':
+							arguments = {'rule':trule, 'sensor':tsensor, 'comment':commentString, 'eventFilterType':ttype, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
+							filterObject = EventFilter.objects.get(rule=trule, sensor=tsensor)
+							filterObject.eventFilterType = ttype
+						elif filterType == 'detectionFilter':
+							arguments = {'rule':trule, 'sensor':tsensor, 'comment':commentString, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
+							filterObject = DetectionFilter.objects.get(rule=trule, sensor=tsensor)
+						else:
+							raise InvalidValueError(filterType+" is not a valid filter type!")
+						
+						filterObject.track = ttrack
+						filterObject.count = tcount
+						filterObject.seconds = tseconds
+						filterObject.comment = commentString
+						filterObject.save()
+						logger.info("EventFilter successfully updated on rule: "+str(trule)+".")
+													
+					except EventFilter.DoesNotExist:
+						filterObject = EventFilter.objects.create(**arguments)
+						logger.info("event_filter successfully added to rule: "+str(trule)+".")
+					except DetectionFilter.DoesNotExist:
+						filterObject = DetectionFilter.objects.create(**arguments)
+						logger.info("detection_filter successfully added to rule: "+str(trule)+".")
+=======
 					# We check to see if a threshold already exists, in that case we just update it. If not, we create one.
 					t = Threshold.objects.filter(rule=trule, sensor=tsensor).count();
 					if t > 0:
@@ -445,13 +474,14 @@ def setThresholdOnRule(request):
 						t = Threshold(rule=trule, sensor=tsensor, comment=comment, thresholdType=ttype, track=ttrack, count=tcount, seconds=tseconds)
 						t.save()
 						logger.info("Threshold successfully added to rule: "+str(trule)+".")
+>>>>>>> .r216
 			
-			response.append({'response': 'thresholdAdded', 'text': 'Threshold successfully added.'})
+			response.append({'response': 'filterAdded', 'text': filterType+' successfully added.'})
 		
 			return HttpResponse(json.dumps(response))
-		except: # Something went wrong.
-			response.append({'response': 'addThresholdFailure', 'text': 'Failed when trying to add thresholds.'})
-			logger.error("Failed when trying to add thresholds.")
+		except Exception as e: # Something went wrong.
+			response.append({'response': 'addFilterFailure', 'text': 'Failed when trying to add filter.'})
+			logger.error("Failed when trying to add filter: "+e.message)
 			return HttpResponse(json.dumps(response))
 		
 def setSuppressOnRule(request):
@@ -520,7 +550,7 @@ def setSuppressOnRule(request):
 		
 		# If we didnt pick all sensors, we gotta check to see if the selected ones exist. 
 		# We also populate a list for later use.
-		if sensors[0] != "all":
+		if sensors[0] != "All":
 			for sensor in sensors:
 				sensorList.append(sensor)
 				try:
@@ -530,7 +560,7 @@ def setSuppressOnRule(request):
 					logger.warning("Sensor with DB ID "+str(sensor)+" could not be found.")
 					return HttpResponse(json.dumps(response))	
 		# If we selected all sensors, generate a list of all of their ids.
-		elif sensors[0] == "all":
+		elif sensors[0] == "All":
 			sensorList = Sensor.objects.values_list('id', flat=True)
 		
 		# We iterate through all selected sensors and rules to see if a threshold already exists.

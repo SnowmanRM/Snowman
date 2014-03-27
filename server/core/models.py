@@ -1,5 +1,6 @@
 import datetime
 import logging
+import re
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -95,6 +96,10 @@ class Rule(models.Model):
 		# If no revisions are found, or the last revision is smaller than the new one,
 		#   add the new revision to the database.
 		if(lastRev == None or int(lastRev.rev) < int(rev)):
+			# Remove filters from raw string before storage:
+			raw = re.sub(r'detection_filter:.*?;', '', raw)
+			raw = re.sub(r'threshold:.*?;', '', raw)
+			raw = " ".join(raw.split())
 			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=True, msg=msg, raw=raw)
 			logger.debug("Updated rule-revision:" + str(rev))
 			return rev
@@ -211,20 +216,29 @@ class RuleReferenceType(models.Model):
 		return "<RuleReferenceType name:%s, urlPrefix:'%s'>" % (self.name, self.urlPrefix)
 
 class RuleRevision(models.Model):
-	"""This class should represent a single revision of a rule. Every
-	time a rule is updated, there should be created a new object of 
-	this class.
-	The active-field should signal if this revision is a revision we
+	"""Represents a single revision of a rule. Every
+	time a rule is updated, a new revision object should be created.
+	
+	== FIELDS ==
+	Raw: The text-string carrying the rule header and rule options. Known
+	in this project as the rulestring.
+	
+	Msg: Alert message. 
+	
+	Active: The active-field determines if this revision is a revision we
 	want to use. When a Rule is fetched, the revision with the highest
-	rev that is active is selected as the correct rule to use."""
+	rev that is active is selected as the correct rule to use.
+	
+	Filters: Inline filters such as detection filter and (now deprecated)
+	threshold are stored as normal text-options in this field (as they
+	appear in the original rulestring)."""
 
-	rule = models.ForeignKey('Rule', related_name="revisions")
-	active = models.BooleanField(default=True)
-	threshold = models.TextField(default = "")
-	suppress = models.TextField(default = "")
-	rev = models.IntegerField()
 	raw = models.TextField()
+	rev = models.IntegerField()
 	msg = models.TextField()
+	active = models.BooleanField(default=True)
+	filters = models.TextField(default = "")
+	rule = models.ForeignKey('Rule', related_name="revisions")
 
 	def __repr__(self):
 		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)

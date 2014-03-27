@@ -175,8 +175,6 @@ function initializeButtons() {
 			$('button#threshold-submit').prop("disabled",false);
 			$('button#threshold-submit').attr('class','btn btn-primary');
 			$('button#threshold-submit').html('Save changes');
-			
-		
 		});
 			
 		
@@ -357,7 +355,7 @@ function submitThresholdForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
-		url: "/web/tuning/setThresholdOnRule/",
+		url: "/web/tuning/setFilterOnRule/",
 		type: "post",
 		dataType: "json",
 		data: $(event).serialize(),
@@ -370,7 +368,7 @@ function submitThresholdForm(event) {
 			$.each(data, function() {
 				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
 				// We also set the outcome flags appropriately so we can handle things differently.
-				if(this.response == "thresholdAdded") {
+				if(this.response == "filterAdded") {
 					
 					text = '<div class="alert alert-success row" style="display: none;">\
 						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
@@ -481,7 +479,7 @@ function submitThresholdForm(event) {
 							
 					error = true;
 				}
-				else if(this.response == "addThresholdFailure") {
+				else if(this.response == "addFilterFailure") {
 					
 					$('#thresholdForm input#force').val('False');
 					text = '<div class="alert alert-danger row" style="display: none;">\

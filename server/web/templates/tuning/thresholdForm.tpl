@@ -4,6 +4,16 @@
 
 	{% csrf_token %}
 	<input type="hidden" id="force" name="force" value="False">
+  	<div class="form-group" id="filter">
+  	{# TODO: korrekt styling av radio buttons. Dersom detection er aktiv skal "Type" være deaktivert.}
+  		<label for="filter" class="col-sm-2 control-label">Filter type:</label>
+  		<div class="col-sm-10">
+  			 <div id="radio">
+				<input type="radio" value="eventFilter" name="filterType" checked="checked"><label for="eventFilter">event_filter</label>
+				<input type="radio" value="detectionFilter" name="filterType ><label for="detectionFilter">detection_filter</label>
+			</div>
+  		</div>
+  	</div>
   	<div class="form-group" id="sid">
   		<label for="sid" class="col-sm-2 control-label">GID:SID:</label>
   		<div class="col-sm-10">
@@ -60,4 +70,9 @@
   			<input id="comment" name="comment" type="text" class="form-control" placeholder="Add a comment to this action.">
   		</div>
   	</div>
-        
+  	<div class="form-group" id="note">
+  		<label for="comment" class="col-sm-2 control-label"></label>
+  		<div class="col-sm-10">
+  			Note that only one filter of each type is allowed per rule per sensor. If multiple filters are specified in a hierarchy of sensors, the rule will assume the filter closest to the selected sensor (see documentation for details).
+  		</div>
+  	</div>        
