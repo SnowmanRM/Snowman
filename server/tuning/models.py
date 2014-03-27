@@ -36,6 +36,12 @@ class Suppress(models.Model):
 
 	def __str__(self):
 		return "<Suppress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment.comment)
+	
+	def getAddresses(self):
+		addresslist = []
+		for address in self.addresses.all():
+			addresslist.append(address.ipAddress)
+		return addresslist
 
 class SuppressAddress(models.Model):
 	"""SupressAddress is simply a container for an address that is

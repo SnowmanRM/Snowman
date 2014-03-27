@@ -72,9 +72,6 @@ class Rule(models.Model):
 			
 		return self.revisions.filter(active=True).last()
 
-	def getRevisionCount(self):
-		
-		return self.revisions.count()
 	
 	def updateRule(self, raw, rev = None, msg = None):
 		"""This method recieves a rule, and if needed, creates a new RuleRevision object, and inserts into
@@ -164,7 +161,7 @@ class Rule(models.Model):
 				result[rule.SID] = rule.revisions.latest(field_name = 'rev').rev
 		
 		return result
-
+	
 class RuleClass(models.Model):
 	"""A ruleclass have a name, and a priority. All Rule objects should
 	be a part of a RuleClass"""
@@ -184,11 +181,13 @@ class RuleReference(models.Model):
 	about a specific rule. It is of a certain type (which contains an
 	urlPrefix), and a reference."""
 	
-	reference = models.TextField()
+	reference = models.CharField(max_length=250)
 	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
 	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 
-
+	class Meta:
+		# Avoid duplicate entries
+		unique_together = ('reference', 'referenceType', 'rulerevision')
 
 	def __repr__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
@@ -253,6 +252,12 @@ class RuleRevision(models.Model):
 		"""	
 		return {'SID': self.rule.SID, 'rev': self.rev, 'active': str(self.active), 'raw': self.raw, 'msg': self.msg}
 
+	def getReferences(self):
+		referenceList = []
+		for ref in self.references.all():
+			referenceList.append((ref.referenceType.name, ref.reference))
+		return referenceList 
+
 class RuleSet(models.Model):
 	"""A RuleSet, is a set of rules. Alle Rule objects should have
 	a reference to the ruleset they belong. The RuleSet object should
@@ -272,6 +277,37 @@ class RuleSet(models.Model):
 
 	def __str__(self):
 		return "<RuleSet name:%s>" % (self.name)
+	
+	def __len__(self):
+		noRules = self.rules.count()
+		for ruleSet in self.childSets.all():
+			noRules += len(ruleSet)
+		return noRules
+	
+	def getRuleRevisions(self, active):
+		revisions = {}
+		
+		# Collect the rules in this ruleSet
+		for rule in self.rules.all():
+			if(active == None or active == rule.active):
+				revisions[str(rule.SID)] = rule.getCurrentRevision().rev
+		
+		# Collect the sid of the rules in child-rulesets.
+		for ruleSet in self.childSets.all():
+			if ruleSet.active:
+				revisions.update(ruleSet.getRuleRevisions(active))
+
+		return revisions
+	
+	def getChildSets(self):
+		childSets = self.childSets.all()
+		sets = []
+		for childSet in self.childSets.all():
+			if(childSet.active):
+				sets.append(childSet)
+				sets.extend(childSet.getChildSets())
+
+		return sets	
 
 class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
@@ -284,7 +320,7 @@ class Sensor(models.Model):
 	
 	parent = models.ForeignKey('Sensor', null=True, related_name='childSensors')
 	name = models.CharField(max_length=30, unique=True)
-	user = models.ForeignKey(User, related_name='sensor')
+	user = models.ForeignKey(User, related_name='sensor', null=True)
 	active = models.BooleanField(default=True)
 	autonomous = models.BooleanField(default=False)
 	ipAddress = models.CharField(max_length=38, default="")
@@ -292,9 +328,9 @@ class Sensor(models.Model):
 
 	def __repr__(self):
 		if(self.parent):
-			return "<Sensor name:%s, parent:%s, active:%s, ipAddress:'%s', user:%s>" % (self.name, self.parent.name, str(self.active), self.ipAddress, self.user.username)
+			return "<Sensor name:%s, parent:%s, active:%s, ipAddress:'%s'>" % (self.name, self.parent.name, str(self.active), self.ipAddress)
 		else:
-			return "<Sensor name:%s, parent:None, active:%s, ipAddress:'%s', user:%s>" % (self.name, str(self.active), self.ipAddress, self.user.username)
+			return "<Sensor name:%s, parent:None, active:%s, ipAddress:'%s'>" % (self.name, str(self.active), self.ipAddress)
 
 	def __str__(self):
 		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
