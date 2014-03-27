@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet, Comment
 from core.exceptions import MissingObjectError
 from tuning.models import EventFilter, DetectionFilter, Suppress, SuppressAddress
+from web.utilities import tuningToTemplate
 from util.patterns import ConfigStrings
 from web.utilities import UserSettings
 from web.exceptions import InvalidValueError
@@ -35,23 +36,16 @@ def tuningByRule(request):
 	minrange = 0
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
-	maxrange = int(minrange) + (pagelength/2)
-	
-	
-	try:
-		# Get a complete list of sensors.
-		context['allsensors'] = Sensor.objects.all()
-	
-	except Sensor.DoesNotExist:
-		logger.warning("No sensors found.")
-		raise Http404
+	maxrange = int(minrange) + (pagelength/3)
 	
 	try:
-		context['itemcount'] = Threshold.objects.count()
+		context['itemcount'] = EventFilter.objects.count()
+		context['itemcount'] += DetectionFilter.objects.count()
 		context['itemcount'] += Suppress.objects.count()
 		# Get a complete list of sensors.
-		context['thresholdList'] = Threshold.objects.all()[minrange:maxrange]
-		context['suppressList'] = Suppress.objects.all()[minrange:maxrange]
+		eventFilterList = EventFilter.objects.all()[minrange:maxrange]
+		detectionFilterList = DetectionFilter.objects.all()[minrange:maxrange]
+		suppressList = Suppress.objects.all()[minrange:maxrange+(pagelength%3)]
 		
 	
 	except Sensor.DoesNotExist:
@@ -59,7 +53,7 @@ def tuningByRule(request):
 		raise Http404
 	
 	# Send to template.
-	#return HttpResponse(context['thresholdList'])
+	context['tuningList'] = tuningToTemplate(eventFilterList,detectionFilterList,suppressList, context['itemcount'], minrange, maxrange)
 	return render(request, 'tuning/byRule.tpl', context)
 
 def tuningByRulePage(request, pagenr):
@@ -89,34 +83,95 @@ def tuningByRulePage(request, pagenr):
 	minrange = (pagelength/2) * (int(pagenr)-1)
 	
 	# We add pagelength to the minumum range, this gives us the maximum range.
-	maxrange = int(minrange) + (pagelength/2)
-	
-	
-	try:
-		# Get a complete list of sensors.
-		context['allsensors'] = Sensor.objects.all()
-	
-	except Sensor.DoesNotExist:
-		logger.warning("No sensors found.")
-		raise Http404
+	maxrange = int(minrange) + (pagelength/3)
 	
 	try:
-		context['itemcount'] = Threshold.objects.count()
+		context['itemcount'] = EventFilter.objects.count()
+		context['itemcount'] += DetectionFilter.objects.count()
 		context['itemcount'] += Suppress.objects.count()
 		# Get a complete list of sensors.
-		context['thresholdList'] = Threshold.objects.all()[minrange:maxrange]
-		context['suppressList'] = Suppress.objects.all()[minrange:maxrange]
+		eventFilterList = EventFilter.objects.all()[minrange:maxrange]
+		detectionFilterList = DetectionFilter.objects.all()[minrange:maxrange]
+		suppressList = Suppress.objects.all()[minrange:maxrange+(pagelength%3)]
 		
 	
-	except Sensor.DoesNotExist:
+	except:
 		logger.warning("No sensors found.")
 		raise Http404
 	
 	# Send to template.
-	#return HttpResponse(context['thresholdList'])
+	context['tuningList'] = tuningToTemplate(eventFilterList,detectionFilterList,suppressList, context['itemcount'], minrange, maxrange)
 	return render(request, 'tuning/tuningPage.tpl', context)
 
-def getThresholdForm(request):
+def tuningByRuleSearch(request, pagenr):
+	"""This method is loaded when the /tuning/getThresholdForm is called. 
+	It delivers a form for thresholding. """
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	# Get the two values from the HTTP POST request.
+	searchstring = request.POST['searchs']
+	searchfield = request.POST['searchf']
+	
+	
+	# We set this value to true so that we can differentiate in the template.
+	context['rulesearch'] = True
+	
+	# We want the searchstring with us in the template.
+	context['searchstring'] = searchstring
+	
+	# Get pagelength from the utility class.
+	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	
+	# We want pagenr with us in the template.
+	context['pagenr'] = "search"+pagenr
+	
+	# We want pagelength with us in the template.
+	context['pagelength'] = pagelength
+	
+	# The first page isnt hidden.
+	if int(pagenr) == 1:
+		context['ishidden'] = False
+	else:
+		context['ishidden'] = True
+	
+	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
+	minrange = (pagelength/2) * (int(pagenr)-1)
+	
+	# We add pagelength to the minumum range, this gives us the maximum range.
+	maxrange = int(minrange) + (pagelength/3)
+	
+	try:
+		
+		# We do different queries based on the searchfield string.
+		if searchfield=='sid':
+			context['itemcount'] = EventFilter.objects.filter(rule__SID__istartswith=searchstring).count()
+			context['itemcount'] += DetectionFilter.objects.filter(rule__SID__istartswith=searchstring).count()
+			context['itemcount'] += Suppress.objects.filter(rule__SID__istartswith=searchstring).count()
+			# Get a complete list of sensors.
+			eventFilterList = EventFilter.objects.filter(rule__SID__istartswith=searchstring)[minrange:maxrange]
+			detectionFilterList = DetectionFilter.objects.filter(rule__SID__istartswith=searchstring)[minrange:maxrange]
+			suppressList = Suppress.objects.filter(rule__SID__istartswith=searchstring)[minrange:maxrange+(pagelength%3)]
+		elif searchfield=='name':
+			context['itemcount'] = EventFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct().count()
+			context['itemcount'] += DetectionFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct().count()
+			context['itemcount'] += Suppress.objects.filter(rule__revisions__msg__icontains=searchstring).distinct().count()
+			# Get a complete list of sensors.
+			eventFilterList = EventFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()[minrange:maxrange]
+			detectionFilterList = DetectionFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()[minrange:maxrange]
+			suppressList = Suppress.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()[minrange:maxrange+(pagelength%3)]
+	
+	except:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	# Send to template.
+	context['tuningList'] = tuningToTemplate(eventFilterList,detectionFilterList,suppressList, context['itemcount'], minrange, maxrange)
+	return render(request, 'tuning/tuningPage.tpl', context)
+
+def getEventFilterForm(request):
 	"""This method is loaded when the /tuning/getThresholdForm is called. 
 	It delivers a form for thresholding. """
 	
@@ -133,7 +188,61 @@ def getThresholdForm(request):
 		raise Http404
 	
 	# Send to template.
-	return render(request, 'tuning/thresholdForm.tpl', context)
+	return render(request, 'tuning/filterForm.tpl', context)
+
+def getEventFilterFormByID(request, tuningID):
+	"""This method is loaded when the /tuning/getThresholdForm is called. 
+	It delivers a form for thresholding. """
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	context['edit'] = True
+	
+	try:
+		# Get a complete list of sensors.
+		context['allsensors'] = Sensor.objects.all()
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	try:
+		context['eventFilter'] = EventFilter.objects.get(id=tuningID)
+	except EventFilter.DoesNotExist:
+		logger.warning("No EventFilter found.")
+		raise Http404
+	
+	# Send to template.
+	return render(request, 'tuning/filterForm.tpl', context)
+
+def getDetectionFilterFormByID(request, tuningID):
+	"""This method is loaded when the /tuning/getThresholdForm is called. 
+	It delivers a form for thresholding. """
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	context['edit'] = True
+	
+	try:
+		# Get a complete list of sensors.
+		context['allsensors'] = Sensor.objects.all()
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	try:
+		context['detectionFilter'] = DetectionFilter.objects.get(id=tuningID)
+	except EventFilter.DoesNotExist:
+		logger.warning("No DetectionFilter found.")
+		raise Http404
+	
+	# Send to template.
+	return render(request, 'tuning/filterForm.tpl', context)
 
 def getSuppressForm(request):
 	"""This method is loaded when the /tuning/getSuppressForm is called. 
@@ -149,6 +258,33 @@ def getSuppressForm(request):
 	
 	except Sensor.DoesNotExist:
 		logger.warning("No sensors found.")
+		raise Http404
+	
+	# Send to template.
+	return render(request, 'tuning/suppressForm.tpl', context)
+
+def getSuppressFormByID(request, tuningID):
+	"""This method is loaded when the /tuning/getSuppressForm is called. 
+	It delivers a form for suppression. """
+	
+	logger = logging.getLogger(__name__)
+	
+	context = {}
+	
+	context['edit'] = True
+	
+	try:
+		# Get a complete list of sensors.
+		context['allsensors'] = Sensor.objects.all()
+	
+	except Sensor.DoesNotExist:
+		logger.warning("No sensors found.")
+		raise Http404
+	
+	try:
+		context['suppress'] = Suppress.objects.get(id=tuningID)
+	except Suppress.DoesNotExist:
+		logger.warning("No Suppression found.")
 		raise Http404
 	
 	# Send to template.
@@ -686,12 +822,12 @@ def setSuppressOnRule(request):
 						s = Suppress.objects.get(rule=srule, sensor=ssensor)
 						for address in suppressAddressList:
 							s.addresses.add(address)
-						logger.info("Suppression successfully updated on rule: "+srule+".")
+						logger.info("Suppression successfully updated on rule: "+str(srule)+".")
 					elif s == 0:
 						s = Suppress.objects.create(rule=srule, sensor=ssensor, comment=comment, track=strack)
 						for address in suppressAddressList:
 							s.addresses.add(address)
-						logger.info("Suppression successfully updated on rule: "+srule+".")
+						logger.info("Suppression successfully updated on rule: "+str(srule)+".")
 			
 			response.append({'response': 'suppressAdded', 'text': 'Suppression successfully added.'})
 			return HttpResponse(json.dumps(response))

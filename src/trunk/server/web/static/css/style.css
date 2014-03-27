@@ -394,6 +394,10 @@ label.error {
 	margin-bottom: 5px;
 }
 
+#tuning-buttons {
+	margin-right: 10px;
+}
+
 #deleteRuleSetForm .row {
 	margin-left: 0;
 	margin-right: 0;

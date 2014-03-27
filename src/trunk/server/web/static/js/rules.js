@@ -281,7 +281,7 @@ function searchField() {
 	});	
 	
 	$( "#search-container button" ).click(function() {
-		console.log('button was pressed');
+		
 		  $( "#search-container input#searchtext" ).keyup();
 		});
 	
