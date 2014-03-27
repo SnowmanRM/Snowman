@@ -4,6 +4,8 @@ Snort\textregistered{}, and discuss these in relation to features made in this
 project.
 
 \subsection{Rules}
+We used to be fans of \textit{modifiers}, but now we praise the hierarchy!
+
 A rule is basically a set of options that define ways of detecting, classifying
 and reporting a potential attack or threat on the network\footnote{A rule
 actually consists of a header and options, rtfm.\cite{SnortManual}}.
@@ -20,33 +22,81 @@ functionality has been expanded so that users can keep a rule enabled on one
 sensor and disabled on another. In addition, the user can also set an
 enabled/disabled flag on rulesets.
 
-A rule \em modifier \em is created for each rule in a ruleset when the ruleset
-is added to a sensor. The modifier dictates whether the rule will be enabled or
-not on the given sensor, and by default it will assume the original value of
-the rule. This means that the original value is only used to determine the
-default value of the modifier. A modifier can also be configured to ``follow
-the ruleset'', in which case the rule will be enabled only when the ruleset is
-enabled, and vice versa. See table \ref{tab:ruleEnabled} for the effects of the
-modifier and ruleset options.
+% This is our old solution:
+% A rule \em modifier \em is created for each rule in a ruleset when the ruleset
+% is added to a sensor. The modifier dictates whether the rule will be enabled or
+% not on the given sensor, and by default it will assume the original value of
+% the rule. This means that the original value is only used to determine the
+% default value of the modifier. A modifier can also be configured to ``follow
+% the ruleset'', in which case the rule will be enabled only when the ruleset is
+% enabled, and vice versa. See table \ref{tab:ruleEnabled} for the effects of the
+% modifier and ruleset options.
+
+%Set row spacing:
+% \renewcommand{\arraystretch}{1.5}
+% 
+% \begin{table}[tbp]
+%   \centering
+%   \begin{tabular}{l|l|l}
+%   	Modifier & Ruleset & Active on sensor? \\
+%     \hline
+% 	Enabled & \em any \em & Yes \\
+% 	Disabled & \em any \em & No \\
+% 	Ruleset & Enabled & Yes \\
+% 	Ruleset & Disabled & No \\
+%   \end{tabular}
+%   \caption{Determining whether a rule is enabled or disabled on a sensor.}
+%   \label{tab:ruleEnabled}
+% \end{table}
+
+\subsection{Generators}
+\subsection{Reference Types}
+\subsection{Event and detection filters}
+Various filters can be applied to rules in order to control the amount
+and frequency of alerts triggered by a single rule.
+
+Inline thresholds are currently supported, but this functionality is deprecated
+
+ Threshold deprecated. Detection filters.
+
+If a filter occurs inline, this filter is regarded as a default filter and will
+be active on every sensor where the rule operates. A user can choose to
+override the default filter on a sensor by defining a custom filter to be used
+on the respective sensor.
+
+To stop Snort\textregistered from adding duplicate filters, all inline filters
+are removed from the rulestrings. Any filters extracted from
+the rulestring are written as plain text (i.e. as they appear in the original
+rulestring) in the \textit{filters} field of the rule revision object. This is
+to ensure that all the original rule options are stored meaning that no data is
+lost or discarded. 
+
+ Filters are removed from the rulestring and
+transformed into event filter and detection filter objects.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{./img/filter_flowchart.png}
+\caption{Flow}
+\label{fig:filter_flowchart}
+\end{figure}
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
 
 \begin{table}[tbp]
   \centering
-  \begin{tabular}{l|l|l}
-  	Modifier & Ruleset & Active on sensor? \\
+  \begin{tabular}{l|l}
+  	Filter type & Alerts \\
     \hline
-	Enabled & \em any \em & Yes \\
-	Disabled & \em any \em & No \\
-	Ruleset & Enabled & Yes \\
-	Ruleset & Disabled & No \\
+	\textbf{Event filter} \\
+	Limit & One for every event when \textit{count} \(\leq\) C in interval S\\
+	Threshold & One for every C events in interval S \\
+	Both & One per interval S when \textit{count} \(=\) C\\
+	\hline
+	\textbf{Detection filter} & One for every event when \textit{count} \(>\) C in
+	interval S\\
   \end{tabular}
-  \caption{Determining whether a rule is enabled or disabled on a sensor.}
+  \caption{Effects of different filter types.}
   \label{tab:ruleEnabled}
 \end{table}
-
-\subsection{Generators}
-\subsection{Reference Types}
-\subsection{Event filters}
-Threshold deprecated. Detection filters.

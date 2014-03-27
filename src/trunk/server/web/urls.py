@@ -83,7 +83,7 @@ urlpatterns += patterns('web.views.tuningviews',
     url(r'^tuning/getModifyForm/$', 'getModifyForm'),
     url(r'^tuning/modifyRule/$', 'modifyRule'),
     url(r'^tuning/setSuppressOnRule/$', 'setSuppressOnRule'), 
-    url(r'^tuning/setThresholdOnRule/$', 'setThresholdOnRule'),
+    url(r'^tuning/setFilterOnRule/$', 'setFilterOnRule'),
     url(r'^tuning/byRule/$', 'tuningByRule'),
     url(r'^tuning/byRule/page/(?P<pagenr>\d+)/$', 'tuningByRulePage'),
 )
