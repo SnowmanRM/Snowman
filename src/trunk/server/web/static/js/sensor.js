@@ -36,9 +36,9 @@ function initializeRegenerateSecretButtons() {
 			'csrfmiddlewaretoken': $('#csrf').find('input').val(),
 		};
 		
-		$.post("/web/sensors/regenerateSecret/", d, function(data, status) {
+		$.post("/web/sensors/regenerateSecret/", d, function(data, status) {
 			if(data.status == true) {
-				$('td.sensorSecret-' + data.sid).html(data.password);
+				$('#sensorSecret-' + data.sid).html(data.password);
 			}
 		});
 	});
