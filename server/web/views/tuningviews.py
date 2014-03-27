@@ -430,23 +430,26 @@ def setFilterOnRule(request):
 			sensors = [ConfigStrings.ALL_SENSORS_NAME]
 		
 		# We create the comment object.
-		comment = Comment.objects.create(user=0,comment=commentString, type="newThreshold")
-
+		if filterType == 'eventFilter':
+			comment = Comment.objects.create(user=0,comment=commentString, type="newEventFilter")
+		elif filterType == 'detectionFilter':
+			comment = Comment.objects.create(user=0,comment=commentString, type="newDetectionFilter")
+		else:
+			raise InvalidValueError(filterType+" is not a valid filter type!")
 		# We iterate over all the rules and sensors to implement the threshold.
 		try:
 			for ruleId in ruleIds:
 				for sensorId in sensors:
 					trule = Rule.objects.get(id=ruleId)
 					tsensor = Sensor.objects.get(id=sensorId)
-<<<<<<< .mine
 					
 					try:
 						if filterType == 'eventFilter':
-							arguments = {'rule':trule, 'sensor':tsensor, 'comment':commentString, 'eventFilterType':ttype, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
+							arguments = {'rule':trule, 'sensor':tsensor, 'comment':comment, 'eventFilterType':ttype, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
 							filterObject = EventFilter.objects.get(rule=trule, sensor=tsensor)
 							filterObject.eventFilterType = ttype
 						elif filterType == 'detectionFilter':
-							arguments = {'rule':trule, 'sensor':tsensor, 'comment':commentString, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
+							arguments = {'rule':trule, 'sensor':tsensor, 'comment':comment, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
 							filterObject = DetectionFilter.objects.get(rule=trule, sensor=tsensor)
 						else:
 							raise InvalidValueError(filterType+" is not a valid filter type!")
@@ -464,17 +467,6 @@ def setFilterOnRule(request):
 					except DetectionFilter.DoesNotExist:
 						filterObject = DetectionFilter.objects.create(**arguments)
 						logger.info("detection_filter successfully added to rule: "+str(trule)+".")
-=======
-					# We check to see if a threshold already exists, in that case we just update it. If not, we create one.
-					t = Threshold.objects.filter(rule=trule, sensor=tsensor).count();
-					if t > 0:
-						Threshold.objects.filter(rule=trule, sensor=tsensor).update(comment=comment, thresholdType=ttype, track=ttrack, count=tcount, seconds=tseconds)
-						logger.info("Threshold successfully updated on rule: "+str(trule)+".")
-					elif t == 0:
-						t = Threshold(rule=trule, sensor=tsensor, comment=comment, thresholdType=ttype, track=ttrack, count=tcount, seconds=tseconds)
-						t.save()
-						logger.info("Threshold successfully added to rule: "+str(trule)+".")
->>>>>>> .r216
 			
 			response.append({'response': 'filterAdded', 'text': filterType+' successfully added.'})
 		
