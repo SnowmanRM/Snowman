@@ -39,39 +39,36 @@
 	</tr>
 	</thead>
 	<tbody>
-		{% if thresholdList or suppressList %}
-		{% for threshold in thresholdList %}
+		{% if tuningList %}
+		{% for tuning in tuningList %}
 		<tr>
 			<td class="text-left">
-				<input id="checkbox" rid="{{rule.ruleID}}" gid="{{ rule.ruleGID }}" sid="{{ rule.ruleSID }}" status="{% if rule.ruleThresholdCount %} T{% endif %}
-				{% if rule.ruleSuppressCount %} S{% endif %}" type="checkbox">
+				<input id="checkbox" tuningid="{{ tuning.tuningID }}" tuningtype="{{ tuning.tuningType }}" type="checkbox">
 			</td>
 			<td class="text-center wrappable">
-				{{ threshold.comment.time|date:"Y-m-d h:m:s" }}
+				{{ tuning.tuningAdded|date:"Y-m-d h:m:s" }}
 			</td>
 			<td class="text-center">
-				{{ threshold.comment.user }}
+				{{ tuning.tuningUser }}
 			</td>
-			<td class="">
-				Threshold
+			<td class="text-center">
+				{{ tuning.tuningType }}
 			</td>
-			<td class="text-right">
-				{{ threshold.rule.SID }}
+			<td class="text-center">
+				{{ tuning.tuningRuleSID }}
 			</td>
 			<td class="text-left wrappable">
-				{{ threshold.rule.getCurrentRevision.msg }}
+				{{ tuning.tuningRuleName }}
 			</td>
 			<td class="text-center">
-				{{ threshold.sensor.name }}
+				{{ tuning.tuningSensorName }}
 			</td>
 			
 			<td class="text-left">
-				type {{ threshold.thresholdType }}, <br /> 
-				track {{ threshold.track }}, <br /> 
-				count {{ threshold.count }}, seconds {{ threshold.seconds }}
+				{{ tuning.tuningContent }}
 			</td>
 			<td class="text-left wrappable">
-				{{ threshold.comment.comment }}
+				{{ tuning.tuningComment }}
 			</td>
 			
 		</tr>

@@ -30,7 +30,7 @@ def rulesToTemplate(ruleList):
 		ruleID = rule.id
 		ruleGID = rule.generator.GID
 		ruleSID = rule.SID
-		ruleThresholdCount = rule.eventFilters.count()
+		ruleEventFilterCount = rule.eventFilters.count()
 		ruleSuppressCount = rule.suppress.count()
 		ruleCurrentRevision = rule.getCurrentRevision()
 		ruleRev = ruleCurrentRevision.rev
@@ -70,7 +70,7 @@ def rulesToTemplate(ruleList):
 			ruleInActiveOnSensorsCount = sensorCount
 		
 		# Finally we feed all the variables into an object and append it to the return list.
-		chewedRules.append({'ruleID':ruleID,'ruleGID':ruleGID,'ruleSID':ruleSID,'ruleThresholdCount':ruleThresholdCount,
+		chewedRules.append({'ruleID':ruleID,'ruleGID':ruleGID,'ruleSID':ruleSID,'ruleEventFilterCount':ruleEventFilterCount,
 						'ruleSuppressCount':ruleSuppressCount,'ruleRev':ruleRev,'ruleMsg':ruleMsg,
 						'ruleReferences':chewedRuleReferences,'ruleRaw':ruleRaw,
 						'ruleUpdateTime':ruleUpdateTime,'ruleRuleSetName':ruleRuleSetName,'ruleClassName':ruleClassName,
@@ -380,3 +380,65 @@ def childRuleActiveCount(ruleSet):
 			ruleSetActiveRulesCount += childRuleActiveCount(child)
 			
 	return ruleSetActiveRulesCount
+
+
+def tuningToTemplate(eventFilterList,detectionFilterList,suppressList, itemCount, minRange, maxRange):
+	
+	chewedTuningList = []
+	
+	for eventFilter in eventFilterList:
+		tuningID = eventFilter.id
+		tuningAdded = eventFilter.comment.time
+		tuningUser = eventFilter.comment.user
+		tuningType = "EventFilter"
+		tuningRuleSID = eventFilter.rule.SID
+		tuningRuleName = eventFilter.rule.getCurrentRevision().msg
+		tuningSensorName = eventFilter.sensor.name
+		tuningContent = "type "+str(eventFilter.TYPE[eventFilter.eventFilterType])+", track "+str(eventFilter.TRACK[eventFilter.track])+",  count "+str(eventFilter.count)+",\
+						seconds "+str(eventFilter.seconds)+" "
+		tuningComment = eventFilter.comment.comment
+		
+		chewedTuningList.append({ 'tuningID':tuningID, 'tuningAdded':tuningAdded,'tuningUser':tuningUser,'tuningType':tuningType,'tuningRuleSID':tuningRuleSID,
+								'tuningRuleName':tuningRuleName,'tuningSensorName':tuningSensorName,'tuningContent':tuningContent,'tuningComment':tuningComment })
+	
+	for detectionFilter in detectionFilterList:
+		tuningID = detectionFilter.id
+		tuningAdded = detectionFilter.comment.time
+		tuningUser = detectionFilter.comment.user
+		tuningType = "DetectionFilter"
+		tuningRuleSID = detectionFilter.rule.SID
+		tuningRuleName = detectionFilter.rule.getCurrentRevision().msg
+		tuningSensorName = detectionFilter.sensor.name
+		tuningContent = "count "+str(detectionFilter.count)+", seconds "+str(detectionFilter.seconds)+" "
+		tuningComment = detectionFilter.comment.comment
+		
+		chewedTuningList.append({ 'tuningID':tuningID, 'tuningAdded':tuningAdded,'tuningUser':tuningUser,'tuningType':tuningType,'tuningRuleSID':tuningRuleSID,
+								'tuningRuleName':tuningRuleName,'tuningSensorName':tuningSensorName,'tuningContent':tuningContent,'tuningComment':tuningComment })
+	
+	for suppress in suppressList:
+		tuningID = suppress.id
+		tuningAdded = suppress.comment.time
+		tuningUser = suppress.comment.user
+		tuningType = "Suppression"
+		tuningRuleSID = suppress.rule.SID
+		tuningRuleName = suppress.rule.getCurrentRevision().msg
+		tuningSensorName = suppress.sensor.name
+		suppressAddresses = suppress.addresses.values_list('ipAddress', flat=True)
+		tuningContent = "track "+str(suppress.TRACK[suppress.track])+", IP Addresses [ "+', '.join(suppressAddresses)+" ] "
+		tuningComment = suppress.comment.comment
+		
+		chewedTuningList.append({ 'tuningID':tuningID, 'tuningAdded':tuningAdded,'tuningUser':tuningUser,'tuningType':tuningType,'tuningRuleSID':tuningRuleSID,
+								'tuningRuleName':tuningRuleName,'tuningSensorName':tuningSensorName,'tuningContent':tuningContent,'tuningComment':tuningComment })
+	
+	
+	
+	
+	
+	return chewedTuningList
+
+
+
+
+
+
+

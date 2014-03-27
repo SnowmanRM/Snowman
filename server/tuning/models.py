@@ -54,7 +54,7 @@ class DetectionFilter(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'detectionFilters')
 	sensor = models.ForeignKey(Sensor, related_name = 'detectionFilters')
-	comment = models.ForeignKey(Comment, related_name= 'threshold')
+	comment = models.ForeignKey(Comment, related_name= 'detectionFilters')
 	track = models.IntegerField()
 	count = models.IntegerField()
 	seconds = models.IntegerField()
@@ -87,7 +87,7 @@ class EventFilter(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'eventFilters')
 	sensor = models.ForeignKey(Sensor, related_name = 'eventFilters')
-	comment = models.ForeignKey(Comment, related_name= 'threshold')
+	comment = models.ForeignKey(Comment, related_name= 'eventFilters')
 	eventFilterType = models.IntegerField()
 	track = models.IntegerField()
 	count = models.IntegerField()

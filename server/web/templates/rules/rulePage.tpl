@@ -67,7 +67,7 @@
 			</td>
 			<td class="text-right">
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					{% if rule.ruleThresholdCount %}<span class="badge btn-warning">T</span>{% endif %}
+					{% if rule.ruleEventFilterCount %}<span class="badge btn-warning">T</span>{% endif %}
 					{% if rule.ruleSuppressCount %}<span class="badge btn-warning">S</span>{% endif %}
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
