@@ -5,7 +5,8 @@
 	{% csrf_token %}
 	{% if edit %}
 		<input type="hidden" id="force" name="force" value="False">
-		<input type="hidden" id="edit" name="edit" value="True">
+		<input type="hidden" id="edit" name="edit" value="{{ suppress.id }}">
+		<input type="hidden" class="form-control" id="sid" name="sid" value="{{ suppress.rule.generator.GID }}:{{ suppress.rule.SID }}">
 	  	<div class="form-group" id="sid">
 	  		<label for="sid" class="col-sm-2 control-label">GID:SID:</label>
 	  		<div class="col-sm-10">
@@ -24,14 +25,13 @@
 	  	<div class="form-group" id="ip">
 	  		<label for="ip" class="col-sm-2 control-label">IP:</label>
 	  		<div class="col-sm-10">
-	  			<input id="ip" name="ip" type="text" class="form-control" {% if suppress.addresses.count %} value="{% for address in suppress.addresses.all %}{{ address.ipAddress }},{% endfor %}" {% else %}placeholder="Set the IP, delimit with comma: '1.1.1.1,2.2.2.2/24'."{% endif %} required/>
+	  			<input id="ip" name="ip" type="text" class="form-control" {% if suppress.addresses.count %} value="{% for address in suppress.addresses.all %}{{ address.ipAddress }},{% endfor %}"{% endif %} placeholder="Set the IP, delimit with comma: '1.1.1.1,2.2.2.2/24'." required/>
 	  		</div>
 	  	</div>
 	  	<div class="form-group" id="sensors">
 	  		<label for="sensors" class="col-sm-2 control-label">Sensors:</label>
 	  		<div class="col-sm-10">
 	  			<select multiple class="form-control" id="sensors" name="sensors">
-	  				<option value="all">All</option>
 	  				{% if allsensors %}
 						{% for sensor in allsensors %}
 							<option value="{{ sensor.id }}" {% if sensor == suppress.sensor %}selected{%endif%}>{{ sensor.name }}</option>
@@ -43,7 +43,7 @@
 	  	<div class="form-group" id="comment">
 	  		<label for="comment" class="col-sm-2 control-label">Comment:</label>
 	  		<div class="col-sm-10">
-	  			<input id="comment" name="comment" type="text" class="form-control" value="{{ suppress.comment.comment }}">
+	  			<input id="comment" name="comment" type="text" class="form-control" value="{{ suppress.comment.comment }}" placeholder="Add a comment to this action."> 
 	  		</div>
 		</div>
 	{% else %}
@@ -72,8 +72,7 @@
 	  	<div class="form-group" id="sensors">
 	  		<label for="sensors" class="col-sm-2 control-label">Sensors:</label>
 	  		<div class="col-sm-10">
-	  			<select multiple class="form-control" id="sensors" name="sensors">
-	  				<option value="all" selected>All</option>
+	  			<select multiple class="form-control" id="sensors" name="sensors" required>
 	  				{% if allsensors %}
 						{% for sensor in allsensors %}
 							<option value="{{ sensor.id }}">{{ sensor.name }}</option>
