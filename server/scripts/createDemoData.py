@@ -19,8 +19,6 @@ from update.models import Source
 logger = logging.getLogger(__name__)
 logger.info("Started to create initial data.")
 
-sensor, created = Sensor.objects.get_or_create(name="All", user=None, active=True, ipAddress="")
-
 # Create some demo-sensors.
 for i in range(1, 3):
 	username = "DemoSensor%d" % i

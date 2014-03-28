@@ -1,5 +1,5 @@
-{# suppressForm.tpl is the template for the form used to input suppressions. #} 
-{# It consists of various form elements needed for a suppression. #}
+{# thresholdForm.tpl is the template for the form used to input thresholds. #} 
+{# It consists of various form elements needed for a threshold. #}
 {#  #}
 
 	{% csrf_token %}
@@ -8,6 +8,16 @@
   		<label for="sid" class="col-sm-2 control-label">GID:SID:</label>
   		<div class="col-sm-10">
   			<input type="text" class="form-control" id="sid" name="sid" placeholder="Set the rule in the '1:12345' syntax." required/>
+  		</div>
+  	</div>
+  	<div class="form-group" id="type">
+  		<label for="type" class="col-sm-2 control-label">Type:</label>
+  		<div class="col-sm-10">
+  			<select class="form-control" id="type" name="type">
+  				<option value="1">Limit</option>
+  				<option value="2">Threshold</option>
+  				<option value="3">Both</option>
+  			</select>
   		</div>
   	</div>
   	<div class="form-group" id="track">
@@ -19,10 +29,16 @@
   			</select>
   		</div>
   	</div>
-  	<div class="form-group" id="ip">
-  		<label for="ip" class="col-sm-2 control-label">IP:</label>
+  	<div class="form-group" id="count">
+  		<label for="count" class="col-sm-2 control-label">Count:</label>
   		<div class="col-sm-10">
-  			<input id="ip" name="ip" type="text" class="form-control" placeholder="Set the IP, delimit with comma: '1.1.1.1,2.2.2.2/24'." required/>
+  			<input id="count" name="count" type="text" class="form-control" placeholder="Set the threshold count number."/>
+  		</div>
+  	</div>
+  	<div class="form-group" id="seconds">
+  		<label for="seconds" class="col-sm-2 control-label">Seconds:</label>
+  		<div class="col-sm-10">
+  			<input id="seconds" name="seconds" type="text" class="form-control" placeholder="Set the threshold time limit in seconds."/>
   		</div>
   	</div>
   	<div class="form-group" id="sensors">
@@ -43,5 +59,5 @@
   		<div class="col-sm-10">
   			<input id="comment" name="comment" type="text" class="form-control" placeholder="Add a comment to this action.">
   		</div>
-	</div>
+  	</div>
         

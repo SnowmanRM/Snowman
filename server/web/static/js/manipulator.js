@@ -52,7 +52,7 @@ function initializeButtons() {
 			// If some rulesets were selected.
 			if(setlist.length > 0) {
 				// Load the form with AJAX.
-				$.get('/web/tuning/getModifyForm/', function(html){
+				$.get('/web/tuning/getModifyForm', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="enable">');
@@ -116,7 +116,7 @@ function initializeButtons() {
 			// If some rulesets were selected.
 			if(setlist.length > 0) {
 				// Load the form with AJAX.
-				$.get('/web/tuning/getModifyForm/', function(html){
+				$.get('/web/tuning/getModifyForm', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="disable">');
@@ -155,7 +155,7 @@ function initializeButtons() {
 	
 	$('#manipulator button#threshold').click(function(event){
 		// Load the form with AJAX.
-		$.get('/web/tuning/getThresholdForm/', function(html){
+		$.get('/web/tuning/getThresholdForm', function(html){
 			// Put the form content into the container.
 			$('#thresholdFormModal #formContent').html(html);
 			// Get all checked checkboxes.
@@ -175,6 +175,8 @@ function initializeButtons() {
 			$('button#threshold-submit').prop("disabled",false);
 			$('button#threshold-submit').attr('class','btn btn-primary');
 			$('button#threshold-submit').html('Save changes');
+			
+		
 		});
 			
 		
@@ -182,7 +184,7 @@ function initializeButtons() {
 	
 	$('#manipulator button#suppress').click(function(event){
 		// Load the form with AJAX.
-		$.get('/web/tuning/getSuppressForm/', function(html){
+		$.get('/web/tuning/getSuppressForm', function(html){
 			// Put the form content into the container.
 			$('#suppressFormModal #formContent').html(html);
 			// Get all checked checkboxes.
@@ -208,10 +210,10 @@ function initializeButtons() {
 
 }
 function modifyRuleSet(form){
-
+	console.log(form);
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
-		url: "/web/tuning/modifyRule/",
+		url: "/web/tuning/modifyRule",
 		type: "post",
 		dataType: "json",
 		data: $(form).serialize(),
@@ -296,7 +298,7 @@ function modifyRule(mode, sidList, token){
 	*/
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
-		url: "/web/tuning/modifyRule/",
+		url: "/web/tuning/modifyRule",
 		type: "post",
 		dataType: "json",
 		data: {mode: mode, sids: JSON.stringify(sidList), csrfmiddlewaretoken: token},
@@ -355,7 +357,7 @@ function submitThresholdForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
-		url: "/web/tuning/setFilterOnRule/",
+		url: "/web/tuning/setThresholdOnRule",
 		type: "post",
 		dataType: "json",
 		data: $(event).serialize(),
@@ -368,7 +370,7 @@ function submitThresholdForm(event) {
 			$.each(data, function() {
 				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
 				// We also set the outcome flags appropriately so we can handle things differently.
-				if(this.response == "filterAdded") {
+				if(this.response == "thresholdAdded") {
 					
 					text = '<div class="alert alert-success row" style="display: none;">\
 						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
@@ -479,7 +481,7 @@ function submitThresholdForm(event) {
 							
 					error = true;
 				}
-				else if(this.response == "addFilterFailure") {
+				else if(this.response == "addThresholdFailure") {
 					
 					$('#thresholdForm input#force').val('False');
 					text = '<div class="alert alert-danger row" style="display: none;">\
@@ -537,7 +539,7 @@ function submitSuppressForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
-		url: "/web/tuning/setSuppressOnRule/",
+		url: "/web/tuning/setSuppressOnRule",
 		type: "post",
 		dataType: "json",
 		data: $(event).serialize(),

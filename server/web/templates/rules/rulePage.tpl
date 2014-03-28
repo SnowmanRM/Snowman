@@ -3,7 +3,7 @@
 {#  #}
 
 {% if rulesearch %}<div id="searchresult" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" searchstring="{{ searchstring }}">{% endif %}
-<table id="{{ pagenr }}" class="rules table table-responsive table-bordered table-hover
+<table id="{{ pagenr }}" class="table table-responsive table-bordered table-hover
 {% if pagenr == 1 %} current{% endif %}"{% if ishidden %} style="display: none;"{% endif %} itemcount="{{ itemcount }}" pagelength="{{ pagelength }}">
 	<thead>
 	<tr>
@@ -67,7 +67,7 @@
 			</td>
 			<td class="text-right">
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					{% if rule.ruleEventFilterCount %}<span class="badge btn-warning">T</span>{% endif %}
+					{% if rule.ruleThresholdCount %}<span class="badge btn-warning">T</span>{% endif %}
 					{% if rule.ruleSuppressCount %}<span class="badge btn-warning">S</span>{% endif %}
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">

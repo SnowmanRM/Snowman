@@ -6,15 +6,13 @@ import re
 from django.db import models, IntegrityError
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
-	RuleReference, RuleReferenceType, Sensor, Comment
+	RuleReference, RuleReferenceType
 	
-from update.exceptions import BadFormatError, AbnormalRuleError 
-from core.exceptions import MissingObjectError
+from update.exceptions import BadFormatError, AbnormalRuleError
 
 from util.config import Config
-from util.patterns import ConfigPatterns, ConfigStrings
+from util.patterns import ConfigPatterns
 from util.tools import md5sum
-from tuning.models import DetectionFilter, EventFilter
 
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
@@ -123,9 +121,6 @@ class Update(models.Model):
 	time = models.DateTimeField()
 	source = models.ForeignKey('Source', related_name="updates")
 	ruleRevisions = models.ManyToManyField(RuleRevision, related_name="update")
-	ruleSets = models.ManyToManyField(RuleSet, related_name="update")
-	rules = models.ManyToManyField(Rule, related_name="update")
-	isNew = models.BooleanField(default = True)
 	
 	def __repr__(self):
 		return "<Update source:%s, time:%s>" % (self.source.name, str(self.time))
@@ -196,12 +191,11 @@ class Update(models.Model):
 		matchPattern = ConfigPatterns.RULE
 		pattern = re.compile(matchPattern)
 		
-		# Match optional options:
+		# Match ruleset name (optional)
 		ruleset = re.match(ConfigPatterns.RULESET, raw)
-		priority = re.match(ConfigPatterns.PRIORITY, raw)
+		
+		# Match reference (optional, group1=name, group2=reference):
 		references = re.findall(ConfigPatterns.RULEREFERENCE, raw)
-		threshold = re.match(ConfigPatterns.THRESHOLD, raw)
-		detectionFilter = re.match(ConfigPatterns.DETECTION_FILTER, raw)
 		
 		# If the raw rule matched the regex: 
 		result = pattern.match(raw)
@@ -224,7 +218,8 @@ class Update(models.Model):
 			try:
 				ruleSetName = ruleset.group(1)
 			except AttributeError:
-				ruleSetName = re.sub('\.rules$', '', filename)			
+				#ruleSetName = filename.rstrip(".rules")			
+				ruleSetName = re.sub('\.rules$', '', filename)
 			
 			# If the rule is new, or is a newer version of a rule we already have:
 			if(int(ruleSID) not in currentRules or int(ruleRev) > currentRules[int(ruleSID)]):
@@ -237,7 +232,6 @@ class Update(models.Model):
 						ruleset = RuleSet.objects.get(name = ruleSetName)
 					except RuleSet.DoesNotExist:
 						ruleset = RuleSet.objects.create(name = ruleSetName, description=ruleSetName, active=True)
-						self.ruleSets.add(ruleset)
 						logger.info("Created new ruleset (" + str(ruleset) + ") while importing rule")
 					rulesets[ruleSetName] = ruleset
 						
@@ -288,59 +282,9 @@ class Update(models.Model):
 					rule.save()
 					logger.debug("Updated rule:" + str(rule))
 				except Rule.DoesNotExist:
-					rule = Rule.objects.create(SID=int(ruleSID), generator=generator, ruleSet=ruleset, ruleClass=ruleclass, active=ruleActive)				
-					self.rules.add(rule)
+					rule = Rule.objects.create(SID=int(ruleSID), generator=generator, ruleSet=ruleset, ruleClass=ruleclass, active=ruleActive)
 					logger.debug("Created a new rule: " + str(rule))
 				
-				# Set priority if it exists:
-				try:
-					rule.priority = int(priority.group(1))
-					rule.save()
-				except AttributeError:
-					pass
-				
-				try:
-					dfTrack = detectionFilter.group(1)
-					
-					try:
-						dfCount = int(detectionFilter.group(2))
-						dfSeconds = int(detectionFilter.group(3))
-					except ValueError:
-						message = "Badly formatted detection filter in rule "+str(rule)+": expected numeric value."
-						logger.error(message)
-						raise BadFormatError(message)
-					
-					if dfTrack == "by_src":
-						track = EventFilter.SOURCE
-					elif dfTrack == "by_dst":
-						track = EventFilter.DESTINATION
-					else:
-						message = "Badly formatted detection filter in rule "+str(rule)+": wrong track parameter."
-						logger.error(message)
-						raise BadFormatError(message)
-					
-					# Get 'all sensors' object:
-					allSensors = Sensor.objects.get(name=ConfigStrings.ALL_SENSORS_NAME)
-					
-					dFilter = DetectionFilter.objects.get(rule=rule, sensor=allSensors)
-					dFilter.track = track
-					dFilter.count = dfCount
-					dFilter.seconds = dfSeconds
-					comment = Comment.objects.get(id=dFilter.comment.id)
-					comment.delete()
-					comment = Comment.objects.create(user=0,comment="Added from update of "+str(self.source.name)+"", type="updatedDetectionFilter")
-					dFilter.comment = comment
-				except Sensor.DoesNotExist:
-					message = "Object with name="+ConfigStrings.ALL_SENSORS_NAME+", representing all sensors does not exist in database."
-					raise MissingObjectError(message)
-					logger.critical(message)
-				except DetectionFilter.DoesNotExist:
-					comment = Comment.objects.create(user=0,comment="Added from update of "+str(self.source.name)+"", type="newDetectionFilter")
-					DetectionFilter.objects.create(rule=rule, sensor=allSensors, track=track, count=dfCount, seconds=dfSeconds, comment=comment)
-				except AttributeError:
-					# No detection_filter in rulestring
-					pass
-									
 				rev = rule.updateRule(raw, ruleRev, ruleMessage)
 				if rev:
 					# Add rulereference if this was specified in the raw string:
