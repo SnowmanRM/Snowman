@@ -350,10 +350,15 @@ class Sensor(models.Model):
 		
 		
 class Comment(models.Model):
+	
+	# Constants for the type parameter
+	EVENTFILTER = 1
+	DETECTIONFILTER = 2
+	
 	user = models.IntegerField()
 	time = models.DateTimeField(default = datetime.datetime.now())
 	comment = models.TextField()
-	type = models.CharField(max_length=30)
+	type = models.IntegerField()
 	foreignKey = models.IntegerField(null=True)
 	
 	def __repr__(self):
