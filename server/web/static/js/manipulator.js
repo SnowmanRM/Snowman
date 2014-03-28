@@ -31,14 +31,12 @@ function initializeButtons() {
 		
 		// Get all selected rules and put their SIDs in a list:
 		sids=$('#checkbox:checked');
-	
+		//console.log(sids);
 		if (sids.length > 0) {
 			sidlist = [];
 			setlist = [];
 			setnames = [];
-			// For each of them.
 			$(sids).each(function(){
-				// You can select both rules and rulesets at the same time, so we differentiate.
 				if($(this).is('[sid]')) {
 					sidlist.push($(this).attr('sid'));
 				}
@@ -47,22 +45,16 @@ function initializeButtons() {
 					setnames.push($(this).attr('rulesetname'));
 				}
 			});
-			// Grab the CSRF token so Django is happy.
 			token = $(this).find('input[name="csrfmiddlewaretoken"]').val();
-			// If some rulesets were selected.
 			if(setlist.length > 0) {
-				// Load the form with AJAX.
-				$.get('/web/tuning/getModifyForm/', function(html){
+				$.get('/web/tuning/getModifyForm', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="enable">');
-					// For each of the rulesets, put their names into the disabled select list and create a hidden input with their ID.
 					$(setlist,setnames).each(function(i){
 						$('#modifyFormModal #formContent').prepend('<input type="hidden" id="ruleset" name="ruleset" value="'+setlist[i]+'">');
 						$('#modifyFormModal #formContent select#ruleset').append('<option>'+setnames[i]+'</option>');
 					});
-					
-					// If someone checks the global checkbox, we disable the sensor selection.
 					$('#modifyForm #global').click(function(event){
 						if ($('#modifyForm #global').is(':checked')) {
 							$('#modifyForm select#sensors').prop("disabled", true);
@@ -70,16 +62,13 @@ function initializeButtons() {
 				        	$('#modifyForm select#sensors').prop("disabled", false);
 				        }
 					});
-					// We set the submit event for the form.
 					$('#modifyForm').submit(function(event) { event.preventDefault(); modifyRuleSet(this) });
-					// We show the modal.
 					$('#modifyFormModal').modal('show');
 					
 					
 				});
-			
+				
 			}
-			// AND if some rules were selected.
 			if (sidlist.length > 0) {
 				// Call function to enable selected rules
 				modifyRule("enable", sidlist, token);
@@ -95,14 +84,12 @@ function initializeButtons() {
 		$('button#modify-submit').html('Save changes');
 		// Get all selected rules and put their SIDs in a list:
 		sids=$('#checkbox:checked');
-
+		//console.log(sids);
 		if (sids.length > 0) {
 			sidlist = [];
 			setlist = [];
 			setnames = [];
-			// For each of them.
 			$(sids).each(function(){
-				// You can select both rules and rulesets at the same time, so we differentiate.
 				if($(this).is('[sid]')) {
 					sidlist.push($(this).attr('sid'));
 				}
@@ -111,22 +98,16 @@ function initializeButtons() {
 					setnames.push($(this).attr('rulesetname'));
 				}
 			});
-			// Grab the CSRF token so Django is happy.
 			token = $(this).find('input[name="csrfmiddlewaretoken"]').val();
-			// If some rulesets were selected.
 			if(setlist.length > 0) {
-				// Load the form with AJAX.
-				$.get('/web/tuning/getModifyForm/', function(html){
+				$.get('/web/tuning/getModifyForm', function(html){
 					// Put the form content into the container.
 					$('#modifyFormModal #formContent').html(html);
 					$('#modifyFormModal #formContent').prepend('<input type="hidden" id="mode" name="mode" value="disable">');
-					// For each of the rulesets, put their names into the disabled select list and create a hidden input with their ID.
 					$(setlist,setnames).each(function(i){
 						$('#modifyFormModal #formContent').prepend('<input type="hidden" id="ruleset" name="ruleset" value="'+setlist[i]+'">');
 						$('#modifyFormModal #formContent select#ruleset').append('<option>'+setnames[i]+'</option>');
 					});
-					
-					// If someone checks the global checkbox, we disable the sensor selection.
 					$('#modifyForm #global').click(function(event){
 						if ($('#modifyForm #global').is(':checked')) {
 							$('#modifyForm select#sensors').prop("disabled", true);
@@ -134,18 +115,15 @@ function initializeButtons() {
 				        	$('#modifyForm select#sensors').prop("disabled", false);
 				        }
 					});
-					// We set the submit event for the form.
 					$('#modifyForm').submit(function(event) { event.preventDefault(); modifyRuleSet(this) });
-					// We show the modal.
 					$('#modifyFormModal').modal('show');
 					
 					
 				});
 				
 			}
-			// AND if some rules were selected.
 			if (sidlist.length > 0) {
-				// Call function to disable selected rules
+				// Call function to enable selected rules
 				modifyRule("disable", sidlist, token);
 			}
 
@@ -155,7 +133,7 @@ function initializeButtons() {
 	
 	$('#manipulator button#threshold').click(function(event){
 		// Load the form with AJAX.
-		$.get('/web/tuning/getThresholdForm/', function(html){
+		$.get('/web/tuning/getThresholdForm', function(html){
 			// Put the form content into the container.
 			$('#thresholdFormModal #formContent').html(html);
 			// Get all checked checkboxes.
@@ -166,7 +144,7 @@ function initializeButtons() {
 				$('#thresholdFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
 				// For each checked rule, we add them to the select list.
 				$(sids).each(function(){
-					$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
+					$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('id')+'">');
 					$('#thresholdFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
 				});
 			}
@@ -175,6 +153,8 @@ function initializeButtons() {
 			$('button#threshold-submit').prop("disabled",false);
 			$('button#threshold-submit').attr('class','btn btn-primary');
 			$('button#threshold-submit').html('Save changes');
+			
+		
 		});
 			
 		
@@ -182,7 +162,7 @@ function initializeButtons() {
 	
 	$('#manipulator button#suppress').click(function(event){
 		// Load the form with AJAX.
-		$.get('/web/tuning/getSuppressForm/', function(html){
+		$.get('/web/tuning/getSuppressForm', function(html){
 			// Put the form content into the container.
 			$('#suppressFormModal #formContent').html(html);
 			// Get all checked checkboxes.
@@ -194,7 +174,7 @@ function initializeButtons() {
 				// For each checked rule, we add them to the select list.
 				$(sids).each(function(){
 					
-					$('#suppressFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
+					$('#suppressFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('id')+'">');
 					$('#suppressFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
 				});
 			}
@@ -208,10 +188,10 @@ function initializeButtons() {
 
 }
 function modifyRuleSet(form){
-
+	console.log(form);
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
-		url: "/web/tuning/modifyRule/",
+		url: "/web/tuning/modifyRule",
 		type: "post",
 		dataType: "json",
 		data: $(form).serialize(),
@@ -296,7 +276,7 @@ function modifyRule(mode, sidList, token){
 	*/
 	// Execute the AJAX-request to modify rules in sidList:
 	$.ajax({
-		url: "/web/tuning/modifyRule/",
+		url: "/web/tuning/modifyRule",
 		type: "post",
 		dataType: "json",
 		data: {mode: mode, sids: JSON.stringify(sidList), csrfmiddlewaretoken: token},
@@ -355,7 +335,7 @@ function submitThresholdForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
-		url: "/web/tuning/setFilterOnRule/",
+		url: "/web/tuning/setThresholdOnRule",
 		type: "post",
 		dataType: "json",
 		data: $(event).serialize(),
@@ -368,7 +348,7 @@ function submitThresholdForm(event) {
 			$.each(data, function() {
 				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
 				// We also set the outcome flags appropriately so we can handle things differently.
-				if(this.response == "filterAdded") {
+				if(this.response == "thresholdAdded") {
 					
 					text = '<div class="alert alert-success row" style="display: none;">\
 						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
@@ -479,7 +459,7 @@ function submitThresholdForm(event) {
 							
 					error = true;
 				}
-				else if(this.response == "addFilterFailure") {
+				else if(this.response == "addThresholdFailure") {
 					
 					$('#thresholdForm input#force').val('False');
 					text = '<div class="alert alert-danger row" style="display: none;">\
@@ -537,7 +517,7 @@ function submitSuppressForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
-		url: "/web/tuning/setSuppressOnRule/",
+		url: "/web/tuning/setSuppressOnRule",
 		type: "post",
 		dataType: "json",
 		data: $(event).serialize(),

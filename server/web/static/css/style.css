@@ -61,43 +61,25 @@
 	
 
 }
-
-#content.tuning {
-
-	//clear: both;
-	//padding: 5% 2% 2% 2%;
-	border: 2px solid grey;
-	//border-radius: 10px;
-	padding: 0;
-	//margin-right: 2%;
-	//width: 90%;
-	//float: left;
-	//flex: 1 1 70%;
-	//border-top-right-radius: 0;
-	
-
-}
-
 #content.ruleset, #content.ruleclass {
 	padding-right: 0;
 }
 
-#content table.rules,
-#content table.tuning {
+#content .table {
 
 	border: 0;
 	margin-bottom: 0;
 	
 }
 
-#content table.rules pre {
+#content .table pre {
 
 	white-space: normal;
-	//word-break: normal;
+	word-break: normal;
 	margin: 0;
 }
 
-#content table.rules .row {
+#content .table .row {
 	
 	margin-right: 0;
 	margin-left: 0;
@@ -106,7 +88,7 @@
 	
 }
 
-#content table.rules .row .panel .list-group {
+#content .table .row .panel .list-group {
 	
 
 	overflow-y: scroll;
@@ -114,71 +96,63 @@
 	
 }
 
-#content table.rules tbody,
-#content table.tuning tbody {
+#content .table tbody {
 
 	background-color: white;
 	font-size: 12px;
 }
 
-#content table.rules > tbody > tr:nth-child(4n-1) {
+#content table > tbody > tr:nth-child(4n-1) {
 
 	background-color: #f9f9f9;
 }
 
-#content table.rules tbody tr td:nth-child(-n+4) {
+#content .table tbody tr td:nth-child(-n+4) {
 
 	width: 1%;
 }
 
-#content table.rules .table-hover > tbody > tr.even:hover > td {
+#content .table-hover > tbody > tr.even:hover > td {
 
 	background-color: white;
 }
 
-#content table.rules thead tr:first-child th:first-child,
-#content table.tuning thead tr:first-child th:first-child {
+#content .table thead tr:first-child th:first-child {
 
 	border-left: 0;
 }
 
-#content table.rules thead tr:first-child th:last-child,
-#content table.tuning thead tr:first-child th:last-child {
+#content .table thead tr:first-child th:last-child {
 
 	border-right: 0;
 }
 
-#content table.rules tbody tr td:first-child,
-#content table.tuning tbody tr td:first-child {
+#content .table tbody tr td:first-child {
 
 	border-left: 0;
 }
 
-#content table.rules tbody tr td:last-child,
-#content table.tuning tbody tr td:last-child {
+#content .table tbody tr td:last-child {
 
 	border-right: 0;
 }
 
-#content table.rules tbody tr:last-child td,
-#content table.tuning tbody tr:last-child td {
+#content .table tbody tr:last-child td {
 
 	border-bottom: 0;
 }
 
-#content table.rules tbody td,
-#content table.tuning tbody td {
+#content .table tbody td {
 	white-space:nowrap;
 	
 }
-#content table.rules tbody td.row div {
+#content .table tbody td.row div {
 	padding-left:2px;
 	padding-right:2px;
 	text-align: center;
 }
 
-#content table.rules tbody tr td.wrappable,
-#content table.tuning tbody tr td.wrappable {
+#content .table tbody tr td.wrappable {
 	white-space:normal;
 	
 }
@@ -205,22 +179,15 @@
 	margin-bottom: 10px;
 }
 
-#content table.rules .bg-primary:hover td {
+#content .table .bg-primary:hover td {
 	
 	color: #fff;
 	background-color: #428bca;
 	
 }
-
-#content .bg-primary:hover {
+#content .table .bg-primary {
 	
-	color: #fff;
-	background-color: #428bca;
-	
-}
-#content .bg-primary {
-	
-	background-color: #428bca;
+	background-color: #428bca !important;
 }
 /*
 #content .panel {
@@ -233,15 +200,6 @@
 	margin-left: 0;
 	margin-right: 0;
 }
-
-#content.row,
-#content-wrap.row{
-
-	margin-left: 0;
-	margin-right: 0;
-
-}
-
 #content .rules-panel .row {
 
 	padding: 2px;
@@ -265,8 +223,7 @@
 	margin-bottom: 0;
 }
 .ruleset .panel,
-.ruleclass .panel,
-.changes .panel {
+.ruleclass .panel {
 	margin-bottom: 3px;
 }
 
@@ -372,11 +329,6 @@
 	border-radius: 0 !important;
 }
 
-.no-margin {
-
-	margin: 0 !important;
-}
-
 label.error {
 	
 	color: red;
@@ -387,26 +339,4 @@ label.error {
 	margin: 5px 0 0 0;
 	padding: 5px;
 	
-}
-
-#ruleset-buttons,
-#tuning-buttons {
-	margin-bottom: 5px;
-}
-
-#tuning-buttons {
-	margin-right: 10px;
-}
-
-#deleteRuleSetForm .row {
-	margin-left: 0;
-	margin-right: 0;
-	
-}
-
-.changes .panel-heading h3,
-.changes .panel-heading h4 {
-	
-	margin-top: 0;
-	margin-bottom: 0;
 }

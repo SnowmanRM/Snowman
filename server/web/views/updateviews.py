@@ -11,8 +11,6 @@ import subprocess
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
-from django.db.models import Count
-
 from srm.settings import BASE_DIR
 from update.models import Source, Update, UpdateLog, RuleChanges
 from util.config import Config
@@ -104,49 +102,16 @@ def changes(request):
 			
 	data = {}
 	data['updates'] = []
-	
-	for update in Update.objects.order_by('time').reverse().filter(isNew=True):
-		updateID = update.id
-		updateName = update.source.name
-		updateTime = update.time
-		updateRevisionsCount = update.ruleRevisions.count()
 
-		updateNewRulesCount = update.rules.count()
-		
-		updateNewRevisionsCount = updateRevisionsCount - updateNewRulesCount
-		
-		updateNewRuleSetCount = update.ruleSets.count()
-		
-		updateChangeCount = updateRevisionsCount + updateNewRuleSetCount
-		
-		updatePendingChangeCount = update.pendingChanges.count()
-		pendingRuleSets = []
-		
-		for change in update.pendingChanges.all():
-				
-			pendingRuleSets.append(change)
-		
-		data['updates'].append({'updateID':updateID,'updateName':updateName,'updateTime':updateTime,'updateChangeCount':updateChangeCount,
-							'updatePendingChangeCount':updatePendingChangeCount,'pendingRuleSets':pendingRuleSets, 'updateNewRuleSetCount': updateNewRuleSetCount,
-							'updateNewRulesCount':updateNewRulesCount,'updateNewRevisionsCount':updateNewRevisionsCount})
-	
-	#return HttpResponse(data['updates'])
+	lastUpdate = None
+	for change in RuleChanges.objects.order_by('update').all():
+		if(lastUpdate != change.update.id):
+			lastUpdate = change.update.id
+			data['updates'].append([])
+
+		data['updates'][-1].append(change)
+
 	return render(request, "update/changes.tpl", data)
-
-def removeUpdate(request, updateID):
-	
-	logger = logging.getLogger(__name__)
-	
-	try:
-		update = Update.objects.get(id=updateID)
-	except Update.DoesNotExist:
-		logger.warning("Page request /rules/ could not be resolved, objects not found.")
-		raise Http404
-	
-	update.isNew = False
-	update.save()
-	
-	return HttpResponse('Success')
 
 def newSource(request):
 	"""This view recieves data from the "newSource" form. If the data recieved is valid, a new source is created.

@@ -11,7 +11,7 @@ function initialize() {
 	$('li.odd').unbind('click');
 	$('li.odd').click(function(event){
 		// Toggles clicked row on the 'active' css class so it changes color
-		$(this).toggleClass("bg-primary");
+		$(this).toggleClass("active");
 		// Shows or hides the next row which is hidden by default.
 		$(this).next().slideToggle("fast","linear");
 	});

@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.models import Rule, Sensor, Comment
+from core.models import Rule, Sensor
 
 
 class RuleModifier(models.Model):
@@ -28,20 +28,14 @@ class Suppress(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'suppress')
 	sensor = models.ForeignKey(Sensor, related_name = 'suppress')
-	comment = models.ForeignKey(Comment, related_name= 'suppress', null=True, on_delete=models.SET_NULL)
+	comment = models.TextField()
 	track = models.IntegerField()
 	
 	def __repr__(self):
-		return "<Suppress Rule:%d, Sensor:%s, comment:'%s', track:%s>" % (self.rule.SID, self.sensor.name, self.comment.comment, Suppress.TRACK[self.track])
+		return "<Suppress Rule:%d, Sensor:%s, comment:'%s', track:%s>" % (self.rule.SID, self.sensor.name, self.comment, Suppress.TRACK[self.track])
 
 	def __str__(self):
-		return "<Suppress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment.comment)
-	
-	def getAddresses(self):
-		addresslist = []
-		for address in self.addresses.all():
-			addresslist.append(address.ipAddress)
-		return addresslist
+		return "<Suppress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
 
 class SuppressAddress(models.Model):
 	"""SupressAddress is simply a container for an address that is
@@ -55,32 +49,12 @@ class SuppressAddress(models.Model):
 	
 	def __str__(self):
 		return "<SupressAddress %s>" % (self.ipAddress)
-
-class DetectionFilter(models.Model):
 	
-	rule = models.ForeignKey(Rule, related_name = 'detectionFilters')
-	sensor = models.ForeignKey(Sensor, related_name = 'detectionFilters')
-	comment = models.ForeignKey(Comment, related_name= 'detectionFilters', null=True, on_delete=models.SET_NULL)
-	track = models.IntegerField()
-	count = models.IntegerField()
-	seconds = models.IntegerField()
-	
-	class Meta:
-		# Only one filter allowed per rule per sensor
-		unique_together = ("rule", "sensor")
+class Threshold(models.Model):
+	"""Threshold are assigne to a specific rule on a specific sensor,
+	and lets us put a certain type of thresholds to this rule."""
 
-	def __repr__(self):
-		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s', type:%s, track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
-					self.comment, EventFilter.TYPE[self.eventFilterType], EventFilter.TRACK[self.track], self.count, self.seconds)
-
-	def __str__(self):
-		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
-		
-class EventFilter(models.Model):
-	"""EventFilter are assigne to a specific rule on a specific sensor,
-	and lets us put a certain type of EventFilters to this rule."""
-
-	# Constants for the "eventFilterType" parametre
+	# Constants for the "thresholdType" parametre
 	TYPE = {1: "limit", 2: "threshold", 3:"both"}
 	LIMIT = 1
 	THRESHOLD = 2
@@ -91,22 +65,18 @@ class EventFilter(models.Model):
 	SOURCE = 1
 	DESTINATION = 2
 	
-	rule = models.ForeignKey(Rule, related_name = 'eventFilters')
-	sensor = models.ForeignKey(Sensor, related_name = 'eventFilters')
-	comment = models.ForeignKey(Comment, related_name= 'eventFilters', null=True, on_delete=models.SET_NULL)
-	eventFilterType = models.IntegerField()
+	rule = models.ForeignKey(Rule, related_name = 'thresholds')
+	sensor = models.ForeignKey(Sensor, related_name = 'thresholds')
+	comment = models.TextField()
+	thresholdType = models.IntegerField()
 	track = models.IntegerField()
 	count = models.IntegerField()
 	seconds = models.IntegerField()
-	
-	class Meta:
-		# Only one filter allowed per rule per sensor
-		unique_together = ("rule", "sensor")
 
 	def __repr__(self):
-		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s', type:%s, track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
-					self.comment.comment, EventFilter.TYPE[self.eventFilterType], EventFilter.TRACK[self.track], self.count, self.seconds)
+		return "<Threshold Rule:%d, Sensor:%s, comment:'%s', type:%s, track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
+					self.comment, Threshold.TYPE[self.thresholdType], Threshold.TRACK[self.track], self.count, self.seconds)
 
 	def __str__(self):
-		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment.comment)
+		return "<Threshold Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
 

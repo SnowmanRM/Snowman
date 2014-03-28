@@ -24,21 +24,6 @@ function setCurrentNavigation() {
 	
 }
 
-function selectRemembers(element) {
-	// Makes multiple select inputs remember selections.
-	$(element).each(function(){    
-	    var select = $(this), values = {};    
-	    $('option',select).each(function(i, option){
-	        values[option.value] = option.selected;        
-	    }).click(function(event){        
-	        values[this.value] = !values[this.value];
-	        $('option',select).each(function(i, option){            
-	            option.selected = values[option.value];        
-	        });    
-	    });
-	});
-}
-
 //This function adds a delay to an event trigger.
 var delay = (function(){
 	var timer = 0;
@@ -52,7 +37,5 @@ $(document).ready(function(){
 	
 	// Make the current page highlighted in nav.
 	setCurrentNavigation();
-	
-
 	
 });

@@ -2,15 +2,11 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
 from core.models import Rule, RuleRevision, Sensor, RuleSet, RuleClass
-from web.utilities import UserSettings, ruleClassesToTemplate
+from web.utilities import UserSettings
 import logging
 
 def index(request):
-	"""This method is called when the url /ruleclass/ is called.
-	
-	It fetches ruleset objects and sends them to the render.
-	
-	"""
+	"""This method does something."""
 	
 	logger = logging.getLogger(__name__)
 	
@@ -37,13 +33,11 @@ def index(request):
 		# We need to know how many rules there are total.
 		context['itemcount'] = RuleClass.objects.count()
 		# Get all rules, but limited by the set pagelength.
-		context['ruleclass_list'] = RuleClass.objects.all().order_by('classtype')
+		context['ruleset_list'] = RuleClass.objects.all()
 
 	except RuleSet.DoesNotExist:
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
 		raise Http404
 	
-	# Process the objects before we give them to the template.
-	context['ruleclass_list'] = ruleClassesToTemplate(context['ruleclass_list'])
-	#return HttpResponse(ruleClassesToTemplate(context['ruleclass_list']))
+	
 	return render(request, 'ruleclass/ruleClass.tpl', context)

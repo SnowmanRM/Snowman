@@ -1,6 +1,5 @@
 import datetime
 import logging
-import re
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -93,10 +92,6 @@ class Rule(models.Model):
 		# If no revisions are found, or the last revision is smaller than the new one,
 		#   add the new revision to the database.
 		if(lastRev == None or int(lastRev.rev) < int(rev)):
-			# Remove filters from raw string before storage:
-			raw = re.sub(r'detection_filter:.*?;', '', raw)
-			raw = re.sub(r'threshold:.*?;', '', raw)
-			raw = " ".join(raw.split())
 			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=True, msg=msg, raw=raw)
 			logger.debug("Updated rule-revision:" + str(rev))
 			return rev
@@ -161,7 +156,7 @@ class Rule(models.Model):
 				result[rule.SID] = rule.revisions.latest(field_name = 'rev').rev
 		
 		return result
-	
+
 class RuleClass(models.Model):
 	"""A ruleclass have a name, and a priority. All Rule objects should
 	be a part of a RuleClass"""
@@ -181,13 +176,11 @@ class RuleReference(models.Model):
 	about a specific rule. It is of a certain type (which contains an
 	urlPrefix), and a reference."""
 	
-	reference = models.CharField(max_length=250)
+	reference = models.TextField()
 	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
 	rulerevision = models.ForeignKey('RuleRevision', related_name='references')
 
-	class Meta:
-		# Avoid duplicate entries
-		unique_together = ('reference', 'referenceType', 'rulerevision')
+	# TODO: Unique: rulerevision+referencetype? 
 
 	def __repr__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
@@ -196,8 +189,11 @@ class RuleReference(models.Model):
 	def __str__(self):
 		return "<RuleReference Type:%s, Reference:'%s', Rule(SID/rev):%d/%d>" % (self.referenceType.name, 
 					self.reference, self.rulerevision.rule.SID, self.rulerevision.rev)
-
+		
+		
 	def splitReference(self):
+		
+		
 		return 0
 
 class RuleReferenceType(models.Model):
@@ -215,29 +211,20 @@ class RuleReferenceType(models.Model):
 		return "<RuleReferenceType name:%s, urlPrefix:'%s'>" % (self.name, self.urlPrefix)
 
 class RuleRevision(models.Model):
-	"""Represents a single revision of a rule. Every
-	time a rule is updated, a new revision object should be created.
-	
-	== FIELDS ==
-	Raw: The text-string carrying the rule header and rule options. Known
-	in this project as the rulestring.
-	
-	Msg: Alert message. 
-	
-	Active: The active-field determines if this revision is a revision we
+	"""This class should represent a single revision of a rule. Every
+	time a rule is updated, there should be created a new object of 
+	this class.
+	The active-field should signal if this revision is a revision we
 	want to use. When a Rule is fetched, the revision with the highest
-	rev that is active is selected as the correct rule to use.
-	
-	Filters: Inline filters such as detection filter and (now deprecated)
-	threshold are stored as normal text-options in this field (as they
-	appear in the original rulestring)."""
+	rev that is active is selected as the correct rule to use."""
 
-	raw = models.TextField()
-	rev = models.IntegerField()
-	msg = models.TextField()
-	active = models.BooleanField(default=True)
-	filters = models.TextField(default = "")
 	rule = models.ForeignKey('Rule', related_name="revisions")
+	active = models.BooleanField(default=True)
+	threshold = models.TextField(default = "")
+	suppress = models.TextField(default = "")
+	rev = models.IntegerField()
+	raw = models.TextField()
+	msg = models.TextField()
 
 	def __repr__(self):
 		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)
@@ -251,12 +238,6 @@ class RuleRevision(models.Model):
 		REMOVE IF NOT NEEDED ANYMORE
 		"""	
 		return {'SID': self.rule.SID, 'rev': self.rev, 'active': str(self.active), 'raw': self.raw, 'msg': self.msg}
-
-	def getReferences(self):
-		referenceList = []
-		for ref in self.references.all():
-			referenceList.append((ref.referenceType.name, ref.reference))
-		return referenceList 
 
 class RuleSet(models.Model):
 	"""A RuleSet, is a set of rules. Alle Rule objects should have
@@ -277,37 +258,6 @@ class RuleSet(models.Model):
 
 	def __str__(self):
 		return "<RuleSet name:%s>" % (self.name)
-	
-	def __len__(self):
-		noRules = self.rules.count()
-		for ruleSet in self.childSets.all():
-			noRules += len(ruleSet)
-		return noRules
-	
-	def getRuleRevisions(self, active):
-		revisions = {}
-		
-		# Collect the rules in this ruleSet
-		for rule in self.rules.all():
-			if(active == None or active == rule.active):
-				revisions[str(rule.SID)] = rule.getCurrentRevision().rev
-		
-		# Collect the sid of the rules in child-rulesets.
-		for ruleSet in self.childSets.all():
-			if ruleSet.active:
-				revisions.update(ruleSet.getRuleRevisions(active))
-
-		return revisions
-	
-	def getChildSets(self):
-		childSets = self.childSets.all()
-		sets = []
-		for childSet in self.childSets.all():
-			if(childSet.active):
-				sets.append(childSet)
-				sets.extend(childSet.getChildSets())
-
-		return sets	
 
 class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
@@ -320,7 +270,7 @@ class Sensor(models.Model):
 	
 	parent = models.ForeignKey('Sensor', null=True, related_name='childSensors')
 	name = models.CharField(max_length=30, unique=True)
-	user = models.ForeignKey(User, related_name='sensor', null=True)
+	user = models.ForeignKey(User, related_name='sensor')
 	active = models.BooleanField(default=True)
 	autonomous = models.BooleanField(default=False)
 	ipAddress = models.CharField(max_length=38, default="")
@@ -328,9 +278,9 @@ class Sensor(models.Model):
 
 	def __repr__(self):
 		if(self.parent):
-			return "<Sensor name:%s, parent:%s, active:%s, ipAddress:'%s'>" % (self.name, self.parent.name, str(self.active), self.ipAddress)
+			return "<Sensor name:%s, parent:%s, active:%s, ipAddress:'%s', user:%s>" % (self.name, self.parent.name, str(self.active), self.ipAddress, self.user.username)
 		else:
-			return "<Sensor name:%s, parent:None, active:%s, ipAddress:'%s'>" % (self.name, str(self.active), self.ipAddress)
+			return "<Sensor name:%s, parent:None, active:%s, ipAddress:'%s', user:%s>" % (self.name, str(self.active), self.ipAddress, self.user.username)
 
 	def __str__(self):
 		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
@@ -347,22 +297,3 @@ class Sensor(models.Model):
 			return self.AVAILABLE
 		else:
 			return self.UNAVAILABLE
-		
-		
-class Comment(models.Model):
-	
-	# Constants for the type parameter
-	EVENTFILTER = 1
-	DETECTIONFILTER = 2
-	
-	user = models.IntegerField()
-	time = models.DateTimeField(default = datetime.datetime.now())
-	comment = models.TextField()
-	type = models.IntegerField()
-	foreignKey = models.IntegerField(null=True)
-	
-	def __repr__(self):
-			return "<Comment user:%s, time:None, comment:%s, type:'%s', foreignKey:%s>" % (self.user, self.time, self.comment, self.foreignKey)
-
-	def __str__(self):
-		return "<Comment time:%s, type:'%s', comment:'%s'>" % (self.time, self.type, self.comment)

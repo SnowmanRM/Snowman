@@ -11,12 +11,12 @@ function listInitialize() {
 	$('table thead th#checkbox-all input').click(function(event){
 				
 		if ($("table thead th#checkbox-all input").is(':checked')) {
-            $("table.current #checkbox").each(function () {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
                 $(this).prop("checked", true);
             });
 
         } else {
-            $("table.current #checkbox").each(function () {
+            $("table.current td#checkbox input[type=checkbox]").each(function () {
                 $(this).prop("checked", false);
             });
         }
@@ -242,7 +242,7 @@ function searchField() {
 			var itemcount = $('#paginator').attr('itemcount');
 			pagecount =  Math.floor(itemcount / pagelength);
 			if (itemcount%pagecount == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
-			if (pagecount == 0) pagecount++;
+			
 			// Switch back to the current page.
 			switchPage(currentpage);
 			// Reload the paginator to its former state.
@@ -281,7 +281,7 @@ function searchField() {
 	});	
 	
 	$( "#search-container button" ).click(function() {
-		
+		console.log('button was pressed');
 		  $( "#search-container input#searchtext" ).keyup();
 		});
 	
@@ -297,7 +297,7 @@ $(document).ready(function(){
 	var itemcount = $('#paginator').attr('itemcount');
 	pagecount =  Math.ceil(itemcount / pagelength);
 	if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
-	if (pagecount == 0) pagecount++;
+	
 	// We get a hash value if there is one.
 	var hash = parseInt(window.location.hash.slice(1));
 	
@@ -317,7 +317,7 @@ $(document).ready(function(){
 	}
 	
 	// Preload the last page, but not if the hash points to the last page.
-	if (hash != pagecount && pagecount > 1) {
+	if (hash != pagecount) {
 		getPage(pagecount);
 	}
 	

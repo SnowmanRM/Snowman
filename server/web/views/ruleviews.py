@@ -6,10 +6,9 @@ This script file serves to answer url requests for the /web/rules page.
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 
-from core.models import Rule, RuleSet, RuleRevision, Sensor
-from update.models import Update
-from web.utilities import UserSettings, rulesToTemplate
-import logging, json
+from core.models import Rule, RuleRevision, Sensor
+from web.utilities import UserSettings
+import logging
 
 def index(request):
 
@@ -40,8 +39,8 @@ def index(request):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		#context['sensorcount'] =  Sensor.objects.count()
-		#context['sensorcount'] = -context['sensorcount']
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
 		
 		# We need to know how many rules there are total.
 		context['itemcount'] = Rule.objects.count()
@@ -52,9 +51,7 @@ def index(request):
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
 		raise Http404
 	
-	# Process the objects before we give them to the template.
-	context['rule_list']=rulesToTemplate(context['rule_list'])
-	#return HttpResponse(rulesToTemplate(context['rule_list']))
+	
 	return render(request, 'rules/rules.tpl', context)
 
 def getRulePage(request, pagenr):
@@ -90,8 +87,8 @@ def getRulePage(request, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		#context['sensorcount'] =  Sensor.objects.count()
-		#context['sensorcount'] = -context['sensorcount']
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
 		
 		
 		# We need to know how many rules there are total.
@@ -102,8 +99,6 @@ def getRulePage(request, pagenr):
 		logger.warning("Page request /rules/page/"+str(pagenr)+" could not be resolved, objects in range "+str(minrange)+" - "+str(maxrange)+"not found.")
 		raise Http404
 	
-	# Process the objects before we give them to the template.
-	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesBySearch(request, pagenr):
@@ -151,8 +146,8 @@ def getRulesBySearch(request, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		#context['sensorcount'] =  Sensor.objects.count()
-		#context['sensorcount'] = -context['sensorcount']
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
 		
 		# We do different queries based on the searchfield string.
 		if searchfield=='sid':
@@ -170,14 +165,14 @@ def getRulesBySearch(request, pagenr):
 		logger.warning("Page request /rules/search for string: "+searchstring+" in field "+searchfield+" could not be resolved, objects not found.")
 		raise Http404
 	
-	# Process the objects before we give them to the template.
-	context['rule_list']=rulesToTemplate(context['rule_list'])
+	
 	return render(request, 'rules/rulePage.tpl', context)
 
 def getRulesByRuleSet(request, ruleSetID, pagenr):
-	"""	This method is loaded when the /rules/getRulesByRuleSet url is called. 
+	"""	This method is loaded when the /rules/search/<int> url is called. This url is called when a user has typed a string into 
+		the search bar on the /rules page. 
 		
-		The method fetches rules based on a ruleSetID.
+		The method does a search in the database based on the searchfield and searchstring requested, and the item range based on the page requested.
 		
 		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
 	
@@ -219,8 +214,8 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		#context['sensorcount'] =  Sensor.objects.count()
-		#context['sensorcount'] = -context['sensorcount']
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
 		
 		# We do different queries based on the searchfield string.
 		
@@ -234,151 +229,14 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
 		raise Http404
 	
-	# Process the objects before we give them to the template.
-	context['rule_list']=rulesToTemplate(context['rule_list'])
+	
 	return render(request, 'rules/rulePage.tpl', context)
-
-def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, updateID):
-	"""	This method is loaded when the /rules/getRulesByRuleSet url is called. 
-		
-		The method fetches rules based on a ruleSetID.
-		
-		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
-	
-	"""
-	
-	logger = logging.getLogger(__name__)
-	
-	context = {}
-	
-	# Get the two values from the HTTP POST request.
-
-	
-	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
-	
-	# We set this value to true so that we can differentiate in the template.
-	context['rulesearch'] = False
-	
-	# We want pagenr with us in the template, but we modify it.
-	context['pagenr'] = int(pagenr)
-	
-	# We want pagelength with us in the template.
-	context['pagelength'] = int(pagelength)
-	
-	# The first page isnt hidden.
-	if int(pagenr) == 1:
-		context['ishidden'] = False
-	else:
-		context['ishidden'] = True
-	
-	# We want the searchstring with us in the template.
-	#context['searchstring'] = searchstring
-	
-	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
-	minrange = pagelength * (int(pagenr)-1)
-	
-	# We add pagelength to the minumum range, this gives us the maximum range.
-	maxrange = int(minrange) + pagelength
-	
-	try:
-		# Get the current sensor count, but we want it in a negative value.
-		#context['sensorcount'] =  Sensor.objects.count()
-		#context['sensorcount'] = -context['sensorcount']
-		
-		# We do different queries based on the searchfield string.
-		
-		# We need to know how many rules the search will produce.
-		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=updateID).count()
-		# Get matching rules, within the set range.
-		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=updateID)[minrange:maxrange]
-		
-
-	except Rule.DoesNotExist:
-		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
-		raise Http404
-	
-	# Process the objects before we give them to the template.
-	context['rule_list']=rulesToTemplate(context['rule_list'])
-	return render(request, 'rules/rulePage.tpl', context)
-
-def getRulesByRuleSetNewRuleRevisions(request, ruleSetID, pagenr, updateID):
-	"""	This method is loaded when the /rules/getRulesByRuleSet url is called. 
-		
-		The method fetches rules based on a ruleSetID.
-		
-		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
-	
-	"""
-	
-	logger = logging.getLogger(__name__)
-	
-	context = {}
-	
-	# Get the two values from the HTTP POST request.
-
-	
-	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
-	
-	# We set this value to true so that we can differentiate in the template.
-	context['rulesearch'] = False
-	
-	# We want pagenr with us in the template, but we modify it.
-	context['pagenr'] = int(pagenr)
-	
-	# We want pagelength with us in the template.
-	context['pagelength'] = int(pagelength)
-	
-	# The first page isnt hidden.
-	if int(pagenr) == 1:
-		context['ishidden'] = False
-	else:
-		context['ishidden'] = True
-	
-	# We want the searchstring with us in the template.
-	#context['searchstring'] = searchstring
-	
-	# We multiply the paglength with the requested pagenr, this should give us the minimum range.
-	minrange = pagelength * (int(pagenr)-1)
-	
-	# We add pagelength to the minumum range, this gives us the maximum range.
-	maxrange = int(minrange) + pagelength
-	
-	try:
-		update = Update.objects.get(id=updateID)
-	except Update.DoesNotExist:
-		logger.warning("Page request /rules/getRulesByRuleSetNewRuleRevisions could not be resolved, objects not found.")
-		raise Http404
-	
-	revList = update.ruleRevisions.values_list('rule__SID', flat=True)
-	
-	try:
-		# Get the current sensor count, but we want it in a negative value.
-		#context['sensorcount'] =  Sensor.objects.count()
-		#context['sensorcount'] = -context['sensorcount']
-		
-		# We do different queries based on the searchfield string.
-		
-		# We need to know how many rules the search will produce.
-		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID, SID__in=revList).count()
-		# Get matching rules, within the set range.
-		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, SID__in=revList)[minrange:maxrange]
-		
-
-	except Rule.DoesNotExist:
-		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
-		raise Http404
-	
-	# Process the objects before we give them to the template.
-	context['rule_list']=rulesToTemplate(context['rule_list'])
-	return render(request, 'rules/rulePage.tpl', context)
-
 
 def getRulesByRuleClass(request, ruleClassID, pagenr):
-	"""	This method is loaded when the /rules/getRulesByRuleClass url is called. 
+	"""	This method is loaded when the /rules/search/<int> url is called. This url is called when a user has typed a string into 
+		the search bar on the /rules page. 
 		
-		The method fetches rules based on a ruleClassID.
+		The method does a search in the database based on the searchfield and searchstring requested, and the item range based on the page requested.
 		
 		If it finds objects, it then sends everything to the template rules/rulepage.tpl through the render method.
 	
@@ -420,8 +278,8 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 	
 	try:
 		# Get the current sensor count, but we want it in a negative value.
-		#context['sensorcount'] =  Sensor.objects.count()
-		#context['sensorcount'] = -context['sensorcount']
+		context['sensorcount'] =  Sensor.objects.count()
+		context['sensorcount'] = -context['sensorcount']
 		
 		# We do different queries based on the searchfield string.
 		
@@ -435,51 +293,5 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 		logger.warning("Page request /rules/getRulesByRuleSet could not be resolved, objects not found.")
 		raise Http404
 	
-	# Process the objects before we give them to the template.
-	context['rule_list']=rulesToTemplate(context['rule_list'])
+	
 	return render(request, 'rules/rulePage.tpl', context)
-
-def reorganizeRules(request):
-	logger = logging.getLogger(__name__)
-	
-	response = []
-	
-	# Get some initial post values for processing.
-	if request.POST.getlist('id'):
-		ruleIDs = request.POST.getlist('id')
-	else:
-		response.append({'response': 'noIDsGiven', 'text': 'No Rule ID was given.'})
-		return HttpResponse(json.dumps(response))
-	
-	ruleList = []
-	
-	for ruleID in ruleIDs:
-		try:
-			ruleList.append(Rule.objects.get(id=ruleID))
-		except Rule.DoesNotExist:
-			response.append({'response': 'ruleDoesNotExist', 'text': 'Rule with DB ID '+str(ruleID)+' does not exist.'})
-			logger.warning("Rule with DB ID "+str(ruleID)+" could not be found.")
-			return HttpResponse(json.dumps(response))
-	
-	if request.POST['parent']:
-		ruleSetID = request.POST['parent']
-		try:
-			ruleSet = RuleSet.objects.get(id=ruleSetID)
-		except RuleSet.DoesNotExist:
-			response.append({'response': 'ruleSetDoesNotExists', 'text': 'RuleSet ID '+str(ruleSetID)+' could not be found.'})
-			logger.warning("RuleSet ID "+str(ruleSet)+" could not be found.")
-			return HttpResponse(json.dumps(response))
-	else:
-		response.append({'response': 'noParentGiven', 'text': 'No new parent RuleSet was given.'})
-		return HttpResponse(json.dumps(response))
-	
-	for rule in ruleList:
-		rule.ruleSet=ruleSet
-		rule.save()
-		logger.info("Rule "+str(rule)+" is now the child of RuleSet "+str(ruleSet)+".")
-	
-	response.append({'response': 'rulesSuccessfullyReorganized', 'text': 'The rules were successfully moved to the new ruleset.'})
-	return HttpResponse(json.dumps(response))
-
-
-
