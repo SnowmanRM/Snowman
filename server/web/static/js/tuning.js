@@ -7,7 +7,8 @@ function listInitialize() {
 		
 		
 		if (tuningID) {
-			console.log(tuningID, tuningType);
+			$('#tuningFormModal form').attr('id','tuningForm');
+			$('#tuningFormModal button[type="submit"]').attr('id', 'tuning-submit');
 			if (tuningType == "EventFilter") {
 				// Load the form with AJAX.
 				$.get('/web/tuning/getEventFilterForm/'+tuningID+'/', function(html){
@@ -16,6 +17,30 @@ function listInitialize() {
 					$('button#tuning-submit').prop("disabled",false);
 					$('button#tuning-submit').attr('class','btn btn-primary');
 					$('button#tuning-submit').html('Save changes');
+					
+					$('#tuningFormModal form').attr('id','thresholdForm');
+					$('#tuningFormModal #tuning-submit').attr('id', 'threshold-submit');
+					selectRemembers('select#sensors');
+					
+					// Install validators on a few of the form fields and set up the submit handler.
+					$('#thresholdForm').validate({
+						rules: {
+							count: {
+								required: true,
+								number: true
+							},
+							seconds: {
+								required: true,
+								number: true				
+							}
+							
+						},
+						submitHandler: function(form) {
+						
+							submitThresholdForm(form);
+						}
+						
+					});
 				});
 			}
 			else if (tuningType == "DetectionFilter") {
@@ -26,6 +51,30 @@ function listInitialize() {
 					$('button#tuning-submit').prop("disabled",false);
 					$('button#tuning-submit').attr('class','btn btn-primary');
 					$('button#tuning-submit').html('Save changes');
+					
+					$('#tuningFormModal form').attr('id','thresholdForm');
+					$('#tuningFormModal #tuning-submit').attr('id', 'threshold-submit');
+					selectRemembers('select#sensors');
+					
+					// Install validators on a few of the form fields and set up the submit handler.
+					$('#thresholdForm').validate({
+						rules: {
+							count: {
+								required: true,
+								number: true
+							},
+							seconds: {
+								required: true,
+								number: true				
+							}
+							
+						},
+						submitHandler: function(form) {
+						
+							submitThresholdForm(form);
+						}
+						
+					});
 				});
 			}
 			else if (tuningType == "Suppression") {
@@ -36,6 +85,19 @@ function listInitialize() {
 					$('button#tuning-submit').prop("disabled",false);
 					$('button#tuning-submit').attr('class','btn btn-primary');
 					$('button#tuning-submit').html('Save changes');
+					
+					$('#tuningFormModal form').attr('id','suppressForm');
+					$('#tuningFormModal #tuning-submit').attr('id', 'suppress-submit');
+					selectRemembers('select#sensors');
+					
+					// Install validators on a few of the form fields and set up the submit handler.
+					$('#suppressForm').validate({
+						submitHandler: function(form) {
+							
+							submitSuppressForm(form);
+						}
+						
+					});
 				});
 			}
 		}
@@ -45,6 +107,387 @@ function listInitialize() {
 		
 	});
 }
+
+//This function handles submitting threshold forms and parsing the response.
+function submitSuppressForm(form) {
+	
+	// We send the form serialized to the server.
+	$.ajax({
+		url: "/web/tuning/setSuppressOnRule/",
+		type: "post",
+		dataType: "json",
+		data: $(form).serialize(),
+		success: function(data) {
+			// These are flags that determine the outcome of the response.
+			var success, warning, error = false;
+			// Clean up any old alerts in the form.
+			$('#suppressForm .alert').remove();
+			// We might get more than one response, so we iterate over them.
+			$.each(data, function() {
+				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
+				// We also set the outcome flags appropriately so we can handle things differently.
+				if(this.response == "suppressAdded") {
+					
+					text = '<div class="alert alert-success row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#suppressForm div#formContent').append(text).prepend(text);
+							
+					$('#suppressForm div#formContent .alert').show("highlight");
+					
+					success = true;
+				}
+				else if(this.response == "suppressExists") {
+					
+					$('#suppressForm div#sid div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'<br />SIDs: '+this.sids+'</div></div>');
+					
+					$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
+					
+					warning = true;
+				}
+				else if(this.response == "allSensors") {
+					
+					$('#suppressForm div#sensors div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#suppressForm div#sensors div.col-sm-10 .alert').show("highlight");
+					
+					warning = true;
+				}
+				else if(this.response == "noComment") {
+					
+					$('#suppressForm div#comment div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#suppressForm div#comment div.col-sm-10 .alert').show("highlight");
+
+					warning = true;
+				}
+				else if (this.response == "invalidGIDSIDFormat") {
+					
+					$('#suppressForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "gidDoesNotExist") {
+					
+					$('#suppressForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "sidDoesNotExist") {
+					
+					$('#suppressForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "sensorDoesNotExist") {
+					
+					$('#suppressForm div#sensors div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#sensors div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "ruleDoesNotExist") {
+					
+					$('#suppressForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "trackOutOfRange") {
+					
+					$('#suppressForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#type div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if(this.response == "addSuppressFailure") {
+					
+					$('#suppressForm input#force').val('False');
+					text = '<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-danger form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#suppressForm div#formContent').append(text).prepend(text);
+							
+					$('#suppressForm div#formContent .alert').show("highlight");
+					
+					error = true;
+				}
+				else if (this.response == "badIP") {
+					
+					$('#suppressForm div#ip div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.ips+' '+this.text+'</div></div>');
+							
+					$('#suppressForm div#ip div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "noIPGiven") {
+					
+					$('#suppressForm div#ip div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#ip div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "addSuppressAddressFailure") {
+					
+					$('#suppressForm div#ip div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#suppressForm div#ip div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				
+			});
+			
+			// If the success-flag was set to true, everything went ok and we can show the user this outcome and close the modal.
+			if( success ) {
+				
+				$('#suppressForm input#force').val('False');
+				$('button#suppress-submit').hide();
+				$('button#suppress-submit').prop("disabled",true);
+				$('button#suppress-submit').attr('class','btn btn-success');
+				$('button#suppress-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
+				$('button#suppress-submit').show("highlight");
+				
+				setTimeout(function() {$('#suppressFormModal').modal('hide')}, 3000);
+				setTimeout(function() {location.reload(true)}, 1000);
+			
+			}
+			// If the outcome was not a success, we have to show this to the user.
+			else if( warning || error ) {
+				// If there was an error, we dont force a DB commit next time. The user has to fix the problem and recheck.
+				if (error) {
+					$('#suppressForm input#force').val('False');
+					$('button#suppress-submit').attr('class','btn btn-danger');
+					$('button#suppress-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+				}
+				// If there is only a warning, we force a DB commit next time, but we warn the user of some things first, just in case.
+				else {
+					$('#suppressForm input#force').val('True');
+					$('button#suppress-submit').attr('class','btn btn-warning');
+					$('button#suppress-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+				}
+			}
+		}
+		
+	});
+}
+
+//This function handles submitting threshold forms and parsing the response.
+function submitThresholdForm(form) {
+	
+	// We send the form serialized to the server.
+	$.ajax({
+		url: "/web/tuning/setFilterOnRule/",
+		type: "post",
+		dataType: "json",
+		data: $(form).serialize(),
+		success: function(data) {
+			// These are flags that determine the outcome of the response.
+			var success, warning, error = false;
+			// Clean up any old alerts in the form.
+			$('#thresholdForm .alert').remove();
+			// We might get more than one response, so we iterate over them.
+			$.each(data, function() {
+				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
+				// We also set the outcome flags appropriately so we can handle things differently.
+				if(this.response == "filterAdded") {
+					
+					text = '<div class="alert alert-success row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#thresholdForm div#formContent').append(text).prepend(text);
+							
+					$('#thresholdForm div#formContent .alert').show("highlight");
+					
+					success = true;
+				}
+				else if(this.response == "thresholdExists") {
+					
+					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'<br />SIDs: '+this.sids+'</div></div>');
+					
+					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					
+					warning = true;
+				}
+				else if(this.response == "allSensors") {
+					
+					$('#thresholdForm div#sensors div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
+					
+					warning = true;
+				}
+				else if(this.response == "noComment") {
+					
+					$('#thresholdForm div#comment div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+					
+					$('#thresholdForm div#comment div.col-sm-10 .alert').show("highlight");
+
+					warning = true;
+				}
+				else if (this.response == "invalidGIDSIDFormat") {
+					
+					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "gidDoesNotExist") {
+					
+					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "sidDoesNotExist") {
+					
+					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "sensorDoesNotExist") {
+					
+					$('#thresholdForm div#sensors div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "ruleDoesNotExist") {
+					
+					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "typeOutOfRange") {
+					
+					$('#thresholdForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "trackOutOfRange") {
+					
+					$('#thresholdForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>');
+							
+					$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
+							
+					error = true;
+				}
+				else if(this.response == "addFilterFailure") {
+					
+					$('#thresholdForm input#force').val('False');
+					text = '<div class="alert alert-danger row" style="display: none;">\
+					<div class="col-sm-1"><span class="glyphicon glyphicon-danger form-control-feedback"></span></div>\
+					<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#thresholdForm div#formContent').append(text).prepend(text);
+							
+					$('#thresholdForm div#formContent .alert').show("highlight");
+					
+					error = true;
+				}
+				
+				
+			});
+			
+			// If the success-flag was set to true, everything went ok and we can show the user this outcome and close the modal.
+			if( success ) {
+				
+				
+				$('#thresholdForm input#force').val('False');
+				$('button#threshold-submit').hide();
+				$('button#threshold-submit').prop("disabled",true);
+				$('button#threshold-submit').attr('class','btn btn-success');
+				$('button#threshold-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
+				$('button#threshold-submit').show("highlight");
+				
+				setTimeout(function() {$('#thresholdFormModal').modal('hide')}, 3000);
+				setTimeout(function() {location.reload(true)}, 1000);
+				
+			}
+			// If the outcome was not a success, we have to show this to the user.
+			else if( warning || error ) {
+				// If there was an error, we dont force a DB commit next time. The user has to fix the problem and recheck.
+				if (error) {
+					$('#thresholdForm input#force').val('False');
+					$('button#threshold-submit').attr('class','btn btn-danger');
+					$('button#threshold-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+				}
+				// If there is only a warning, we force a DB commit next time, but we warn the user of some things first, just in case.
+				else {
+					$('#thresholdForm input#force').val('True');
+					$('button#threshold-submit').attr('class','btn btn-warning');
+					$('button#threshold-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+				}
+			}
+		}
+		
+		
+	});
+	
+};
+
 
 // This function is used to dynamically retrieve a page that contains a list of rules.
 // This function is utilized for the regular list of all rules.

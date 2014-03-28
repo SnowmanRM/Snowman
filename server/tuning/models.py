@@ -28,7 +28,7 @@ class Suppress(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'suppress')
 	sensor = models.ForeignKey(Sensor, related_name = 'suppress')
-	comment = models.ForeignKey(Comment, related_name= 'suppress')
+	comment = models.ForeignKey(Comment, related_name= 'suppress', null=True, on_delete=models.SET_NULL)
 	track = models.IntegerField()
 	
 	def __repr__(self):
@@ -60,7 +60,7 @@ class DetectionFilter(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'detectionFilters')
 	sensor = models.ForeignKey(Sensor, related_name = 'detectionFilters')
-	comment = models.ForeignKey(Comment, related_name= 'detectionFilters')
+	comment = models.ForeignKey(Comment, related_name= 'detectionFilters', null=True, on_delete=models.SET_NULL)
 	track = models.IntegerField()
 	count = models.IntegerField()
 	seconds = models.IntegerField()
@@ -93,7 +93,7 @@ class EventFilter(models.Model):
 	
 	rule = models.ForeignKey(Rule, related_name = 'eventFilters')
 	sensor = models.ForeignKey(Sensor, related_name = 'eventFilters')
-	comment = models.ForeignKey(Comment, related_name= 'eventFilters')
+	comment = models.ForeignKey(Comment, related_name= 'eventFilters', null=True, on_delete=models.SET_NULL)
 	eventFilterType = models.IntegerField()
 	track = models.IntegerField()
 	count = models.IntegerField()

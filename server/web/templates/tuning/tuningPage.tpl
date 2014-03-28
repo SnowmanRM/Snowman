@@ -46,7 +46,7 @@
 				<input id="checkbox" tuningid="{{ tuning.tuningID }}" tuningtype="{{ tuning.tuningType }}" type="checkbox">
 			</td>
 			<td class="text-center wrappable">
-				{{ tuning.tuningAdded|date:"Y-m-d h:m:s" }}
+				{{ tuning.tuningAdded|date:"Y-m-d H:m:s" }}
 			</td>
 			<td class="text-center">
 				{{ tuning.tuningUser }}
@@ -64,7 +64,7 @@
 				{{ tuning.tuningSensorName }}
 			</td>
 			
-			<td class="text-left">
+			<td class="text-left wrappable">
 				{{ tuning.tuningContent }}
 			</td>
 			<td class="text-left wrappable">
@@ -75,7 +75,7 @@
 		 {% endfor %}
 	    
 	    {% else %}
-	    <tr class="even"><td colspan="9">No rules are available.</tr></tr>
+	    <tr class="even"><td colspan="9">No tuning available.</tr></tr>
 		{% endif %}
 	</tbody>
 </table>

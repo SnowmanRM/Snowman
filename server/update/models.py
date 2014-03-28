@@ -6,7 +6,7 @@ import re
 from django.db import models, IntegrityError
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
-	RuleReference, RuleReferenceType, Sensor
+	RuleReference, RuleReferenceType, Sensor, Comment
 	
 from update.exceptions import BadFormatError, AbnormalRuleError 
 from core.exceptions import MissingObjectError
@@ -326,12 +326,17 @@ class Update(models.Model):
 					dFilter.track = track
 					dFilter.count = dfCount
 					dFilter.seconds = dfSeconds
+					comment = Comment.objects.get(id=dFilter.comment.id)
+					comment.delete()
+					comment = Comment.objects.create(user=0,comment="Added from update of "+str(self.source.name)+"", type="updatedDetectionFilter")
+					dFilter.comment = comment
 				except Sensor.DoesNotExist:
 					message = "Object with name="+ConfigStrings.ALL_SENSORS_NAME+", representing all sensors does not exist in database."
 					raise MissingObjectError(message)
 					logger.critical(message)
 				except DetectionFilter.DoesNotExist:
-					DetectionFilter.objects.create(rule=rule, sensor=allSensors, track=track, count=dfCount, seconds=dfSeconds)
+					comment = Comment.objects.create(user=0,comment="Added from update of "+str(self.source.name)+"", type="newDetectionFilter")
+					DetectionFilter.objects.create(rule=rule, sensor=allSensors, track=track, count=dfCount, seconds=dfSeconds, comment=comment)
 				except AttributeError:
 					# No detection_filter in rulestring
 					pass

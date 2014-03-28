@@ -6,7 +6,9 @@
 	{% if edit %}
 		{% if eventFilter %}
 			<input type="hidden" id="force" name="force" value="False">
-			<input type="hidden" id="edit" name="edit" value="True">
+			<input type="hidden" id="edit" name="edit" value="{{ eventFilter.id }}">
+			<input type="hidden" class="form-control" id="sid" name="sid" value="{{ eventFilter.rule.generator.GID }}:{{ eventFilter.rule.SID }}"/>
+			<input type="hidden" value="eventFilter" name="filterType">
 		  	<div class="form-group" id="filter">
 		  	{# TODO: korrekt styling av radio buttons. Dersom detection er aktiv skal "Type" være deaktivert.#}
 		  		<label for="filter" class="col-sm-2 control-label">Filter type:</label>
@@ -84,6 +86,9 @@
 		  	</div>
 	  	{% elif detectionFilter %}
 	  		<input type="hidden" id="force" name="force" value="False">
+	  		<input type="hidden" id="edit" name="edit" value="{{ detectionFilter.id }}">
+	  		<input type="hidden" class="form-control" id="sid" name="sid" value="{{ detectionFilter.rule.generator.GID }}:{{ detectionFilter.rule.SID }}"/>
+	  		<input type="hidden" value="detectionFilter" name="filterType">
 		  	<div class="form-group" id="filter">
 		  	{# TODO: korrekt styling av radio buttons. Dersom detection er aktiv skal "Type" være deaktivert.#}
 		  		<label for="filter" class="col-sm-2 control-label">Filter type:</label>
@@ -216,7 +221,7 @@
   	<div class="form-group" id="sensors">
   		<label for="sensors" class="col-sm-2 control-label">Sensors:</label>
   		<div class="col-sm-10">
-  			<select multiple class="form-control" id="sensors" name="sensors">
+  			<select multiple class="form-control" id="sensors" name="sensors" required>
   				{% if allsensors %}
 					{% for sensor in allsensors %}
 						<option value="{{ sensor.id }}">{{ sensor.name }}</option>
