@@ -1,13 +1,13 @@
 from django.http import Http404, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
-from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet, Comment
-from core.exceptions import MissingObjectError
+from core.models import Rule, Sensor, Generator, RuleSet, Comment
 from tuning.models import EventFilter, DetectionFilter, Suppress, SuppressAddress
 from web.utilities import tuningToTemplate
 from util.patterns import ConfigStrings
 from web.utilities import UserSettings
 from web.exceptions import InvalidValueError
+from web.messages import HTTPResponses
 import logging, json, re
 
 
@@ -434,16 +434,17 @@ def modifyRule(request):
 
 def setFilterOnRule(request):
 	"""This method is loaded when /tuning/setFilterOnRule is called.
-	The request should contain a POST of a form with all required fields. 
+	The objective is to set a specified filter on one or more rules on one
+	or all sensors. The request should contain a POST of a form with all required fields. 
+	All values are checked for errors, and a warning is returned if something
+	is not right. If everything is OK, or the force-flag is set, it will 
+	either update or create the objects requested.
 	
-	The function will check all values for errors and return a warning if something isnt right.
+	Returns JSON objects containing the results.
 	
-	If everything is ok or the force flag is set, it will either update or create the EventFilter objects requested.
-	
-	It returns JSON objects containing the results.
-	
-	This method will raise a MultiValueDictKeyError (django.utils.datastructures) when element in request.POST[element] does not exist.
-	"""
+	NOTE: This method will raise a MultiValueDictKeyError 
+	(django.utils.datastructures) when element in request.POST[element] 
+	does not exist."""
 	
 	logger = logging.getLogger(__name__)
 	
@@ -452,6 +453,7 @@ def setFilterOnRule(request):
 	sensors = request.POST.getlist('sensors')
 	commentString = request.POST['comment']
 	force = request.POST['force']
+	filterType = request.POST['filterType']
 	response = []
 	
 	# If the ruleIds list is empty, it means a SID has been entered manually.
@@ -461,26 +463,18 @@ def setFilterOnRule(request):
 		
 		# Match the GID:SID pattern, if its not there, throw exception.
 		try:
-			matchPattern = r"(\d+):(\d+)"
-			pattern = re.compile(matchPattern)
-			result = pattern.match(ruleSID)
-			
+			result = re.match(r"(\d+):(\d+)", ruleSID)
 			ruleGID = result.group(1)
 			ruleSID = result.group(2)
-		except:
-			response.append({'response': 'invalidGIDSIDFormat', 'text': 'Please format in the GID:SID syntax.'})
-			logger.warning("Invalid GID:SID syntax provided: "+str(ruleSID)+".")
+		except (IndexError, AttributeError):
+			response.append(HTTPResponses.INVALIDGIDSID)
+			logger.warning("Invalid GID:SID syntax: "+str(ruleSID))
 			return HttpResponse(json.dumps(response))
 		
 		# Try to find a generator object with the GID supplied, if it doesnt exist, throw exception.
-		try:
-			g = Generator.objects.filter(GID=ruleGID).count() # There might be more than one.
-			if g == 0:
-				response.append({'response': 'gidDoesNotExist', 'text': 'GID '+ruleGID+' does not exist.'})
-				logger.warning("'GID "+str(ruleGID)+" could not be found.")
-				return HttpResponse(json.dumps(response))
-		except Generator.DoesNotExist:
-			response.append({'response': 'gidDoesNotExist', 'text': 'GID '+ruleGID+' does not exist.'})
+		g = Generator.objects.filter(GID=ruleGID).count() # There might be more than one.
+		if g == 0:
+			response.append(HTTPResponses.GIDDOESNOTEXIST(ruleGID))
 			logger.warning("'GID "+str(ruleGID)+" could not be found.")
 			return HttpResponse(json.dumps(response))
 		
@@ -488,50 +482,59 @@ def setFilterOnRule(request):
 		try:
 			ruleIds.append(Rule.objects.get(SID=ruleSID).id)
 		except Rule.DoesNotExist:
-			response.append({'response': 'sidDoesNotExist', 'text': 'SID '+ruleSID+' does not exist.'})
+			response.append(HTTPResponses.SIDDOESNOTEXIST(ruleSID))
 			logger.warning("'SID "+str(ruleSID)+" could not be found.")
 			return HttpResponse(json.dumps(response))
 		
 	# If force is false, it means we have to check everything.				
 	if force == "False":
 		
-		# If "all sensors" is selected, put its correct name in the list: 
-		if sensors[0] == "All":
-			sensors = [ConfigStrings.ALL_SENSORS_NAME]
-			
+		sensorObjects = []
 		for sensor in sensors:
 			try:
-				Sensor.objects.get(id=sensor)
+				# Sensor id 1 means "all sensors"
+				if id == 1:
+					sensorObjects = []
+					sensorObjects.append(Sensor.objects.get(id=sensor))
+					response.append(HTTPResponses.ALLSENSORS)
+					break
+								
+				sensorObjects.append(Sensor.objects.get(id=sensor))
+				
 			except Sensor.DoesNotExist:
-				response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
+				response.append(HTTPResponses.SENSORDOESNOTEXIST(sensor))
 				logger.warning("Sensor with DB ID "+str(sensor)+" could not be found.")
-				return HttpResponse(json.dumps(response))			
+				return HttpResponse(json.dumps(response))
 		
 		# We iterate through all selected sensors and rules to see if a threshold already exists.
 		# We warn the user if there are thresholds. We also check to see if the rule objects selected exist. 	
-		for sensor in sensors:
-			s = Sensor.objects.get(id=sensor)
-
+		for sensor in sensorObjects:
 			for ruleId in ruleIds:
 				try:
-					r = Rule.objects.get(id=ruleId)
-					if r.eventFilters.filter(sensor=s).count() > 0:
+					rule = Rule.objects.get(id=ruleId)
+
+					if filterType == 'eventFilter':
+						filters = rule.eventFilters
+					elif filterType == 'detectionFilter':
+						filters = rule.detectionFilters
+					else:
+						raise InvalidValueError(filterType+" is not a valid filter type!")
+
+					# Check if this filter already exists on the given sensor
+					if filters.filter(sensor=sensor).count() > 0:
 						if len(response) == 0:
-							response.append({'response': 'thresholdExists', 'text': 'Thresholds already exists, do you want to overwrite?.', 'sids': []})
-						response[0]['sids'].append(r.SID)
+							response.append(HTTPResponses.FILTEREXISTS(filterType, rule.SID, sensor.name))
+							
+						response[0]['sids'].append(rule.SID)
 						response[0]['sids']=list(set(response[0]['sids']))
 				except Rule.DoesNotExist:
-					response.append({'response': 'ruleDoesNotExist', 'text': 'Rule with DB ID '+ruleId+' does not exist.'})
+					response.append(HTTPResponses.RULEDOESNOTEXIST(ruleId))
 					logger.warning("Rule with DB ID "+str(ruleId)+" could not be found.")
 					return HttpResponse(json.dumps(response))
-			
+
 		# Warn the user if the comment string is empty.
 		if commentString == "":
-			response.append({'response': 'noComment', 'text': 'You have not set any comments on this action, are you sure you want to proceed?.'})
-		
-		# Warn the user since all sensors is default.
-		if sensors[0] == ConfigStrings.ALL_SENSORS_NAME:
-			response.append({'response': 'allSensors', 'text': 'You are setting this threshold on all sensors, are you sure you want to do that?.'})
+			response.append(HTTPResponses.NOCOMMENT)
 		
 		# If any responses were triggered, return them. Else, we set force to true and implement the threshold.
 		if len(response) > 0:
@@ -541,7 +544,6 @@ def setFilterOnRule(request):
 	
 	# The user either wants us to continue or there were no warnings.
 	if force == "True":
-		filterType = request.POST['filterType']
 		tcount = int(request.POST['count'])
 		tseconds = int(request.POST['seconds'])
 		
@@ -549,7 +551,7 @@ def setFilterOnRule(request):
 		
 		# We make sure type is in the correct range.
 		if ttype not in range(1,4):
-			response.append({'response': 'typeOutOfRange', 'text': 'Type value out of range.'})
+			response.append(HTTPResponses.TYPEOUTOFRANGE)
 			logger.warning("Type value out of range: "+str(ttype)+".")
 			return HttpResponse(json.dumps(response))
 	
@@ -557,21 +559,18 @@ def setFilterOnRule(request):
 		
 		# We make sure track is in the correct range.
 		if ttrack not in range(1,3):
-			response.append({'response': 'trackOutOfRange', 'text': 'Track value out of range.'})
+			response.append(HTTPResponses.TRACKOUTOFRANGE)
 			logger.warning("Track value out of range: "+str(ttrack)+".")
 			return HttpResponse(json.dumps(response))
 		
-		# If "all sensors" is selected, put its correct name in the list: 
-		if sensors[0] == "All":
-			sensors = [ConfigStrings.ALL_SENSORS_NAME]
-		
 		# We create the comment object.
 		if filterType == 'eventFilter':
-			comment = Comment.objects.create(user=0,comment=commentString, type="newEventFilter")
+			comment = Comment.objects.create(user=0,comment=commentString, type=Comment.EVENTFILTER)
 		elif filterType == 'detectionFilter':
-			comment = Comment.objects.create(user=0,comment=commentString, type="newDetectionFilter")
+			comment = Comment.objects.create(user=0,comment=commentString, type=Comment.DETECTIONFILTER)
 		else:
 			raise InvalidValueError(filterType+" is not a valid filter type!")
+
 		# We iterate over all the rules and sensors to implement the threshold.
 		try:
 			for ruleId in ruleIds:
@@ -583,35 +582,39 @@ def setFilterOnRule(request):
 						if filterType == 'eventFilter':
 							arguments = {'rule':trule, 'sensor':tsensor, 'comment':comment, 'eventFilterType':ttype, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
 							filterObject = EventFilter.objects.get(rule=trule, sensor=tsensor)
-							filterObject.eventFilterType = ttype
+							#comment = Comment.objects.create(user=0,comment=commentString, type=Comment.EVENTFILTER, foreignKey=filterObject.id)
 						elif filterType == 'detectionFilter':
 							arguments = {'rule':trule, 'sensor':tsensor, 'comment':comment, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
 							filterObject = DetectionFilter.objects.get(rule=trule, sensor=tsensor)
+							#comment = Comment.objects.create(user=0,comment=commentString, type=Comment.DETECTIONFILTER, foreignKey=filterObject.id)							
 						else:
 							raise InvalidValueError(filterType+" is not a valid filter type!")
 						
 						filterObject.track = ttrack
 						filterObject.count = tcount
 						filterObject.seconds = tseconds
-						filterObject.comment = commentString
+						filterObject.comment = comment					
 						filterObject.save()
-						logger.info("EventFilter successfully updated on rule: "+str(trule)+".")
-													
+						logger.info(filterType+" successfully updated on rule: "+str(trule)+".")
+							
 					except EventFilter.DoesNotExist:
 						filterObject = EventFilter.objects.create(**arguments)
 						logger.info("event_filter successfully added to rule: "+str(trule)+".")
 					except DetectionFilter.DoesNotExist:
 						filterObject = DetectionFilter.objects.create(**arguments)
 						logger.info("detection_filter successfully added to rule: "+str(trule)+".")
+						
+					filterObject.comment.foreignKey = filterObject.id
+					filterObject.comment.save()
 			
-			response.append({'response': 'filterAdded', 'text': filterType+' successfully added.'})
+			response.append(HTTPResponses.FILTERADDED(filterType))
 		
 			return HttpResponse(json.dumps(response))
 		except Exception as e: # Something went wrong.
-			response.append({'response': 'addFilterFailure', 'text': 'Failed when trying to add filter.'})
+			response.append(HTTPResponses.ADDFILTERFAILURE)
 			logger.error("Failed when trying to add filter: "+e.message)
 			return HttpResponse(json.dumps(response))
-		
+
 def setSuppressOnRule(request):
 	"""This method is loaded when the /tuning/setSuppressOnRule is called.
 	The request should contain a POST of a form with all required fields. 

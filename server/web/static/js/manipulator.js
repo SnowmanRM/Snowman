@@ -379,7 +379,7 @@ function submitThresholdForm(event) {
 					
 					success = true;
 				}
-				else if(this.response == "thresholdExists") {
+				else if(this.response == "filterExists") {
 					
 					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\

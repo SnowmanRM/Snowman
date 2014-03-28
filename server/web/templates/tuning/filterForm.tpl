@@ -62,7 +62,6 @@
 		  		<label for="sensors" class="col-sm-2 control-label">Sensors:</label>
 		  		<div class="col-sm-10">
 		  			<select multiple class="form-control" id="sensors" name="sensors">
-		  				<option value="all">All</option>
 		  				{% if allsensors %}
 							{% for sensor in allsensors %}
 								<option value="{{ sensor.id }}" {% if sensor == eventFilter.sensor %}selected{%endif%}>{{ sensor.name }}</option>
@@ -140,7 +139,6 @@
 		  		<label for="sensors" class="col-sm-2 control-label">Sensors:</label>
 		  		<div class="col-sm-10">
 		  			<select multiple class="form-control" id="sensors" name="sensors">
-		  				<option value="all" selected>All</option>
 		  				{% if allsensors %}
 							{% for sensor in allsensors %}
 								<option value="{{ sensor.id }}" {% if sensor == detectionFilter.sensor %}selected{%endif%}>{{ sensor.name }}</option>
@@ -219,7 +217,6 @@
   		<label for="sensors" class="col-sm-2 control-label">Sensors:</label>
   		<div class="col-sm-10">
   			<select multiple class="form-control" id="sensors" name="sensors">
-  				<option value="all" selected>All</option>
   				{% if allsensors %}
 					{% for sensor in allsensors %}
 						<option value="{{ sensor.id }}">{{ sensor.name }}</option>
