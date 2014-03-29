@@ -1,4 +1,4 @@
-{# manipulateForm.tpl is the template for displaying a list of rulesets.. #} 
+{# ruleSet.tpl is the main template for displaying a list of rulesets. #} 
 {#  #}
 
 

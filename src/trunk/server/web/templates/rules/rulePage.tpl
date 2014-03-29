@@ -23,6 +23,9 @@
 			Name
 		</th>
 		<th class="text-center">
+			Source
+		</th>
+		<th class="text-center">
 			Ruleset
 		</th>
 		<th class="text-center">
@@ -56,27 +59,29 @@
 			<td class="wrappable">
 				{{ rule.ruleMsg }}
 			</td>
-			<td class="text-center">
+			<td class="text-center wrappable">
+				{{ rule.ruleSourceName }}
+			</td>
+			<td class="text-center wrappable">
 				{{ rule.ruleRuleSetName }}
 			</td>
-			<td class="text-center">
+			<td class="text-center wrappable">
 				{{ rule.ruleClassName }}
 			</td>
 			<td class="text-center">
 				<span class="badge {{ rule.ruleClassPriorityColor }}">{{ rule.ruleClassPriority }}</span>
 			</td>
-			<td class="text-right">
-				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					{% if rule.ruleEventFilterCount %}<span class="badge btn-warning">T</span>{% endif %}
-					{% if rule.ruleSuppressCount %}<span class="badge btn-warning">S</span>{% endif %}
-				</div>
-				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					<span class="badge btn-success">{{ rule.ruleActiveOnSensorsCount }}</span>
-					<span class="badge btn-danger">{{ rule.ruleInActiveOnSensorsCount }}</span>
-				</div>
-				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					{% if rule.ruleActive %}<span id="onoff" class="badge btn-success">ON</span>{% else %} <span id="onoff" class="badge btn-danger">OFF</span> {% endif %}
-				</div>
+			<td class="text-right wrappable">
+				
+				{% if rule.ruleDetectionFilterCount %}<span class="badge btn-warning">D</span>{% endif %}
+				{% if rule.ruleEventFilterCount %}<span class="badge btn-warning">E</span>{% endif %}
+				{% if rule.ruleSuppressCount %}<span class="badge btn-warning">S</span>{% endif %}
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<span class="badge btn-success">{{ rule.ruleActiveOnSensorsCount }}</span>
+				<span class="badge btn-danger">{{ rule.ruleInActiveOnSensorsCount }}</span>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				{% if rule.ruleActive %}<span id="onoff" class="badge btn-success">ON</span>{% else %} <span id="onoff" class="badge btn-danger">OFF</span> {% endif %}
+				
 			</td>
 		</tr>
 		<tr class="even" style="display: none">

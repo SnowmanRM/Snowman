@@ -78,9 +78,10 @@ urlpatterns += patterns('web.views.ruleclassviews',
 )
 
 urlpatterns += patterns('web.views.tuningviews',
+	url(r'^tuning/$', 'tuningByRule'),
     url(r'^tuning/getSuppressForm/$', 'getSuppressForm'),
     url(r'^tuning/getSuppressForm/(?P<tuningID>\d+)/$', 'getSuppressFormByID'),
-    url(r'^tuning/getThresholdForm/$', 'getEventFilterForm'), 
+    url(r'^tuning/getFilterForm/$', 'getFilterForm'), 
     url(r'^tuning/getEventFilterForm/(?P<tuningID>\d+)/$', 'getEventFilterFormByID'), 
     url(r'^tuning/getDetectionFilterForm/(?P<tuningID>\d+)/$', 'getDetectionFilterFormByID'), 
     url(r'^tuning/getModifyForm/$', 'getModifyForm'),

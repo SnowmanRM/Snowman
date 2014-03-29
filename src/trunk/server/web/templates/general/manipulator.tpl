@@ -6,7 +6,7 @@
 		<div class="btn-group-vertical btn-block">
 			<button id="enable" type="button" class="btn btn-success btn-block">Enable{% csrf_token %}</button>
 			<button id="disable" type="button" class="btn btn-danger btn-block">Disable{% csrf_token %}</button>
-			<button id="threshold" type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#thresholdFormModal">Threshold</button>
+			<button id="filter" type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#filterFormModal">Filter</button>
 			<button id="suppress" type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#suppressFormModal">Suppress</button>
 			<button id="comment" type="button" class="btn btn-primary btn-block">Comment</button>
 		</div>
@@ -14,22 +14,22 @@
 	</div>
 </div>
 
-<div class="modal fade" id="thresholdFormModal" tabindex="-1" role="dialog" aria-labelledby="thresholdFormModal" aria-hidden="true">
+<div class="modal fade" id="filterFormModal" tabindex="-1" role="dialog" aria-labelledby="filterFormModal" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="thresholdFormModal">Set Threshold</h4>
+        <h4 class="modal-title" id="filterFormModal">Set Threshold</h4>
       </div>
       <div class="modal-body">
-        <form id="thresholdForm" class="form-horizontal" role="form">
+        <form id="filterForm" class="form-horizontal" role="form">
         	<div id="formContent">
         
         	</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary" id="threshold-submit" name="threshold-submit">Save changes</button>
+        <button type="submit" class="btn btn-primary" id="filter-submit" name="filter-submit">Save changes</button>
         </form>
       </div>
     </div>

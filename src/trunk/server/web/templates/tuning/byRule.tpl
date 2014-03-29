@@ -1,7 +1,5 @@
 {% extends "general/index.tpl" %}
-{# rules.tpl is the template for the rules page. #} 
-{# It contains a list of all rules present in the database. #}
-{# It can also contain a list rules found through a search, which the user can do in the searchbar. #}
+{# byRule.tpl is the main template for displaying a list of tuning objects. #} 
 
 {% block content %}
 {% load staticfiles %}

@@ -51,23 +51,6 @@ class Rule(models.Model):
 	def __str__(self):
 		return "<Rule SID:%d>" % (self.SID)
 	
-	def natural_key(self):
-		"""This method is used by serializers when use_natural_key is set in their method call to serialize another object.
-		If that object has a reference to this object by foreign key, the serialization will also include this return string.
-		
-		This return string is a dictionary of the Rule variables; SID, Active, Set, Class and Priority.
-		"""
-		
-		return {'SID': self.SID, 'Active': str(self.active), 'Set': self.ruleSet.name, 'Class': self.ruleClass.classtype, 'Priority': str(self.priority)}
-	
-	def json(self):	
-		"""This method returns a string ready to be json-ified. It is for testing purposes only.
-		
-		REMOVE IF NOT NEEDED ANYMORE
-		"""
-			
-		return {'SID': self.SID, 'Active': str(self.active), 'Set': self.ruleSet.name, 'Class': self.ruleClass.classtype, 'Priority': str(self.priority)}
-	
 	def getCurrentRevision(self):
 			
 		return self.revisions.filter(active=True).last()
@@ -245,13 +228,6 @@ class RuleRevision(models.Model):
 	def __str__(self):
 		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)
 	
-	def json(self):
-		"""This method returns a string ready to be json-ified. It is for testing purposes only.
-		
-		REMOVE IF NOT NEEDED ANYMORE
-		"""	
-		return {'SID': self.rule.SID, 'rev': self.rev, 'active': str(self.active), 'raw': self.raw, 'msg': self.msg}
-
 	def getReferences(self):
 		referenceList = []
 		for ref in self.references.all():
@@ -300,7 +276,7 @@ class RuleSet(models.Model):
 		return revisions
 	
 	def getChildSets(self):
-		childSets = self.childSets.all()
+		
 		sets = []
 		for childSet in self.childSets.all():
 			if(childSet.active):
@@ -350,11 +326,13 @@ class Sensor(models.Model):
 		
 		
 class Comment(models.Model):
-	
+	"""
+	Comment objects are used to track important events in the system, with who, what and when.
+	"""
 	user = models.IntegerField()
 	time = models.DateTimeField(default = datetime.datetime.now())
 	comment = models.TextField()
-	type = models.CharField(max_length=40, default="")
+	type = models.CharField(max_length=100, default="")
 	foreignKey = models.IntegerField(null=True)
 	
 	def __repr__(self):

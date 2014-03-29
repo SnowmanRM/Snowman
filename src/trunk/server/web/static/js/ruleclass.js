@@ -71,6 +71,7 @@ function getPage(ruleClass,pageNr){
 	
 }
 
+// This function intitializes all buttons and events on this page.
 function listInitialize() {
 	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
 	$('.panel .panel-heading #checkbox-all').click(function(event){
@@ -129,18 +130,21 @@ function listInitialize() {
 			
             return;
         }
-		
+		// The click target was a rule panel.
 		if($(this).parent().is('.rules-panel')) {
 			// Toggles clicked row on the 'active' css class so it changes color
 			$(this).parent().toggleClass("panel-success");			
 		}
+		// The click target was a ruleclass panel.
 		else if($(this).parent().is('.ruleclass-panel')) {
 			// Toggles clicked row on the 'active' css class so it changes color
 			$(this).parent().toggleClass("panel-primary");
+			// If elements are already loaded, we do nothing.
 			if($(this).is('.loaded')) {
 				;
 			}
 			else {
+				// We load the rulelist for the clicked ruleclass.
 				var ruleClass = $(this).parent().attr('id');
 				loadRuleClassRules(ruleClass);
 				$(this).toggleClass("loaded");
@@ -158,6 +162,7 @@ function listInitialize() {
 		
 }
 
+// This function paginates the rule lists.
 function loadPaginator(ruleClass, currentpage, pagecount) {
 	
 	// We set some options for the paginator and its click function.

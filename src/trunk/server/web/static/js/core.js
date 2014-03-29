@@ -1,3 +1,11 @@
+/*
+ * This script is a collection of all central code and events.
+ * 
+ * 
+ */
+
+
+
 // Make the manipulator follow you when you scroll.
 function animateManipulator() {
 	
@@ -24,8 +32,9 @@ function setCurrentNavigation() {
 	
 }
 
+//Makes multiple select inputs remember selections.
 function selectRemembers(element) {
-	// Makes multiple select inputs remember selections.
+	
 	$(element).each(function(){    
 	    var select = $(this), values = {};    
 	    $('option',select).each(function(i, option){

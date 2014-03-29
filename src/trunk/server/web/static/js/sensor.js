@@ -1,3 +1,9 @@
+/*
+ * This script controls all the buttons and events on the Sensor page.
+ * 
+ * 
+ */
+
 function reloadSensorTable(f) {
 	$.get("/web/sensors/getSensorList/", function(data) {
 		$('#sensorList').html(data);

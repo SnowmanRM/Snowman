@@ -1,6 +1,4 @@
-{# rulepage.tpl is the template for the paginated list of rules on the rules page. #} 
-{# It constructs a table based on the list of rules sent to the parser. #}
-{#  #}
+{# tuningPage.tpl is the template for displaying a list of tuning objects. #} 
 
 {% if rulesearch %}<div id="searchresult" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" searchstring="{{ searchstring }}">{% endif %}
 <table id="{{ pagenr }}" class="tuning table table-responsive table-bordered table-striped

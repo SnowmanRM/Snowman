@@ -1,3 +1,4 @@
+{# ruleSetListItems.tpl is the template for displaying a list of rulesets. #} 
 
 {% block rulesetlist %}
 {% if ruleset_list %}

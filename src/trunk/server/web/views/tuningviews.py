@@ -13,8 +13,8 @@ from itertools import chain
 
 
 def tuningByRule(request):
-	"""This method is loaded when the /tuning/getThresholdForm is called. 
-	It delivers a form for thresholding. """
+	"""This method is loaded when the /tuning/tuningByRule/ is called. 
+	It delivers the first page of tuning objects. """
 	
 	logger = logging.getLogger(__name__)
 	
@@ -40,28 +40,29 @@ def tuningByRule(request):
 	maxrange = int(minrange) + (pagelength)
 	
 	try:
+		# We get a total count of the number of objects.
 		context['itemcount'] = EventFilter.objects.count()
 		context['itemcount'] += DetectionFilter.objects.count()
 		context['itemcount'] += Suppress.objects.count()
-		# Get a complete list of sensors.
+		# We get all the objects.
 		eventFilterList = EventFilter.objects.all()
 		detectionFilterList = DetectionFilter.objects.all()
 		suppressList = Suppress.objects.all()
-		
+		# We combine all the objects into one big list.
 		tuningList = list(chain(eventFilterList,detectionFilterList,suppressList))
 	
 	except:
 		logger.warning("No sensors found.")
 		raise Http404
 	
-	# Send to template.
-	#return HttpResponse(tuningToTemplate(tuningList[minrange:maxrange]))
+	# We send a ranged set of the objects for processing.
 	context['tuningList'] = tuningToTemplate(tuningList[minrange:maxrange])
+	# Send to template.
 	return render(request, 'tuning/byRule.tpl', context)
 
 def tuningByRulePage(request, pagenr):
-	"""This method is loaded when the /tuning/getThresholdForm is called. 
-	It delivers a form for thresholding. """
+	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
+	It delivers the page specified page of tuning objects. """
 	
 	logger = logging.getLogger(__name__)
 	
@@ -89,26 +90,28 @@ def tuningByRulePage(request, pagenr):
 	maxrange = int(minrange) + (pagelength)
 	
 	try:
+		# We get a total count of the number of objects.
 		context['itemcount'] = EventFilter.objects.count()
 		context['itemcount'] += DetectionFilter.objects.count()
 		context['itemcount'] += Suppress.objects.count()
-		# Get a complete list of sensors.
+		# We get all the objects.
 		eventFilterList = EventFilter.objects.all()
 		detectionFilterList = DetectionFilter.objects.all()
 		suppressList = Suppress.objects.all()
-		
+		# We combine all the objects into one big list.
 		tuningList = list(chain(eventFilterList,detectionFilterList,suppressList))
 	except:
 		logger.warning("No sensors found.")
 		raise Http404
 	
-	# Send to template.
+	# We send a ranged set of the objects for processing.
 	context['tuningList'] = tuningToTemplate(tuningList[minrange:maxrange])
-	return render(request, 'tuning/tuningPage.tpl', context)
+	# Send to template.
+	return render(request, 'tuning/byRule.tpl', context)
 
 def tuningByRuleSearch(request, pagenr):
-	"""This method is loaded when the /tuning/getThresholdForm is called. 
-	It delivers a form for thresholding. """
+	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
+	It delivers the page specified page of tuning objects based on search parameters. """
 	
 	logger = logging.getLogger(__name__)
 	
@@ -150,34 +153,38 @@ def tuningByRuleSearch(request, pagenr):
 		
 		# We do different queries based on the searchfield string.
 		if searchfield=='sid':
+			# We get a total count of the number of objects.
 			context['itemcount'] = EventFilter.objects.filter(rule__SID__istartswith=searchstring).count()
 			context['itemcount'] += DetectionFilter.objects.filter(rule__SID__istartswith=searchstring).count()
 			context['itemcount'] += Suppress.objects.filter(rule__SID__istartswith=searchstring).count()
-			# Get a complete list of sensors.
+			# We get all the objects.
 			eventFilterList = EventFilter.objects.filter(rule__SID__istartswith=searchstring)
 			detectionFilterList = DetectionFilter.objects.filter(rule__SID__istartswith=searchstring)
 			suppressList = Suppress.objects.filter(rule__SID__istartswith=searchstring)
 		elif searchfield=='name':
+			# We get a total count of the number of objects.
 			context['itemcount'] = EventFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct().count()
 			context['itemcount'] += DetectionFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct().count()
 			context['itemcount'] += Suppress.objects.filter(rule__revisions__msg__icontains=searchstring).distinct().count()
-			# Get a complete list of sensors.
+			# We get all the objects.
 			eventFilterList = EventFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()
 			detectionFilterList = DetectionFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()
 			suppressList = Suppress.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()
-		
+			
+		# We combine all the objects into one big list.
 		tuningList = list(chain(eventFilterList,detectionFilterList,suppressList))
 	except:
 		logger.warning("No sensors found.")
 		raise Http404
 	
-	# Send to template.
+	# We send a ranged set of the objects for processing.
 	context['tuningList'] = tuningToTemplate(tuningList[minrange:maxrange])
-	return render(request, 'tuning/tuningPage.tpl', context)
+	# Send to template.
+	return render(request, 'tuning/byRule.tpl', context)
 
-def getEventFilterForm(request):
-	"""This method is loaded when the /tuning/getThresholdForm is called. 
-	It delivers a form for thresholding. """
+def getFilterForm(request):
+	"""This method is loaded when the /tuning/getFilterForm is called. 
+	It delivers a form for EventFilters and DetectionFilters. """
 	
 	logger = logging.getLogger(__name__)
 	
@@ -213,6 +220,7 @@ def getEventFilterFormByID(request, tuningID):
 		raise Http404
 	
 	try:
+		# Get an EventFilter object based on ID.
 		context['eventFilter'] = EventFilter.objects.get(id=tuningID)
 	except EventFilter.DoesNotExist:
 		logger.warning("No EventFilter found.")
@@ -240,6 +248,7 @@ def getDetectionFilterFormByID(request, tuningID):
 		raise Http404
 	
 	try:
+		# Get an DetectionFilter object based on ID.
 		context['detectionFilter'] = DetectionFilter.objects.get(id=tuningID)
 	except EventFilter.DoesNotExist:
 		logger.warning("No DetectionFilter found.")
@@ -286,6 +295,7 @@ def getSuppressFormByID(request, tuningID):
 		raise Http404
 	
 	try:
+		# Get a Suppress object based on ID.
 		context['suppress'] = Suppress.objects.get(id=tuningID)
 	except Suppress.DoesNotExist:
 		logger.warning("No Suppression found.")
@@ -545,13 +555,14 @@ def setFilterOnRule(request):
 		tcount = int(request.POST['count'])
 		tseconds = int(request.POST['seconds'])
 		
-		ttype = int(request.POST['type'])
+		if filterType == 'eventFilter':
+			ttype = int(request.POST['type'])
 		
-		# We make sure type is in the correct range.
-		if ttype not in range(1,4):
-			response.append({'response': 'typeOutOfRange', 'text': 'Type value out of range.'})
-			logger.warning("Type value out of range: "+str(ttype)+".")
-			return HttpResponse(json.dumps(response))
+			# We make sure type is in the correct range.
+			if ttype not in range(1,4):
+				response.append({'response': 'typeOutOfRange', 'text': 'Type value out of range.'})
+				logger.warning("Type value out of range: "+str(ttype)+".")
+				return HttpResponse(json.dumps(response))
 	
 		ttrack = int(request.POST['track'])
 		
@@ -561,10 +572,12 @@ def setFilterOnRule(request):
 			logger.warning("Track value out of range: "+str(ttrack)+".")
 			return HttpResponse(json.dumps(response))
 		
+		# If this is an edit, we have to do some things with the comment object.
 		if request.POST.get('edit'):
 			editid = int(request.POST['edit'])
 			if filterType == 'eventFilter':
 				try:
+					# Grab the object and delete its comment object.
 					eFilter = EventFilter.objects.get(id=editid)
 					if eFilter.comment is not None:
 						comment = Comment.objects.get(id=eFilter.comment.id)
@@ -577,6 +590,7 @@ def setFilterOnRule(request):
 					
 			elif filterType == 'detectionFilter':
 				try:
+					# Grab the object and delete its comment object.
 					dFilter = DetectionFilter.objects.get(id=editid)
 					if dFilter.comment is not None:
 						comment = Comment.objects.get(id=dFilter.comment.id)
@@ -819,9 +833,11 @@ def setSuppressOnRule(request):
 			logger.error("Failed when trying to add suppression addresses.")
 			return HttpResponse(json.dumps(response))
 		
+		# If this is an edit, we have to do some things with the comment object.
 		if request.POST.get('edit'):
 			editid = int(request.POST['edit'])
 			try:
+				# Grab the object and delete its comment object.
 				suppress = Suppress.objects.get(id=editid)
 				if suppress.comment is not None:
 					comment = Comment.objects.get(id=suppress.comment.id)
@@ -871,17 +887,29 @@ def setSuppressOnRule(request):
 			return HttpResponse(json.dumps(response))
 
 def deleteTuning(request):
+	"""This method is loaded when the /tuning/deleteTuning is called.
+	The request should contain a POST of a form with all required fields. 
+	
+	It will delete the tuning objects specified, if everything checks out.
+	
+	It returns JSON objects containing the results.
+	"""
+	
 	logger = logging.getLogger(__name__)
 	
 	response = []
 	
+	# We check to see if there are ruleset IDs given.
 	if request.POST.getlist('id'):
 		tuningIDs = request.POST.getlist('id')
 	else:
 		response.append({'response': 'noIDsGiven', 'text': 'No Tuning ID was given, deletion cancelled.'})
 		return HttpResponse(json.dumps(response))
 	
+	# We iterate over the IDs given and delete them.
 	for tuningID in tuningIDs:
+		
+		# The ID is given in a tuningID-tuningType pattern, so we have to match it.
 		matchPattern = r"(\d+)-(\w+)"
 		pattern = re.compile(matchPattern)
 		result = pattern.match(tuningID)
@@ -889,6 +917,7 @@ def deleteTuning(request):
 		tuning = result.group(1)
 		tuningType = result.group(2)
 		
+		# Based on the tuningType, we get the object if it exists and delete it and its comment object. 
 		if tuningType == "EventFilter":
 			try:
 				eFilter = EventFilter.objects.get(id=tuning)

@@ -326,6 +326,7 @@ class Update(models.Model):
 					dFilter.track = track
 					dFilter.count = dfCount
 					dFilter.seconds = dfSeconds
+					# We delete the old comment object and make a new one.
 					comment = Comment.objects.get(id=dFilter.comment.id)
 					comment.delete()
 					comment = Comment.objects.create(user=0,comment="Added from update of "+str(self.source.name)+"", type="updatedDetectionFilter")

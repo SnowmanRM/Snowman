@@ -1,3 +1,4 @@
+{# editRuleSetForm.tpl is the template for the form for editing of RuleSets. #} 
 
 {% csrf_token %}
 <input type="hidden" id="id" name="id" value="{{ruleSetID}}">

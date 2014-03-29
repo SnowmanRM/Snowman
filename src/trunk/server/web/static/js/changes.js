@@ -1,5 +1,13 @@
-function initialize() {
+/*
+ * This script controls all the buttons and events on the Changes page.
+ * 
+ * 
+ */
 
+// This function initializes all the buttons.
+function initialize() {
+	
+	// This opens and closes the panels.
 	$('div.panel-heading').unbind('click');
 	$('div.panel-heading').click(function(event){
 		
@@ -16,14 +24,16 @@ function initialize() {
 			
 		
 		// Shows or hides the next row which is hidden by default.
-		
 		$(this).next().toggle();
 		
+		// If what was clicked was in the new rules section.
 		if($(this).parent().parent().parent().is('.new-rules')) {
+			// We do nothing if its already loaded.
 			if($(this).is('.rules-loaded')) {
 				;
 			}
 			else {
+				// Grab IDs and get the items for the list.
 				var ruleSet = $(this).parent().attr('id');
 				var update = $(this).parents('.update-panel').attr('id')
 				loadRuleSetNewRules(ruleSet, update);
@@ -31,11 +41,14 @@ function initialize() {
 			}
 			
 		}
-		if($(this).parent().parent().parent().is('.new-revisions')) {
+		// If what was clicked was in the new revisions section.
+		else if($(this).parent().parent().parent().is('.new-revisions')) {
+			// We do nothing if its already loaded.
 			if($(this).is('.rules-loaded')) {
 				;
 			}
 			else {
+				// Grab IDs and get the items for the list.
 				var ruleSet = $(this).parent().attr('id');
 				var update = $(this).parents('.update-panel').attr('id')
 				loadRuleSetNewRuleRevisions(ruleSet, update);
@@ -43,11 +56,14 @@ function initialize() {
 			}
 			
 		}
+		// If what was clicked was an update.
 		else if ($(this).parent().is('.update-panel')) {
+			// We do nothing if its already loaded.
 			if($(this).is('.loaded')) {
 				;
 			}
 			else {
+				// Grab IDs and get the items for the list.
 				var update = $(this).parent().attr('id');
 				loadNewRuleSets(update);
 				loadNewRules(update);
@@ -59,6 +75,7 @@ function initialize() {
 		
 	});
 	
+	// This button removes an update from the list.
 	$('button#remove-update').unbind('click');
 	$('button#remove-update').click(function(event){
 		var _updateID = $(this).attr('update')
@@ -70,15 +87,16 @@ function initialize() {
 	});
 }
 
+// This function loads the list of new rulesets in an update.
 function loadNewRuleSets(updateID) {
 	
 	var _updateID = updateID
-	//var _treeLevel = $('#content .ruleset-panel#'+_ruleSet+'').attr('tree-level')
 	
+	// We ajax in the elements.
 	$.get('/web/ruleset/updateSets/'+_updateID+'/', function(html){
-		
+		// Add the new elements to where it belongs.
 		$('#content .update-panel#'+_updateID+' .panel-body .new-rulesets .panel-body').append(html);
-		//$('#content .ruleset-panel#'+_ruleSet+' .panel-body .ruleset-panel').attr("tree-level", parseInt(_treeLevel)+1);
+		// We have to reinitialize the buttons.
 		listInitialize();
 		initialize();
 		
@@ -86,30 +104,31 @@ function loadNewRuleSets(updateID) {
 	
 }
 
+//This function loads the list of new rules in an update.
 function loadNewRules(updateID) {
 	
 	var _updateID = updateID
-	//var _treeLevel = $('#content .ruleset-panel#'+_ruleSet+'').attr('tree-level')
 	
+	// We ajax in the elements.
 	$.get('/web/ruleset/updateRules/'+_updateID+'/', function(html){
-		
+		// Add the new elements to where it belongs.
 		$('#content .update-panel#'+_updateID+' .panel-body .new-rules .panel-body').append(html);
-		//$('#content .ruleset-panel#'+_ruleSet+' .panel-body .ruleset-panel').attr("tree-level", parseInt(_treeLevel)+1);
+		// We have to reinitialize the buttons.
 		listInitialize();
 		initialize();
 	});
 	
 }
-
+//This function loads the list of new rule revisions in an update.
 function loadNewRuleRevisions(updateID) {
 	
 	var _updateID = updateID
-	//var _treeLevel = $('#content .ruleset-panel#'+_ruleSet+'').attr('tree-level')
 	
+	// We ajax in the elements.
 	$.get('/web/ruleset/updateRuleRevisions/'+_updateID+'/', function(html){
-		
+		// Add the new elements to where it belongs.
 		$('#content .update-panel#'+_updateID+' .panel-body .new-revisions .panel-body').append(html);
-		//$('#content .ruleset-panel#'+_ruleSet+' .panel-body .ruleset-panel').attr("tree-level", parseInt(_treeLevel)+1);
+		// We have to reinitialize the buttons.
 		listInitialize();
 		initialize();
 	});
@@ -175,7 +194,6 @@ function loadRuleSetNewRuleRevisions (ruleSet, update) {
 }
 
 //This function is used to dynamically load three pages before and after the current page.
-//This function is utilized for the regular list of all rules.
 function loadNextNewRulesPages(ruleSet, currentpage, pagecount, update) {
 	
 	// Copy passed variables to local variables.
@@ -203,7 +221,6 @@ function loadNextNewRulesPages(ruleSet, currentpage, pagecount, update) {
 }
 
 //This function is used to dynamically load three pages before and after the current page.
-//This function is utilized for the regular list of all rules.
 function loadNextNewRuleRevisionsPages(ruleSet, currentpage, pagecount, update) {
 	
 	// Copy passed variables to local variables.
@@ -259,7 +276,6 @@ function switchNewRuleRevisionsPage(ruleSet, page, update) {
 }
 
 //This function is used to dynamically retrieve a page that contains a list of rules.
-//This function is utilized for the regular list of all rules.
 function getNewRulesPage(ruleSet,pageNr, update){
 	// Copies pagenr to local _pagenr variable.
 	var _pageNr = parseInt(pageNr); 
@@ -268,22 +284,10 @@ function getNewRulesPage(ruleSet,pageNr, update){
 	
 	// Ajax-call for the required page. We return it so we can use $.when
 	return $.get('/web/rules/ruleSetNewRules/'+_ruleSet+'/'+_pageNr+'/'+_update+'/', function(html) { 
-		/*downloadId = $('table', $('<div/>').html(html)).attr("id");
-		pageAlreadyExists = $('#content table[id="'+downloadId+'"]');
-
-		if( pageAlreadyExists.length ) {
-
-			$('#content .rules-panel table[id="'+downloadId+'"]').replaceWith(html);
 			
-		}
-		else {*/
-	
-			// When the content is loaded, append to content container.
-			$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules #rules-content').append(html);
+		// When the content is loaded, append to content container.
+		$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules #rules-content').append(html);
 			
-		//}
-		
-		
 		// We need to reinitialize all the click events and switchbuttons.
 		listInitialize();
 		initialize();
@@ -293,7 +297,6 @@ function getNewRulesPage(ruleSet,pageNr, update){
 }
 
 //This function is used to dynamically retrieve a page that contains a list of rules.
-//This function is utilized for the regular list of all rules.
 function getNewRuleRevisionsPage(ruleSet,pageNr, update){
 	// Copies pagenr to local _pagenr variable.
 	var _pageNr = parseInt(pageNr); 
@@ -302,22 +305,10 @@ function getNewRuleRevisionsPage(ruleSet,pageNr, update){
 	
 	// Ajax-call for the required page. We return it so we can use $.when
 	return $.get('/web/rules/ruleSetNewRuleRevisions/'+_ruleSet+'/'+_pageNr+'/'+_update+'/', function(html) { 
-		/*downloadId = $('table', $('<div/>').html(html)).attr("id");
-		pageAlreadyExists = $('#content table[id="'+downloadId+'"]');
-
-		if( pageAlreadyExists.length ) {
-
-			$('#content .rules-panel table[id="'+downloadId+'"]').replaceWith(html);
 			
-		}
-		else {*/
-	
-			// When the content is loaded, append to content container.
-			$('#content .update-panel#'+_update+' .panel-body .new-revisions .ruleset-panel#'+_ruleSet+' #rules #rules-content').append(html);
+		// When the content is loaded, append to content container.
+		$('#content .update-panel#'+_update+' .panel-body .new-revisions .ruleset-panel#'+_ruleSet+' #rules #rules-content').append(html);
 			
-		//}
-		
-		
 		// We need to reinitialize all the click events and switchbuttons.
 		listInitialize();
 		initialize();
@@ -326,6 +317,7 @@ function getNewRuleRevisionsPage(ruleSet,pageNr, update){
 	
 }
 
+// This function paginates the new rules list.
 function loadNewRulesPaginator(ruleSet, currentpage, pagecount, update) {
 	
 	// We set some options for the paginator and its click function.
@@ -351,6 +343,7 @@ function loadNewRulesPaginator(ruleSet, currentpage, pagecount, update) {
 	
 }
 
+// This function paginates the new revisions list.
 function loadNewRuleRevisionsPaginator(ruleSet, currentpage, pagecount, update) {
 	
 	// We set some options for the paginator and its click function.

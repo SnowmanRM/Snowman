@@ -1,3 +1,5 @@
+{# createRuleSetForm.tpl is the template for the form for creation of RuleSets. #} 
+
 
 {% csrf_token %}
 <div class="form-group" id="rulesetname">

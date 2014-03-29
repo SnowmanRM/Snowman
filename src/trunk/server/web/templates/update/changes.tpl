@@ -1,3 +1,5 @@
+{# changes.tpl is the main template for displaying a list of changes in various updates. #} 
+
 {% extends "general/index.tpl" %}
 
 {% block content %}
