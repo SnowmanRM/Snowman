@@ -67,23 +67,31 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="deleteTuningModal">Edit tuning</h4>
-      </div>
-      <div class="modal-body">
-        <form id="deleteTuningForm" class="form-horizontal" role="form">
-        	<div id="formContent">
-        
-        	</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary" id="tuning-submit" name="tuning-submit">Save changes</button>
-        </form>
-      </div>
+		   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		   <h4 class="modal-title" id="deleteTuningModal">Delete Ruleset(s)</h4>
+		 </div>
+		<div class="modal-body">
+		  <form id="deleteTuningForm" class="form-horizontal" role="form">
+		  	<div id="formContent">
+		  	{% csrf_token %}
+		  		<div class="alert alert-danger row">
+		  			<div class="col-sm-1">
+		  			<span class="glyphicon glyphicon-warning-sign"></span>
+		  			</div>
+		  			<div class="col-sm-11">
+		  				<strong>Are you absolutely sure you want to delete the Tuning? <br /><br />This cannot be reversed!</strong>
+		  			</div>
+		  		</div>
+		  	</div>
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  <button type="submit" class="btn btn-danger" id="delete-submit" name="delete-submit"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Delete Tuning</button>
+		  </form>
+		</div>
+      
     </div>
   </div>
 </div>
-
 
 {% endblock %}

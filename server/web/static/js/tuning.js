@@ -106,6 +106,27 @@ function listInitialize() {
 		}
 		
 	});
+	
+	$('#tuning-buttons #delete').click(function(event){
+		
+		var _tuningIDs = $('#checkbox:checked');
+		
+		if (_tuningIDs.length > 0) {
+			
+			// For each checked rule, we add them to the select list.
+			$(_tuningIDs).each(function(){
+				
+				$('#deleteTuningModal #formContent').append('<input type="hidden" id="id" name="id" value="'+$(this).attr('tuningid')+'-'+$(this).attr('tuningtype')+'">');
+			});
+			
+			// Install validators on a few of the form fields and set up the submit handler.
+			$('#deleteTuningForm').submit(function(event){ event.preventDefault(); submitDeleteTuningForm(this)});			
+		
+		}
+		else {
+			setTimeout(function() {$('#deleteTuningModal').modal('hide')}, 1);
+		}
+	});
 }
 
 //This function handles submitting threshold forms and parsing the response.
@@ -487,6 +508,101 @@ function submitThresholdForm(form) {
 	});
 	
 };
+
+function submitDeleteTuningForm(form){
+	// We send the form serialized to the server.
+	$.ajax({
+		url: "/web/tuning/deleteTuning/",
+		type: "post",
+		dataType: "json",
+		data: $(form).serialize(),
+		success: function(data) {
+			// These are flags that determine the outcome of the response.
+			var success, warning, error = false;
+			// We might get more than one response, so we iterate over them.
+			$.each(data, function() {
+				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
+				// We also set the outcome flags appropriately so we can handle things differently.
+				if(this.response == "tuningSuccessfulDeletion") {
+					
+					text = '<div class="alert alert-success row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#deleteRuleSetForm div#formContent').append(text).prepend(text);
+							
+					$('#deleteRuleSetForm div#formContent .alert').show("highlight");
+					
+					success = true;
+				}
+				else if (this.response == "tuningDoesNotExists") {
+					
+					text = '<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#deleteRuleSetForm div#formContent').append(text).prepend(text);
+							
+					$('#deleteRuleSetForm div#formContent .alert').show("highlight");
+							
+					error = true;
+				}
+				else if (this.response == "invalidTuningType") {
+					
+					text = '<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#deleteRuleSetForm div#formContent').append(text).prepend(text);
+							
+					$('#deleteRuleSetForm div#formContent .alert').show("highlight");
+							
+					error = true;
+				}
+				else if(this.response == "noIDsGiven") {
+					
+					
+					text = '<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>'
+					$('#deleteRuleSetForm div#formContent').append(text).prepend(text);
+							
+					$('#deleteRuleSetForm div#formContent .alert').show("highlight");
+							
+					error = true;
+				}
+				
+				// If the success-flag was set to true, everything went ok and we can show the user this outcome and close the modal.
+				if( success ) {
+					
+					
+					$('button#delete-submit').hide();
+					$('button#delete-submit').prop("disabled",true);
+					$('button#delete-submit').attr('class','btn btn-success');
+					$('button#delete-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
+					$('button#delete-submit').show("highlight");
+					
+					setTimeout(function() {$('#deleteRuleSetModal').modal('hide')}, 3000);
+					setTimeout(function() {location.reload(true)}, 1000);
+				
+				}
+				// If the outcome was not a success, we have to show this to the user.
+				else if( warning || error ) {
+					// If there was an error, we dont force a DB commit next time. The user has to fix the problem and recheck.
+					if (error) {
+						
+						$('button#delete-submit').attr('class','btn btn-danger');
+						$('button#delete-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+					}
+					// If there is only a warning, we force a DB commit next time, but we warn the user of some things first, just in case.
+					else {
+						
+						$('button#delete-submit').attr('class','btn btn-warning');
+						$('button#delete-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+					}
+				}
+			});
+		}
+	});
+	
+}
 
 
 // This function is used to dynamically retrieve a page that contains a list of rules.
