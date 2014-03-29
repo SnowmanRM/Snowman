@@ -1,3 +1,5 @@
+{# reorganizeRulesForm.tpl is the template for the form for reorganizing Rules within RuleSets. #} 
+
 {% csrf_token %}
 	
   	<div class="form-group" id="sid">

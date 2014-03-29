@@ -1,4 +1,4 @@
-{# manipulateForm.tpl is the template for the form used to enable/disable. #} 
+{# modifyForm.tpl is the template for the form used to enable/disable. #} 
 {# It consists of various form elements needed for a enable/disable. #}
 {#  #}
 

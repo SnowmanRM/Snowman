@@ -1,14 +1,23 @@
+/*
+ * This script controls all the buttons and events on the Tuning pages.
+ * 
+ * 
+ */
 
+
+// This function initializes all the buttons and events.
 function listInitialize() {
 	$('#tuning-buttons #edit').click(function(event){
 		
 		tuningID = $('#checkbox:checked').first().attr('tuningID');
 		tuningType = $('#checkbox:checked').first().attr('tuningtype');
 		
-		
+		// We only load the form if something was selected.
 		if (tuningID) {
+			// We reset the tuningForm id.
 			$('#tuningFormModal form').attr('id','tuningForm');
 			$('#tuningFormModal button[type="submit"]').attr('id', 'tuning-submit');
+
 			if (tuningType == "EventFilter") {
 				// Load the form with AJAX.
 				$.get('/web/tuning/getEventFilterForm/'+tuningID+'/', function(html){
@@ -18,8 +27,11 @@ function listInitialize() {
 					$('button#tuning-submit').attr('class','btn btn-primary');
 					$('button#tuning-submit').html('Save changes');
 					
-					$('#tuningFormModal form').attr('id','thresholdForm');
-					$('#tuningFormModal #tuning-submit').attr('id', 'threshold-submit');
+					// We change the form into a thresholdForm.
+					$('#tuningFormModal form').attr('id','filterForm');
+					$('#tuningFormModal #tuning-submit').attr('id', 'filter-submit');
+					
+					// We want the select in the form to remember choices.
 					selectRemembers('select#sensors');
 					
 					// Install validators on a few of the form fields and set up the submit handler.
@@ -52,8 +64,11 @@ function listInitialize() {
 					$('button#tuning-submit').attr('class','btn btn-primary');
 					$('button#tuning-submit').html('Save changes');
 					
-					$('#tuningFormModal form').attr('id','thresholdForm');
-					$('#tuningFormModal #tuning-submit').attr('id', 'threshold-submit');
+					// We change the form into a thresholdForm.
+					$('#tuningFormModal form').attr('id','filterForm');
+					$('#tuningFormModal #tuning-submit').attr('id', 'filter-submit');
+					
+					// We want the select in the form to remember choices.
 					selectRemembers('select#sensors');
 					
 					// Install validators on a few of the form fields and set up the submit handler.
@@ -71,7 +86,7 @@ function listInitialize() {
 						},
 						submitHandler: function(form) {
 						
-							submitThresholdForm(form);
+							submitFilterForm(form);
 						}
 						
 					});
@@ -86,8 +101,11 @@ function listInitialize() {
 					$('button#tuning-submit').attr('class','btn btn-primary');
 					$('button#tuning-submit').html('Save changes');
 					
+					// We change the form into a suppressForm.
 					$('#tuningFormModal form').attr('id','suppressForm');
 					$('#tuningFormModal #tuning-submit').attr('id', 'suppress-submit');
+					
+					// We want the select in the form to remember choices.
 					selectRemembers('select#sensors');
 					
 					// Install validators on a few of the form fields and set up the submit handler.
@@ -101,6 +119,7 @@ function listInitialize() {
 				});
 			}
 		}
+		// Else we just hide the modal again.
 		else {
 			setTimeout(function() {$('#tuningFormModal').modal('hide')}, 1);
 		}
@@ -110,7 +129,7 @@ function listInitialize() {
 	$('#tuning-buttons #delete').click(function(event){
 		
 		var _tuningIDs = $('#checkbox:checked');
-		
+		// We only load the form if something was selected.
 		if (_tuningIDs.length > 0) {
 			
 			// For each checked rule, we add them to the select list.
@@ -123,13 +142,14 @@ function listInitialize() {
 			$('#deleteTuningForm').submit(function(event){ event.preventDefault(); submitDeleteTuningForm(this)});			
 		
 		}
+		// Else we just hide the modal again.
 		else {
 			setTimeout(function() {$('#deleteTuningModal').modal('hide')}, 1);
 		}
 	});
 }
 
-//This function handles submitting threshold forms and parsing the response.
+//This function handles submitting suppress forms and parsing the response.
 function submitSuppressForm(form) {
 	
 	// We send the form serialized to the server.
@@ -327,8 +347,8 @@ function submitSuppressForm(form) {
 	});
 }
 
-//This function handles submitting threshold forms and parsing the response.
-function submitThresholdForm(form) {
+//This function handles submitting filter forms and parsing the response.
+function submitFilterForm(form) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
@@ -340,7 +360,7 @@ function submitThresholdForm(form) {
 			// These are flags that determine the outcome of the response.
 			var success, warning, error = false;
 			// Clean up any old alerts in the form.
-			$('#thresholdForm .alert').remove();
+			$('#filterForm .alert').remove();
 			// We might get more than one response, so we iterate over them.
 			$.each(data, function() {
 				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
@@ -350,121 +370,121 @@ function submitThresholdForm(form) {
 					text = '<div class="alert alert-success row" style="display: none;">\
 						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
 						<div class="col-sm-11">'+this.text+'</div></div>'
-					$('#thresholdForm div#formContent').append(text).prepend(text);
+					$('#filterForm div#formContent').append(text).prepend(text);
 							
-					$('#thresholdForm div#formContent .alert').show("highlight");
+					$('#filterForm div#formContent .alert').show("highlight");
 					
 					success = true;
 				}
 				else if(this.response == "thresholdExists") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'<br />SIDs: '+this.sids+'</div></div>');
 					
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 					
 					warning = true;
 				}
 				else if(this.response == "allSensors") {
 					
-					$('#thresholdForm div#sensors div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					$('#filterForm div#sensors div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 					
-					$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sensors div.col-sm-10 .alert').show("highlight");
 					
 					warning = true;
 				}
 				else if(this.response == "noComment") {
 					
-					$('#thresholdForm div#comment div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					$('#filterForm div#comment div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 					
-					$('#thresholdForm div#comment div.col-sm-10 .alert').show("highlight");
+					$('#v div#comment div.col-sm-10 .alert').show("highlight");
 
 					warning = true;
 				}
 				else if (this.response == "invalidGIDSIDFormat") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "gidDoesNotExist") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "sidDoesNotExist") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "sensorDoesNotExist") {
 					
-					$('#thresholdForm div#sensors div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sensors div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sensors div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "ruleDoesNotExist") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "typeOutOfRange") {
 					
-					$('#thresholdForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#type div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "trackOutOfRange") {
 					
-					$('#thresholdForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#type div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if(this.response == "addFilterFailure") {
 					
-					$('#thresholdForm input#force').val('False');
+					$('#filterForm input#force').val('False');
 					text = '<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-danger form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>'
-					$('#thresholdForm div#formContent').append(text).prepend(text);
+					$('#filterForm div#formContent').append(text).prepend(text);
 							
-					$('#thresholdForm div#formContent .alert').show("highlight");
+					$('#filterForm div#formContent .alert').show("highlight");
 					
 					error = true;
 				}
@@ -476,14 +496,14 @@ function submitThresholdForm(form) {
 			if( success ) {
 				
 				
-				$('#thresholdForm input#force').val('False');
-				$('button#threshold-submit').hide();
-				$('button#threshold-submit').prop("disabled",true);
-				$('button#threshold-submit').attr('class','btn btn-success');
-				$('button#threshold-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
-				$('button#threshold-submit').show("highlight");
+				$('#filterForm input#force').val('False');
+				$('button#filter-submit').hide();
+				$('button#filter-submit').prop("disabled",true);
+				$('button#filter-submit').attr('class','btn btn-success');
+				$('button#filter-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
+				$('button#filter-submit').show("highlight");
 				
-				setTimeout(function() {$('#thresholdFormModal').modal('hide')}, 3000);
+				setTimeout(function() {$('#filterFormModal').modal('hide')}, 3000);
 				setTimeout(function() {location.reload(true)}, 1000);
 				
 			}
@@ -491,15 +511,15 @@ function submitThresholdForm(form) {
 			else if( warning || error ) {
 				// If there was an error, we dont force a DB commit next time. The user has to fix the problem and recheck.
 				if (error) {
-					$('#thresholdForm input#force').val('False');
-					$('button#threshold-submit').attr('class','btn btn-danger');
-					$('button#threshold-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+					$('#filterForm input#force').val('False');
+					$('button#filter-submit').attr('class','btn btn-danger');
+					$('button#filter-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
 				}
 				// If there is only a warning, we force a DB commit next time, but we warn the user of some things first, just in case.
 				else {
-					$('#thresholdForm input#force').val('True');
-					$('button#threshold-submit').attr('class','btn btn-warning');
-					$('button#threshold-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+					$('#filterForm input#force').val('True');
+					$('button#filter-submit').attr('class','btn btn-warning');
+					$('button#filter-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
 				}
 			}
 		}
@@ -509,6 +529,7 @@ function submitThresholdForm(form) {
 	
 };
 
+// This function submits deletions of tuning and parses the response.
 function submitDeleteTuningForm(form){
 	// We send the form serialized to the server.
 	$.ajax({
@@ -606,7 +627,6 @@ function submitDeleteTuningForm(form){
 
 
 // This function is used to dynamically retrieve a page that contains a list of rules.
-// This function is utilized for the regular list of all rules.
 function getPage(pageNr){
 	// Copies pagenr to local _pagenr variable.
 	var _pageNr = parseInt(pageNr); 
@@ -637,7 +657,6 @@ function getPage(pageNr){
 }
 
 //This function is used to dynamically retrieve a page that contains a list of rules.
-//This function is utilized for the search pages.
 function getSearchPage(pagenr, searchfield, searchstring){
 	// Copies pagenr to local _pagenr variable.
 	var _pagenr = parseInt(pagenr); 
@@ -662,7 +681,6 @@ function getSearchPage(pagenr, searchfield, searchstring){
 }
 
 // This function is used to dynamically load three pages before and after the current page.
-// This function is utilized for the regular list of all rules.
 function loadNextPages(currentpage, pagecount) {
 	
 	// Copy passed variables to local variables.
@@ -876,7 +894,7 @@ $(document).ready(function(){
 	else {
 		var currentpage = 1;
 		// Preload the first set of pages.
-		//loadNextPages(currentpage, pagecount);
+		loadNextPages(currentpage, pagecount);
 	}
 	
 	// Preload the last page, but not if the hash points to the last page.
@@ -886,9 +904,6 @@ $(document).ready(function(){
 	
 	// Load the paginator.
 	loadPaginator(currentpage, pagecount);
-
-	// Make the manipulator follow you when you scroll.
-	//animateManipulator();
 	
 	// Initialize the search field above content.
 	searchField();

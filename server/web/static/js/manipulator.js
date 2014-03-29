@@ -2,23 +2,7 @@
  * This javascript contains all the code used for the little button box on the left.
  * 
  */
-/*
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-*/
+
 // This function binds all the button clicks in the manipulator.
 function initializeButtons() {
 	
@@ -153,28 +137,37 @@ function initializeButtons() {
 	});	
 	
 	
-	$('#manipulator button#threshold').click(function(event){
+	$('#manipulator button#filter').click(function(event){
 		// Load the form with AJAX.
-		$.get('/web/tuning/getThresholdForm/', function(html){
+		$.get('/web/tuning/getFilterForm/', function(html){
 			// Put the form content into the container.
-			$('#thresholdFormModal #formContent').html(html);
+			$('#filterFormModal #formContent').html(html);
 			// Get all checked checkboxes.
 			sids=$('#checkbox:checked');
 			// If there are checkboxes checked, we need to do some extra stuff.
 			if (sids.length > 0) {
 				// We replace the input with a disabled select that displays the checked rules.
-				$('#thresholdFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
+				$('#filterFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
 				// For each checked rule, we add them to the select list.
 				$(sids).each(function(){
-					$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
-					$('#thresholdFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
+					$('#filterFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
+					$('#filterFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
+					$('#filterFormModal #formContent #filter input[name="filterType"]').click(function(event){
+						// We disable the type selector if its a detectionFilter.
+						if ($(this).attr('value') == 'eventFilter') {
+							$('#filterFormModal #formContent #type select').prop("disabled", false);
+						}
+						else if ($(this).attr('value') == 'detectionFilter') {
+							$('#filterFormModal #formContent #type select').prop("disabled", true);
+						}
+					});
 				});
 			}
 			
 			// Reset this button in the form to default just in case.
-			$('button#threshold-submit').prop("disabled",false);
-			$('button#threshold-submit').attr('class','btn btn-primary');
-			$('button#threshold-submit').html('Save changes');
+			$('button#filter-submit').prop("disabled",false);
+			$('button#filter-submit').attr('class','btn btn-primary');
+			$('button#filter-submit').html('Save changes');
 		});
 			
 		
@@ -351,7 +344,7 @@ function modifyRule(mode, sidList, token){
 
 
 // This function handles submitting threshold forms and parsing the response.
-function submitThresholdForm(event) {
+function submitFilterForm(event) {
 	
 	// We send the form serialized to the server.
 	$.ajax({
@@ -363,7 +356,7 @@ function submitThresholdForm(event) {
 			// These are flags that determine the outcome of the response.
 			var success, warning, error = false;
 			// Clean up any old alerts in the form.
-			$('#thresholdForm .alert').remove();
+			$('#filterForm .alert').remove();
 			// We might get more than one response, so we iterate over them.
 			$.each(data, function() {
 				// If the response contains one of these strings, we put the response text near the relevant context and display it. 
@@ -373,121 +366,121 @@ function submitThresholdForm(event) {
 					text = '<div class="alert alert-success row" style="display: none;">\
 						<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
 						<div class="col-sm-11">'+this.text+'</div></div>'
-					$('#thresholdForm div#formContent').append(text).prepend(text);
+					$('#filterForm div#formContent').append(text).prepend(text);
 							
-					$('#thresholdForm div#formContent .alert').show("highlight");
+					$('#filterForm div#formContent .alert').show("highlight");
 					
 					success = true;
 				}
 				else if(this.response == "thresholdExists") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'<br />SIDs: '+this.sids+'</div></div>');
 					
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 					
 					warning = true;
 				}
 				else if(this.response == "allSensors") {
 					
-					$('#thresholdForm div#sensors div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					$('#filterForm div#sensors div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 					
-					$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sensors div.col-sm-10 .alert').show("highlight");
 					
 					warning = true;
 				}
 				else if(this.response == "noComment") {
 					
-					$('#thresholdForm div#comment div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
+					$('#filterForm div#comment div.col-sm-10').append('<div class="alert alert-warning row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 					
-					$('#thresholdForm div#comment div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#comment div.col-sm-10 .alert').show("highlight");
 
 					warning = true;
 				}
 				else if (this.response == "invalidGIDSIDFormat") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "gidDoesNotExist") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "sidDoesNotExist") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "sensorDoesNotExist") {
 					
-					$('#thresholdForm div#sensors div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sensors div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sensors div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sensors div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "ruleDoesNotExist") {
 					
-					$('#thresholdForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#sid div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#sid div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#sid div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "typeOutOfRange") {
 					
-					$('#thresholdForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#type div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if (this.response == "trackOutOfRange") {
 					
-					$('#thresholdForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+					$('#filterForm div#type div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>');
 							
-					$('#thresholdForm div#type div.col-sm-10 .alert').show("highlight");
+					$('#filterForm div#type div.col-sm-10 .alert').show("highlight");
 							
 					error = true;
 				}
 				else if(this.response == "addFilterFailure") {
 					
-					$('#thresholdForm input#force').val('False');
+					$('#filterForm input#force').val('False');
 					text = '<div class="alert alert-danger row" style="display: none;">\
 					<div class="col-sm-1"><span class="glyphicon glyphicon-danger form-control-feedback"></span></div>\
 					<div class="col-sm-11">'+this.text+'</div></div>'
-					$('#thresholdForm div#formContent').append(text).prepend(text);
+					$('#filterForm div#formContent').append(text).prepend(text);
 							
-					$('#thresholdForm div#formContent .alert').show("highlight");
+					$('#filterForm div#formContent .alert').show("highlight");
 					
 					error = true;
 				}
@@ -499,14 +492,14 @@ function submitThresholdForm(event) {
 			if( success ) {
 				
 				
-				$('#thresholdForm input#force').val('False');
-				$('button#threshold-submit').hide();
-				$('button#threshold-submit').prop("disabled",true);
-				$('button#threshold-submit').attr('class','btn btn-success');
-				$('button#threshold-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
-				$('button#threshold-submit').show("highlight");
+				$('#filterForm input#force').val('False');
+				$('button#filter-submit').hide();
+				$('button#filter-submit').prop("disabled",true);
+				$('button#filter-submit').attr('class','btn btn-success');
+				$('button#filter-submit').html('<span class="glyphicon glyphicon-ok form-control-feedback"></span> Success');
+				$('button#filter-submit').show("highlight");
 				
-				setTimeout(function() {$('#thresholdFormModal').modal('hide')}, 3000);
+				setTimeout(function() {$('#filterFormModal').modal('hide')}, 3000);
 				setTimeout(function() {location.reload(true)}, 1000);
 				
 			}
@@ -514,15 +507,15 @@ function submitThresholdForm(event) {
 			else if( warning || error ) {
 				// If there was an error, we dont force a DB commit next time. The user has to fix the problem and recheck.
 				if (error) {
-					$('#thresholdForm input#force').val('False');
-					$('button#threshold-submit').attr('class','btn btn-danger');
-					$('button#threshold-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
+					$('#filterForm input#force').val('False');
+					$('button#filter-submit').attr('class','btn btn-danger');
+					$('button#filter-submit').html('<span class="glyphicon glyphicon-remove form-control-feedback"></span> Try again');
 				}
 				// If there is only a warning, we force a DB commit next time, but we warn the user of some things first, just in case.
 				else {
-					$('#thresholdForm input#force').val('True');
-					$('button#threshold-submit').attr('class','btn btn-warning');
-					$('button#threshold-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
+					$('#filterForm input#force').val('True');
+					$('button#filter-submit').attr('class','btn btn-warning');
+					$('button#filter-submit').html('<span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Force change');
 				}
 			}
 		}
@@ -736,7 +729,7 @@ $(document).ready(function(){
 	initializeButtons();
 	
 	// Install validators on a few of the form fields and set up the submit handler.
-	$('#thresholdForm').validate({
+	$('#filterForm').validate({
 		rules: {
 			count: {
 				required: true,
@@ -749,7 +742,7 @@ $(document).ready(function(){
 			
 		},
 		submitHandler: function(form) {
-			submitThresholdForm(form);
+			submitFilterForm(form);
 		}
 		
 	});

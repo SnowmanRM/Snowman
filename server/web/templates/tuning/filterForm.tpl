@@ -1,5 +1,5 @@
-{# thresholdForm.tpl is the template for the form used to input thresholds. #} 
-{# It consists of various form elements needed for a threshold. #}
+{# filterForm.tpl is the template for the form used to input filters. #} 
+{# It consists of various form elements needed for a filter. #}
 {#  #}
 
 	{% csrf_token %}

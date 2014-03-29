@@ -1,3 +1,9 @@
+/*
+ * This script controls all the buttons and events on the Ruleset page.
+ * 
+ * 
+ */
+
 // This function is used to dynamically load three pages before and after the current page.
 // This function is utilized for the regular list of all rules.
 function loadNextPages(ruleSet, currentpage, pagecount) {
@@ -70,6 +76,7 @@ function getPage(ruleSet,pageNr){
 	
 }
 
+// This function initializes all the buttons and events.
 function listInitialize() {
 	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
 	$('.panel .panel-heading #checkbox-all').click(function(event){
@@ -130,32 +137,35 @@ function listInitialize() {
 			
             return;
         }
-		
+		// The click target was a rule panel.
 		if($(this).parent().is('.rules-panel')) {
 			// Toggles clicked row on the 'active' css class so it changes color
 			$(this).parent().toggleClass("panel-success");			
 		}
+		// The click target was a ruleclass panel.
 		else if($(this).parent().is('.ruleset-panel')) {
 			// Toggles clicked row on the 'active' css class so it changes color
 			$(this).parent().toggleClass("panel-primary");
-
+			// If the child rulesets are already loaded or it doesnt have any, we do nothing.
 			if($(this).is('.rulesets-loaded') || $(this).parent().attr('tree-type') == "child") {
 				;
 			}
 			else {
-				
+				// We load the rulesets children.
 				$(this).parent().find('.panel-body .ruleset-panel[tree-type="parent"]').each(function(){
 					loadRuleSetChildren(this.id);
 					
 				});
+				// We have to reinitialize buttons and events.
 				listInitialize();
 				$(this).toggleClass("rulesets-loaded");
 			}
-			
+			// If the rulesets rules are already loaded or it doesnt have any rules, we do nothing.
 			if($(this).is('.rules-loaded') || $(this).parent().attr('has-rules') == "False") {
 				;
 			}
 			else {
+				// We load the rulesets rules.
 				var ruleSet = $(this).parent().attr('id');
 				loadRuleSetRules(ruleSet);
 				$(this).toggleClass("rules-loaded");
@@ -190,21 +200,6 @@ function listInitialize() {
 				}
 				
 			});
-			
-			/*// Get all checked checkboxes.
-			sids=$('#checkbox:checked');
-			// If there are checkboxes checked, we need to do some extra stuff.
-			if (sids.length > 0) {
-				// We replace the input with a disabled select that displays the checked rules.
-				$('#thresholdFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
-				// For each checked rule, we add them to the select list.
-				$(sids).each(function(){
-					$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
-					$('#thresholdFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
-				});
-			}
-			*/
-			
 		
 		});
 
@@ -218,6 +213,7 @@ function listInitialize() {
 		selectRemembers('select#children');
 		var _ruleSet = $('#checkbox:checked').first().attr('ruleset');
 		
+		// We only load the form if something was selected.
 		if (_ruleSet) {
 			// Load the form with AJAX.
 			$.get('/web/ruleset/getEditRuleSetForm/'+_ruleSet+'/', function(html){
@@ -232,20 +228,6 @@ function listInitialize() {
 					}
 					
 				});
-				
-				/*// Get all checked checkboxes.
-				
-				// If there are checkboxes checked, we need to do some extra stuff.
-				if (sids.length > 0) {
-					// We replace the input with a disabled select that displays the checked rules.
-					$('#thresholdFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
-					// For each checked rule, we add them to the select list.
-					$(sids).each(function(){
-						$('#thresholdFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
-						$('#thresholdFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
-					});
-				}
-				*/
 				// Reset this button in the form to default just in case.
 				$('button#edit-submit').prop("disabled",false);
 				$('button#edit-submit').attr('class','btn btn-primary');
@@ -254,6 +236,7 @@ function listInitialize() {
 			
 			});
 		}
+		// Else we just hide the modal again.
 		else {
 			setTimeout(function() {$('#editRuleSetModal').modal('hide')}, 1);
 		}
@@ -263,18 +246,17 @@ function listInitialize() {
 		
 		var _ruleSets = $('#checkbox:checked[ruleset]');
 		
+		// We only load the form if something was selected.
 		if (_ruleSets.length > 0) {
 			
-			// For each checked rule, we add them to the select list.
+			// For each checked ruleset, we add them to the form.
 			$(_ruleSets).each(function(){
 				
 				$('#deleteRuleSetModal #formContent').append('<input type="hidden" id="id" name="id" value="'+$(this).attr('ruleset')+'">');
-			});
-			
-			// Install validators on a few of the form fields and set up the submit handler.
-						
+			});						
 		
 		}
+		// Else we just hide the modal again.
 		else {
 			setTimeout(function() {$('#deleteRuleSetModal').modal('hide')}, 1);
 		}
@@ -284,6 +266,7 @@ function listInitialize() {
 		
 		sids=$('#checkbox:checked[sid]');
 		
+		// We only load the form if something was selected.
 		if (sids.length > 0) {
 			// Reset this button in the form to default just in case.
 			$('button#reorganize-submit').prop("disabled",false);
@@ -316,6 +299,7 @@ function listInitialize() {
 			
 			});
 		}
+		// Else we just hide the modal again.
 		else {
 			setTimeout(function() {$('#reorganizeRulesModal').modal('hide')}, 1);
 		}
@@ -733,6 +717,7 @@ function submitReorganizeRulesForm(form) {
 	
 }
 
+//This function paginates the rule lists.
 function loadPaginator(ruleSet, currentpage, pagecount) {
 	
 	// We set some options for the paginator and its click function.
@@ -785,10 +770,12 @@ function loadRuleSetRules (ruleSet) {
 	});
 }
 
+// This function loads a rulesets children.
 function loadRuleSetChildren (ruleSet) {
 	var _ruleSet = ruleSet
 	var _treeLevel = $('#content .ruleset-panel#'+_ruleSet+'').attr('tree-level')
 	
+	// We ajax in the list of its children and append it to the DOM.
 	$.get('/web/ruleset/children/'+_ruleSet+'/', function(html){
 		
 		$('#content .ruleset-panel#'+_ruleSet+' .panel-body').append(html);
@@ -805,6 +792,7 @@ $(document).ready(function(){
 	// Make the manipulator follow you when you scroll.
 	animateManipulator();
 	
+	// We load the first level of ruleset children.
 	$('#content .ruleset-panel').not('.panel-info').each(function(){
 		
 		loadRuleSetChildren(this.id);
@@ -813,6 +801,7 @@ $(document).ready(function(){
 	// Calls function to initialize click events and buttons.
 	listInitialize();
 	
+	// We register a submit event for the delete form.
 	$('#deleteRuleSetForm').submit(function(event){ event.preventDefault(); submitDeleteRuleSetForm(this)});
 
 });

@@ -32,6 +32,7 @@ def rulesToTemplate(ruleList):
 		ruleGID = rule.generator.GID
 		ruleSID = rule.SID
 		ruleEventFilterCount = rule.eventFilters.count()
+		ruleDetectionFilterCount = rule.detectionFilters.count()
 		ruleSuppressCount = rule.suppress.count()
 		ruleCurrentRevision = rule.getCurrentRevision()
 		ruleRev = ruleCurrentRevision.rev
@@ -40,6 +41,8 @@ def rulesToTemplate(ruleList):
 		ruleUpdateTime = ruleCurrentRevision.update.first().time
 		ruleRuleSet = rule.ruleSet
 		ruleRuleSetName = ruleRuleSet.name
+		ruleSource = rule.update.first().source
+		ruleSourceName = ruleSource.name
 		ruleClass = rule.ruleClass
 		ruleClassName = ruleClass.classtype
 		ruleClassPriority = ruleClass.priority
@@ -76,7 +79,8 @@ def rulesToTemplate(ruleList):
 						'ruleReferences':chewedRuleReferences,'ruleRaw':ruleRaw,
 						'ruleUpdateTime':ruleUpdateTime,'ruleRuleSetName':ruleRuleSetName,'ruleClassName':ruleClassName,
 						'ruleClassPriority':ruleClassPriority,'ruleActiveOnSensors':ruleActiveOnSensors,'ruleActiveOnSensorsCount':ruleActiveOnSensorsCount, 
-						'ruleInActiveOnSensorsCount':ruleInActiveOnSensorsCount, 'ruleActive':ruleActive, 'ruleClassPriorityColor': ruleClassPriorityColor})
+						'ruleInActiveOnSensorsCount':ruleInActiveOnSensorsCount, 'ruleActive':ruleActive, 'ruleClassPriorityColor': ruleClassPriorityColor, 
+						'ruleDetectionFilterCount':ruleDetectionFilterCount, 'ruleSourceName':ruleSourceName})
 	
 	
 	# Once all rules are iterated over, we send the clean objects back.
@@ -382,7 +386,7 @@ def childRuleActiveCount(ruleSet):
 			
 	return ruleSetActiveRulesCount
 
-
+#TODO: comment this
 def tuningToTemplate(tuningList):
 	
 	chewedTuningList = []
