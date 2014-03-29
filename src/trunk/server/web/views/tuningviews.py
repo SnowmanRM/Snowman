@@ -870,3 +870,79 @@ def setSuppressOnRule(request):
 			logger.error("Failed when trying to add suppressions.")
 			return HttpResponse(json.dumps(response))
 
+def deleteTuning(request):
+	logger = logging.getLogger(__name__)
+	
+	response = []
+	
+	if request.POST.getlist('id'):
+		tuningIDs = request.POST.getlist('id')
+	else:
+		response.append({'response': 'noIDsGiven', 'text': 'No Tuning ID was given, deletion cancelled.'})
+		return HttpResponse(json.dumps(response))
+	
+	for tuningID in tuningIDs:
+		matchPattern = r"(\d+)-(\w+)"
+		pattern = re.compile(matchPattern)
+		result = pattern.match(tuningID)
+		
+		tuning = result.group(1)
+		tuningType = result.group(2)
+		
+		if tuningType == "EventFilter":
+			try:
+				eFilter = EventFilter.objects.get(id=tuning)
+				if eFilter.comment is not None:
+					eFilter.comment.delete()
+				eFilter.delete()
+			except EventFilter.DoesNotExist:
+				logger.warning("Could not find EventFilter with id "+str(tuningID)+".")
+				response.append({'response': 'tuningDoesNotExists', 'text': 'Could not find EventFilter with id '+str(tuningID)+'.'})
+				return HttpResponse(json.dumps(response))
+				
+		elif tuningType == "DetectionFilter":
+			try:
+				dFilter = DetectionFilter.objects.get(id=tuning)
+				if dFilter.comment is not None:
+					dFilter.comment.delete()
+				dFilter.delete()
+			except DetectionFilter.DoesNotExist:
+				logger.warning("Could not find DetectionFilter with id "+str(tuningID)+".")
+				response.append({'response': 'tuningDoesNotExists', 'text': 'Could not find DetectionFilter with id '+str(tuningID)+'.'})
+				return HttpResponse(json.dumps(response))
+		elif tuningType == "Suppression":
+			try:
+				suppress = Suppress.objects.get(id=tuning)
+				if suppress.comment is not None:
+					suppress.comment.delete()
+				suppress.delete()
+			except Suppress.DoesNotExist:
+				logger.warning("Could not find Suppress with id "+str(tuningID)+".")
+				response.append({'response': 'tuningDoesNotExists', 'text': 'Could not find Suppress with id '+str(tuningID)+'.'})
+				return HttpResponse(json.dumps(response))
+		else:
+			logger.warning("Invalid tuningType: "+str(tuningType)+".")
+			response.append({'response': 'invalidTuningType', 'text': 'Invalid tuningType: '+str(tuningType)+'.'})
+			return HttpResponse(json.dumps(response))
+			
+	response.append({'response': 'tuningSuccessfulDeletion', 'text': 'Tuning was successfully deleted.'})
+	return HttpResponse(json.dumps(response))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

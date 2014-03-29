@@ -90,4 +90,5 @@ urlpatterns += patterns('web.views.tuningviews',
     url(r'^tuning/byRule/$', 'tuningByRule'),
     url(r'^tuning/byRule/page/(?P<pagenr>\d+)/$', 'tuningByRulePage'),
     url(r'^tuning/byRuleSearch/(?P<pagenr>\d+)/$', 'tuningByRuleSearch'),
+    url(r'^tuning/deleteTuning/$', 'deleteTuning'),
 )
