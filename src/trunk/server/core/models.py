@@ -86,9 +86,9 @@ class Rule(models.Model):
 			filters = ""
 			
 			raw = re.sub(r'detection_filter:.*?;', replace, raw)
-			filters += replace.matched
+			filters += replace.matched or ""
 			raw = re.sub(r'threshold:.*?;', replace, raw)
-			filters += replace.matched
+			filters += replace.matched or ""
 			
 			raw = " ".join(raw.split())
 			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=True, msg=msg, raw=raw)
