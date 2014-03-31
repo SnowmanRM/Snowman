@@ -1,7 +1,7 @@
 <!--<form id="sensorListForm" target="/web/sensor/edit/" method="post">-->
 	{% csrf_token %}
 	<table id="sensorList" class="table">
-		<tr><th>Select</th><th></th><th>Name:</th><th>IP-Address:</th><th>Secret</th><th>Status</th></tr>
+		<tr><th>Select</th><th></th><th>Name:</th><th>IP-Address:</th><th>Secret</th><th>Update</th><th>Status</th></tr>
 		{% for sensor in sensors %}
 			<tr>
 				<td><input type="checkbox" name="selectSensor-{{sensor.id}}" /></td>
@@ -10,6 +10,11 @@
 				<td id="sensorSecret-{{sensor.id}}">
 					{% if sensor.getStatus != sensor.AUTONOMOUS %}
 						<button class="regenerateSensorSecret" sid="{{sensor.id}}">Generate new secret</button>
+					{% endif %}
+				</td>
+				<td>
+					{% if sensor.getStatus == sensor.AVAILABLE %}
+						<button class="requestUpdate" sid="{{sensor.id}}">Request Update</button>
 					{% endif %}
 				</td>
 				<td>

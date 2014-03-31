@@ -33,6 +33,7 @@ urlpatterns += patterns('web.views.sensorviews',
     url(r'^sensors/new/$', 'new'),
     url(r'^sensors/getSensorList/$', 'getSensorList'),
     url(r'^sensors/regenerateSecret/$', 'regenerateSecret'),
+    url(r'^sensors/requestUpdate/$', 'requestUpdate'),
 )
 urlpatterns += patterns('web.views.updateviews',
     url(r'^update/$', 'index'),

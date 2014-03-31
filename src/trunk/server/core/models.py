@@ -1,6 +1,7 @@
 import datetime
 import logging
 import re
+import xmlrpclib
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -9,6 +10,7 @@ from django.utils.timezone import utc
 from util.tools import Replace
 
 from srm.settings import DATABASES
+from util.config import Config
 
 """This python-model contains the data-models for the core
 data. This includes the Rules and revisions, Rulesets, RuleClasses,
@@ -304,6 +306,7 @@ class Sensor(models.Model):
 	UNAVAILABLE = 1
 	INACTIVE = 2
 	AUTONOMOUS = 3
+	lastStatus = None
 	
 	parent = models.ForeignKey('Sensor', null=True, related_name='childSensors')
 	name = models.CharField(max_length=30, unique=True)
@@ -322,15 +325,38 @@ class Sensor(models.Model):
 	def __str__(self):
 		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
 	
+	def pingSensor(self):
+		port = int(Config.get("sensor", "port"))
+		sensor = xmlrpclib.Server("https://%s:%s" % (self.ipAddress, port))
+		
+		try:
+			result = sensor.ping(self.name)
+		except:
+			return {'status': False, 'message': "Could not connect to sensor"}
+		
+		return result
+	
+	def requestUpdate(self):
+		port = int(Config.get("sensor", "port"))
+		sensor = xmlrpclib.Server("https://%s:%s" % (self.ipAddress, port))
+		
+		try:
+			result = sensor.startUpdate(self.name)
+		except:
+			return {'status': False, 'message': "Could not connect to sensor"}
+		
+		return result
+	
 	def getStatus(self):
-		now = datetime.datetime.utcnow().replace(tzinfo=utc)
-		delta = datetime.timedelta(hours=1)
+		if(self.lastStatus == None or self.lastStatus['time'] < datetime.datetime.now() - datetime.timedelta(seconds = 2)):
+			status = self.pingSensor()
+			lastStatus = {'status': status['status'], 'time': datetime.datetime.now()}
 
 		if(self.autonomous):
 			return self.AUTONOMOUS
 		elif(not self.active):
 			return self.INACTIVE
-		elif(self.user.last_login + delta > now):
+		elif(lastStatus['status']):
 			return self.AVAILABLE
 		else:
 			return self.UNAVAILABLE

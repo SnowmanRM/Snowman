@@ -50,8 +50,27 @@ function initializeRegenerateSecretButtons() {
 	});
 }
 
+function initializeRequestUpdateButtons() {
+	$('button.requestUpdate').unbind('click');
+	$('button.requestUpdate').click(function() {
+		var d = {
+			'sid': $(this).attr('sid'),
+			'csrfmiddlewaretoken': $('#csrf').find('input').val(),
+		};
+		
+		$.post("/web/sensors/requestUpdate/", d, function(data, status) {
+			if(data.status == true) {
+				alert("SUCCESS!\n" + data.message)
+			} else {
+				alert("FAILED:\n" + data.message)
+			}
+		});
+	});
+}
+
 // When the documents is finished loading, initialize everything.
 $(document).ready(function(){
 	initializeNewSensorForm();
 	initializeRegenerateSecretButtons();
+	initializeRequestUpdateButtons()
 });
