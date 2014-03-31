@@ -12,9 +12,13 @@ from update.exceptions import BadFormatError, AbnormalRuleError
 from core.exceptions import MissingObjectError
 
 from util.config import Config
-from util.patterns import ConfigPatterns, ConfigStrings
+from util.patterns import ConfigPatterns
 from util.tools import md5sum
 from tuning.models import DetectionFilter, EventFilter
+
+from util.constants import dbObjects
+ALL_SENSORS = dbObjects.SENSORS_ALL
+SYSTEM_USER = dbObjects.USERS_SYSTEM
 
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
@@ -200,7 +204,7 @@ class Update(models.Model):
 		ruleset = re.match(ConfigPatterns.RULESET, raw)
 		priority = re.match(ConfigPatterns.PRIORITY, raw)
 		references = re.findall(ConfigPatterns.RULEREFERENCE, raw)
-		threshold = re.match(ConfigPatterns.THRESHOLD, raw)
+		eventFilter = re.match(ConfigPatterns.THRESHOLD, raw)
 		detectionFilter = re.match(ConfigPatterns.DETECTION_FILTER, raw)
 		
 		# If the raw rule matched the regex: 
@@ -277,7 +281,7 @@ class Update(models.Model):
 						originalRulesetId = rule.ruleSet.id
 						
 						# Check if config says move rule to new ruleset:
-						if Config.get("update", "changeRuleset") is "true":
+						if Config.get("update", "changeRuleset") == "true":
 							rule.ruleSet.id = ruleset.id
 							wasMoved = True
 							
@@ -301,47 +305,23 @@ class Update(models.Model):
 				
 				try:
 					dfTrack = detectionFilter.group(1)
-					
-					try:
-						dfCount = int(detectionFilter.group(2))
-						dfSeconds = int(detectionFilter.group(3))
-					except ValueError:
-						message = "Badly formatted detection filter in rule "+str(rule)+": expected numeric value."
-						logger.error(message)
-						raise BadFormatError(message)
-					
-					if dfTrack == "by_src":
-						track = EventFilter.SOURCE
-					elif dfTrack == "by_dst":
-						track = EventFilter.DESTINATION
-					else:
-						message = "Badly formatted detection filter in rule "+str(rule)+": wrong track parameter."
-						logger.error(message)
-						raise BadFormatError(message)
-					
-					# Get 'all sensors' object:
-					allSensors = Sensor.objects.get(name=ConfigStrings.ALL_SENSORS_NAME)
-					
-					dFilter = DetectionFilter.objects.get(rule=rule, sensor=allSensors)
-					dFilter.track = track
-					dFilter.count = dfCount
-					dFilter.seconds = dfSeconds
-					# We delete the old comment object and make a new one.
-					comment = Comment.objects.get(id=dFilter.comment.id)
-					comment.delete()
-					comment = Comment.objects.create(user=0,comment="Added from update of "+str(self.source.name)+"", type="updatedDetectionFilter")
-					dFilter.comment = comment
-				except Sensor.DoesNotExist:
-					message = "Object with name="+ConfigStrings.ALL_SENSORS_NAME+", representing all sensors does not exist in database."
-					raise MissingObjectError(message)
-					logger.critical(message)
-				except DetectionFilter.DoesNotExist:
-					comment = Comment.objects.create(user=0,comment="Added from update of "+str(self.source.name)+"", type="newDetectionFilter")
-					DetectionFilter.objects.create(rule=rule, sensor=allSensors, track=track, count=dfCount, seconds=dfSeconds, comment=comment)
+					dfCount = detectionFilter.group(2)
+					dfSeconds = detectionFilter.group(3)
+					self.setFilter(rule=rule, track=dfTrack, count=dfCount, seconds=dfSeconds)
 				except AttributeError:
-					# No detection_filter in rulestring
+					# No inline detection_filter
 					pass
-									
+				
+				try:
+					efType = eventFilter.group(1)
+					efTrack = eventFilter.group(2)
+					efCount = eventFilter.group(3)
+					efSeconds = eventFilter.group(4)
+					self.setFilter(rule=rule, track=efTrack, count=efCount, seconds=efSeconds, filterType=efType)
+				except AttributeError:
+					# No inline event_filter
+					pass				
+				
 				rev = rule.updateRule(raw, ruleRev, ruleMessage)
 				if rev:
 					# Add rulereference if this was specified in the raw string:
@@ -623,6 +603,77 @@ class Update(models.Model):
 
 		f.close()
 		logger.debug("Finished parsing \"%s\"" % filename)
+	
+	def setFilter(self, rule, track, count, seconds, filterType=None):
+		logger = logging.getLogger(__name__)
+
+		try:
+			count = int(count)
+			seconds = int(seconds)
+		except ValueError:
+			message = "Badly formatted filter in rule "+str(rule)+": expected numeric value."
+			logger.error(message)
+			raise BadFormatError(message)
+
+		if track == "by_src":
+			track = EventFilter.SOURCE
+		elif track == "by_dst":
+			track = EventFilter.DESTINATION
+		else:
+			message = "Badly formatted filter in rule "+str(rule)+": invalid track parameter."
+			logger.error(message)
+			raise BadFormatError(message)
+		
+		# Get 'all sensors' object:
+		try:
+			allSensors = Sensor.objects.get(id=ALL_SENSORS)
+		except Sensor.DoesNotExist:
+			message = "Object with id="+ALL_SENSORS+", representing all sensors does not exist in database."
+			raise MissingObjectError(message)
+			logger.critical(message)	
+		
+		if filterType is not None:
+			objects = EventFilter.objects
+			newTypeString = "newEventFilter"
+			updateTypeString = "updatedEventFilter"
+			
+			if filterType == EventFilter.TYPE[EventFilter.LIMIT]:
+				filterType = EventFilter.LIMIT
+			elif filterType == EventFilter.TYPE[EventFilter.THRESHOLD]:
+				filterType = EventFilter.THRESHOLD
+			elif filterType == EventFilter.TYPE[EventFilter.BOTH]:
+				filterType = EventFilter.BOTH
+			else:
+				message = "Badly formatted filter in rule "+str(rule)+": invalid type parameter '"+filterType+"'."
+				logger.error(message)
+				raise BadFormatError(message)
+				
+			arguments = {'rule':rule, 'sensor':allSensors, 'eventFilterType':filterType, 'track':track, 'count':count, 'seconds':seconds}
+		else:
+			objects = DetectionFilter.objects
+			newTypeString = "newDetectionFilter"
+			updateTypeString = "updatedDetectionFilter" 
+			arguments = {'rule':rule, 'sensor':allSensors, 'track':track, 'count':count, 'seconds':seconds}		
+		
+		try:
+			defaultFilter = objects.get(rule=rule, sensor=allSensors)
+			
+			# Overwrite filter if update 'always' is set, or if update 'sometimes'
+			# and the last filter was set by system.
+			if (Config.get("update", "overwriteFilters") == "always") or\
+			   (Config.get("update", "overwriteFilters") == "sometimes" and\
+			    	 		  defaultFilter.comment.user == SYSTEM_USER):
+
+				defaultFilter.track = track
+				defaultFilter.count = count
+				defaultFilter.seconds = seconds
+				# We delete the old comment object and make a new one.
+				defaultFilter.comment.delete()
+				defaultFilter.comment = Comment.objects.create(user=SYSTEM_USER,comment="Added from update of "+str(self.source.name), type=updateTypeString)
+	
+		except (DetectionFilter.DoesNotExist, EventFilter.DoesNotExist):
+			comment = Comment.objects.create(user=SYSTEM_USER,comment="Added from update of "+str(self.source.name)+"", type=newTypeString)
+			objects.create(comment=comment, **arguments)
 
 class UpdateFile(models.Model):
 	"""An Update comes with several files. Each of the files is represented by an UpdateFile object."""

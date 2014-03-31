@@ -16,6 +16,3 @@ class ConfigPatterns:
 
 	#GENMSG = r"(\d+)\s*\|\|\s*(\d+)\s*\|\|\s+(.*)"
 	#SIDMSG = r"(\d+)\s*\|\|\s*(.*)"
-
-class ConfigStrings:
-	ALL_SENSORS_NAME = "All"

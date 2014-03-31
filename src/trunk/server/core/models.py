@@ -6,6 +6,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
+from util.tools import Replace
+
 from srm.settings import DATABASES
 
 """This python-model contains the data-models for the core
@@ -76,11 +78,20 @@ class Rule(models.Model):
 		# If no revisions are found, or the last revision is smaller than the new one,
 		#   add the new revision to the database.
 		if(lastRev == None or int(lastRev.rev) < int(rev)):
+			
 			# Remove filters from raw string before storage:
-			raw = re.sub(r'detection_filter:.*?;', '', raw)
-			raw = re.sub(r'threshold:.*?;', '', raw)
+			replace = Replace("")			
+			filters = ""
+			
+			raw = re.sub(r'detection_filter:.*?;', replace, raw)
+			filters += replace.matched
+			raw = re.sub(r'threshold:.*?;', replace, raw)
+			filters += replace.matched
+			
 			raw = " ".join(raw.split())
 			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=True, msg=msg, raw=raw)
+			rev.filters = filters
+			rev.save()
 			logger.debug("Updated rule-revision:" + str(rev))
 			return rev
 		
@@ -323,8 +334,8 @@ class Sensor(models.Model):
 			return self.AVAILABLE
 		else:
 			return self.UNAVAILABLE
-		
-		
+
+
 class Comment(models.Model):
 	"""
 	Comment objects are used to track important events in the system, with who, what and when.
