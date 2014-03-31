@@ -6,3 +6,4 @@ Server:
 Client:
  - sqlalchemy
  - python-MySQLdb
+ - python-openssl

@@ -46,6 +46,15 @@ class ConfigGenerator:
 			logger.warning("Location for the configfiles does not exist. Creating the folders.")
 			os.makedirs(self.configlocation)
 	
+	def cleanup(self):
+		for filename in os.listdir(self.configlocation):
+			file_path = os.path.join(self.configlocation, filename)
+			try:
+				if ".rule" in filename:
+					os.unlink(file_path)
+			except Exception, e:
+				print e
+	
 	def generateConfigFile(self, filename, elements, configFormat):
 		"""Generates an arbritary configurationfile, with the name supplied as "filename".
 		The method iterates trough elements, and hands them one and one to the method 

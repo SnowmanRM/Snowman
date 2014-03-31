@@ -4,10 +4,11 @@ import sys
 import xmlrpclib
 import logging
 import socket
+import subprocess
 
 sys.path.append("/usr/share/snowman-client/")
 from util.tools import doubleFork
-#doubleFork()
+doubleFork()
 
 # Initialize the logger
 from util.logger import initialize
@@ -19,6 +20,7 @@ from util.config import Config
 
 def main():
 	logger = logging.getLogger(__name__)
+	logger.info("Starting to syncgronize the ruleset from the snowman-server")
 
 	server = SnowmanServer()
 	
@@ -30,8 +32,12 @@ def main():
 		server.synchronizeRules()
 	
 		server.disconnect()
+		
+		if("reloadconfig" in sys.argv):
+			subprocess.call(['/usr/bin/snowmanclient-generateConfig'])
+		
 	else:
-		print "Could not connect to snowman server."
+		logger.warning("Could not connect to snowman server.")
 
 if __name__ == "__main__":
 	main()
