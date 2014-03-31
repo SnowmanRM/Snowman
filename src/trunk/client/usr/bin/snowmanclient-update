@@ -5,9 +5,9 @@ import xmlrpclib
 import logging
 import socket
 
-sys.path.append("/usr/share/snowman/")
+sys.path.append("/usr/share/snowman-client/")
 from util.tools import doubleFork
-doubleFork()
+#doubleFork()
 
 # Initialize the logger
 from util.logger import initialize
