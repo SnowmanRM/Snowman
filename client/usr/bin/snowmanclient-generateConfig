@@ -6,7 +6,7 @@ import logging
 import socket
 
 # Include the snowman-module, and initialize its logger
-sys.path.append("/usr/share/snowman/")
+sys.path.append("/usr/share/snowman-client/")
 from util.logger import initialize
 initialize()
 
@@ -20,6 +20,7 @@ def main():
 	generator = ConfigGenerator()
 	s = Session.session()
 
+	generator.cleanup()
 	generator.generateConfigFile("classification.config", s.query(RuleClass).all(), lambda x: "config classification: %s,%s,%d" % (x.classtype, x.description, int(x.priority)))
 	generator.generateConfigFile("gen-msg.map", s.query(Generator).order_by(Generator.gid).order_by(Generator.alertId).all(), lambda x: "%d || %d || %s" % (x.gid, x.alertId, x.message))
 	generator.generateConfigFile("reference.config", s.query(RuleReferenceType).all(), lambda x: "config reference: %s %s" % (x.name, x.prefix))

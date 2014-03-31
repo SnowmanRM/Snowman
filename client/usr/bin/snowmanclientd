@@ -6,7 +6,11 @@ import subprocess
 import sys
 
 # Add the parent folder of the script to the path
-sys.path.append("/usr/share/snowman/")
+sys.path.append("/usr/share/snowman-client/")
+
+pidfile = open("/var/run/snowman/snowmanclientd.pid", "w")
+pidfile.write("%d" % os.getpid())
+pidfile.close()
 
 from util.xmlrpcserver import RPCServer
 from util.config import Config
@@ -28,7 +32,7 @@ class RPCInterface():
 		binarydir = Config.get("general", "binarydir")
 		if(self.sensorname == name and self.lastUpdate == None or (datetime.datetime.now() - self.lastUpdate) > datetime.timedelta(seconds = 120)):
 			self.lastUpdate = datetime.datetime.now()
-			subprocess.call([os.path.join(binarydir, 'snowmanclient-update')])
+			subprocess.call([os.path.join(binarydir, 'snowmanclient-update'), 'reloadconfig'])
 			return {'status': True, 'message': "Sensor-update is requested."}
 		elif(self.sensorname == name):
 			return {'status': False, 'message': "Update not started. Requests are too frequent."}
