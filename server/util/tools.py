@@ -64,3 +64,13 @@ def doubleFork():
 	# Duplicate standard input to standard output and standard error.
 	os.dup2(0, 1)			# standard output (1)
 	os.dup2(0, 2)			# standard error (2)
+
+class Replace:
+	def __init__(self, replacement):
+		self.replacement = replacement
+		self.matched = None
+	
+	def __call__(self, match):
+		self.matched = match.group(0)
+		return self.replacement
+	
