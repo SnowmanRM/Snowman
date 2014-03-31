@@ -8,7 +8,7 @@ class Config:
 
 	To get a parameter from the configfiles, you can use the method: Config.get("section", "Variable")"""
 
-	djangoroot = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+	djangoroot = "/usr/share/snowman/"
 	parser = None
 	get = None
 	
@@ -16,7 +16,7 @@ class Config:
 	def initialize():
 		"""Initializes the configparser. Reads the configfiles, and puts their content
 		into a ConfigParser object."""
-		configfiles = [os.path.join(Config.djangoroot, "etc/settings.cfg"), "/etc/srm/client.cfg"]
+		configfiles = [os.path.join(Config.djangoroot, "etc/snowman/client.config"), "/etc/snowman/client.config"]
 		Config.parser = ConfigParser()
 		Config.parser.read(configfiles)
 		Config.get = Config.parser.get
