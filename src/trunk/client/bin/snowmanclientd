@@ -1,0 +1,50 @@
+#!/usr/bin/python
+import datetime
+import logging
+import os
+import subprocess
+import sys
+
+# Add the parent folder of the script to the path
+sys.path.append("/usr/share/snowman/")
+
+from util.xmlrpcserver import RPCServer
+from util.config import Config
+
+class RPCInterface():
+	def __init__(self):
+		import string
+		self.python_string = string
+		self.lastUpdate = None
+		self.sensorname = Config.get("general", "sensorname")
+	
+	def ping(self, name):
+		if(self.sensorname == name):
+			return {'status': True, 'message': "Connection successfull"}
+		else:
+			return {'status': False, 'message': "Wrong sensorname is supplied"}
+	
+	def startUpdate(self, name):
+		binarydir = Config.get("general", "binarydir")
+		if(self.sensorname == name and self.lastUpdate == None or (datetime.datetime.now() - self.lastUpdate) > datetime.timedelta(seconds = 120)):
+			self.lastUpdate = datetime.datetime.now()
+			subprocess.call([os.path.join(binarydir, 'snowmanclient-update')])
+			return {'status': True, 'message': "Sensor-update is requested."}
+		elif(self.sensorname == name):
+			return {'status': False, 'message': "Update not started. Requests are too frequent."}
+		else:
+			return {'status': False, 'message': "Update not started. Wrong sensorname is supplied."}
+
+def startRPCServer():
+	bindAddress = Config.get("xmlrpc-server", "address")
+	bindPort = int(Config.get("xmlrpc-server", "port"))
+	
+	server_address = (bindAddress, bindPort) # (address, port)
+	server = RPCServer(RPCInterface(), server_address)	
+	sa = server.socket.getsockname()
+
+	print "Serving HTTPS on", sa[0], "port", sa[1]
+	server.startup()
+
+if __name__ == '__main__':
+	startRPCServer()
