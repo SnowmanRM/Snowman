@@ -880,6 +880,7 @@ $(document).ready(function(){
 	if (itemcount%pagelength == 0) pagecount--; // If the mod is zero, there are no new items in the last page.
 	if (pagecount == 0) pagecount++;
 	// We get a hash value if there is one.
+	
 	var hash = parseInt(window.location.hash.slice(1));
 	
 	// If theres a hashvalue and its not the first page.
