@@ -5,7 +5,6 @@ from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet, Comment
 from core.exceptions import MissingObjectError
 from tuning.models import EventFilter, DetectionFilter, Suppress, SuppressAddress
 from web.utilities import tuningToTemplate
-from util.patterns import ConfigStrings
 from web.utilities import UserSettings
 from web.exceptions import InvalidValueError
 import logging, json, re
