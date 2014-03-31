@@ -106,7 +106,7 @@ def tuningByRulePage(request, pagenr):
 	# We send a ranged set of the objects for processing.
 	context['tuningList'] = tuningToTemplate(tuningList[minrange:maxrange])
 	# Send to template.
-	return render(request, 'tuning/byRule.tpl', context)
+	return render(request, 'tuning/tuningPage.tpl', context)
 
 def tuningByRuleSearch(request, pagenr):
 	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
@@ -179,7 +179,7 @@ def tuningByRuleSearch(request, pagenr):
 	# We send a ranged set of the objects for processing.
 	context['tuningList'] = tuningToTemplate(tuningList[minrange:maxrange])
 	# Send to template.
-	return render(request, 'tuning/byRule.tpl', context)
+	return render(request, 'tuning/tuningPage.tpl', context)
 
 def getFilterForm(request):
 	"""This method is loaded when the /tuning/getFilterForm is called. 
