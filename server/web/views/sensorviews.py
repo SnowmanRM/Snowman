@@ -14,7 +14,7 @@ from web.views.sensorforms import NewSensorForm
 
 def index(request):
 	data = {}
-	data['sensors'] = Sensor.objects.order_by('name').all()
+	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').all()
 	data['newSensorForm'] = NewSensorForm()
 	return render(request, "sensor/index.tpl", data)
 
@@ -48,7 +48,7 @@ def new(request):
 
 def getSensorList(request):
 	data = {}
-	data['sensors'] = Sensor.objects.order_by('name').all()
+	data['sensors'] = Sensor.objects.exclude(name='All').order_by('name').all()
 	return render(request, "sensor/sensorList.tpl", data)
 
 def regenerateSecret(request):
@@ -68,4 +68,19 @@ def regenerateSecret(request):
 	else:
 		data['message'] = "Invalid request"
 
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+def requestUpdate(request):
+	data = {}
+	data['status'] = False
+
+	if(request.POST and "sid" in request.POST):
+		try:
+			sensor = Sensor.objects.get(pk=int(request.POST['sid']))
+			data.update(sensor.requestUpdate())
+		except Sensor.DoesNotExist:
+			data['message'] = "Invalid request"
+	else:
+		data['message'] = "Invalid request"
+	
 	return HttpResponse(json.dumps(data), content_type="application/json")
