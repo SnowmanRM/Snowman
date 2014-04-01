@@ -33,14 +33,14 @@ function loadNextPages(ruleSet, currentpage, pagecount) {
 
 //This function is used to switch between pages in the list.
 function switchPage(ruleSet, page) {
-	
-	var _page = page;
-	var _ruleSet = ruleSet;
-	// Hide the page marked .current and then turn off its .current class.
-	$('#content .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
-	// Show the page we want and set it to contain the .current class.
-	$('#content .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
-	
+	$(document).ajaxStop(function(){
+		var _page = page;
+		var _ruleSet = ruleSet;
+		// Hide the page marked .current and then turn off its .current class.
+		$('#content .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
+		// Show the page we want and set it to contain the .current class.
+		$('#content .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
+	});
 	
 }
 
@@ -53,21 +53,10 @@ function getPage(ruleSet,pageNr){
 	
 	// Ajax-call for the required page. We return it so we can use $.when
 	return $.get('/web/rules/ruleSet/'+_ruleSet+'/'+_pageNr+'/', function(html) { 
-		/*downloadId = $('table', $('<div/>').html(html)).attr("id");
-		pageAlreadyExists = $('#content table[id="'+downloadId+'"]');
-
-		if( pageAlreadyExists.length ) {
-
-			$('#content .rules-panel table[id="'+downloadId+'"]').replaceWith(html);
-			
-		}
-		else {*/
 	
 			// When the content is loaded, append to content container.
-			$('#content .ruleset-panel#'+_ruleSet+' #rules #rules-content').append(html);
+			$('#content .ruleset-panel#'+_ruleSet+' #rules #rules-content').last().append(html);
 			
-		//}
-		
 		
 		// We need to reinitialize all the click events and switchbuttons.
 		listInitialize();
@@ -79,6 +68,7 @@ function getPage(ruleSet,pageNr){
 // This function initializes all the buttons and events.
 function listInitialize() {
 	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('.panel .panel-heading #checkbox-all').unbind('click');
 	$('.panel .panel-heading #checkbox-all').click(function(event){
 				
 		if ($(".panel #checkbox-all").is(':checked')) {
@@ -94,6 +84,7 @@ function listInitialize() {
 		
 	});
 	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('table thead th#checkbox-all input').unbind('click');
 	$('table thead th#checkbox-all input').click(function(event){
 		
 		if ($("table thead th#checkbox-all input").is(':checked')) {
@@ -180,7 +171,7 @@ function listInitialize() {
 		$(this).next().toggle();
 	
 	});
-	
+	$('#ruleset-buttons #create').unbind('click');
 	$('#ruleset-buttons #create').click(function(event){
 		// Reset this button in the form to default just in case.
 		$('button#create-submit').prop("disabled",false);
@@ -204,7 +195,7 @@ function listInitialize() {
 		});
 
 	});
-	
+	$('#ruleset-buttons #edit').unbind('click');
 	$('#ruleset-buttons #edit').click(function(event){
 		// Reset this button in the form to default just in case.
 		$('button#edit-submit').prop("disabled",false);
@@ -241,11 +232,11 @@ function listInitialize() {
 			setTimeout(function() {$('#editRuleSetModal').modal('hide')}, 1);
 		}
 	});
-	
+	$('#ruleset-buttons #delete').unbind('click');
 	$('#ruleset-buttons #delete').click(function(event){
 		
 		var _ruleSets = $('#checkbox:checked[ruleset]');
-		
+		console.log(_ruleSets);;
 		// We only load the form if something was selected.
 		if (_ruleSets.length > 0) {
 			
@@ -261,7 +252,7 @@ function listInitialize() {
 			setTimeout(function() {$('#deleteRuleSetModal').modal('hide')}, 1);
 		}
 	});
-	
+	$('#ruleset-buttons #reorganize').unbind('click');
 	$('#ruleset-buttons #reorganize').click(function(event){
 		
 		sids=$('#checkbox:checked[sid]');
@@ -728,7 +719,7 @@ function loadPaginator(ruleSet, currentpage, pagecount) {
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
 				
-				
+				originalEvent.preventDefault();
 				// Load the next pages.
 				loadNextPages(ruleSet, page, pagecount);
 				// Hide the page we no longer want and show the one we want.
@@ -778,7 +769,7 @@ function loadRuleSetChildren (ruleSet) {
 	// We ajax in the list of its children and append it to the DOM.
 	$.get('/web/ruleset/children/'+_ruleSet+'/', function(html){
 		
-		$('#content .ruleset-panel#'+_ruleSet+' .panel-body').append(html);
+		$('#content .ruleset-panel#'+_ruleSet+' .panel-body').prepend(html);
 		$('#content .ruleset-panel#'+_ruleSet+' .panel-body .ruleset-panel').attr("tree-level", parseInt(_treeLevel)+1);
 		
 	});
@@ -795,7 +786,9 @@ $(document).ready(function(){
 	// We load the first level of ruleset children.
 	$('#content .ruleset-panel').not('.panel-info').each(function(){
 		
-		loadRuleSetChildren(this.id);
+		if ($(this).attr('tree-type') == "parent") {
+			loadRuleSetChildren(this.id);
+		}
 	});
 	
 	// Calls function to initialize click events and buttons.

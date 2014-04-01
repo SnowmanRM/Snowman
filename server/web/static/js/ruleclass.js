@@ -28,14 +28,14 @@ function loadNextPages(ruleClass, currentpage, pagecount) {
 
 //This function is used to switch between pages in the list.
 function switchPage(ruleClass, page) {
-	
-	var _page = page;
-	var _ruleClass = ruleClass;
-	// Hide the page marked .current and then turn off its .current class.
-	$('#content .ruleclass-panel#'+_ruleClass+' #rules .current').hide().toggleClass('current');
-	// Show the page we want and set it to contain the .current class.
-	$('#content .ruleclass-panel#'+_ruleClass+' #rules .table#'+_page).show().toggleClass('current');
-	
+	$(document).ajaxStop(function(){
+		var _page = page;
+		var _ruleClass = ruleClass;
+		// Hide the page marked .current and then turn off its .current class.
+		$('#content .ruleclass-panel#'+_ruleClass+' #rules .current').hide().toggleClass('current');
+		// Show the page we want and set it to contain the .current class.
+		$('#content .ruleclass-panel#'+_ruleClass+' #rules .table#'+_page).show().toggleClass('current');
+	});
 	
 }
 
@@ -74,6 +74,7 @@ function getPage(ruleClass,pageNr){
 // This function intitializes all buttons and events on this page.
 function listInitialize() {
 	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('.panel .panel-heading #checkbox-all').unbind('click');
 	$('.panel .panel-heading #checkbox-all').click(function(event){
 		
 		if ($(".panel #checkbox-all").is(':checked')) {
@@ -88,6 +89,7 @@ function listInitialize() {
         }
 		
 	});
+	$('table thead th#checkbox-all input').unbind('click');
 	$('table thead th#checkbox-all input').click(function(event){
 				
 		if ($("table thead th#checkbox-all input").is(':checked')) {
@@ -173,7 +175,7 @@ function loadPaginator(ruleClass, currentpage, pagecount) {
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
 				
-				
+				originalEvent.preventDefault();
 				// Load the next pages.
 				loadNextPages(ruleClass, page, pagecount);
 				// Hide the page we no longer want and show the one we want.

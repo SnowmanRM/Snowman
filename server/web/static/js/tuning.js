@@ -7,6 +7,7 @@
 
 // This function initializes all the buttons and events.
 function listInitialize() {
+	$('#tuning-buttons #edit').unbind('click');
 	$('#tuning-buttons #edit').click(function(event){
 		
 		tuningID = $('#checkbox:checked').first().attr('tuningID');
@@ -125,7 +126,7 @@ function listInitialize() {
 		}
 		
 	});
-	
+	$('#tuning-buttons #delete').unbind('click');
 	$('#tuning-buttons #delete').click(function(event){
 		
 		var _tuningIDs = $('#checkbox:checked');
@@ -632,7 +633,7 @@ function getPage(pageNr){
 	var _pageNr = parseInt(pageNr); 
 	
 	// Ajax-call for the required page. We return it so we can use $.when
-	return $.get('/web/tuning/byRule/page/'+_pageNr+'/', function(html) { 
+	return $.get('/web/tuning/page/'+_pageNr+'/', function(html) { 
 		downloadId = $('table', $('<div/>').html(html)).attr("id");
 		pageAlreadyExists = $('#content table[id="'+downloadId+'"]');
 
@@ -666,7 +667,7 @@ function getSearchPage(pagenr, searchfield, searchstring){
 	// Ajax-call for the required page. We return it so we can use $.when.
 	// We also include the CSRF token so Django can know we are friendly.
 	return $.ajax({
-		url:'/web/tuning/byRuleSearch/'+_pagenr+'/',
+		url:'/web/tuning/search/'+_pagenr+'/',
 		type:'POST',
 		data: {searchf: _searchfield, searchs: _searchstring, csrfmiddlewaretoken: $('input').attr('name', 'csrfmiddlewaretoken').val()}
 		
@@ -734,13 +735,13 @@ function loadNextSearchPages(currentpage, pagecount, searchfield, searchstring) 
 
 // This function is used to switch between pages in the list.
 function switchPage(page) {
-	
-	var _page = page;
-	// Hide the page marked .current and then turn off its .current class.
-	$('#content .current').hide().toggleClass('current');
-	// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
-	$('#content .table#'+_page).show().toggleClass('current');
-	
+	$(document).ajaxStop(function(){
+		var _page = page;
+		// Hide the page marked .current and then turn off its .current class.
+		$('#content .current').hide().toggleClass('current');
+		// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
+		$('#content .table#'+_page).show().toggleClass('current');
+	});
 	
 }
 
@@ -755,7 +756,7 @@ function loadPaginator(currentpage, pagecount) {
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
 				
-				
+				originalEvent.preventDefault();
 				// Load the next pages.
 				loadNextPages(page, pagecount);
 				// Hide the page we no longer want and show the one we want.
@@ -780,6 +781,7 @@ function loadSearchPaginator(currentpage, pagecount, _searchfield, _searchstring
 			numberOfPages: 3,
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
+				originalEvent.preventDefault();
 				// Hide the page we no longer want and show the one we want.
 				switchPage('search'+page);
 				
