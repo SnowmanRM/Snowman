@@ -6,7 +6,7 @@
 // This function binds all the button clicks in the manipulator.
 function initializeButtons() {
 	
-	
+	$('#manipulator button#enable').unbind('click');
 	$('#manipulator button#enable').click(function(event){
 		// Reset this button in the form to default just in case.
 		$('button#modify-submit').prop("disabled",false);
@@ -71,7 +71,7 @@ function initializeButtons() {
 
 		}
 	});
-	
+	$('#manipulator button#disable').unbind('click');
 	$('#manipulator button#disable').click(function(event){
 		// Reset this button in the form to default just in case.
 		$('button#modify-submit').prop("disabled",false);
@@ -136,7 +136,7 @@ function initializeButtons() {
 		}
 	});	
 	
-	
+	$('#manipulator button#filter').unbind('click');
 	$('#manipulator button#filter').click(function(event){
 		// Load the form with AJAX.
 		$.get('/web/tuning/getFilterForm/', function(html){
@@ -172,7 +172,7 @@ function initializeButtons() {
 			
 		
 	});
-	
+	$('#manipulator button#suppress').unbind('click');
 	$('#manipulator button#suppress').click(function(event){
 		// Load the form with AJAX.
 		$.get('/web/tuning/getSuppressForm/', function(html){

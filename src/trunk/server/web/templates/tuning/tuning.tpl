@@ -16,6 +16,7 @@
 		<select id="searchfield" class="form-control">
 			<option value="sid">SID</option>
 			<option value="name">Name</option>
+			<option value="sensor">Sensor Name</option>
 		</select>
 		<span class="input-group-btn">
 			<button class="btn btn-default" type="button" id="search-button">Search</button>

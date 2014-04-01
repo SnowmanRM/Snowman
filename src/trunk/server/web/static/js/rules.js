@@ -8,6 +8,7 @@
 // This function starts all click events within the rule list.
 function listInitialize() {
 	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
+	$('table thead th#checkbox-all input').unbind('click');
 	$('table thead th#checkbox-all input').click(function(event){
 				
 		if ($("table thead th#checkbox-all input").is(':checked')) {
@@ -153,14 +154,13 @@ function loadNextSearchPages(currentpage, pagecount, searchfield, searchstring) 
 
 // This function is used to switch between pages in the list.
 function switchPage(page) {
-	
-	var _page = page;
-	// Hide the page marked .current and then turn off its .current class.
-	$('#content .current').hide().toggleClass('current');
-	// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
-	$('#content .table#'+_page).show().toggleClass('current');
-	
-	
+	$(document).ajaxStop(function(){
+		var _page = page;
+		// Hide the page marked .current and then turn off its .current class.
+		$('#content .current').hide().toggleClass('current');
+		// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
+		$('#content .table#'+_page).show().toggleClass('current');
+	});
 }
 
 // This function loads the paginator used when displaying a full list of all rules.
@@ -174,12 +174,11 @@ function loadPaginator(currentpage, pagecount) {
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
 				
-				
+				originalEvent.preventDefault();
 				// Load the next pages.
 				loadNextPages(page, pagecount);
 				// Hide the page we no longer want and show the one we want.
 				switchPage(page);
-				// We update the window location hash value.
 				window.location.hash = page;
 			}
 	}
@@ -199,6 +198,7 @@ function loadSearchPaginator(currentpage, pagecount, _searchfield, _searchstring
 			numberOfPages: 3,
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
+				originalEvent.preventDefault();
 				// Hide the page we no longer want and show the one we want.
 				switchPage('search'+page);
 				

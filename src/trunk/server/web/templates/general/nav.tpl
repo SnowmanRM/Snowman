@@ -21,14 +21,8 @@
 					<li><a href="/web/ruleClass/">By Class</a></li>
 					</ul>
 				</li>
-				<li class=""><a href="/web/sensors/">Sensors</a></li>
-				 <li class="dropdown">
-					<a href="/web/tuning/" class="dropdown-toggle" data-toggle="dropdown">Tuning <b class="caret"></b></a>
-					<ul class="dropdown-menu">
-					<li><a href="/web/tuning/byRule/">All Tuning</a></li>
-					<li class=""><a href="/web/tuning/bySensor/">By Sensor</a></li>
-					</ul>
-				</li>
+				<li><a href="/web/sensors/">Sensors</a></li>
+				<li><a href="/web/tuning/">Tuning</a></li>
 				<li class="dropdown">
 					<a href="/web/update/" class="dropdown-toggle" data-toggle="dropdown">Update <b class="caret"></b></a>
 					<ul class="dropdown-menu">

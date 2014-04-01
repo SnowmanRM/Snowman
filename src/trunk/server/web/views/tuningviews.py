@@ -11,7 +11,7 @@ import logging, json, re
 from itertools import chain
 
 
-def tuningByRule(request):
+def index(request):
 	"""This method is loaded when the /tuning/tuningByRule/ is called. 
 	It delivers the first page of tuning objects. """
 	
@@ -57,9 +57,9 @@ def tuningByRule(request):
 	# We send a ranged set of the objects for processing.
 	context['tuningList'] = tuningToTemplate(tuningList[minrange:maxrange])
 	# Send to template.
-	return render(request, 'tuning/byRule.tpl', context)
+	return render(request, 'tuning/tuning.tpl', context)
 
-def tuningByRulePage(request, pagenr):
+def tuningPage(request, pagenr):
 	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
 	It delivers the page specified page of tuning objects. """
 	
@@ -108,7 +108,7 @@ def tuningByRulePage(request, pagenr):
 	# Send to template.
 	return render(request, 'tuning/tuningPage.tpl', context)
 
-def tuningByRuleSearch(request, pagenr):
+def tuningSearch(request, pagenr):
 	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
 	It delivers the page specified page of tuning objects based on search parameters. """
 	
@@ -169,6 +169,15 @@ def tuningByRuleSearch(request, pagenr):
 			eventFilterList = EventFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()
 			detectionFilterList = DetectionFilter.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()
 			suppressList = Suppress.objects.filter(rule__revisions__msg__icontains=searchstring).distinct()
+		elif searchfield=='sensor':
+			# We get a total count of the number of objects.
+			context['itemcount'] = EventFilter.objects.filter(sensor__name__icontains=searchstring).count()
+			context['itemcount'] += DetectionFilter.objects.filter(sensor__name__icontains=searchstring).count()
+			context['itemcount'] += Suppress.objects.filter(sensor__name__icontains=searchstring).count()
+			# We get all the objects.
+			eventFilterList = EventFilter.objects.filter(sensor__name__icontains=searchstring)
+			detectionFilterList = DetectionFilter.objects.filter(sensor__name__icontains=searchstring)
+			suppressList = Suppress.objects.filter(sensor__name__icontains=searchstring)
 			
 		# We combine all the objects into one big list.
 		tuningList = list(chain(eventFilterList,detectionFilterList,suppressList))

@@ -249,30 +249,30 @@ function loadNextNewRuleRevisionsPages(ruleSet, currentpage, pagecount, update) 
 
 //This function is used to switch between pages in the list.
 function switchNewRulesPage(ruleSet, page, update) {
-	
-	var _page = page;
-	var _ruleSet = ruleSet;
-	var _update = update;
-	// Hide the page marked .current and then turn off its .current class.
-	$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
-	// Show the page we want and set it to contain the .current class.
-	$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
-	
+	$(document).ajaxStop(function(){
+		var _page = page;
+		var _ruleSet = ruleSet;
+		var _update = update;
+		// Hide the page marked .current and then turn off its .current class.
+		$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
+		// Show the page we want and set it to contain the .current class.
+		$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
+	});
 	
 }
 
 //This function is used to switch between pages in the list.
 function switchNewRuleRevisionsPage(ruleSet, page, update) {
+	$(document).ajaxStop(function(){
+		var _page = page;
+		var _ruleSet = ruleSet;
+		var _update = update;
+		// Hide the page marked .current and then turn off its .current class.
+		$('#content .update-panel#'+_update+' .panel-body .new-revisions .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
+		// Show the page we want and set it to contain the .current class.
+		$('#content .update-panel#'+_update+' .panel-body .new-revisions .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
 	
-	var _page = page;
-	var _ruleSet = ruleSet;
-	var _update = update;
-	// Hide the page marked .current and then turn off its .current class.
-	$('#content .update-panel#'+_update+' .panel-body .new-revisions .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
-	// Show the page we want and set it to contain the .current class.
-	$('#content .update-panel#'+_update+' .panel-body .new-revisions .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
-	
-	
+	});
 }
 
 //This function is used to dynamically retrieve a page that contains a list of rules.
@@ -328,7 +328,7 @@ function loadNewRulesPaginator(ruleSet, currentpage, pagecount, update) {
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
 				
-				
+				originalEvent.preventDefault();
 				// Load the next pages.
 				loadNextNewRulesPages(ruleSet, page, pagecount, update);
 				// Hide the page we no longer want and show the one we want.
@@ -354,7 +354,7 @@ function loadNewRuleRevisionsPaginator(ruleSet, currentpage, pagecount, update) 
 			bootstrapMajorVersion: 3,
 			onPageClicked: function(e,originalEvent,type,page){
 				
-				
+				originalEvent.preventDefault();
 				// Load the next pages.
 				loadNextNewRuleRevisionsPages(ruleSet, page, pagecount, update);
 				// Hide the page we no longer want and show the one we want.
