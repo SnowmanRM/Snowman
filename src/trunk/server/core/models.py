@@ -313,7 +313,7 @@ class Sensor(models.Model):
 	user = models.ForeignKey(User, related_name='sensor', null=True)
 	active = models.BooleanField(default=True)
 	autonomous = models.BooleanField(default=False)
-	ipAddress = models.CharField(max_length=38, default="")
+	ipAddress = models.CharField(max_length=38, default="", null=True)
 	ruleSets = models.ManyToManyField('RuleSet', related_name='sensors')
 
 	def __repr__(self):

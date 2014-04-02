@@ -13,6 +13,8 @@ class ConfigPatterns:
 	THRESHOLD = r".*threshold:\s*type\s*(.*?),\s*track\s*(.*?),\s*count\s*(\d*)\s*,\s*seconds\s*(\d*)\s*;"
 	DETECTION_FILTER = r".*detection_filter:\s*track\s*(.*?),\s*count\s*(\d*)\s*,\s*seconds\s*(\d*)\s*;"
 	PRIORITY = r".*priority:\s?(\d+)"
+	VALIDIP = r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+	VALIDIPMASK = r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$"
 
 	#GENMSG = r"(\d+)\s*\|\|\s*(\d+)\s*\|\|\s+(.*)"
 	#SIDMSG = r"(\d+)\s*\|\|\s*(.*)"

@@ -10,46 +10,86 @@ from django.shortcuts import render
 
 from core.models import Sensor
 from util.config import Config
+from util import patterns
 from web.views.sensorforms import NewSensorForm
+from web.utilities import sensorsToTemplate, sensorsToFormTemplate
+
 
 def index(request):
 	data = {}
-	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').all()
-	data['newSensorForm'] = NewSensorForm()
+	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=None)
+	data['isMain'] = True
+	data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/index.tpl", data)
 
-def new(request):
+def getSensorChildren(request, sensorID):
 	data = {}
-	data['status'] = False
-	
-	if(request.POST):
-		form = NewSensorForm(request.POST)
-		if(form.is_valid()):
-			try:
-				user = User.objects.get(username=form.cleaned_data['name'])
-			except User.DoesNotExist:
-				user = User.objects.create(username=form.cleaned_data['name'], first_name=form.cleaned_data['name'], last_name="SENSOR")
-				data['password'] = User.objects.make_random_password()
-				user.set_password(data['password'])
-				user.save()
-				
-				sensor = Sensor.objects.create(name=form.cleaned_data['name'], ipAddress=form.cleaned_data['ipAddress'], autonomous=form.cleaned_data['autonomous'], user=user, active=True)
-				data['message'] = "Sensor is created"
-				data['status'] = True
-				data['id'] = sensor.id
-			else:
-				data['message'] = "Sensor with the name %s already exists." % form.cleaned_data['name']
-		else:
-			data['message'] = "Invalid data supplied"
-	else:
-		data['message'] = "ERROR: No data posted"
-
-	return HttpResponse(json.dumps(data), content_type="application/json")
-
-def getSensorList(request):
-	data = {}
-	data['sensors'] = Sensor.objects.exclude(name='All').order_by('name').all()
+	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=sensorID)
+	data['isMain'] = False
+	data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/sensorList.tpl", data)
+
+def getCreateSensorForm(request):
+	data = {}
+	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=None)
+	
+	data['sensors'] = sensorsToFormTemplate(data['sensors'], 0)
+	return render(request, "sensor/createSensorForm.tpl", data)
+
+def createSensor(request):
+	logger = logging.getLogger(__name__)
+	response = []
+	if(request.POST):
+		
+		if request.POST.get('ip'):
+			sensorIP = request.POST.get('ip')
+			ipPattern = re.compile(patterns.ConfigPatterns.VALIDIP)
+			test = ipPattern.match(sensorIP)
+			if not test:
+				response.append({'response': 'badIP', 'text': 'IP given is not valid IPv4.'})
+				logger.warning("User provided bad IP format.")
+				return HttpResponse(json.dumps(response))
+		else:
+			sensorIP = None
+		
+		if request.POST.get('name'):
+			sensorName = request.POST.get('name')
+			try:
+				user = User.objects.get(username=sensorName)
+				
+			except User.DoesNotExist:
+				user = User.objects.create(username=sensorName, first_name=sensorName, last_name="SENSOR")
+				password = User.objects.make_random_password()
+				user.set_password(password)
+				user.save()
+				logger.info("Created user "+str(user)+"")
+				try:
+					sensor = Sensor.objects.get(name=sensorName)
+				except Sensor.DoesNotExist:
+					
+					if request.POST.get('auto'):
+						autonomous = True
+					else:
+						autonomous = False	
+					
+					sensor = Sensor.objects.create(name=sensorName, ipAddress=sensorIP, autonomous=autonomous, user=user, active=True)
+					logger.info("Created sensor "+str(sensor)+"")
+					response.append({'response': 'sensorCreationSuccess', 'text': 'The sensor was successfully created.', 'password': password})
+				else:
+					response.append({'response': 'sensorNameExists', 'text': 'Sensor name already exists, please select another.'})
+					return HttpResponse(json.dumps(response))
+			else:
+				response.append({'response': 'sensorNameExists', 'text': 'Sensor name already exists, please select another.'})
+				return HttpResponse(json.dumps(response))
+		else:
+			logger.warning("No sensor name was given.")
+			response.append({'response': 'noName', 'text': 'No sensor name was given.'})
+			return HttpResponse(json.dumps(response))
+	else:
+		logger.warning("No data was given in POST.")
+		response.append({'response': 'noPOST', 'text': 'No data was given in POST.'})
+
+	return HttpResponse(json.dumps(response))
 
 def regenerateSecret(request):
 	data = {}

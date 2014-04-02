@@ -315,7 +315,7 @@ def ruleSetHierarchyListToTemplate(ruleSetList, level):
 		chewedRuleSets.append({'ruleSetID':ruleSetID,'ruleSetName':(" - "*level)+ruleSetName})
 		
 		if ruleSet.childSets.count() > 0:
-			ruleSet.childSets.all()
+
 			for item in ruleSetHierarchyListToTemplate(ruleSet.childSets.all(), level+1):
 				chewedRuleSets.append(item)
 	
@@ -370,7 +370,7 @@ def childRuleCount(ruleSet):
 	
 	ruleSetRulesCount = ruleSet.rules.count()
 	
-	if ruleSet.childSets:
+	if ruleSetRulesCount:
 		for child in ruleSet.childSets.all():
 			ruleSetRulesCount += childRuleCount(child)
 	
@@ -380,7 +380,7 @@ def childRuleCount(ruleSet):
 def childRuleActiveCount(ruleSet):
 	ruleSetActiveRulesCount = ruleSet.rules.filter(active=True).count()
 	
-	if ruleSet.childSets:
+	if ruleSetActiveRulesCount:
 		for child in ruleSet.childSets.all():
 			ruleSetActiveRulesCount += childRuleActiveCount(child)
 			
@@ -462,9 +462,54 @@ def tuningToTemplate(tuningList):
 	
 	return chewedTuningList
 
+def sensorsToTemplate(sensorList):
+	
+	chewedSensorList = []
+	
+	for sensor in sensorList:
+		
+		sensorID = sensor.id
+		sensorName = sensor.name
+		sensorIP = sensor.ipAddress
+		if sensorIP is None:
+			sensorIP = ""
+		#sensor.getStatus
+		sensorStatus = 0
+		
+		sensorChildrenCount = sensorChildCount(sensor)
+		
+		if sensorChildrenCount > 0:
+			sensorHasChildren = True
+		else:
+			sensorHasChildren = False
+		
+		chewedSensorList.append({ 'sensorID':sensorID,'sensorName':sensorName,'sensorIP':sensorIP,'sensorStatus':sensorStatus, 'sensorHasChildren':sensorHasChildren,\
+								'sensorChildrenCount':sensorChildrenCount })
+	
+	return chewedSensorList
 
+def sensorsToFormTemplate(sensorList, level):
+	chewedSensorList = []
+	# We iterate over all the rulesets.
+	for sensor in sensorList:
+		
+		# We go get a number of variables.
+		sensorID = sensor.id
+		sensorName = sensor.name
+		
+		chewedSensorList.append({ 'sensorID':sensorID,'sensorName':(" - "*level)+sensorName})
+		
+		if sensor.childSensors.count() > 0:
+			for item in sensorsToFormTemplate(sensor.childSensors.all(), level+1):
+				chewedSensorList.append(item)
 
+	return chewedSensorList
 
-
-
-
+def sensorChildCount(sensor):
+	childCount = sensor.childSensors.count()
+	
+	if sensorChildCount:
+		for child in sensor.childSensors.all():
+			childCount += sensorChildCount(child)
+	
+	return childCount
