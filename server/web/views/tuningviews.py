@@ -9,6 +9,7 @@ from web.utilities import UserSettings
 from web.exceptions import InvalidValueError
 import logging, json, re
 from itertools import chain
+from util import patterns
 
 
 def index(request):
@@ -761,7 +762,7 @@ def setSuppressOnRule(request):
 		badIpTest = False
 		
 		# This pattern matches for valid IPv4 with subnet notation (0.0.0.0/0 - 255.255.255.255/32).
-		ipPattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$")
+		ipPattern = re.compile(patterns.ConfigPatterns.VALIDIPMASK)
 		
 		# Iterate over each IP given and check it for validity.
 		for ip in re.finditer("[^,;\s]+", ipString):
@@ -812,7 +813,7 @@ def setSuppressOnRule(request):
 		goodIps = []
 		
 		# This pattern matches for valid IPv4 with subnet notation (0.0.0.0/0 - 255.255.255.255/32).
-		ipPattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$")
+		ipPattern = re.compile(patterns.ConfigPatterns.VALIDIPMASK)
 		
 		# Iterate over each IP given and check it for validity.
 		# We put it in the list we use for making SuppressAddresses later.
