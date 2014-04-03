@@ -11,7 +11,6 @@ from django.shortcuts import render
 from core.models import Sensor
 from util.config import Config
 from util import patterns
-from web.views.sensorforms import NewSensorForm
 from web.utilities import sensorsToTemplate, sensorsToFormTemplate
 
 
