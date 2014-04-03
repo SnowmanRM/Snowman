@@ -15,35 +15,35 @@
 		
 		<tbody>
 			{% for sensor in sensors %}
-				<tr class="odd" id="{{sensor.sensorID}}" tree-type="{% if sensor.sensorHasChildren %}parent{% else %}child{% endif %}">
-					<td><input id="checkbox" type="checkbox" name="selectSensor-{{sensor.sensorID}}" /></td>
-					<td class="text-center">{{sensor.sensorName}}</td>
-					<td class="text-center">{{sensor.sensorIP}}</td>
-					<td class="text-center"><span class="badge btn-info">{{sensor.sensorChildrenCount}}</span></td>
+				<tr class="odd" id="{{sensor.id}}" tree-type="{% if sensor.getCildCount > 0 %}parent{% else %}child{% endif %}">
+					<td><input id="checkbox" type="checkbox" name="selectSensor-{{sensor.id}}" /></td>
+					<td class="text-center">{{sensor.name}}</td>
+					<td class="text-center">{{sensor.ipAddress}}</td>
+					<td class="text-center"><span class="badge btn-info">{{sensor.getCildCount}}</span></td>
 					<td class="text-center">
-						{% if sensor.sensorStatus == 0 %}
+						{% if sensor.getStatus == sensor.AVAILABLE %}
 							<span class="badge btn-success">Available</span>
-						{% elif sensor.sensorStatus == 1 %}
+						{% elif sensor.getStatus == sensor.UNAVAILABLE %}
 							<span class="badge btn-danger">Unavailable</span>
-						{% elif sensor.sensorStatus == 2 %}
+						{% elif sensor.getStatus == sensor.INACTIVE %}
 							<span class="badge btn">In-active</span>
-						{% elif sensor.sensorStatus == 3 %}
-							<span class="badge btn-warning">Autonomous</span>
+						{% elif sensor.getStatus == sensor.AUTONOMOUS %}
+							<span class="badge btn-info">Autonomous</span>
+						{% elif sensor.getStatus == sensor.UNKNOWN %}
+							<span class="badge btn-warning">Unknown status</span>
 						{% endif %}
 					</td>
 					<td class="text-right">
 						<div class="btn-group">
-						{% if sensor.sensorStatus != 3 %}
+						{% if not sensor.autonomous %}
 						
 							<button id="regenerateSensorSecret" sid="{{sensor.sensorID}}" class="btn btn-danger">Generate new secret</button>
 						
 						{% endif %}
-						{% if sensor.sensorStatus == 3 %}
-						
-							<button id="generateSensorRules" sid="{{sensor.sensorID}}" class="btn btn-info">Get Rules</button>
-						
-						{% endif %}
-						{% if sensor.sensorStatus == 0 %}
+
+						<button id="generateSensorRules" sid="{{sensor.sensorID}}" class="btn btn-info">Download Ruleset</button>
+
+						{% if sensor.getStatus == sensor.AVAILABLE %}
 						
 							<button id="requestUpdate" sid="{{sensor.sensorID}}" class="btn btn-success">Request Update</button>
 						
@@ -53,7 +53,7 @@
 				</tr>
 				<tr class="even" style="display:none;">
 					<td colspan="6">
-						{% if sensor.sensorHasChildren %}
+						{% if sensor.getCildCount > 0 %}
 						<div class="panel panel-info clear">
 							<div class="panel-heading"><h4>Child Sensors</h4></div>
 						</div>

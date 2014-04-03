@@ -306,7 +306,7 @@ class Sensor(models.Model):
 	UNAVAILABLE = 1
 	INACTIVE = 2
 	AUTONOMOUS = 3
-	lastStatus = None
+	UNKNOWN = 4
 	
 	parent = models.ForeignKey('Sensor', null=True, related_name='childSensors')
 	name = models.CharField(max_length=30, unique=True)
@@ -315,6 +315,8 @@ class Sensor(models.Model):
 	autonomous = models.BooleanField(default=False)
 	ipAddress = models.CharField(max_length=38, default="", null=True)
 	ruleSets = models.ManyToManyField('RuleSet', related_name='sensors')
+	lastChecked = models.DateTimeField(null=True)
+	lastStatus = models.BooleanField(default=False)
 
 	def __repr__(self):
 		if(self.parent):
@@ -348,19 +350,24 @@ class Sensor(models.Model):
 		return result
 	
 	def getStatus(self):
-		if(self.lastStatus == None or self.lastStatus['time'] < datetime.datetime.now() - datetime.timedelta(seconds = 2)):
-			status = self.pingSensor()
-			lastStatus = {'status': status['status'], 'time': datetime.datetime.now()}
-
 		if(self.autonomous):
 			return self.AUTONOMOUS
 		elif(not self.active):
 			return self.INACTIVE
-		elif(lastStatus['status']):
+		elif(self.lastChecked + datetime.timedelta(minutes=2) < datetime.datetime.utcnow().replace(tzinfo=utc)):
+			return self.UNKNOWN
+		elif(self.lastStatus):
 			return self.AVAILABLE
 		else:
 			return self.UNAVAILABLE
+	
+	def getChildCount(self):
+		childCount = 0
+		for child in sensor.childSensors.all():
+			childCount += 1
+			childCount += child.getChildCount()
 
+		return childCount
 
 class Comment(models.Model):
 	"""
