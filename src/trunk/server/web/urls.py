@@ -31,7 +31,10 @@ urlpatterns += patterns('web.views.sensorviews',
 
 	# AJAX-Calls
     url(r'^sensors/createSensor/$', 'createSensor'),
+    url(r'^sensors/editSensor/$', 'editSensor'),
+    url(r'^sensors/deleteSensor/$', 'deleteSensor'),
     url(r'^sensors/getCreateSensorForm/$', 'getCreateSensorForm'),
+    url(r'^sensors/getEditSensorForm/(?P<sensorID>\d+)/$', 'getEditSensorForm'),
     url(r'^sensors/getSensorChildren/(?P<sensorID>\d+)/$', 'getSensorChildren'),
     url(r'^sensors/regenerateSecret/$', 'regenerateSecret'),
     url(r'^sensors/requestUpdate/$', 'requestUpdate'),

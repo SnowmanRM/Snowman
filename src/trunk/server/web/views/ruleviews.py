@@ -327,6 +327,9 @@ def getRulesByRuleSetNewRuleRevisions(request, ruleSetID, pagenr, updateID):
 		raise Http404
 	
 	revList = update.ruleRevisions.values_list('rule__SID', flat=True)
+	ruleList = update.rules.values_list('SID', flat=True)
+	
+	revList = list(set(revList)-set(ruleList))
 	
 	try:
 		

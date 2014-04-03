@@ -302,6 +302,16 @@ class RuleSet(models.Model):
 				sets.extend(childSet.getChildSets())
 
 		return sets	
+	
+	#TODO: comment this
+	def getActiveRuleCount(self):
+		activeRulesCount = self.rules.filter(active=True).count()
+		
+		if activeRulesCount:
+			for child in self.childSets.all():
+				activeRulesCount += child.getActiveRuleCount()
+				
+		return activeRulesCount
 
 class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
@@ -320,7 +330,7 @@ class Sensor(models.Model):
 	autonomous = models.BooleanField(default=False)
 	ipAddress = models.CharField(max_length=38, default="", null=True)
 	ruleSets = models.ManyToManyField('RuleSet', related_name='sensors')
-	lastChecked = models.DateTimeField(null=True)
+	lastChecked = models.DateTimeField(null=True, default=datetime.datetime.now())
 	lastStatus = models.BooleanField(default=False)
 
 	def __repr__(self):
