@@ -64,6 +64,7 @@ class Source(models.Model):
 		return "<Source name:%s, schedule:%s, url:%s>" % (self.name, str(self.schedule), self.url)
 	
 	def setSchedule(self, data, save = True):
+		"""Sets the schedule-string based on the content of a TimeSelectorForm."""
 		if(data['newSourceForm'].cleaned_data['schedule'] == 'n'):
 			self.schedule = "No automatic updates"
 		else:
@@ -84,6 +85,7 @@ class Source(models.Model):
 			self.save()
 	
 	def getSchedule(self):
+		"""Parses the schedule-string, and returns the contents in a dictionary."""
 		d = {}
 		
 		if(self.schedule == None):
