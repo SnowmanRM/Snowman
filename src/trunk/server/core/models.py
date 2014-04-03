@@ -57,7 +57,7 @@ class Rule(models.Model):
 		return "<Rule SID:%d>" % (self.SID)
 	
 	def getCurrentRevision(self):
-			
+		"""This method returns the most recent active rule-revision"""
 		return self.revisions.filter(active=True).last()
 
 	
@@ -243,6 +243,7 @@ class RuleRevision(models.Model):
 		return "<RuleRevision SID:%d, rev:%d, active:%s raw:'%s', msg:'%s'>" % (self.rule.SID, self.rev, str(self.active), self.raw, self.msg)
 	
 	def getReferences(self):
+		"""Returns a list of all the references that is related to this rule."""
 		referenceList = []
 		for ref in self.references.all():
 			referenceList.append((ref.referenceType.name, ref.reference))
@@ -275,6 +276,8 @@ class RuleSet(models.Model):
 		return noRules
 	
 	def getRuleRevisions(self, active):
+		"""This method returns a dictionary, where the key is the SID, and the data is the
+		most recent rev, for all the rules that is in this (or any childs of this) RuleSet."""
 		revisions = {}
 		
 		# Collect the rules in this ruleSet
@@ -290,7 +293,8 @@ class RuleSet(models.Model):
 		return revisions
 	
 	def getChildSets(self):
-		
+		"""This method returns a list of RuleSets, which is the children-sets (and their children)
+		of this ruleset."""
 		sets = []
 		for childSet in self.childSets.all():
 			if(childSet.active):
@@ -329,6 +333,9 @@ class Sensor(models.Model):
 		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
 	
 	def pingSensor(self):
+		"""This method checks the status of the sensor, to see if the snowman-clientd is running. It returns a dictionary,
+		where 'status' contains a boolean value if the ping was successful, and 'message' contains a textual message of
+		what happened."""
 		logger = logging.getLogger(__name__)
 		port = int(Config.get("sensor", "port"))
 		timeout = int(Config.get("sensor", "pingTimeout"))
@@ -350,17 +357,34 @@ class Sensor(models.Model):
 		return result
 	
 	def requestUpdate(self):
+		"""This method contacts the sensor, and asks it to do an update of its ruleset."""
 		port = int(Config.get("sensor", "port"))
 		sensor = xmlrpclib.Server("https://%s:%s" % (self.ipAddress, port))
 		
 		try:
-			result = sensor.startUpdate(self.name)
-		except:
-			return {'status': False, 'message': "Could not connect to sensor"}
+			with Timeout(timeout):
+				result = sensor.startUpdate(self.name)
+		except Timeout.Timeout:
+			logger.warning("Ping to sensor timed out")
+			return {'status': False, 'message': "Ping to sensor timed out"}
+		except socket.gaierror:
+			logger.warning("Could not ping sensor. Address is malformed")
+			return {'status': False, 'message': "Could not ping sensor. Address is malformed"}
+		except socket.error as e:
+			logger.warning("Could not ping sensor. %s" % str(e))
+			return {'status': False, 'message': "Could not ping sensor. %s" % str(e)}
 		
 		return result
 	
 	def getStatus(self):
+		"""This method checks the latest status from the sensor-checks, and returns the result. It returns one of the
+		following values:
+			Sensor.AUTONOMOUS - This is an autonomous sensor
+			Sensor.INACTIVE - This sensor is not active
+			Sensor.UNKNOWN - The status of this sensor is not checked recently (ie: more than 5 minutes ago).
+			Sensor.AVAILABLE - This sensor is reachable.
+			Sensor.UNAVAILABLE - This sensor is not able to be reached.
+		"""
 		if(self.autonomous):
 			return self.AUTONOMOUS
 		elif(not self.active):
@@ -373,12 +397,22 @@ class Sensor(models.Model):
 			return self.UNAVAILABLE
 	
 	def getChildCount(self):
+		"""This method counts the number of child-sensors (and their childs), and returns the total number."""
 		childCount = 0
 		for child in self.childSensors.all():
 			childCount += 1
 			childCount += child.getChildCount()
 
 		return childCount
+	
+	@staticmethod
+	def refreshStatus():
+		"""This method updates the status-information of all the sensors that is not autonomous."""
+		for sensor in Sensor.objects.exclude(name="All").filter(autonomous=False).all():
+			status = sensor.pingSensor()
+			sensor.lastStatus = status['status']
+			sensor.lastChecked = datetime.datetime.utcnow().replace(tzinfo=utc)
+			sensor.save()
 
 class Comment(models.Model):
 	"""

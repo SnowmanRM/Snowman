@@ -77,6 +77,8 @@ class Replace:
 		return self.replacement
 	
 class Timeout():
+	"""Simple class that sets a timed-signal at enter, and removes it in exit. If the signals fire in-between, 
+	an Timeout.Timeout is raised."""
 	class Timeout(Exception):
 		pass
 	
