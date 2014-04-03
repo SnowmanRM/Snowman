@@ -464,7 +464,7 @@ function initializeRequestUpdateButtons() {
 	$('button#requestUpdate').click(function() {
 		var d = {
 			'sid': $(this).attr('sid'),
-			'csrfmiddlewaretoken': $('#csrf').find('input').val(),
+			'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
 		};
 		
 		$.post("/web/sensors/requestUpdate/", d, function(data, status) {
