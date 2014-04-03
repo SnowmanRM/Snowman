@@ -144,7 +144,7 @@ def getRuleSetByUpdateNewRuleRevisions(request, updateID):
 	# Process the objects before we give them to the template.
 	context['ruleset_list'] = ruleSetsWithNewRuleRevisionsToTemplate(context['ruleset_list'], update)
 	
-	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
+	#return HttpResponse(context['ruleset_list'])
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
 def getRuleSetChildren(request,ruleSetID):
@@ -286,7 +286,8 @@ def createRuleSet(request):
 			children = False
 		elif request.POST.getlist('children'):
 			children = request.POST.getlist('children')
-			
+		else:
+			children = False
 		# We create the new ruleset.
 		try:
 			r = RuleSet.objects.create(name=ruleSetName, active=False, parent=None, description=ruleSetName)
@@ -323,14 +324,18 @@ def editRuleSet(request):
 	edited = False
 	
 	# We get the ID of the ruleset we're editing.
-	ruleSetID = request.POST['id']
+	if request.POST.get('id'):
+		ruleSetID = request.POST['id']
+	else:
+		response.append({'response': 'noRuleSetID', 'text': 'The POST did not deliver a RuleSet ID.'})
+		return HttpResponse(json.dumps(response))
 	
 	# We check to see if the ruleset we want to edit exists.
 	try:
 		ruleSet = RuleSet.objects.get(id=ruleSetID)
 	except RuleSet.DoesNotExist:
 		response.append({'response': 'ruleSetDoesNotExists', 'text': 'RuleSet ID '+ruleSetID+' could not be found.'})
-		logger.warning("RuleSet ID "+ruleSet+" could not be found.")
+		logger.warning("RuleSet ID "+ruleSetID+" could not be found.")
 		return HttpResponse(json.dumps(response))
 	
 	# We check to see if theres a ruleset name given.
@@ -420,7 +425,6 @@ def editRuleSet(request):
 			if not inbreeding and child != ruleSet:
 				ruleSet.childSets.add(child)
 				edited = True
-				response.append({'response': 'test'})
 			
 			# If there was some form of inbreeding.
 			elif inbreeding or child == ruleSet:
@@ -519,7 +523,7 @@ def deleteRuleSet(request):
 
 		except RuleSet.DoesNotExist:
 			response.append({'response': 'ruleSetDoesNotExists', 'text': 'RuleSet ID '+ruleSetID+' could not be found.'})
-			logger.warning("RuleSet ID "+str(ruleSet)+" could not be found.")
+			logger.warning("RuleSet ID "+str(ruleSetID)+" could not be found.")
 			return HttpResponse(json.dumps(response))
 	
 		# If the ruleset has children, we have to deal with their relations.

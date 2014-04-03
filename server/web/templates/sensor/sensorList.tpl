@@ -16,9 +16,9 @@
 		<tbody>
 			{% for sensor in sensors %}
 				<tr class="odd" id="{{sensor.id}}" tree-type="{% if sensor.getChildCount > 0 %}parent{% else %}child{% endif %}">
-					<td><input id="checkbox" type="checkbox" name="selectSensor-{{sensor.id}}" /></td>
+					<td><input id="checkbox" type="checkbox" name="selectSensor-{{sensor.id}}" sensor="{{sensor.id}}" /></td>
 					<td class="text-center">{{sensor.name}}</td>
-					<td class="text-center">{{sensor.ipAddress}}</td>
+					<td class="text-center">{% if sensor.ipAddress == None %} {% else %}{{sensor.ipAddress}}{% endif %}</td>
 					<td class="text-center"><span class="badge btn-info">{{sensor.getChildCount}}</span></td>
 					<td class="text-center">
 						{% if sensor.getStatus == sensor.AVAILABLE %}

@@ -113,15 +113,14 @@ def ruleSetsToTemplate(ruleSetList):
 			
 			ruleSetRulesCount = ruleSet.rules.count()
 			if ruleSetRulesCount:
-				ruleSetHasRules = 1
-				ruleSetActiveRulesCount = ruleSet.rules.filter(active=True).count()
+				ruleSetHasRules = True
+				ruleSetActiveRulesCount = ruleSet.getActiveRuleCount() 
 			else:
 				ruleSetHasRules = False
 				ruleSetActiveRulesCount = 0
 			
-			for child in ruleSet.childSets.all():
-				ruleSetRulesCount += childRuleCount(child)
-				ruleSetActiveRulesCount += childRuleActiveCount(child)
+			ruleSetRulesCount = len(ruleSet)
+			
 			
 			ruleSetInActiveRulesCount = ruleSetRulesCount - ruleSetActiveRulesCount
 		else:
@@ -188,7 +187,7 @@ def ruleSetsWithNewRulesToTemplate(ruleSetList, update):
 				
 				ruleSetRulesCount = ruleSet.rules.filter(id__in=ruleIDs).count()
 				if ruleSetRulesCount:
-					ruleSetHasRules = 1
+					ruleSetHasRules = True
 					ruleSetActiveRulesCount = ruleSet.rules.filter(active=True, id__in=ruleIDs).count()
 				else:
 					ruleSetHasRules = False
@@ -235,7 +234,10 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 	It returns a list of objects that can be put directly into the template without any additional processing.
 	"""
 	
-	ruleSIDs = update.ruleRevisions.values_list('rule__SID', flat=True)
+	revSIDs = update.ruleRevisions.values_list('rule__SID', flat=True)
+	newRuleSIDs = update.rules.values_list('SID', flat=True)
+	
+	ruleSIDs = list(set(revSIDs) - set(newRuleSIDs))
 	
 	# We get the count of all sensors in the system.
 	sensorCount = Sensor.objects.count()
@@ -260,7 +262,7 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 				
 				ruleSetRulesCount = ruleSet.rules.filter(SID__in=ruleSIDs).count()
 				if ruleSetRulesCount:
-					ruleSetHasRules = 1
+					ruleSetHasRules = True
 					ruleSetActiveRulesCount = ruleSet.rules.filter(active=True, SID__in=ruleSIDs).count()
 				else:
 					ruleSetHasRules = False
@@ -365,26 +367,6 @@ def ruleClassesToTemplate(ruleClassList):
 	# Once all ruleclasses are iterated over, we send the clean objects back.
 	return chewedRuleClasses
 
-#TODO: comment this
-def childRuleCount(ruleSet):
-	
-	ruleSetRulesCount = ruleSet.rules.count()
-	
-	if ruleSetRulesCount:
-		for child in ruleSet.childSets.all():
-			ruleSetRulesCount += childRuleCount(child)
-	
-	return ruleSetRulesCount
-
-#TODO: comment this
-def childRuleActiveCount(ruleSet):
-	ruleSetActiveRulesCount = ruleSet.rules.filter(active=True).count()
-	
-	if ruleSetActiveRulesCount:
-		for child in ruleSet.childSets.all():
-			ruleSetActiveRulesCount += childRuleActiveCount(child)
-			
-	return ruleSetActiveRulesCount
 
 #TODO: comment this
 def tuningToTemplate(tuningList):
@@ -455,38 +437,10 @@ def tuningToTemplate(tuningList):
 			
 			chewedTuningList.append({ 'tuningID':tuningID, 'tuningAdded':tuningAdded,'tuningUser':tuningUser,'tuningType':tuningType,'tuningRuleSID':tuningRuleSID,
 									'tuningRuleName':tuningRuleName,'tuningSensorName':tuningSensorName,'tuningContent':tuningContent,'tuningComment':tuningComment })
-		
-	
-	
-	
+
 	
 	return chewedTuningList
 
-def sensorsToTemplate(sensorList):
-	
-	chewedSensorList = []
-	
-	for sensor in sensorList:
-		
-		sensorID = sensor.id
-		sensorName = sensor.name
-		sensorIP = sensor.ipAddress
-		if sensorIP is None:
-			sensorIP = ""
-		#sensor.getStatus
-		sensorStatus = 0
-		
-		sensorChildrenCount = sensorChildCount(sensor)
-		
-		if sensorChildrenCount > 0:
-			sensorHasChildren = True
-		else:
-			sensorHasChildren = False
-		
-		chewedSensorList.append({ 'sensorID':sensorID,'sensorName':sensorName,'sensorIP':sensorIP,'sensorStatus':sensorStatus, 'sensorHasChildren':sensorHasChildren,\
-								'sensorChildrenCount':sensorChildrenCount })
-	
-	return chewedSensorList
 
 def sensorsToFormTemplate(sensorList, level):
 	chewedSensorList = []
@@ -505,11 +459,3 @@ def sensorsToFormTemplate(sensorList, level):
 
 	return chewedSensorList
 
-def sensorChildCount(sensor):
-	childCount = sensor.childSensors.count()
-	
-	if sensorChildCount:
-		for child in sensor.childSensors.all():
-			childCount += sensorChildCount(child)
-	
-	return childCount
