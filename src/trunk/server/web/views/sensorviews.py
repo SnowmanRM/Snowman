@@ -24,7 +24,8 @@ def index(request):
 
 def getSensorChildren(request, sensorID):
 	data = {}
-	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=sensorID)
+	parent = Sensor.objects.get(id=sensorID)
+	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=parent)
 	data['isMain'] = False
 	#data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/sensorList.tpl", data)
