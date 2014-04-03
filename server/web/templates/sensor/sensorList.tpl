@@ -53,7 +53,7 @@
 				</tr>
 				<tr class="even" style="display:none;">
 					<td colspan="6">
-						{% if sensor.getCildCount > 0 %}
+						{% if sensor.getChildCount > 0 %}
 						<div class="panel panel-info clear">
 							<div class="panel-heading"><h4>Child Sensors</h4></div>
 						</div>

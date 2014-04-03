@@ -1,13 +1,14 @@
 import datetime
 import logging
 import re
+import socket
 import xmlrpclib
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
-from util.tools import Replace
+from util.tools import Replace, Timeout
 
 from srm.settings import DATABASES
 from util.config import Config
@@ -328,13 +329,23 @@ class Sensor(models.Model):
 		return "<Sensor name:%s, ipAddress:'%s'>" % (self.name, self.ipAddress)
 	
 	def pingSensor(self):
+		logger = logging.getLogger(__name__)
 		port = int(Config.get("sensor", "port"))
+		timeout = int(Config.get("sensor", "pingTimeout"))
 		sensor = xmlrpclib.Server("https://%s:%s" % (self.ipAddress, port))
 		
 		try:
-			result = sensor.ping(self.name)
-		except:
-			return {'status': False, 'message': "Could not connect to sensor"}
+			with Timeout(timeout):
+				result = sensor.ping(self.name)
+		except Timeout.Timeout:
+			logger.warning("Ping to sensor timed out")
+			return {'status': False, 'message': "Ping to sensor timed out"}
+		except socket.gaierror:
+			logger.warning("Could not ping sensor. Address is malformed")
+			return {'status': False, 'message': "Could not ping sensor. Address is malformed"}
+		except socket.error as e:
+			logger.warning("Could not ping sensor. %s" % str(e))
+			return {'status': False, 'message': "Could not ping sensor. %s" % str(e)}
 		
 		return result
 	
@@ -354,7 +365,7 @@ class Sensor(models.Model):
 			return self.AUTONOMOUS
 		elif(not self.active):
 			return self.INACTIVE
-		elif(self.lastChecked + datetime.timedelta(minutes=2) < datetime.datetime.utcnow().replace(tzinfo=utc)):
+		elif(self.lastChecked + datetime.timedelta(minutes=5) < datetime.datetime.utcnow().replace(tzinfo=utc)):
 			return self.UNKNOWN
 		elif(self.lastStatus):
 			return self.AVAILABLE
