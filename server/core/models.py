@@ -363,7 +363,7 @@ class Sensor(models.Model):
 	
 	def getChildCount(self):
 		childCount = 0
-		for child in sensor.childSensors.all():
+		for child in self.childSensors.all():
 			childCount += 1
 			childCount += child.getChildCount()
 
