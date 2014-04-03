@@ -365,7 +365,7 @@ class Sensor(models.Model):
 			return self.AUTONOMOUS
 		elif(not self.active):
 			return self.INACTIVE
-		elif(self.lastChecked + datetime.timedelta(minutes=5) < datetime.datetime.utcnow().replace(tzinfo=utc)):
+		elif(self.lastChecked == None or self.lastChecked + datetime.timedelta(minutes=5) < datetime.datetime.utcnow().replace(tzinfo=utc)):
 			return self.UNKNOWN
 		elif(self.lastStatus):
 			return self.AVAILABLE
