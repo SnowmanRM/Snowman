@@ -19,24 +19,7 @@ from update.models import Source
 logger = logging.getLogger(__name__)
 logger.info("Started to create initial data.")
 
-sensor, created = Sensor.objects.get_or_create(name="All", user=None, active=True, ipAddress="")
-
-# Create some demo-sensors.
-for i in range(1, 3):
-	username = "DemoSensor%d" % i
-	user, created = User.objects.get_or_create(username = username, first_name = "MySensor", last_name = str(i))
-	if(created):
-		logger.info("Created the user '%s'" % username)
-		user.set_password("123")
-		user.save()
-	else:
-		logger.info("User '%s' already exists.", username)
-
-	sensor, created = Sensor.objects.get_or_create(name=username, user=user, active=True, ipAddress="")
-	if(created):
-		logger.info("Created the sensor '%s'" % username)
-	else:
-		logger.info("Sensor '%s' already exists.", username)
+sensor, created = Sensor.objects.get_or_create(name="All", user=None, active=True, autonomous=True)
 
 # Initial-data, which should always be there.
 a, created = Generator.objects.get_or_create(GID=1, alertID=1, message="Generic SNORT rule")

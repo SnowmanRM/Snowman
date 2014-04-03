@@ -19,14 +19,14 @@ def index(request):
 	data = {}
 	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=None)
 	data['isMain'] = True
-	data['sensors'] = sensorsToTemplate(data['sensors'])
+	#data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/index.tpl", data)
 
 def getSensorChildren(request, sensorID):
 	data = {}
 	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=sensorID)
 	data['isMain'] = False
-	data['sensors'] = sensorsToTemplate(data['sensors'])
+	#data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/sensorList.tpl", data)
 
 def getCreateSensorForm(request):

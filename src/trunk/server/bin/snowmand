@@ -47,20 +47,6 @@ class RPCInterface():
 		import string
 		self.python_string = string
 	
-	####################################################################################################
-	# WARNING: The debug* methods is a HUGE security liability, and MUST be removed before release.    #
-	# TODO: Remove debug-methods from the xmlrpc-server.                                               #
-	####################################################################################################
-	def debugGetCache(self):
-		d = {}
-		for t in cache:
-			d[t] = {}
-			for e in cache[t]:
-				d[t][e] = str(cache[t][e])
-		return d
-	####################################################################################################
-	####################################################################################################
-	
 	def authenticate(self, sensorname, secret):
 		d = {}
 		d['status'] = False
