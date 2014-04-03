@@ -1,9 +1,11 @@
 """This module is intended for non-django tools, that we might use here and there."""
 
+import hashlib
 import os
 import resource
+import signal
 import sys
-import hashlib
+import time
 
 def md5sum(filename, blocksize=65536):
 	"""Returns the md5 sum of the file specified.
@@ -74,3 +76,19 @@ class Replace:
 		self.matched = match.group(0)
 		return self.replacement
 	
+class Timeout():
+	class Timeout(Exception):
+		pass
+	
+	def __init__(self, sec):
+		self.sec = sec
+	
+	def __enter__(self):
+		signal.signal(signal.SIGALRM, self.raise_timeout)
+		signal.alarm(self.sec)
+	
+	def __exit__(self, *args):
+		signal.alarm(0)    # disable alarm
+	
+	def raise_timeout(self, *args):
+		raise Timeout.Timeout()
