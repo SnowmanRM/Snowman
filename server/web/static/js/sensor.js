@@ -28,7 +28,7 @@ function initializeClicks() {
 	$('table tbody tr.odd').unbind('click');
 	$('table tbody tr.odd').click(function(event){
 		// This is to make sure a click on the switch doesnt trigger a row open.
-		if($(event.target).is('#checkbox')||$(event.target).is('td#checkbox')){
+		if($(event.target).is('#checkbox')||$(event.target).is('td button')){
             //event.preventDefault();
             return;
         }
@@ -211,7 +211,7 @@ function initializeEditSensorForm() {
 				$.each(data, function() {
 					// If the response contains one of these strings, we put the response text near the relevant context and display it. 
 					// We also set the outcome flags appropriately so we can handle things differently.
-					if(this.response == "sensorCreationSuccess") {
+					if(this.response == "successfulSensorEdit") {
 						
 						text = '<div class="alert alert-success row" style="display: none;">\
 							<div class="col-sm-1"><span class="glyphicon glyphicon-ok-cicle form-control-feedback"></span></div>\
