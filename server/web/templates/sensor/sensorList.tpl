@@ -37,15 +37,15 @@
 						<div class="btn-group">
 						{% if not sensor.autonomous %}
 						
-							<button id="regenerateSensorSecret" sid="{{sensor.sensorID}}" class="btn btn-danger">Generate new secret</button>
+							<button id="regenerateSensorSecret" sid="{{sensor.id}}" class="btn btn-danger">Generate new secret</button>
 						
 						{% endif %}
 
-						<button id="generateSensorRules" sid="{{sensor.sensorID}}" class="btn btn-info">Download Ruleset</button>
+						<button id="generateSensorRules" sid="{{sensor.id}}" class="btn btn-info">Download Ruleset</button>
 
 						{% if sensor.getStatus == sensor.AVAILABLE %}
 						
-							<button id="requestUpdate" sid="{{sensor.sensorID}}" class="btn btn-success">Request Update</button>
+							<button id="requestUpdate" sid="{{sensor.id}}" class="btn btn-success">Request Update</button>
 						
 						{% endif %}
 						</div>

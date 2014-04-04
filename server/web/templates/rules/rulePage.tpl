@@ -123,7 +123,7 @@
 		 {% endfor %}
 	    
 	    {% else %}
-	    <tr class="even"><td colspan="9">No rules are available.</tr></tr>
+	    <tr class="even"><td colspan="10">No rules are available.</tr></tr>
 		{% endif %}
 	</tbody>
 </table>
