@@ -33,14 +33,14 @@ function loadNextPages(ruleSet, currentpage, pagecount) {
 
 //This function is used to switch between pages in the list.
 function switchPage(ruleSet, page) {
-	$(document).ajaxStop(function(){
+	
 		var _page = page;
 		var _ruleSet = ruleSet;
 		// Hide the page marked .current and then turn off its .current class.
 		$('#content .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
 		// Show the page we want and set it to contain the .current class.
 		$('#content .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
-	});
+	
 	
 }
 
@@ -67,6 +67,13 @@ function getPage(ruleSet,pageNr){
 
 // This function initializes all the buttons and events.
 function listInitialize() {
+	
+	if ($('#ruleset-buttons') && $('#manipulator')) {
+		
+		$('#manipulator .button-container').append($('#ruleset-buttons'));
+		$('#ruleset-buttons').show();
+	}
+	
 	// Install click event so that when the header checkbox is clicked, all the other checkboxes is checked.
 	$('.panel .panel-heading #checkbox-all').unbind('click');
 	$('.panel .panel-heading #checkbox-all').click(function(event){
@@ -723,7 +730,13 @@ function loadPaginator(ruleSet, currentpage, pagecount) {
 				// Load the next pages.
 				loadNextPages(ruleSet, page, pagecount);
 				// Hide the page we no longer want and show the one we want.
-				switchPage(ruleSet, page);
+				
+				if ($.active > 0) {
+					$(document).ajaxStop(function() {switchPage(ruleSet, page)});
+				}
+				else {
+					switchPage(ruleSet, page);
+				}
 				// We update the window location hash value.
 				//window.location.hash = page;
 			}
@@ -769,7 +782,7 @@ function loadRuleSetChildren (ruleSet) {
 	// We ajax in the list of its children and append it to the DOM.
 	$.get('/web/ruleset/children/'+_ruleSet+'/', function(html){
 		
-		$('#content .ruleset-panel#'+_ruleSet+' .panel-body').prepend(html);
+		$('#content .ruleset-panel#'+_ruleSet+' .panel-body .container-fluid').after(html);
 		$('#content .ruleset-panel#'+_ruleSet+' .panel-body .ruleset-panel').attr("tree-level", parseInt(_treeLevel)+1);
 		
 	});

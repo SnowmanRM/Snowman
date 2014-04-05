@@ -31,6 +31,11 @@
 					</ul>
 				</li>
 			</ul>
+			<div class="btn-group pull-right">
+				<button id="syncAllSensors" class="btn btn-success">Sync All Sensors</button>
+				<button id="logOut" class="btn btn-warning">Logout</button>
+			</div>
 		</div>
+		
 	</div>
 </div>

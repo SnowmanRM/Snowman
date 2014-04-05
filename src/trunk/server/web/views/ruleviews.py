@@ -5,11 +5,12 @@ This script file serves to answer url requests for the /web/rules page.
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
-
+from django.contrib.auth.decorators import login_required
 from core.models import Rule, RuleSet, RuleRevision, Sensor
 from update.models import Update
 from web.utilities import UserSettings, rulesToTemplate
 import logging, json
+
 
 def index(request):
 

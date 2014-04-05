@@ -735,13 +735,13 @@ function loadNextSearchPages(currentpage, pagecount, searchfield, searchstring) 
 
 // This function is used to switch between pages in the list.
 function switchPage(page) {
-	$(document).ajaxStop(function(){
+
 		var _page = page;
 		// Hide the page marked .current and then turn off its .current class.
 		$('#content .current').hide().toggleClass('current');
 		// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
 		$('#content .table#'+_page).show().toggleClass('current');
-	});
+
 	
 }
 
@@ -760,7 +760,13 @@ function loadPaginator(currentpage, pagecount) {
 				// Load the next pages.
 				loadNextPages(page, pagecount);
 				// Hide the page we no longer want and show the one we want.
-				switchPage(page);
+				
+				if ($.active > 0) {
+					$(document).ajaxStop(function() {switchPage(page)});
+				}
+				else {
+					switchPage(page);
+				}
 				// We update the window location hash value.
 				window.location.hash = page;
 			}
@@ -783,8 +789,13 @@ function loadSearchPaginator(currentpage, pagecount, _searchfield, _searchstring
 			onPageClicked: function(e,originalEvent,type,page){
 				originalEvent.preventDefault();
 				// Hide the page we no longer want and show the one we want.
-				switchPage('search'+page);
 				
+				if ($.active > 0) {
+					$(document).ajaxStop(function() {switchPage('search'+page)});
+				}
+				else {
+					switchPage('search'+page);
+				}
 				// Load the next pages.
 				loadNextSearchPages(page, pagecount, _searchfield, _searchstring);
 

@@ -99,7 +99,8 @@
 	margin: 0;
 }
 
-#content table.rules .row {
+#content table.rules .row,
+#content.ruleset .ruleset-panel .row {
 	
 	margin-right: 0;
 	margin-left: 0;
@@ -107,8 +108,11 @@
 	padding-right: 0;
 	
 }
+#content.ruleset .ruleset-panel .row div {
+	padding-right: 0;	
+}
 
-#content table.rules .row .panel .list-group {
+.list-group.scrolled {
 	
 
 	overflow-y: scroll;
@@ -130,10 +134,16 @@
 	background-color: #f9f9f9;
 }
 
-#content table.rules > tbody > tr:hover td,
-#content table.sensors > tbody > tr:hover td {
+#content table.rules > tbody > tr.odd:hover td,
+#content table.sensors > tbody > tr.odd:hover td {
 
 	background-color: #e5e5e5;
+}
+
+#content table.rules > tbody > tr.even:hover td,
+#content table.sensors > tbody > tr.even:hover td {
+
+	background-color: white;
 }
 
 #content table.rules tbody tr td:nth-child(-n+4) {
@@ -430,3 +440,40 @@ label.error {
 	margin-top: 0;
 	margin-bottom: 0;
 }
+
+button#syncAllSensors,
+button#logOut {
+	margin-top:7px;
+}
+
+
+#loginContainer {
+	border-left: 5px solid grey;
+	border-right: 5px solid grey;
+	margin: auto;
+	height: 100%;
+	width:90%;
+	padding: 20px;
+}
+
+#loginContainer h1, 
+#loginContainer h3 {
+	margin-top: 0;
+	border-bottom: 5px solid grey;
+}
+
+#loginContainer #loginFormContainer {
+	width: 35%;
+	margin: auto;
+	border: 5px solid grey;
+	border-radius: 10px;
+	padding: 20px;
+	margin-top: 10%;
+}
+
+#loginFooter {
+	bottom: 0;
+	position: absolute;
+	width: 86%;
+}
+

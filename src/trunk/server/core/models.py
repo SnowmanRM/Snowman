@@ -307,9 +307,8 @@ class RuleSet(models.Model):
 	def getActiveRuleCount(self):
 		activeRulesCount = self.rules.filter(active=True).count()
 		
-		if activeRulesCount:
-			for child in self.childSets.all():
-				activeRulesCount += child.getActiveRuleCount()
+		for child in self.childSets.all():
+			activeRulesCount += child.getActiveRuleCount()
 				
 		return activeRulesCount
 

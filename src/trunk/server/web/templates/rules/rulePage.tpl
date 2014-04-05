@@ -100,7 +100,7 @@
 					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 						<div class="panel panel-default">
 		  					<div class="panel-heading">References</div>
-							<div class="list-group">
+							<div class="list-group scrolled">
 							{% for reference in rule.ruleReferences %}
 								<a class="list-group-item" href="{{ reference.urlPrefix }}{{ reference.reference }}">{{ reference.urlPrefix }}{{ reference.reference }}</a>
 							{% endfor %}
@@ -110,7 +110,7 @@
 					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 						<div class="panel panel-default">
 		  					<div class="panel-heading">Active On Sensors:</div>
-		  					<ul class="list-group">
+		  					<ul class="list-group scrolled">
 							{% for sensorName in rule.ruleActiveOnSensors %}
 								<li class="list-group-item">{{ sensorName }}</li>
 							{% endfor %}
