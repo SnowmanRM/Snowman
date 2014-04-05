@@ -138,14 +138,15 @@ function initializeButtons() {
 	
 	$('#manipulator button#filter').unbind('click');
 	$('#manipulator button#filter').click(function(event){
-		// Load the form with AJAX.
-		$.get('/web/tuning/getFilterForm/', function(html){
-			// Put the form content into the container.
-			$('#filterFormModal #formContent').html(html);
-			// Get all checked checkboxes.
-			sids=$('#checkbox:checked');
-			// If there are checkboxes checked, we need to do some extra stuff.
-			if (sids.length > 0) {
+		// Get all checked checkboxes.
+		sids=$('#checkbox:checked[sid]');
+		// If there are checkboxes checked, we need to do some extra stuff.
+		if (sids.length > 0) {
+			// Load the form with AJAX.
+			$.get('/web/tuning/getFilterForm/', function(html){
+				// Put the form content into the container.
+				$('#filterFormModal #formContent').html(html);
+				
 				// We replace the input with a disabled select that displays the checked rules.
 				$('#filterFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
 				// For each checked rule, we add them to the select list.
@@ -162,26 +163,31 @@ function initializeButtons() {
 						}
 					});
 				});
-			}
-			
-			// Reset this button in the form to default just in case.
-			$('button#filter-submit').prop("disabled",false);
-			$('button#filter-submit').attr('class','btn btn-primary');
-			$('button#filter-submit').html('Save changes');
-		});
+				
+				
+				// Reset this button in the form to default just in case.
+				$('button#filter-submit').prop("disabled",false);
+				$('button#filter-submit').attr('class','btn btn-primary');
+				$('button#filter-submit').html('Save changes');
+			});
+		}
+		else {
+			setTimeout(function() {$('#filterFormModal').modal('hide')}, 1);
+		}
 			
 		
 	});
 	$('#manipulator button#suppress').unbind('click');
 	$('#manipulator button#suppress').click(function(event){
-		// Load the form with AJAX.
-		$.get('/web/tuning/getSuppressForm/', function(html){
-			// Put the form content into the container.
-			$('#suppressFormModal #formContent').html(html);
-			// Get all checked checkboxes.
-			sids=$('#checkbox:checked');
-			// If there are checkboxes checked, we need to do some extra stuff.
-			if (sids.length > 0) {
+		// Get all checked checkboxes.
+		sids=$('#checkbox:checked[sid]');
+		// If there are checkboxes checked, we need to do some extra stuff.
+		if (sids.length > 0) {
+			// Load the form with AJAX.
+			$.get('/web/tuning/getSuppressForm/', function(html){
+				// Put the form content into the container.
+				$('#suppressFormModal #formContent').html(html);
+				
 				// We replace the input with a disabled select that displays the checked rules.
 				$('#suppressFormModal #formContent input#sid').replaceWith('<select multiple class="form-control" id="sid" name="sid" disabled></select>');
 				// For each checked rule, we add them to the select list.
@@ -190,13 +196,17 @@ function initializeButtons() {
 					$('#suppressFormModal #formContent').prepend('<input type="hidden" id="id" name="id" value="'+$(this).attr('rid')+'">');
 					$('#suppressFormModal #formContent select#sid').append('<option>'+$(this).attr('gid')+':'+$(this).attr('sid')+'|'+$(this).attr('status')+'</option>');
 				});
-			}
-			// Reset this button in the form to default just in case.
-			$('button#suppress-submit').prop("disabled",false);
-			$('button#suppress-submit').attr('class','btn btn-primary');
-			$('button#suppress-submit').html('Save changes');
-			
-		});
+				
+				// Reset this button in the form to default just in case.
+				$('button#suppress-submit').prop("disabled",false);
+				$('button#suppress-submit').attr('class','btn btn-primary');
+				$('button#suppress-submit').html('Save changes');
+				
+			});
+		}
+		else {
+			setTimeout(function() {$('#suppressFormModal').modal('hide')}, 1);
+		}
 	});
 
 }
@@ -256,7 +266,7 @@ function modifyRuleSet(form){
 				
 				setTimeout(function() {$('#modifyFormModal').modal('hide')}, 1500);
 				
-				//setTimeout(function() {location.reload(true)}, 3000);
+				setTimeout(function() {location.reload(true)}, 500);
 			}
 			else if( warning || error ) {
 			

@@ -66,7 +66,28 @@ def rulesToTemplate(ruleList):
 		# If the rule is active, we calculate how many sensors its active on.
 		if (ruleActive):
 			ruleActiveOnSensors = ruleRuleSet.sensors.values_list('name', flat=True)
-			ruleActiveOnSensorsCount = ruleRuleSet.sensors.count()
+			
+			if "All" in ruleActiveOnSensors:
+				ruleActiveOnSensors = Sensor.objects.exclude(name="All").all()
+				ruleActiveOnSensors = ruleActiveOnSensors.values_list('name', flat=True)
+				ruleActiveOnSensorsCount = sensorCount
+			else:
+				ruleActiveOnSensorsCount = ruleRuleSet.sensors.count()
+				
+			ruleSetParent = ruleRuleSet.parent
+			
+			while ruleSetParent is not None:
+				parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
+				if "All" in parentActiveOnSensors:
+					ruleActiveOnSensors = Sensor.objects.exclude(name="All").all()
+					ruleActiveOnSensors = ruleActiveOnSensors.values_list('name', flat=True)
+					ruleActiveOnSensorsCount = sensorCount
+					ruleSetParent = None
+				else:
+					ruleActiveOnSensors = parentActiveOnSensors
+					ruleActiveOnSensorsCount = ruleSetParent.sensors.count()
+					ruleSetParent = ruleSetParent.parent
+			
 			ruleInActiveOnSensorsCount = sensorCount - ruleActiveOnSensorsCount
 		else: # If the rule isnt active, it wont be active on any sensors
 			ruleActiveOnSensors = []
@@ -114,13 +135,12 @@ def ruleSetsToTemplate(ruleSetList):
 			ruleSetRulesCount = ruleSet.rules.count()
 			if ruleSetRulesCount:
 				ruleSetHasRules = True
-				ruleSetActiveRulesCount = ruleSet.getActiveRuleCount() 
 			else:
 				ruleSetHasRules = False
-				ruleSetActiveRulesCount = 0
+				
 			
 			ruleSetRulesCount = len(ruleSet)
-			
+			ruleSetActiveRulesCount = ruleSet.getActiveRuleCount()
 			
 			ruleSetInActiveRulesCount = ruleSetRulesCount - ruleSetActiveRulesCount
 		else:
@@ -138,7 +158,27 @@ def ruleSetsToTemplate(ruleSetList):
 		# If the ruleset is active, we calculate how many sensors its active on.
 		if (ruleSetActive):
 			ruleSetActiveOnSensors = ruleSet.sensors.values_list('name', flat=True)
-			ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
+			if "All" in ruleSetActiveOnSensors:
+				ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
+				ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
+				ruleSetActiveOnSensorsCount = sensorCount
+			else:
+				ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
+				
+			ruleSetParent = ruleSet.parent
+			
+			while ruleSetParent is not None:
+				parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
+				if "All" in parentActiveOnSensors:
+					ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
+					ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
+					ruleSetActiveOnSensorsCount = sensorCount
+					ruleSetParent = None
+				else:
+					ruleSetActiveOnSensors = parentActiveOnSensors
+					ruleSetActiveOnSensorsCount = ruleSetParent.sensors.count()
+					ruleSetParent = ruleSetParent.parent
+					
 			ruleSetInActiveOnSensorsCount = sensorCount - ruleSetActiveOnSensorsCount
 		else: # If the ruleset isnt active, it wont be active on any sensors
 			ruleSetActiveOnSensors = []
@@ -209,7 +249,27 @@ def ruleSetsWithNewRulesToTemplate(ruleSetList, update):
 			# If the ruleset is active, we calculate how many sensors its active on.
 			if (ruleSetActive):
 				ruleSetActiveOnSensors = ruleSet.sensors.values_list('name', flat=True)
-				ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
+				if "All" in ruleSetActiveOnSensors:
+					ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
+					ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
+					ruleSetActiveOnSensorsCount = sensorCount
+				else:
+					ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
+					
+				ruleSetParent = ruleSet.parent
+				
+				while ruleSetParent is not None:
+					parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
+					if "All" in parentActiveOnSensors:
+						ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
+						ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
+						ruleSetActiveOnSensorsCount = sensorCount
+						ruleSetParent = None
+					else:
+						ruleSetActiveOnSensors = parentActiveOnSensors
+						ruleSetActiveOnSensorsCount = ruleSetParent.sensors.count()
+						ruleSetParent = ruleSetParent.parent
+						
 				ruleSetInActiveOnSensorsCount = sensorCount - ruleSetActiveOnSensorsCount
 			else: # If the ruleset isnt active, it wont be active on any sensors
 				ruleSetActiveOnSensors = []
@@ -284,7 +344,27 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 			# If the ruleset is active, we calculate how many sensors its active on.
 			if (ruleSetActive):
 				ruleSetActiveOnSensors = ruleSet.sensors.values_list('name', flat=True)
-				ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
+				if "All" in ruleSetActiveOnSensors:
+					ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
+					ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
+					ruleSetActiveOnSensorsCount = sensorCount
+				else:
+					ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
+					
+				ruleSetParent = ruleSet.parent
+				
+				while ruleSetParent is not None:
+					parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
+					if "All" in parentActiveOnSensors:
+						ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
+						ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
+						ruleSetActiveOnSensorsCount = sensorCount
+						ruleSetParent = None
+					else:
+						ruleSetActiveOnSensors = parentActiveOnSensors
+						ruleSetActiveOnSensorsCount = ruleSetParent.sensors.count()
+						ruleSetParent = ruleSetParent.parent
+						
 				ruleSetInActiveOnSensorsCount = sensorCount - ruleSetActiveOnSensorsCount
 			else: # If the ruleset isnt active, it wont be active on any sensors
 				ruleSetActiveOnSensors = []

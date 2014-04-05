@@ -1,7 +1,7 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.db.models import Count
-
+from django.contrib.auth.decorators import login_required
 from core.models import Rule, RuleRevision, Sensor, RuleSet
 from update.models import Update
 from web.utilities import UserSettings, ruleSetsToTemplate, ruleSetHierarchyListToTemplate, ruleSetsWithNewRulesToTemplate, ruleSetsWithNewRuleRevisionsToTemplate

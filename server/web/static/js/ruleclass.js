@@ -28,14 +28,14 @@ function loadNextPages(ruleClass, currentpage, pagecount) {
 
 //This function is used to switch between pages in the list.
 function switchPage(ruleClass, page) {
-	$(document).ajaxStop(function(){
+	
 		var _page = page;
 		var _ruleClass = ruleClass;
 		// Hide the page marked .current and then turn off its .current class.
 		$('#content .ruleclass-panel#'+_ruleClass+' #rules .current').hide().toggleClass('current');
 		// Show the page we want and set it to contain the .current class.
 		$('#content .ruleclass-panel#'+_ruleClass+' #rules .table#'+_page).show().toggleClass('current');
-	});
+	
 	
 }
 
@@ -179,7 +179,13 @@ function loadPaginator(ruleClass, currentpage, pagecount) {
 				// Load the next pages.
 				loadNextPages(ruleClass, page, pagecount);
 				// Hide the page we no longer want and show the one we want.
-				switchPage(ruleClass, page);
+				
+				if ($.active > 0) {
+					$(document).ajaxStop(function() {switchPage(ruleClass, page)});
+				}
+				else {
+					switchPage(ruleClass, page);
+				}
 				// We update the window location hash value.
 				//window.location.hash = page;
 			}

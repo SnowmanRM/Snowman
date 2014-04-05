@@ -2,8 +2,8 @@
 A couple of common utilities used by the update-views.
 """
 
-import time
-
+import time, logging
+from django.contrib.auth.decorators import login_required
 from update.models import Source
 from web.views.updateforms import DailySelector, WeeklySelector, MonthlySelector, NewSourceForm
 
@@ -13,7 +13,7 @@ def createForm(source = None, post = None):
 		'newSourceForm': A Django-form for the source name/url/md5url/update-interval
 		'timeSelector': A Django-form for selecting the update-time, if update-interval is not "No automatic updates".
 	"""
-
+	logger = logging.getLogger(__name__)
 	d = {}
 	
 	# If we are missing some data, just return the empty dict. 

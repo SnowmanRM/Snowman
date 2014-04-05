@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
-
+from django.contrib.auth.decorators import login_required
 from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet, Comment
 from core.exceptions import MissingObjectError
 from tuning.models import EventFilter, DetectionFilter, Suppress, SuppressAddress
@@ -412,44 +412,62 @@ def modifyRule(request):
 		else:
 			sensors = request.POST.getlist('sensors')
 			# If we didnt pick all sensors, we gotta iterate over all the ones we selected. 
-			if sensors[0] != "all":
-				for sensor in sensors:
-					try:
-						s = Sensor.objects.get(id=sensor)
-						for ruleSet in ruleSets:
-							try:
-								r = RuleSet.objects.get(id=ruleSet)
-								if active:
-									r.sensors.add(s) # This is where the ruleset is tied to the sensor.
-								else:
-									r.sensors.remove(s) # This is where the ruleset is removed from the sensor.
-								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor})
-								logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(s)+".")
-							except RuleSet.DoesNotExist:
-								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
-								logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
-					except Sensor.DoesNotExist:
-						response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
-						logger.warning("Sensor "+str(sensor)+" could not be found.")
-			# If we selected all sensors, we just iterate over all of them. This could probably be optimized.
-			elif sensors[0] == "all":
+			sensorList = []
+			allSensor = False
+			for sensor in sensors:
 				try:
-					for sensor in Sensor.objects.all():
-						for ruleSet in ruleSets:
-							try:
-								r = RuleSet.objects.get(id=ruleSet)
-								if active:
-									r.sensors.add(sensor) # This is where the ruleset is tied to the sensor.
-								else:
-									r.sensors.remove(sensor) # This is where the ruleset is removed from the sensor.
-								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor.id})
-								logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(sensor)+".")
-							except RuleSet.DoesNotExist:
-								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
-								logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
+					s = Sensor.objects.get(id=sensor)
+					
+					if s.name == "All":
+						sensorList = [s]
+						allSensor = True
+						break
+					sensorList.append(s)
 				except Sensor.DoesNotExist:
 					response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
 					logger.warning("Sensor "+str(sensor)+" could not be found.")
+				
+			for ruleSet in ruleSets:
+				try:
+					r = RuleSet.objects.get(id=ruleSet)
+					
+					if "All" in r.sensors.values_list('name', flat=True):
+						allInSet = True
+					else:
+						allInSet = False
+						
+					if r.sensors.count():
+						setHasSensors = True
+					else:
+						setHasSensors = False
+						
+					if active:
+						if allSensor and setHasSensors and not allInSet:
+							r.sensors.clear
+							r.sensors.add(*sensorList) # This is where the ruleset is tied to the sensor.
+						elif allSensor and allInSet:
+							pass
+						else:
+							r.sensors.add(*sensorList) # This is where the ruleset is tied to the sensor.
+					else:
+						if allSensor and setHasSensors:
+							r.sensors.clear()
+						elif not allSensor and allInSet:
+							r.sensors.clear()
+							s = Sensor.objects.exclude(name="All").all()
+							r.sensors.add(*s)
+							r.sensors.remove(*sensorList) # This is where the ruleset is removed from the sensor.
+						elif (allSensor and allInSet) or not setHasSensors:
+							pass
+						else:
+							r.sensors.remove(*sensorList) # This is where the ruleset is removed from the sensor.
+						
+					goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor})
+					logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(s)+".")
+				except RuleSet.DoesNotExist:
+					response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
+					logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
+				
 					
 			response.append({'response': 'ruleSetModificationSuccess', 'sets': goodRuleSets})
 	

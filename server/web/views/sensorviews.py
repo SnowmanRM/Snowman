@@ -7,7 +7,7 @@ import subprocess
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
-
+from django.contrib.auth.decorators import login_required
 from core.models import Sensor
 from util.config import Config
 from util import patterns
@@ -420,3 +420,19 @@ def requestUpdate(request):
 		data['message'] = "Invalid request"
 	
 	return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+def syncAllSensors(request):
+	
+	allOK =[]
+	
+	for sensor in Sensor.objects.exclude(name="All").filter(active=True,autonomous=False):
+		try:
+			allOK.append(sensor.requestUpdate())
+		except:
+			allOK.append(False)
+		
+	if False in allOK:
+		return HttpResponse(False)
+	else:
+		return HttpResponse(True)

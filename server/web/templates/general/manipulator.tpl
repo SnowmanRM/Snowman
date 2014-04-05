@@ -10,7 +10,7 @@
 			<button id="suppress" type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#suppressFormModal">Suppress</button>
 			<button id="comment" type="button" class="btn btn-primary btn-block">Comment</button>
 		</div>
-		<button id="" type="button" class="btn btn-info btn-block">Sync changes</button>
+		
 	</div>
 </div>
 

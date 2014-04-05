@@ -6,17 +6,17 @@
 {% block content %}
 {% load staticfiles %}
 <script type="text/javascript" src="{% static 'js/ruleset.js' %}"></script>
-<div id="search-container" class="ruleset row col-xs-10 col-sm-10 col-md-10 pull-right">
+
 	
-	{% csrf_token %}
-	<div id="ruleset-buttons" class="btn-group pull-right">
-		<button id="create" type="button" class="btn btn-default" data-toggle="modal" data-target="#createRuleSetModal">Create Ruleset</button>
-		<button id="edit" type="button" class="btn btn-default" data-toggle="modal" data-target="#editRuleSetModal">Edit Ruleset</button>
-		<button id="delete" type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRuleSetModal"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Delete Ruleset(s)</button>
-		<button id="reorganize" type="button" class="btn btn-default" data-toggle="modal" data-target="#reorganizeRulesModal">Reorganize Rules</button>
-	</div>	
+
+<div id="ruleset-buttons" class="btn-group-vertical btn-block" style="display:none;">
+	<button id="create" type="button" class="btn btn-default" data-toggle="modal" data-target="#createRuleSetModal">Create Ruleset</button>
+	<button id="edit" type="button" class="btn btn-default" data-toggle="modal" data-target="#editRuleSetModal">Edit Ruleset</button>
+	<button id="delete" type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRuleSetModal"><span class="glyphicon glyphicon-warning-sign form-control-feedback"></span> Delete Ruleset(s)</button>
+	<button id="reorganize" type="button" class="btn btn-default" data-toggle="modal" data-target="#reorganizeRulesModal">Reorganize Rules</button>
+</div>	
 	
-</div>
+
 
 {% block manipulator %}
 
