@@ -219,7 +219,7 @@ class RPCInterface():
 					pass
 
 				try:
-					if not supress:
+					if not suppress:
 						suppress = s.suppress.get(rule=rule)
 				except Suppress.DoesNotExist:
 					pass
