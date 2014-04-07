@@ -83,7 +83,14 @@ urlpatterns += patterns('web.views.tuningviews',
 )
 
 urlpatterns += patterns('web.views.userviews',
+	url(r'^users/$', 'index'),
+	url(r'^users/getCreateUserForm/$', 'getCreateUserForm'),
+	url(r'^users/createUser/$', 'createUser'),
+	url(r'^users/deleteUser/$', 'deleteUser'),
+	url(r'^users/resetPassword/$', 'resetPassword'),
+	url(r'^users/getResetPasswordForm/$', 'getResetPasswordForm'),
 	url(r'^login/$', 'getLoginForm'),
 	url(r'^login/authenticate/$', 'authenticateLogin'),
 	url(r'^logout/$', 'logoutUser'),
+	
 )

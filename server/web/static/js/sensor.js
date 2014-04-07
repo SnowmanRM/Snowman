@@ -233,6 +233,16 @@ function initializeEditSensorForm() {
 						
 						error = true;
 					}
+					else if(this.response == "userNameExists") {
+						
+						$('#editSensorForm div#name div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
+						<div class="col-sm-1"><span class="glyphicon glyphicon-remove form-control-feedback"></span></div>\
+						<div class="col-sm-11">'+this.text+'</div></div>');
+						
+						$('#editSensorForm div#name div.col-sm-10 .alert').show("highlight");
+						
+						error = true;
+					}
 					else if(this.response == "noName") {
 						
 						$('#editSensorForm div#name div.col-sm-10').append('<div class="alert alert-danger row" style="display: none;">\
