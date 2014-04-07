@@ -190,8 +190,15 @@ def editSensor(request):
 	elif request.POST['parent']:
 		parent = request.POST['parent']
 	
-	if sensor.name != sensorName:
-		sensor.name = sensorName
+	if sensor.name != sensorName: 
+		user = sensor.user
+		try: 
+			User.objects.get(username=sensorName)
+			response.append({'response': 'userNameExists', 'text': 'That Sensor name already exists, try another.'})
+			return HttpResponse(json.dumps(response))
+		except User.DoesNotExist:
+			user.name = sensorName
+			sensor.name = sensorName
 		logger.info("Sensor "+str(sensor)+" has been renamed.")
 		edited = True
 	
@@ -350,7 +357,7 @@ def deleteSensor(request):
 	if request.POST.getlist('id'):
 		sensorIDs = request.POST.getlist('id')
 	else:
-		response.append({'response': 'noIDsGiven', 'text': 'No RuleSet ID was given, deletion cancelled.'})
+		response.append({'response': 'noIDsGiven', 'text': 'No Sensor ID was given, deletion cancelled.'})
 		return HttpResponse(json.dumps(response))
 	
 	# We iterate over the sensor IDs given.

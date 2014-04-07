@@ -1,4 +1,4 @@
-<!--<form id="sensorListForm" target="/web/sensor/edit/" method="post">-->
+
 	{% csrf_token %}
 	<table id="sensorList" class="sensors table table-responsive table-bordered table-hover">
 		
