@@ -5,7 +5,6 @@ import os
 import resource
 import signal
 import sys
-import time
 
 def md5sum(filename, blocksize=65536):
 	"""Returns the md5 sum of the file specified.
@@ -51,7 +50,7 @@ def doubleFork():
 	# Determine how many filedescriptors that might be present.
 	maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
 	if (maxfd == resource.RLIM_INFINITY):
-		maxfd = resource.MAXFD
+		maxfd = 2048
 	
 	# Iterate through and close all file descriptors.
 	for fd in range(0, maxfd):

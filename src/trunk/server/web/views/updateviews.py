@@ -51,7 +51,7 @@ def index(request):
 			# Generate a message for the user
 			source = Source.objects.get(pk=request.POST['source'])
 			if(source.locked):
-				data['uploadMessage'] = "There are already an update going for this source"
+				data['uploadMessage'] = "There is already an update going for this source!"
 			else:
 				data['uploadMessage'] = "The ruleset is now uploaded, and the processing of the file is started. This might take a while however, depending on the size of the file."
 				# Call the background-update script.
@@ -288,7 +288,7 @@ def runUpdate(request, id):
 		raise Http404
 	
 	if source.locked:
-		data['message'] = "There are already an update running for %s" % source.name
+		data['message'] = "There is already an update running for %s!" % source.name
 	else:
 		data['message'] = "Started the update from %s." % source.name
 	

@@ -6,7 +6,7 @@ import re
 from django.db import models, IntegrityError
 
 from core.models import Generator, Rule, RuleSet, RuleRevision, RuleClass,\
-	RuleReference, RuleReferenceType, Sensor, Comment
+	RuleReferenceType, Sensor, Comment
 	
 from update.exceptions import BadFormatError, AbnormalRuleError 
 from core.exceptions import MissingObjectError
@@ -172,8 +172,13 @@ class Update(models.Model):
 			updatedSIDs = {int(Rule.objects.get(id=x.rule_id).SID): x.id for x in self.ruleRevisions.all()}
 			self.parseFile(self.updateSidMsg, path, updatedRules=updatedSIDs)()		
 		except Rule.DoesNotExist:
-			logger.error("Unexpected error: rule lookup failed!")		
-	
+			logger.error("Unexpected error: rule lookup failed!")
+			
+	def parseFilterFile(self, path):
+		"""Method for parsing threshold.conf which may contain event_filters.
+		File is read line by line and filters are updated in the database."""
+		self.parseFile(self.updateFilter, path)()
+			
 	def updateRule(self, raw, filename, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
 		"""This method takes a raw rule-string, parses it, and if it is a new rule, we 
 		update the database.
@@ -208,7 +213,7 @@ class Update(models.Model):
 		references = re.findall(ConfigPatterns.RULEREFERENCE, raw)
 		eventFilter = re.match(ConfigPatterns.THRESHOLD, raw)
 		detectionFilter = re.match(ConfigPatterns.DETECTION_FILTER, raw)
-		
+				
 		# If the raw rule matched the regex: 
 		result = pattern.match(raw)
 		if(result):
@@ -226,6 +231,22 @@ class Update(models.Model):
 			ruleClassName = result.group(5)
 			ruleGID = 1
 			
+			if detectionFilter:
+				dfTrack = detectionFilter.group(1)
+				dfCount = detectionFilter.group(2)
+				dfSeconds = detectionFilter.group(3)
+				self.checkFilter(ruleSID, dfTrack, dfCount, dfSeconds)
+
+			if eventFilter:
+				efType = eventFilter.group(1)
+				efTrack = eventFilter.group(2)
+				efCount = eventFilter.group(3)
+				efSeconds = eventFilter.group(4)
+				self.checkFilter(ruleSID, efTrack, efCount, efSeconds, efType)
+				
+			if detectionFilter or eventFilter:
+				allSensors = Sensor.getAllSensors()
+				
 			# Ruleset name set to filename if not found in raw string:
 			try:
 				ruleSetName = ruleset.group(1)
@@ -305,24 +326,11 @@ class Update(models.Model):
 				except AttributeError:
 					pass
 				
-				try:
-					dfTrack = detectionFilter.group(1)
-					dfCount = detectionFilter.group(2)
-					dfSeconds = detectionFilter.group(3)
-					self.setFilter(rule=rule, track=dfTrack, count=dfCount, seconds=dfSeconds)
-				except AttributeError:
-					# No inline detection_filter
-					pass
+				if detectionFilter:					
+					self.setFilter(rule=rule, sensor=allSensors, track=dfTrack, count=dfCount, seconds=dfSeconds)
 				
-				try:
-					efType = eventFilter.group(1)
-					efTrack = eventFilter.group(2)
-					efCount = eventFilter.group(3)
-					efSeconds = eventFilter.group(4)
-					self.setFilter(rule=rule, track=efTrack, count=efCount, seconds=efSeconds, filterType=efType)
-				except AttributeError:
-					# No inline event_filter
-					pass				
+				if eventFilter:
+					self.setFilter(rule=rule, sensor=allSensors, track=efTrack, count=efCount, seconds=efSeconds, filterType=efType)			
 				
 				rev = rule.updateRule(raw, ruleRev, ruleMessage)
 				if rev:
@@ -339,6 +347,8 @@ class Update(models.Model):
 					return rule
 			else:
 				logger.debug("Rule %s/%s is already up to date" % (ruleSID, ruleRev))
+		else:
+			logger.warning("Expected rule '"+raw+"' was rejected: line does not match a correct sid/rev/msg/classtype.")
 				
 	def updateClassification(self, raw, ruleclasses = {}):
 		"""Method for updating the database with a new classification.
@@ -502,7 +512,36 @@ class Update(models.Model):
 			except (StopIteration, IndexError):
 				raise BadFormatError("Badly formatted sid-msg")
 			
-	def parseFile(self, fn, filePathTuple, **kwargs):
+	def updateFilter(self, raw):
+		matchPattern = ConfigPatterns.EVENT_FILTER
+		logger = logging.getLogger(__name__)
+		
+		result = re.match(matchPattern, raw)
+		
+		if result:
+
+			sid = int(result.group(1))
+			filterType = result.group(2)
+			track = result.group(3)
+			count = result.group(4)
+			seconds = result.group(5)
+
+			try:
+				rule = Rule.objects.get(SID=sid)
+				sensor = Sensor.objects.get(id=ALL_SENSORS)
+			except Rule.DoesNotExist:
+				message = "Got filter for rule sid="+str(sid)+", but rule does not exist!"
+				logger.warning(message)
+				raise MissingObjectError(message)
+			except Sensor.DoesNotExist:
+				message = "Sensor with id="+str(ALL_SENSORS)+" representing all sensors does not exist!"
+				logger.critical(message)
+				raise MissingObjectError(message)
+			
+			self.checkFilter(sid, track, count, seconds, filterType)
+			self.setFilter(rule, sensor, track, count, seconds, filterType)
+			
+	def parseFile(self, fn, filePathTuple, storeHash=True, **kwargs):
 		def parse():
 			"""Method for simple parsing of a file defined by filePathTuple. 
 			Every line is sent to the function defined by fn."""
@@ -512,50 +551,85 @@ class Update(models.Model):
 			logger = logging.getLogger(__name__)
 			logger.info("Parsing file "+absoluteFilepath)
 
-			try:
-				ruleFile = self.source.files.get(name=relativeFilePath)
-			except UpdateFile.DoesNotExist:
-				ruleFile = self.source.files.create(name=relativeFilePath, isParsed=False)
-			oldHash = ruleFile.checksum
-			newHash = md5sum(absoluteFilepath)
+			if storeHash:
+				try:
+					ruleFile = self.source.files.get(name=relativeFilePath)
+				except UpdateFile.DoesNotExist:
+					ruleFile = self.source.files.create(name=relativeFilePath, isParsed=False)
+				oldHash = ruleFile.checksum
+				newHash = md5sum(absoluteFilepath)
 	
-			if oldHash != newHash:
+			if not storeHash or (oldHash != newHash):
 				try:
 					infile = open(absoluteFilepath, "r")
 				except IOError:
 					logger.info("File '%s' not found, nothing to parse." % absoluteFilepath)
 					return
-					
-				ruleFile.isParsed = True
-				ruleFile.checksum = newHash
-				ruleFile.save()
+				
+				if storeHash:	
+					ruleFile.isParsed = True
+					ruleFile.checksum = newHash
+					ruleFile.save()
 					
 				it = iter(enumerate(infile))
+				previous = ""
 				for i,line in it:
 					
-					multiline = re.match(r"(.*)\\$",line)
-					if multiline:
-						partline = multiline.group(1)
-						while 1:
-							try:
-								i,nextline = it.next()
-								partline += re.match(r"(.*)\\$",nextline).group(1)
-							except AttributeError:
-								line = partline+nextline
-								break
+					# Concatinate the current line with the previous
+					line = previous + line
+					previous = ""
+					
+					# If the line is incomplete, store what we have, and read next line.
+					if(re.match(r"(.*)\\$",line)):
+						previous = line.rstrip("\\\n")
+					else:
+					
+# 					multiline = re.match(r"(.*)\\$",line)
+# 					if multiline:
+# 						partline = multiline.group(1)
+# 						while 1:
+# 							try:
+# 								i,nextline = it.next()
+# 								partline += re.match(r"(.*)\\$",nextline).group(1)
+# 							except AttributeError:
+# 								line = partline+nextline
+# 								break
 		
-					try:				
-						fn(raw=line, **kwargs)
-					except AbnormalRuleError:
-						logger.info("Skipping abnormal rule in '%s'" % absoluteFilepath)
-					except BadFormatError, e:
-						# Log exception message, file name and line number
-						logger.error("%s in file '%s', line %s." % (str(e), absoluteFilepath, str(i+1)))							
+						try:				
+							fn(raw=line, **kwargs)
+						except AbnormalRuleError:
+							logger.info("Skipping abnormal rule in '%s'" % absoluteFilepath)
+						except BadFormatError, e:
+							# Log exception message, file name and line number
+							logger.error("%s in file '%s', line %s." % (str(e), absoluteFilepath, str(i+1)))							
 			else :
 				logger.info("Skipping file '%s', new and old hashes are identical." % absoluteFilepath)
 		return parse
 
-	def parseConfigFile(self, filename):
+	def updateConfig(self, raw, filename, patterns, currentRules = {}, rulesets = {}, ruleclasses = {}, generators = {}):
+		"""Method to parse an ASCII configuration-file for snort, with undefined content."""
+		logger = logging.getLogger(__name__)
+
+		if patterns['rule'].match(raw):
+			logger.debug("Identified rule: %s" % raw)
+			self.updateRule(raw, filename, currentRules=currentRules, rulesets=rulesets, ruleclasses=ruleclasses, generators=generators)
+		elif patterns['reference'].match(raw):
+			logger.debug("Identified reference: %s" % raw)
+			self.updateReferenceConfig(raw)
+		elif patterns['class'].match(raw):
+			logger.debug("Identified Class: %s" % raw)
+			self.updateClassification(raw, ruleclasses=ruleclasses)
+		elif patterns['genmsg'].match(raw):
+			logger.debug("Identified GEN-Msg: %s" % raw)
+			self.updateGenMsg(raw, generators=generators)
+		elif patterns['sidmsg'].match(raw):
+			logger.debug("Identified SID-Msg: %s" % raw)
+			self.updateSidMsg(raw)
+		elif patterns['filter'].match(raw):
+			logger.debug("Identified event_filter: %s" % raw)
+			self.updateFilter(raw)
+
+	def parseConfigFile(self, path, storeHash=True, **kwargs):
 		"""Method to parse an ASCII configuration-file for snort, with undefined content."""
 		logger = logging.getLogger(__name__)
 		
@@ -566,73 +640,39 @@ class Update(models.Model):
 		patterns['class'] = re.compile(ConfigPatterns.CLASS)
 		patterns['genmsg'] = re.compile(ConfigPatterns.GENMSG)
 		patterns['sidmsg'] = re.compile(ConfigPatterns.SIDMSG)
+		patterns['filter'] = re.compile(ConfigPatterns.EVENT_FILTER)
 		
-		# Open the file, and parse it line by line.
-		logger.debug("Starting to parse \"%s\"" % filename)
-		
-		try:
-			f = open(filename, "r")
-		except IOError:
-			logger.error("Could not find the file \"%s\"" % filename)
-			return
-		
-		previous = ""
-		for line in f:
-			# Concatinate the current line with the previous
-			line = previous + line
-			previous = ""
-			
-			# If the line is incomplete, store what we have, and read next line.
-			if(line.endswith("\\")):
-				previous = line.rstrip("\\")
-			
-			# Otherwise, try to match the line with any of the patterns, and parse them appropriatly.
-			elif(patterns['rule'].match(line)):
-				logger.debug("Identified rule: %s" % line)
-				self.updateRule(line, filename)
-			elif(patterns['reference'].match(line)):
-				logger.debug("Identified reference: %s" % line)
-				self.updateReference(line)
-			elif(patterns['class'].match(line)):
-				logger.debug("Identified Class: %s" % line)
-				self.updateClassification(line)
-			elif(patterns['genmsg'].match(line)):
-				logger.debug("Identified GEN-Msg: %s" % line)
-				self.updateGenMsg(line)
-			elif(patterns['sidmsg'].match(line)):
-				logger.debug("Identified SID-Msg: %s" % line)
-				self.updateSidMsg(line)
-
-		f.close()
-		logger.debug("Finished parsing \"%s\"" % filename)
+		filename = os.path.basename(path[0])
+		self.parseFile(self.updateConfig, path, storeHash, filename=filename, patterns=patterns, **kwargs)()
 	
-	def setFilter(self, rule, track, count, seconds, filterType=None):
+	def checkFilter(self, sid, track, count, seconds, filterType=None):
 		logger = logging.getLogger(__name__)
 
 		try:
-			count = int(count)
-			seconds = int(seconds)
+			if int(count) or int(seconds):
+				pass
 		except ValueError:
-			message = "Badly formatted filter in rule "+str(rule)+": expected numeric value."
+			message = "Badly formatted filter in rule "+str(sid)+": expected numeric value."
 			logger.error(message)
 			raise BadFormatError(message)
+
+		if track != "by_src" and track != "by_dst":
+			message = "Badly formatted filter in rule "+str(sid)+": invalid track parameter '"+track+"'."
+			logger.error(message)
+			raise BadFormatError(message)
+		
+	def setFilter(self, rule, sensor, track, count, seconds, filterType=None):
+		"""All values should be checked for errors before being passed to this function."""
+		
+		logger = logging.getLogger(__name__)
+
+		count = int(count)
+		seconds = int(seconds)
 
 		if track == "by_src":
 			track = EventFilter.SOURCE
 		elif track == "by_dst":
-			track = EventFilter.DESTINATION
-		else:
-			message = "Badly formatted filter in rule "+str(rule)+": invalid track parameter."
-			logger.error(message)
-			raise BadFormatError(message)
-		
-		# Get 'all sensors' object:
-		try:
-			allSensors = Sensor.objects.get(id=ALL_SENSORS)
-		except Sensor.DoesNotExist:
-			message = "Object with id="+ALL_SENSORS+", representing all sensors does not exist in database."
-			raise MissingObjectError(message)
-			logger.critical(message)	
+			track = EventFilter.DESTINATION	
 		
 		if filterType is not None:
 			objects = EventFilter.objects
@@ -650,15 +690,15 @@ class Update(models.Model):
 				logger.error(message)
 				raise BadFormatError(message)
 				
-			arguments = {'rule':rule, 'sensor':allSensors, 'eventFilterType':filterType, 'track':track, 'count':count, 'seconds':seconds}
+			arguments = {'rule':rule, 'sensor':sensor, 'eventFilterType':filterType, 'track':track, 'count':count, 'seconds':seconds}
 		else:
 			objects = DetectionFilter.objects
 			newTypeString = "newDetectionFilter"
 			updateTypeString = "updatedDetectionFilter" 
-			arguments = {'rule':rule, 'sensor':allSensors, 'track':track, 'count':count, 'seconds':seconds}		
+			arguments = {'rule':rule, 'sensor':sensor, 'track':track, 'count':count, 'seconds':seconds}		
 		
 		try:
-			defaultFilter = objects.get(rule=rule, sensor=allSensors)
+			defaultFilter = objects.get(rule=rule, sensor=sensor)
 			
 			# Overwrite filter if update 'always' is set, or if update 'sometimes'
 			# and the last filter was set by system.
@@ -666,13 +706,14 @@ class Update(models.Model):
 			   (Config.get("update", "overwriteFilters") == "sometimes" and\
 			    	 		  defaultFilter.comment.user == SYSTEM_USER):
 
+				defaultFilter.eventFilterType = filterType
 				defaultFilter.track = track
 				defaultFilter.count = count
 				defaultFilter.seconds = seconds
 				# We delete the old comment object and make a new one.
 				defaultFilter.comment.delete()
 				defaultFilter.comment = Comment.objects.create(user=SYSTEM_USER,comment="Added from update of "+str(self.source.name), type=updateTypeString)
-	
+				defaultFilter.save()
 		except (DetectionFilter.DoesNotExist, EventFilter.DoesNotExist):
 			comment = Comment.objects.create(user=SYSTEM_USER,comment="Added from update of "+str(self.source.name)+"", type=newTypeString)
 			objects.create(comment=comment, **arguments)
