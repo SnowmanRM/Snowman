@@ -6,16 +6,19 @@ import xmlrpclib
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.timezone import utc
 
+from util.config import Config
+from util.constants import dbObjects
 from util.tools import Replace, Timeout
+from util.patterns import ConfigPatterns
 
 from srm.settings import DATABASES
-from util.config import Config
 
-"""This python-model contains the data-models for the core
-data. This includes the Rules and revisions, Rulesets, RuleClasses,
-RuleReferences and Sensors."""
+from core.exceptions import MissingObjectError
+
+"""This module contains the data models for the core data.
+This includes Rules and revisions, Rulesets, RuleClasses,
+RuleReferences, Sensors and more."""
 
 class Generator(models.Model):
 	"""The Generator class is to hold the data of gen-msg.conf. Generators,
@@ -36,11 +39,11 @@ class Generator(models.Model):
 		return "<Generator GID:%d, alertID:%d>" % (self.GID, self.alertID)
 
 class Rule(models.Model):
-	"""The Rule class contains only some meta-info about a specific
-	rule. The SID, if the rule should be active, and to which ruleset
-	this rule should belong to is the relevant data to store here.
+	"""The Rule class only contains some meta-info about a specific
+	rule: its SID, if the rule is active, and to which ruleset
+	the rule belongs.
 	
-	The real data of the rule should be stored in a RuleRevision."""
+	Other specific data about rule is stored in RuleRevision objects."""
 
 	SID = models.IntegerField(unique=True)
 	active = models.BooleanField()
@@ -62,15 +65,25 @@ class Rule(models.Model):
 
 	
 	def updateRule(self, raw, rev = None, msg = None):
-		"""This method recieves a rule, and if needed, creates a new RuleRevision object, and inserts into
-		the list of revisions belonging to this rule. If the rev on the new rule is equal, or smaller than
-		the last in revisions, nothing is done.
+		"""This method receives a rule, creates a new RuleRevision object 
+		(if needed), and inserts into the list of revisions belonging to 
+		this rule. If the rev-number on the new rule is equal or lower than
+		the last in revisions (i.e. the revision is not newer), nothing is done.
 		
-		If rev/active/msg is not supplied, they will be extracted from the raw string"""
+		If rev/active/msg is not passed, they will be extracted from the raw string.
+		
+		Returns new revision object if one is created, None otherwise."""
 
 		logger = logging.getLogger(__name__)
 
-		# TODO: Parse raw for arguments that is not supplied by caller.
+		if rev is None or msg is None:
+			# At least one parameter is missing, parse rulestring:
+			# Construct a regex to match all elements a raw rulestring 
+			# must have in order to be considered a valid rule
+			# (sid, rev, message and classtype):
+			result = re.match(ConfigPatterns.RULE, raw)
+			rev = rev or result.group(3)
+			msg = msg or result.group(4)
 		
 		# Try to grab the latest revision from the database
 		try:
@@ -78,9 +91,18 @@ class Rule(models.Model):
 		except RuleRevision.DoesNotExist:
 			lastRev = None
 		
-		# If no revisions are found, or the last revision is smaller than the new one,
+		# If no revisions are found, or the last revision is lower than the new one,
 		#   add the new revision to the database.
 		if(lastRev == None or int(lastRev.rev) < int(rev)):
+			
+			# TODO: Not checked:
+			maxRevisions = int(Config.get("update", "maxRevisions"))
+			activateNewRevisions = Config.get("update", "activateNewRevisions")
+
+			if activateNewRevisions == "true":
+				activate = True
+			else:
+				activate = False
 			
 			# Remove filters from raw string before storage:
 			replace = Replace("")			
@@ -92,10 +114,15 @@ class Rule(models.Model):
 			filters += replace.matched or ""
 			
 			raw = " ".join(raw.split())
-			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=True, msg=msg, raw=raw)
-			rev.filters = filters
-			rev.save()
+			rev = RuleRevision.objects.create(rule=self, rev=int(rev), active=activate, msg=msg, raw=raw, filters=filters)
 			logger.debug("Updated rule-revision:" + str(rev))
+			
+			# Delete old revisions:
+			if maxRevisions > 0:
+				while self.revisions.count() > maxRevisions:
+					rev_min = self.revisions.all().aggregate(models.Min("rev"))["rev__min"]
+					self.revisions.get(rev=rev_min).delete()
+
 			return rev
 		
 		return None
@@ -160,8 +187,11 @@ class Rule(models.Model):
 		return result
 	
 class RuleClass(models.Model):
-	"""A ruleclass have a name, and a priority. All Rule objects should
-	be a part of a RuleClass"""
+	"""Class modeling a rule classification (ruleclass). Contains the name, 
+	description and priority for the ruleclass. All Rule objects should have
+	a classification, and thus be connected to one RuleClass.
+	
+	The ruleclass name (classtype field) must be unique."""
 
 	classtype = models.CharField(max_length=80,unique=True)
 	description = models.TextField()
@@ -176,7 +206,10 @@ class RuleClass(models.Model):
 class RuleReference(models.Model):
 	"""A RuleReference contains information on where to find more info
 	about a specific rule. It is of a certain type (which contains an
-	urlPrefix), and a reference."""
+	urlPrefix), and a reference.
+	
+	Since multiple references can exist for one rule, all three fields
+	together constitute a unique entry in the database."""
 	
 	reference = models.CharField(max_length=250)
 	referenceType = models.ForeignKey('RuleReferenceType', related_name='references')
@@ -200,7 +233,7 @@ class RuleReference(models.Model):
 class RuleReferenceType(models.Model):
 	""" RuleReferenceType is the different types a certain rulereference
 	might be. It contains a name, which we find in the raw rules, and a
-	urlPrefix """
+	urlPrefix. Name must be unique in the database. """
 
 	name = models.CharField(max_length=30, unique=True)
 	urlPrefix = models.CharField(max_length=80)
@@ -250,10 +283,11 @@ class RuleRevision(models.Model):
 		return referenceList 
 
 class RuleSet(models.Model):
-	"""A RuleSet, is a set of rules. Alle Rule objects should have
-	a reference to the ruleset they belong. The RuleSet object should
-	only contain the metainfo for the set. Name, description, and 
-	wheter it should be active or not."""
+	"""A RuleSet is a set of rules. All Rule objects must have
+	a reference to the ruleset in which they belong. The RuleSet-
+	object contains metainfo for the set: Name, description, and 
+	whether it is active or not. A ruleset can also be part of
+	another ruleset in a hierarchical structure. Name must be unique."""
 
 	name = models.CharField(max_length=100, unique=True)
 	parent = models.ForeignKey('RuleSet', null=True, related_name='childSets')
@@ -314,7 +348,7 @@ class RuleSet(models.Model):
 
 class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
-	contains name, address and the secret used for authentication."""
+	contains name (unique), address and the secret used for authentication."""
 
 	AVAILABLE = 0
 	UNAVAILABLE = 1
@@ -422,6 +456,18 @@ class Sensor(models.Model):
 			sensor.lastStatus = status['status']
 			sensor.lastChecked = datetime.datetime.utcnow().replace(tzinfo=utc)
 			sensor.save()
+			
+	@staticmethod
+	def getAllSensors():
+		logger = logging.getLogger(__name__)
+		sensorid = dbObjects.SENSORS_ALL
+		# Get 'all sensors' object:
+		try:
+			return Sensor.objects.get(id=sensorid)
+		except Sensor.DoesNotExist:
+			message = "Object with id="+str(sensorid)+", representing all sensors does not exist in database."
+			raise MissingObjectError(message)
+			logger.critical(message)
 
 class Comment(models.Model):
 	"""
@@ -431,7 +477,7 @@ class Comment(models.Model):
 	time = models.DateTimeField(default = datetime.datetime.now())
 	comment = models.TextField()
 	type = models.CharField(max_length=100, default="")
-	foreignKey = models.IntegerField(null=True)
+	#foreignKey = models.IntegerField(null=True)
 	
 	def __repr__(self):
 			return "<Comment user:%s, time:None, comment:%s, type:'%s', foreignKey:%s>" % (self.user, self.time, self.comment, self.foreignKey)

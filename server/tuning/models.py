@@ -2,7 +2,7 @@ from django.db import models
 
 from core.models import Rule, Sensor, Comment
 
-
+# TODO: Remove
 class RuleModifier(models.Model):
 	"""The RuleModifier let us modifiy if a rule should be present on
 	a sensor or not, regardless of what the ruleset says."""
@@ -57,6 +57,7 @@ class SuppressAddress(models.Model):
 		return "<SupressAddress %s>" % (self.ipAddress)
 
 class DetectionFilter(models.Model):
+	"""Class modeling a detection_filter. Only one per rule per sensor allowed."""
 	
 	rule = models.ForeignKey(Rule, related_name = 'detectionFilters')
 	sensor = models.ForeignKey(Sensor, related_name = 'detectionFilters')
@@ -77,8 +78,7 @@ class DetectionFilter(models.Model):
 		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
 		
 class EventFilter(models.Model):
-	"""EventFilter are assigne to a specific rule on a specific sensor,
-	and lets us put a certain type of EventFilters to this rule."""
+	"""Class modeling an event_filter. Only one per rule per sensor allowed."""
 
 	# Constants for the "eventFilterType" parametre
 	TYPE = {1: "limit", 2: "threshold", 3:"both"}
