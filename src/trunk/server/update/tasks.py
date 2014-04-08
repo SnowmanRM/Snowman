@@ -32,6 +32,12 @@ class UpdateTasks:
 			update = Update.objects.create(source = source, time=datetime.datetime.now())
 			source = update.source
 
+		# Add our custom mimetypes:
+		mimetypes.add_type('text/plain', '.rules')
+		mimetypes.add_type('text/plain', '.conf')
+		mimetypes.add_type('text/plain', '.config')
+		mimetypes.add_type('text/plain', '.map')
+		
 		filetype = mimetypes.guess_type(filename)
 		if(filetype[0] == 'text/plain'):
 			logger.debug("%d File is identified as plaintext" % os.getpid())

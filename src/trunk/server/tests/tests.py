@@ -127,6 +127,10 @@ class Test(TestCase):
 		# Check filter
 		rule.eventFilters.get(sensor=self.allSensors, eventFilterType=EventFilter.LIMIT, track=EventFilter.SOURCE, count=1, seconds=60)
 		
+	def test_runUpdate(self):
+		UpdateTasks.runUpdate("update/test.rules")
+		rule = Rule.objects.get(SID=2000000, active=True, priority=10)
+		
 # 	def test_weirdRule(self):
 # 		rule = self.update.updateRule('alert udp any 53 -> ![$DNS_SERVERS,$SMTP_SERVERS] any (msg:"ET POLICY Unusual number of DNS No Such Name Responses"; content:"|83|"; offset:3; depth:1; threshold: type both , track by_dst, count 50, seconds 300; reference:url,doc.emergingthreats.net/2003195; classtype:bad-unknown; sid:2003195; rev:5;)', "example2.rules")
 # 		rule.revisions.get(rev=5)
