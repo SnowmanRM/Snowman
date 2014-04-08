@@ -186,6 +186,16 @@ class Rule(models.Model):
 		
 		return result
 	
+	def getEventFilter(self):
+		s = self
+		while s != None:
+			try:
+				eventFilter = s.eventFilters.get(rule=rule)
+			except EventFilter.DoesNotExist:
+				s = s.parent
+		return False
+		
+	
 class RuleClass(models.Model):
 	"""Class modeling a rule classification (ruleclass). Contains the name, 
 	description and priority for the ruleclass. All Rule objects should have
@@ -310,14 +320,14 @@ class RuleSet(models.Model):
 		return noRules
 	
 	def getRuleRevisions(self, active):
-		"""This method returns a dictionary, where the key is the SID, and the data is the
-		most recent rev, for all the rules that is in this (or any childs of this) RuleSet."""
 		revisions = {}
 		
 		# Collect the rules in this ruleSet
 		for rule in self.rules.all():
 			if(active == None or active == rule.active):
-				revisions[str(rule.SID)] = rule.getCurrentRevision().rev
+				revisions[str(rule.SID)] = {}
+				revisions[str(rule.SID)]['rule'] = rule
+				revisions[str(rule.SID)]['rev'] = rule.getCurrentRevision()
 		
 		# Collect the sid of the rules in child-rulesets.
 		for ruleSet in self.childSets.all():

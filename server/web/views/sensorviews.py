@@ -15,8 +15,9 @@ from web.utilities import sensorsToFormTemplate
 
 
 def index(request):
+	parent = Sensor.objects.get(name="All")
 	data = {}
-	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=None)
+	data['sensors'] = Sensor.objects.filter(parent=parent).order_by('name')
 	data['isMain'] = True
 	#data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/index.tpl", data)
@@ -30,8 +31,9 @@ def getSensorChildren(request, sensorID):
 	return render(request, "sensor/sensorList.tpl", data)
 
 def getCreateSensorForm(request):
+	parent = Sensor.objects.get(name="All")
 	data = {}
-	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=None)
+	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=parent)
 	
 	data['sensors'] = sensorsToFormTemplate(data['sensors'], 0)
 	return render(request, "sensor/createSensorForm.tpl", data)
@@ -96,7 +98,9 @@ def createSensor(request):
 					else:
 						autonomous = False	
 					
-					sensor = Sensor.objects.create(name=sensorName, ipAddress=sensorIP, autonomous=autonomous, user=user, active=True)
+					sensorAll = Sensor.objects.get(name="All")
+					sensor = Sensor.objects.create(name=sensorName, parent=sensorAll, ipAddress=sensorIP, autonomous=autonomous, 
+														user=user, active=True)
 					
 					if children:
 						for child in children:
@@ -214,7 +218,7 @@ def editSensor(request):
 		
 	# If the sensor is not to have a parent, we set the parent to be None.
 	if not parent:
-		sensor.parent = None
+		sensor.parent = Sensor.objects.get(name="All")
 		logger.info("Sensor "+str(sensor)+" no longer has a parent.")
 		edited = True
 	

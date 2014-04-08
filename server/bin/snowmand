@@ -144,11 +144,17 @@ class RPCInterface():
 		rulesets, and from there collects all the SID/rev pairs from them.
 		The SID/rev information is then returned to the sensor."""
 		sensor = cache['session'][token]['sensor']
-		rulerevisions = {}
 		
+		activeRules = {}
 		for ruleSet in sensor.ruleSets.all():
 			if(ruleSet.active):
-				rulerevisions.update(ruleSet.getRuleRevisions(True))
+				activeRules.update(ruleSet.getRuleRevisions(True))
+		
+		rulerevisions = {}
+		for sid in activeRules:
+			rulerevisions[sid] = activeRules[sid]['rev'].rev
+		
+		cache['session'][token]['rules'] = activeRules
 		
 		return {'status': True, 'revisions': rulerevisions}
 	
@@ -188,16 +194,22 @@ class RPCInterface():
 
 		# For every  sid in the list:
 		for r in rulelist:
-			# Fetch the rule from the database, and collect the basic parametres from the rule.
-			rule = Rule.objects.get(SID=r)
+			try:
+				rule = cache['session'][token]['rules'][str(r)]['rule']
+				rev = cache['session'][token]['rules'][str(r)]['rev']
+			except KeyError:
+				# Fetch the rule from the database, and collect the basic parametres from the rule.
+				rule = Rule.objects.get(SID=r)
+				rev = rule.revisions.last()
+
 			dictRule = {}
 			dictRule['SID'] = rule.SID
-			dictRule['rev'] = rule.revisions.last().rev
-			dictRule['msg'] = rule.revisions.last().msg
-			dictRule['raw'] = rule.revisions.last().raw
+			dictRule['rev'] = rev.rev
+			dictRule['msg'] = rev.msg
+			dictRule['raw'] = rev.raw
 			dictRule['ruleset'] = rule.ruleSet.name
 			dictRule['ruleclass'] = rule.ruleClass.classtype
-			dictRule['references'] = rule.revisions.last().getReferences()
+			dictRule['references'] = rev.getReferences()
 			
 			eventFilter = None
 			detectionFilter = None
