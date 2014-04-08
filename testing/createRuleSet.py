@@ -18,7 +18,7 @@ def createRuleFile(SID, path, name, noRules):
 if __name__ == "__main__":
 	path = "/tmp/ruleset/"
 	SID = 40000000
-	rulesPerFile = 10
+	rulesPerFile = 1000
 	
 	if(len(sys.argv) > 1):
 		noRules = int(sys.argv[1])
