@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """
+This is a timed version of the runBackgroundUpdate script. There are only two differences:
+ - This one stores some timing-statistics to /tmp/srm-update-timing.txt
+ - It does not double-fork.
 """
 
 import datetime
@@ -17,8 +20,8 @@ scriptdir = os.path.dirname(scriptpath)
 parentdir = os.path.dirname(scriptdir)
 sys.path.append(parentdir)
 
-from util.tools import doubleFork
-doubleFork()
+#from util.tools import doubleFork
+#doubleFork()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
@@ -31,7 +34,8 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
 	logger = logging.getLogger(__name__)
-	
+	start = datetime.datetime.now()
+
 	# Grab the parametres.
 	try:
 		sourceID = int(sys.argv[1])
@@ -137,3 +141,8 @@ if __name__ == "__main__":
 	
 	if(update.ruleRevisions.count() == 0):
 		update.delete()
+	
+	end = datetime.datetime.now()
+	timefile = open("/tmp/srm-update-timing.txt", "a")
+	timefile.write("Time: %s\n" % str(end - start))
+	timefile.close()
