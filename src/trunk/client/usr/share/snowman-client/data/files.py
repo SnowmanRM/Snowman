@@ -44,7 +44,7 @@ class ConfigGenerator:
 		
 		if(os.path.exists(self.configlocation) == False):
 			logger.warning("Location for the configfiles does not exist. Creating the folders.")
-			os.makedirs(self.configlocation, 755)
+			os.makedirs(self.configlocation, 0755)
 	
 	def cleanup(self):
 		for filename in os.listdir(self.configlocation):
