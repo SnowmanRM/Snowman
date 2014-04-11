@@ -5,3 +5,39 @@ for evt. plassering i vedlegg. Ved bruk av diagrammer skal det gis beskrivende t
 Resultatene skal kort kommenteres, men ikke diskuteres. Viktige resultater gjengis
 kortfattet under ”Sammendrag”. En oversikt over tabeller og diagrammer med nummer og titler
 kan plasseres etter innholdsfortegnelsen.
+
+ Mean times calculated from five
+  sequential test results.
+  See appendix for a complete listing of results.
+  
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+
+\begin{table}[tbp]
+  \centering
+  \begin{tabular}{r|r|r|r|r|r|r}
+  	& \multicolumn{1}{c|}{No. of rules} &
+  	\multicolumn{1}{c|}{No. of files} & \multicolumn{1}{c|}{Rules per file} & \multicolumn{1}{c|}{S1} & \multicolumn{1}{c|}{S2} & \multicolumn{1}{c}{S3} \\
+    \hline
+    %Snortmanager &&&&&\\
+    Snortmanager &1 & 1 & 1 &  228.617 & 36.960 & N/A \\
+    &10 & 1 & 10  & 265.275 & 37.569 & N/A \\
+    &100 & 10 & 10  & 1251.275 & 159.113 & N/A \\
+    &1000 & 1 & 1000  & 1836.396 & 228.044 & N/A \\
+    &1000 & 100 & 10  & 9470.460 & 1360.276 & N/A \\
+    &10000 & 1000 & 10  & 92428.555 & 13523.887 & N/A \\
+    \hline
+    BHTB &1 & 1 & 1 &  228.617 & 36.960 & N/A \\
+    &10 & 1 & 10  & 265.275 & 37.569 & N/A \\
+    &100 & 10 & 10  & 1251.275 & 159.113 & N/A \\
+    &1000 & 1 & 1000  & 1836.396 & 228.044 & N/A \\
+    &1000 & 100 & 10  & 9470.460 & 1360.276 & N/A \\
+    &10000 & 1000 & 10  & 92428.555 & 13523.887 & N/A \\
+    \hline
+
+  \end{tabular}
+  \caption{Test results for Snortmanager.}
+  \label{tab:testSM}
+\end{table}
+
+    %1000 & 100 & 10 & Yes & No & 1763.480 & 205.956 & N/A \\

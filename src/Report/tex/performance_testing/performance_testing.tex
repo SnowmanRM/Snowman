@@ -1,0 +1,73 @@
+% Tilstrekkelig beskrivelse til at forsøk og undersøkelser kan reproduseres og etterprøves:
+% - Forsøksbetingelser, og hvordan disse stemmer med prinsipper beskrevet i kapittel 2.
+% - Praktisk fremgangsmåte.
+% - Analysemetode (oftest i vedlegg).
+
+\chapter{PERFORMANCE TESTING}
+
+Beskriv testenes form\aa l og relater dette til kravspec.
+
+The software is tested on three different architectures
+
+To minimize error, each test was run five times where the mean value of the runs
+is considered the valid test result.
+
+\section{Environment}
+Beskriv testoppsett. maskinvare, nettverk, programvare, etc.
+
+\subsection{Test cases}
+
+\subsubsection{Update processing}
+\paragraph{Q1: How fast can the software process an update?}
+The purpose of this question is to determine the average
+processing time per rule. Results are ranked from short to long
+processing time, where shorter is better.
+
+\paragraph{Q2: How strong is the linear correlation between processing time and
+the size of an update?}
+This question rises from the requirements specification of Snowman (chapter
+\ref{chap:requirements_spec}), where it is stated that Snowman shall exhibit a
+linear increase in processing time in correlation to the number of rules in the
+update (where the number of rules depicts the update size). Results are ranked
+from strong correlation to no correlation, where stronger is better.
+% TODO: remeber to explain, either here or in the rec. spec., why this is an
+% important measure, e.g. no coorelation might imply programming errors.
+ 
+\paragraph{Q3: Does raising the ratio between files and rules increase
+processing time?}
+Updates can come with the rules either gathered in one file, or distributed over 
+several files. This question is asked to examine the difference in processing
+time for these two scenarios. Results are ranked from no difference to big
+difference, where less difference is better.
+
+%\paragraph{Q4: Is the processing time identical for active and inactive
+%rules?}
+%Assess whether active and inactive rules are parsed differently..?
+% -do we really need this? We can just check the source code.
+% Question abandoned.
+
+\paragraph{Q4: Is the processing time shorter when the update contains no new
+rules?}
+
+
+\paragraph{Q5: Are the processing times for two updates identical when only one
+rule has changed between the updates?}
+This question seeks to determine how the software handles an update when there
+is only one change from the previous update. This is an important factor to
+consider, since an update usually contains only a small amount of changes from
+previous updates. Results are ranked from short processing time for second
+update to no difference in processing time, where shorter time is better.
+
+%TODO: when analyzing results, be sure to highligt that a completely new
+% update is run once, and subsequent updates often contain a small amount 
+% of changes. 
+
+
+
+
+
+
+
+
+
+An automatically generated update is used for Q1 through Q6
