@@ -1,13 +1,12 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.db.models import Count
-from django.contrib.auth.decorators import login_required
+
 from core.models import Rule, RuleRevision, Sensor, RuleSet
 from update.models import Update
 from web.utilities import UserSettings, ruleSetsToTemplate, ruleSetHierarchyListToTemplate, ruleSetsWithNewRulesToTemplate, ruleSetsWithNewRuleRevisionsToTemplate
 import logging, json
 
-@login_required
 def index(request):
 	"""This method is called when the url /ruleset/ is called.
 	
@@ -38,7 +37,6 @@ def index(request):
 	
 	return render(request, 'ruleset/ruleSet.tpl', context)
 
-@login_required
 def getRuleSetByUpdate(request, updateID):
 	"""This method is called when the url /ruleset/byUpdate/ is called.
 	
@@ -75,7 +73,6 @@ def getRuleSetByUpdate(request, updateID):
 
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 	
-@login_required
 def getRuleSetByUpdateNewRules(request, updateID):
 	"""This method is called when the url /ruleset/byNewRules is called.
 	
@@ -113,7 +110,6 @@ def getRuleSetByUpdateNewRules(request, updateID):
 	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
-@login_required
 def getRuleSetByUpdateNewRuleRevisions(request, updateID):
 	"""This method is called when the url /ruleset/byNewRuleRevisions is called.
 	
@@ -148,10 +144,9 @@ def getRuleSetByUpdateNewRuleRevisions(request, updateID):
 	# Process the objects before we give them to the template.
 	context['ruleset_list'] = ruleSetsWithNewRuleRevisionsToTemplate(context['ruleset_list'], update)
 	
-	#return HttpResponse(context['ruleset_list'])
+	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
-@login_required
 def getRuleSetChildren(request,ruleSetID):
 	"""This method is called when the url /ruleset/children/ is called.
 	
@@ -184,7 +179,6 @@ def getRuleSetChildren(request,ruleSetID):
 
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
-@login_required
 def getCreateRuleSetForm(request):
 	"""This method is called when the url /ruleset/getCreateRuleSetForm/ is called.
 	It delivers a form to the render.
@@ -206,7 +200,6 @@ def getCreateRuleSetForm(request):
 	# Send to template.
 	return render(request, 'ruleset/createRuleSetForm.tpl', context)
 
-@login_required
 def getEditRuleSetForm(request, ruleSetID):
 	"""This method is called when the url /ruleset/getEditRuleSetForm/ is called.
 	It delivers a form to the render.
@@ -242,7 +235,6 @@ def getEditRuleSetForm(request, ruleSetID):
 	# Send to template.
 	return render(request, 'ruleset/editRuleSetForm.tpl', context)
 
-@login_required
 def getReorganizeRulesForm(request):
 	"""This method is called when the url /ruleset/getReorganizeRulesForm/ is called.
 	It delivers a form to the render.
@@ -265,7 +257,6 @@ def getReorganizeRulesForm(request):
 	# Send to template.
 	return render(request, 'ruleset/reorganizeRulesForm.tpl', context)
 
-@login_required
 def createRuleSet(request):
 	"""This method is called when the url /ruleset/createRuleSet/ is called.
 	It takes a set of variables through POST and then creates a RuleSet object based on them.
@@ -295,8 +286,7 @@ def createRuleSet(request):
 			children = False
 		elif request.POST.getlist('children'):
 			children = request.POST.getlist('children')
-		else:
-			children = False
+			
 		# We create the new ruleset.
 		try:
 			r = RuleSet.objects.create(name=ruleSetName, active=False, parent=None, description=ruleSetName)
@@ -320,7 +310,6 @@ def createRuleSet(request):
 			return HttpResponse(json.dumps(response))
 
 
-@login_required
 def editRuleSet(request):
 	"""This method is called when the url /ruleset/editRuleSet/ is called.
 	It takes a set of variables through POST and then updates a RuleSet object based on them.
@@ -334,18 +323,14 @@ def editRuleSet(request):
 	edited = False
 	
 	# We get the ID of the ruleset we're editing.
-	if request.POST.get('id'):
-		ruleSetID = request.POST['id']
-	else:
-		response.append({'response': 'noRuleSetID', 'text': 'The POST did not deliver a RuleSet ID.'})
-		return HttpResponse(json.dumps(response))
+	ruleSetID = request.POST['id']
 	
 	# We check to see if the ruleset we want to edit exists.
 	try:
 		ruleSet = RuleSet.objects.get(id=ruleSetID)
 	except RuleSet.DoesNotExist:
 		response.append({'response': 'ruleSetDoesNotExists', 'text': 'RuleSet ID '+ruleSetID+' could not be found.'})
-		logger.warning("RuleSet ID "+ruleSetID+" could not be found.")
+		logger.warning("RuleSet ID "+ruleSet+" could not be found.")
 		return HttpResponse(json.dumps(response))
 	
 	# We check to see if theres a ruleset name given.
@@ -435,6 +420,7 @@ def editRuleSet(request):
 			if not inbreeding and child != ruleSet:
 				ruleSet.childSets.add(child)
 				edited = True
+				response.append({'response': 'test'})
 			
 			# If there was some form of inbreeding.
 			elif inbreeding or child == ruleSet:
@@ -508,7 +494,6 @@ def editRuleSet(request):
 	
 	return HttpResponse(json.dumps(response))
 
-@login_required
 def deleteRuleSet(request):
 	"""This method is called when the url /ruleset/editRuleSet/ is called.
 	It takes a set of variables through POST and then deletes RuleSet objects based on them.
@@ -534,7 +519,7 @@ def deleteRuleSet(request):
 
 		except RuleSet.DoesNotExist:
 			response.append({'response': 'ruleSetDoesNotExists', 'text': 'RuleSet ID '+ruleSetID+' could not be found.'})
-			logger.warning("RuleSet ID "+str(ruleSetID)+" could not be found.")
+			logger.warning("RuleSet ID "+str(ruleSet)+" could not be found.")
 			return HttpResponse(json.dumps(response))
 	
 		# If the ruleset has children, we have to deal with their relations.

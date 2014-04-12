@@ -19,7 +19,7 @@
 		<th class="text-center">
 			Updated
 		</th>
-		<th class="test-left">
+		<th class="left">
 			Name
 		</th>
 		<th class="text-center">
@@ -47,13 +47,13 @@
 				<input id="checkbox" rid="{{rule.ruleID}}" gid="{{ rule.ruleGID }}" sid="{{ rule.ruleSID }}" status="{% if rule.ruleThresholdCount %} T{% endif %}
 				{% if rule.ruleSuppressCount %} S{% endif %}" type="checkbox">
 			</td>
-			<td class="text-center">
+			<td class="text-right">
 				{{ rule.ruleSID }}
 			</td>
-			<td class="text-center">
+			<td class="text-right">
 				{{ rule.ruleRev }}
 			</td>
-			<td class="text-center">
+			<td class="text-right">
 				{{ rule.ruleUpdateTime|date:"Y-m-d" }}
 			</td>
 			<td class="wrappable">
@@ -71,7 +71,7 @@
 			<td class="text-center">
 				<span class="badge {{ rule.ruleClassPriorityColor }}">{{ rule.ruleClassPriority }}</span>
 			</td>
-			<td class="text-right">
+			<td class="text-right wrappable">
 				
 				{% if rule.ruleDetectionFilterCount %}<span class="badge btn-warning">D</span>{% endif %}
 				{% if rule.ruleEventFilterCount %}<span class="badge btn-warning">E</span>{% endif %}
@@ -100,7 +100,7 @@
 					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 						<div class="panel panel-default">
 		  					<div class="panel-heading">References</div>
-							<div class="list-group scrolled">
+							<div class="list-group">
 							{% for reference in rule.ruleReferences %}
 								<a class="list-group-item" href="{{ reference.urlPrefix }}{{ reference.reference }}">{{ reference.urlPrefix }}{{ reference.reference }}</a>
 							{% endfor %}
@@ -110,7 +110,7 @@
 					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 						<div class="panel panel-default">
 		  					<div class="panel-heading">Active On Sensors:</div>
-		  					<ul class="list-group scrolled">
+		  					<ul class="list-group">
 							{% for sensorName in rule.ruleActiveOnSensors %}
 								<li class="list-group-item">{{ sensorName }}</li>
 							{% endfor %}
@@ -123,7 +123,7 @@
 		 {% endfor %}
 	    
 	    {% else %}
-	    <tr class="even"><td colspan="10">No rules are available.</tr></tr>
+	    <tr class="even"><td colspan="9">No rules are available.</tr></tr>
 		{% endif %}
 	</tbody>
 </table>

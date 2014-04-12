@@ -30,19 +30,7 @@
 						<li><a href="/web/update/changes/">Changes</a></li>
 					</ul>
 				</li>
-				{% if user.is_staff %}<li><a href="/web/users/">User Administration</a></li>{% endif %}
 			</ul>
-			
-			<div class="btn-group pull-right">
-				<button id="syncAllSensors" class="btn btn-success">Sync All Sensors</button>
-				{% if user.is_authenticated %}<button id="logOut" class="btn btn-warning">Logout</button>{% endif %}
-			</div>
-			<div class="pull-right">
-			
-				{% if user.is_authenticated %}<h4 id="userNameDisplay">Logged in as {{ user.first_name }} {{ user.last_name }}</h4>{% endif %}
-			</div>
-			
 		</div>
-		
 	</div>
 </div>

@@ -3,7 +3,7 @@ The forms used by the update-views.
 """
 from django import forms
 from django.forms import ModelChoiceField
-from django.contrib.auth.decorators import login_required
+
 from update.models import Source
 
 class NameModelChoiceField(ModelChoiceField):

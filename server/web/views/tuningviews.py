@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+
 from core.models import Rule, RuleRevision, Sensor, Generator, RuleSet, Comment
 from core.exceptions import MissingObjectError
 from tuning.models import EventFilter, DetectionFilter, Suppress, SuppressAddress
@@ -9,10 +9,8 @@ from web.utilities import UserSettings
 from web.exceptions import InvalidValueError
 import logging, json, re
 from itertools import chain
-from util import patterns
 
 
-@login_required
 def index(request):
 	"""This method is loaded when the /tuning/tuningByRule/ is called. 
 	It delivers the first page of tuning objects. """
@@ -61,7 +59,6 @@ def index(request):
 	# Send to template.
 	return render(request, 'tuning/tuning.tpl', context)
 
-@login_required
 def tuningPage(request, pagenr):
 	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
 	It delivers the page specified page of tuning objects. """
@@ -111,7 +108,6 @@ def tuningPage(request, pagenr):
 	# Send to template.
 	return render(request, 'tuning/tuningPage.tpl', context)
 
-@login_required
 def tuningSearch(request, pagenr):
 	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
 	It delivers the page specified page of tuning objects based on search parameters. """
@@ -194,7 +190,6 @@ def tuningSearch(request, pagenr):
 	# Send to template.
 	return render(request, 'tuning/tuningPage.tpl', context)
 
-@login_required
 def getFilterForm(request):
 	"""This method is loaded when the /tuning/getFilterForm is called. 
 	It delivers a form for EventFilters and DetectionFilters. """
@@ -214,7 +209,6 @@ def getFilterForm(request):
 	# Send to template.
 	return render(request, 'tuning/filterForm.tpl', context)
 
-@login_required
 def getEventFilterFormByID(request, tuningID):
 	"""This method is loaded when the /tuning/getThresholdForm is called. 
 	It delivers a form for thresholding. """
@@ -243,7 +237,6 @@ def getEventFilterFormByID(request, tuningID):
 	# Send to template.
 	return render(request, 'tuning/filterForm.tpl', context)
 
-@login_required
 def getDetectionFilterFormByID(request, tuningID):
 	"""This method is loaded when the /tuning/getThresholdForm is called. 
 	It delivers a form for thresholding. """
@@ -272,7 +265,6 @@ def getDetectionFilterFormByID(request, tuningID):
 	# Send to template.
 	return render(request, 'tuning/filterForm.tpl', context)
 
-@login_required
 def getSuppressForm(request):
 	"""This method is loaded when the /tuning/getSuppressForm is called. 
 	It delivers a form for suppression. """
@@ -292,7 +284,6 @@ def getSuppressForm(request):
 	# Send to template.
 	return render(request, 'tuning/suppressForm.tpl', context)
 
-@login_required
 def getSuppressFormByID(request, tuningID):
 	"""This method is loaded when the /tuning/getSuppressForm is called. 
 	It delivers a form for suppression. """
@@ -321,7 +312,6 @@ def getSuppressFormByID(request, tuningID):
 	# Send to template.
 	return render(request, 'tuning/suppressForm.tpl', context)
 
-@login_required
 def getModifyForm(request):
 	"""This method is loaded when the /tuning/getModifyForm is called. 
 	It delivers a form for enabling and disabling rulesets. """
@@ -341,7 +331,6 @@ def getModifyForm(request):
 	# Send to template.
 	return render(request, 'tuning/modifyForm.tpl', context)
 
-@login_required
 def modifyRule(request):
 	"""
 	This method processes requests directed at the /tuning/modifyRule/ url. It is used to enable and disable rules and rulesets.
@@ -422,68 +411,49 @@ def modifyRule(request):
 		else:
 			sensors = request.POST.getlist('sensors')
 			# If we didnt pick all sensors, we gotta iterate over all the ones we selected. 
-			sensorList = []
-			allSensor = False
-			for sensor in sensors:
+			if sensors[0] != "all":
+				for sensor in sensors:
+					try:
+						s = Sensor.objects.get(id=sensor)
+						for ruleSet in ruleSets:
+							try:
+								r = RuleSet.objects.get(id=ruleSet)
+								if active:
+									r.sensors.add(s) # This is where the ruleset is tied to the sensor.
+								else:
+									r.sensors.remove(s) # This is where the ruleset is removed from the sensor.
+								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor})
+								logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(s)+".")
+							except RuleSet.DoesNotExist:
+								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
+								logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
+					except Sensor.DoesNotExist:
+						response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
+						logger.warning("Sensor "+str(sensor)+" could not be found.")
+			# If we selected all sensors, we just iterate over all of them. This could probably be optimized.
+			elif sensors[0] == "all":
 				try:
-					s = Sensor.objects.get(id=sensor)
-					
-					if s.name == "All":
-						sensorList = [s]
-						allSensor = True
-						break
-					sensorList.append(s)
+					for sensor in Sensor.objects.all():
+						for ruleSet in ruleSets:
+							try:
+								r = RuleSet.objects.get(id=ruleSet)
+								if active:
+									r.sensors.add(sensor) # This is where the ruleset is tied to the sensor.
+								else:
+									r.sensors.remove(sensor) # This is where the ruleset is removed from the sensor.
+								goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor.id})
+								logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(sensor)+".")
+							except RuleSet.DoesNotExist:
+								response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
+								logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
 				except Sensor.DoesNotExist:
 					response.append({'response': 'sensorDoesNotExist', 'text': 'Sensor with DB ID '+sensor+' does not exist.'})
 					logger.warning("Sensor "+str(sensor)+" could not be found.")
-				
-			for ruleSet in ruleSets:
-				try:
-					r = RuleSet.objects.get(id=ruleSet)
-					
-					if "All" in r.sensors.values_list('name', flat=True):
-						allInSet = True
-					else:
-						allInSet = False
-						
-					if r.sensors.count():
-						setHasSensors = True
-					else:
-						setHasSensors = False
-						
-					if active:
-						if allSensor and setHasSensors and not allInSet:
-							r.sensors.clear
-							r.sensors.add(*sensorList) # This is where the ruleset is tied to the sensor.
-						elif allSensor and allInSet:
-							pass
-						else:
-							r.sensors.add(*sensorList) # This is where the ruleset is tied to the sensor.
-					else:
-						if allSensor and setHasSensors:
-							r.sensors.clear()
-						elif not allSensor and allInSet:
-							r.sensors.clear()
-							s = Sensor.objects.exclude(name="All").all()
-							r.sensors.add(*s)
-							r.sensors.remove(*sensorList) # This is where the ruleset is removed from the sensor.
-						elif (allSensor and allInSet) or not setHasSensors:
-							pass
-						else:
-							r.sensors.remove(*sensorList) # This is where the ruleset is removed from the sensor.
-						
-					goodRuleSets.append({'set': ruleSet, 'mode': mode, 'sensor': sensor})
-					logger.info("RuleSet "+str(r)+" is now "+str(mode)+"d on sensor "+str(s)+".")
-				except RuleSet.DoesNotExist:
-					response.append({'response': 'ruleSetDoesNotExist', 'text': 'RuleSet '+ruleSet+' could not be found. \nIt has not been modified.\n\n'})
-					logger.warning("RuleSet "+str(ruleSet)+" could not be found.")
-				
 					
 			response.append({'response': 'ruleSetModificationSuccess', 'sets': goodRuleSets})
 	
 	return HttpResponse(json.dumps(response))
 
-@login_required
 def setFilterOnRule(request):
 	"""This method is loaded when /tuning/setFilterOnRule is called.
 	The request should contain a POST of a form with all required fields. 
@@ -682,8 +652,7 @@ def setFilterOnRule(request):
 			response.append({'response': 'addFilterFailure', 'text': 'Failed when trying to add filter.'})
 			logger.error("Failed when trying to add filter: "+e.message)
 			return HttpResponse(json.dumps(response))
-
-@login_required		
+		
 def setSuppressOnRule(request):
 	"""This method is loaded when the /tuning/setSuppressOnRule is called.
 	The request should contain a POST of a form with all required fields. 
@@ -792,7 +761,7 @@ def setSuppressOnRule(request):
 		badIpTest = False
 		
 		# This pattern matches for valid IPv4 with subnet notation (0.0.0.0/0 - 255.255.255.255/32).
-		ipPattern = re.compile(patterns.ConfigPatterns.VALIDIPMASK)
+		ipPattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$")
 		
 		# Iterate over each IP given and check it for validity.
 		for ip in re.finditer("[^,;\s]+", ipString):
@@ -843,7 +812,7 @@ def setSuppressOnRule(request):
 		goodIps = []
 		
 		# This pattern matches for valid IPv4 with subnet notation (0.0.0.0/0 - 255.255.255.255/32).
-		ipPattern = re.compile(patterns.ConfigPatterns.VALIDIPMASK)
+		ipPattern = re.compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/([0-9]|[12]?[0-9]|3[0-2])|)$")
 		
 		# Iterate over each IP given and check it for validity.
 		# We put it in the list we use for making SuppressAddresses later.
@@ -925,7 +894,6 @@ def setSuppressOnRule(request):
 			logger.error("Failed when trying to add suppressions.")
 			return HttpResponse(json.dumps(response))
 
-@login_required
 def deleteTuning(request):
 	"""This method is loaded when the /tuning/deleteTuning is called.
 	The request should contain a POST of a form with all required fields. 

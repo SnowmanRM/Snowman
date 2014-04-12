@@ -9,7 +9,9 @@ The script can also be invoked manually. It is able to process a single textfile
 
 import logging
 import os
+import resource
 import sys
+from datetime import datetime
 
 # Add the parent folder of the script to the path
 scriptpath = os.path.realpath(__file__)
@@ -22,8 +24,9 @@ doubleFork()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
-from update.models import Source
+from update.models import Update, Source
 from update.tasks import UpdateTasks
+import util.logger
 
 if __name__ == "__main__":
 	logger = logging.getLogger(__name__)

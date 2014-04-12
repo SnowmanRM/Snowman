@@ -93,5 +93,3 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 LOGGING_CONFIG = 'util.logger.initialize'
-
-LOGIN_URL = '/web/login/'

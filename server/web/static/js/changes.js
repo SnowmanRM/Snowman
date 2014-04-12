@@ -249,7 +249,7 @@ function loadNextNewRuleRevisionsPages(ruleSet, currentpage, pagecount, update) 
 
 //This function is used to switch between pages in the list.
 function switchNewRulesPage(ruleSet, page, update) {
-	
+	$(document).ajaxStop(function(){
 		var _page = page;
 		var _ruleSet = ruleSet;
 		var _update = update;
@@ -257,13 +257,13 @@ function switchNewRulesPage(ruleSet, page, update) {
 		$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules .current').hide().toggleClass('current');
 		// Show the page we want and set it to contain the .current class.
 		$('#content .update-panel#'+_update+' .panel-body .new-rules .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
-	
+	});
 	
 }
 
 //This function is used to switch between pages in the list.
 function switchNewRuleRevisionsPage(ruleSet, page, update) {
-	
+	$(document).ajaxStop(function(){
 		var _page = page;
 		var _ruleSet = ruleSet;
 		var _update = update;
@@ -272,7 +272,7 @@ function switchNewRuleRevisionsPage(ruleSet, page, update) {
 		// Show the page we want and set it to contain the .current class.
 		$('#content .update-panel#'+_update+' .panel-body .new-revisions .ruleset-panel#'+_ruleSet+' #rules .table#'+_page).show().toggleClass('current');
 	
-	
+	});
 }
 
 //This function is used to dynamically retrieve a page that contains a list of rules.
@@ -332,13 +332,7 @@ function loadNewRulesPaginator(ruleSet, currentpage, pagecount, update) {
 				// Load the next pages.
 				loadNextNewRulesPages(ruleSet, page, pagecount, update);
 				// Hide the page we no longer want and show the one we want.
-				if ($.active > 0) {
-					$(document).ajaxStop(function() {switchNewRulesPage(ruleSet, page, update)});
-				}
-				else {
-					switchNewRulesPage(ruleSet, page, update);
-				}
-				
+				switchNewRulesPage(ruleSet, page, update);
 				// We update the window location hash value.
 				//window.location.hash = page;
 			}
@@ -364,13 +358,7 @@ function loadNewRuleRevisionsPaginator(ruleSet, currentpage, pagecount, update) 
 				// Load the next pages.
 				loadNextNewRuleRevisionsPages(ruleSet, page, pagecount, update);
 				// Hide the page we no longer want and show the one we want.
-				if ($.active > 0) {
-					$(document).ajaxStop(function() {switchNewRuleRevisionsPage(ruleSet, page, update)});
-				}
-				else {
-					switchNewRuleRevisionsPage(ruleSet, page, update);
-				}
-				
+				switchNewRuleRevisionsPage(ruleSet, page, update);
 				// We update the window location hash value.
 				//window.location.hash = page;
 			}

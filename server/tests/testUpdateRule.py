@@ -1,23 +1,24 @@
-import datetime
-from django.test import TestCase
+import unittest, datetime
 
-from core.models import Rule, RuleRevision, Generator, RuleClass, RuleSet, Sensor
+from core.models import Rule, RuleRevision, Generator, RuleClass, RuleSet
 from update.models import Source, Update
-from tuning.models import DetectionFilter, EventFilter
 
-class Test(TestCase):
 
-	def setUp(self):
+class Test(unittest.TestCase):
+
+	@classmethod
+	def setUpClass(self):
 		# Create source and update objects
 		try:
 			source = Source.objects.get(name="Manual")
 		except Source.DoesNotExist:
 			source = Source.objects.create(name="Manual", schedule="00:00", url="", lastMd5="")
-
+	
 		self.update = Update.objects.create(time=datetime.datetime.now(), source=source)
 		
 		self.msg = "This is a sample message"
-		self.filters = 'detection_filter:track by_src, count 30, seconds 60;threshold:type both, track by_dst, count 10, seconds 60;'
+		self.filters = 'detection_filter:track by_src, count 30, seconds 60; \
+						threshold:type both, track by_dst, count 10, seconds 60;'
 		
 		self.rulestring = 'alert tcp any any -> any 21 (\
 						msg:"'+self.msg+'"; \
@@ -35,9 +36,8 @@ class Test(TestCase):
 						priority:10; \
 						metadata:foo bar, ruleset community, bar 1; \
 						gid:1; sid:2000000; rev:10)'.split())
-		
-		self.allSensors = Sensor.objects.create(name="All Sensors")
-				
+	
+	def setUp(self):
 		try:
 			rule = Rule.objects.get(SID=2000000)
 			rule.delete()
@@ -49,19 +49,15 @@ class Test(TestCase):
 		pass
 
 
-	def test_Rule(self):
-		# Insert the rule
+	def testName(self):
 		self.update.updateRule(self.rulestring, "example.rules")
 		
 		try:
-			# Verify that all related objects exist
 			rule = Rule.objects.get(SID=2000000)
 			generator = rule.generator
 			ruleset = rule.ruleSet
 			ruleclass = rule.ruleClass
 			revision = rule.revisions.get(rev=10)
-			detectionFilter = rule.detectionFilters.get(sensor=self.allSensors)
-			eventFilter = rule.eventFilters.get(sensor=self.allSensors)
 		except Rule.DoesNotExist:
 			self.fail("Rule does not exist")
 		except Generator.DoesNotExist:
@@ -72,10 +68,6 @@ class Test(TestCase):
 			self.fail("RuleClass does not exist")
 		except RuleRevision.DoesNotExist:
 			self.fail("RuleRevision does not exist")
-		except DetectionFilter.DoesNotExist:
-			self.fail("DetectionFilter does not exist")
-		except EventFilter.DoesNotExist:
-			self.fail("EventFilter does not exist")	
 		
 		self.assertTrue(rule.active==True)
 		self.assertTrue(int(rule.priority)==10)
@@ -86,3 +78,9 @@ class Test(TestCase):
 		self.assertTrue(revision.msg==self.msg)
 		self.assertTrue(revision.active==True)
 		self.assertTrue(revision.filters==self.filters)
+		
+
+
+if __name__ == "__main__":
+	#import sys;sys.argv = ['', 'Test.testName']
+	unittest.main()

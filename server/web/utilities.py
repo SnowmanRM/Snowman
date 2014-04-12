@@ -66,28 +66,7 @@ def rulesToTemplate(ruleList):
 		# If the rule is active, we calculate how many sensors its active on.
 		if (ruleActive):
 			ruleActiveOnSensors = ruleRuleSet.sensors.values_list('name', flat=True)
-			
-			if "All" in ruleActiveOnSensors:
-				ruleActiveOnSensors = Sensor.objects.exclude(name="All").all()
-				ruleActiveOnSensors = ruleActiveOnSensors.values_list('name', flat=True)
-				ruleActiveOnSensorsCount = sensorCount
-			else:
-				ruleActiveOnSensorsCount = ruleRuleSet.sensors.count()
-				
-			ruleSetParent = ruleRuleSet.parent
-			
-			while ruleSetParent is not None:
-				parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
-				if "All" in parentActiveOnSensors:
-					ruleActiveOnSensors = Sensor.objects.exclude(name="All").all()
-					ruleActiveOnSensors = ruleActiveOnSensors.values_list('name', flat=True)
-					ruleActiveOnSensorsCount = sensorCount
-					ruleSetParent = None
-				else:
-					ruleActiveOnSensors = parentActiveOnSensors
-					ruleActiveOnSensorsCount = ruleSetParent.sensors.count()
-					ruleSetParent = ruleSetParent.parent
-			
+			ruleActiveOnSensorsCount = ruleRuleSet.sensors.count()
 			ruleInActiveOnSensorsCount = sensorCount - ruleActiveOnSensorsCount
 		else: # If the rule isnt active, it wont be active on any sensors
 			ruleActiveOnSensors = []
@@ -134,13 +113,15 @@ def ruleSetsToTemplate(ruleSetList):
 			
 			ruleSetRulesCount = ruleSet.rules.count()
 			if ruleSetRulesCount:
-				ruleSetHasRules = True
+				ruleSetHasRules = 1
+				ruleSetActiveRulesCount = ruleSet.rules.filter(active=True).count()
 			else:
 				ruleSetHasRules = False
-				
+				ruleSetActiveRulesCount = 0
 			
-			ruleSetRulesCount = len(ruleSet)
-			ruleSetActiveRulesCount = ruleSet.getActiveRuleCount()
+			for child in ruleSet.childSets.all():
+				ruleSetRulesCount += childRuleCount(child)
+				ruleSetActiveRulesCount += childRuleActiveCount(child)
 			
 			ruleSetInActiveRulesCount = ruleSetRulesCount - ruleSetActiveRulesCount
 		else:
@@ -158,27 +139,7 @@ def ruleSetsToTemplate(ruleSetList):
 		# If the ruleset is active, we calculate how many sensors its active on.
 		if (ruleSetActive):
 			ruleSetActiveOnSensors = ruleSet.sensors.values_list('name', flat=True)
-			if "All" in ruleSetActiveOnSensors:
-				ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
-				ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
-				ruleSetActiveOnSensorsCount = sensorCount
-			else:
-				ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
-				
-			ruleSetParent = ruleSet.parent
-			
-			while ruleSetParent is not None:
-				parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
-				if "All" in parentActiveOnSensors:
-					ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
-					ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
-					ruleSetActiveOnSensorsCount = sensorCount
-					ruleSetParent = None
-				else:
-					ruleSetActiveOnSensors = parentActiveOnSensors
-					ruleSetActiveOnSensorsCount = ruleSetParent.sensors.count()
-					ruleSetParent = ruleSetParent.parent
-					
+			ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
 			ruleSetInActiveOnSensorsCount = sensorCount - ruleSetActiveOnSensorsCount
 		else: # If the ruleset isnt active, it wont be active on any sensors
 			ruleSetActiveOnSensors = []
@@ -227,7 +188,7 @@ def ruleSetsWithNewRulesToTemplate(ruleSetList, update):
 				
 				ruleSetRulesCount = ruleSet.rules.filter(id__in=ruleIDs).count()
 				if ruleSetRulesCount:
-					ruleSetHasRules = True
+					ruleSetHasRules = 1
 					ruleSetActiveRulesCount = ruleSet.rules.filter(active=True, id__in=ruleIDs).count()
 				else:
 					ruleSetHasRules = False
@@ -249,27 +210,7 @@ def ruleSetsWithNewRulesToTemplate(ruleSetList, update):
 			# If the ruleset is active, we calculate how many sensors its active on.
 			if (ruleSetActive):
 				ruleSetActiveOnSensors = ruleSet.sensors.values_list('name', flat=True)
-				if "All" in ruleSetActiveOnSensors:
-					ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
-					ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
-					ruleSetActiveOnSensorsCount = sensorCount
-				else:
-					ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
-					
-				ruleSetParent = ruleSet.parent
-				
-				while ruleSetParent is not None:
-					parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
-					if "All" in parentActiveOnSensors:
-						ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
-						ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
-						ruleSetActiveOnSensorsCount = sensorCount
-						ruleSetParent = None
-					else:
-						ruleSetActiveOnSensors = parentActiveOnSensors
-						ruleSetActiveOnSensorsCount = ruleSetParent.sensors.count()
-						ruleSetParent = ruleSetParent.parent
-						
+				ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
 				ruleSetInActiveOnSensorsCount = sensorCount - ruleSetActiveOnSensorsCount
 			else: # If the ruleset isnt active, it wont be active on any sensors
 				ruleSetActiveOnSensors = []
@@ -294,10 +235,7 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 	It returns a list of objects that can be put directly into the template without any additional processing.
 	"""
 	
-	revSIDs = update.ruleRevisions.values_list('rule__SID', flat=True)
-	newRuleSIDs = update.rules.values_list('SID', flat=True)
-	
-	ruleSIDs = list(set(revSIDs) - set(newRuleSIDs))
+	ruleSIDs = update.ruleRevisions.values_list('rule__SID', flat=True)
 	
 	# We get the count of all sensors in the system.
 	sensorCount = Sensor.objects.count()
@@ -322,7 +260,7 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 				
 				ruleSetRulesCount = ruleSet.rules.filter(SID__in=ruleSIDs).count()
 				if ruleSetRulesCount:
-					ruleSetHasRules = True
+					ruleSetHasRules = 1
 					ruleSetActiveRulesCount = ruleSet.rules.filter(active=True, SID__in=ruleSIDs).count()
 				else:
 					ruleSetHasRules = False
@@ -344,27 +282,7 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 			# If the ruleset is active, we calculate how many sensors its active on.
 			if (ruleSetActive):
 				ruleSetActiveOnSensors = ruleSet.sensors.values_list('name', flat=True)
-				if "All" in ruleSetActiveOnSensors:
-					ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
-					ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
-					ruleSetActiveOnSensorsCount = sensorCount
-				else:
-					ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
-					
-				ruleSetParent = ruleSet.parent
-				
-				while ruleSetParent is not None:
-					parentActiveOnSensors = ruleSetParent.sensors.values_list('name', flat=True)
-					if "All" in parentActiveOnSensors:
-						ruleSetActiveOnSensors = Sensor.objects.exclude(name="All").all()
-						ruleSetActiveOnSensors = ruleSetActiveOnSensors.values_list('name', flat=True)
-						ruleSetActiveOnSensorsCount = sensorCount
-						ruleSetParent = None
-					else:
-						ruleSetActiveOnSensors = parentActiveOnSensors
-						ruleSetActiveOnSensorsCount = ruleSetParent.sensors.count()
-						ruleSetParent = ruleSetParent.parent
-						
+				ruleSetActiveOnSensorsCount = ruleSet.sensors.count()
 				ruleSetInActiveOnSensorsCount = sensorCount - ruleSetActiveOnSensorsCount
 			else: # If the ruleset isnt active, it wont be active on any sensors
 				ruleSetActiveOnSensors = []
@@ -397,7 +315,7 @@ def ruleSetHierarchyListToTemplate(ruleSetList, level):
 		chewedRuleSets.append({'ruleSetID':ruleSetID,'ruleSetName':(" - "*level)+ruleSetName})
 		
 		if ruleSet.childSets.count() > 0:
-
+			ruleSet.childSets.all()
 			for item in ruleSetHierarchyListToTemplate(ruleSet.childSets.all(), level+1):
 				chewedRuleSets.append(item)
 	
@@ -447,6 +365,26 @@ def ruleClassesToTemplate(ruleClassList):
 	# Once all ruleclasses are iterated over, we send the clean objects back.
 	return chewedRuleClasses
 
+#TODO: comment this
+def childRuleCount(ruleSet):
+	
+	ruleSetRulesCount = ruleSet.rules.count()
+	
+	if ruleSet.childSets:
+		for child in ruleSet.childSets.all():
+			ruleSetRulesCount += childRuleCount(child)
+	
+	return ruleSetRulesCount
+
+#TODO: comment this
+def childRuleActiveCount(ruleSet):
+	ruleSetActiveRulesCount = ruleSet.rules.filter(active=True).count()
+	
+	if ruleSet.childSets:
+		for child in ruleSet.childSets.all():
+			ruleSetActiveRulesCount += childRuleActiveCount(child)
+			
+	return ruleSetActiveRulesCount
 
 #TODO: comment this
 def tuningToTemplate(tuningList):
@@ -517,25 +455,16 @@ def tuningToTemplate(tuningList):
 			
 			chewedTuningList.append({ 'tuningID':tuningID, 'tuningAdded':tuningAdded,'tuningUser':tuningUser,'tuningType':tuningType,'tuningRuleSID':tuningRuleSID,
 									'tuningRuleName':tuningRuleName,'tuningSensorName':tuningSensorName,'tuningContent':tuningContent,'tuningComment':tuningComment })
-
+		
+	
+	
+	
 	
 	return chewedTuningList
 
 
-def sensorsToFormTemplate(sensorList, level):
-	chewedSensorList = []
-	# We iterate over all the rulesets.
-	for sensor in sensorList:
-		
-		# We go get a number of variables.
-		sensorID = sensor.id
-		sensorName = sensor.name
-		
-		chewedSensorList.append({ 'sensorID':sensorID,'sensorName':(" - "*level)+sensorName})
-		
-		if sensor.childSensors.count() > 0:
-			for item in sensorsToFormTemplate(sensor.childSensors.all(), level+1):
-				chewedSensorList.append(item)
 
-	return chewedSensorList
+
+
+
 

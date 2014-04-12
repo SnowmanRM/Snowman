@@ -57,26 +57,11 @@ var delay = (function(){
   };
 })();
 
-function syncAllSensors() {
-	
-	$.get('/web/sensors/syncAllSensors/',function(data){
-		if (data == "True") {
-			alert('All sensors have received signals to update.');
-		}
-		else {
-			alert('Something went wrong trying to sync all sensors.');
-		}
-	});
-}
-
-
 $(document).ready(function(){ 
 	
 	// Make the current page highlighted in nav.
 	setCurrentNavigation();
 	
-	$('#syncAllSensors').click(function(event){syncAllSensors()});
-	
-	$('#logOut').click(function(event){$.get('/web/logout/', function(data){location.reload(true)})});
+
 	
 });

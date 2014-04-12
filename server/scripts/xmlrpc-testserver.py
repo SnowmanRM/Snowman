@@ -1,16 +1,9 @@
 #!/usr/bin/python
-"""
-The main server-daemon for the snowman. This program starts the xmlrpc-server
-used by the clients to connect to the central server.
-"""
 import datetime
 import logging
 import os
 import sys
-import thread
-import time
 
-# TODO: Put a proper path here. (The installed path).
 # Add the parent folder of the script to the path
 scriptpath = os.path.realpath(__file__)
 scriptdir = os.path.dirname(scriptpath)
@@ -50,38 +43,38 @@ def requireAuth(function):
 	return inner
 
 class RPCInterface():
-	"""The interface-class used by the xmlrpc-server to handle all requests.
-	methods which should be available externally should all be defined here."""
-
 	def __init__(self):
 		import string
 		self.python_string = string
 	
-	def authenticate(self, sensorname, secret):
-		"""Method which authenticates a sensor. sensorname and secret are both strings, and
-		are checked up against the authentication of the User related to a sensor.
-		
-		If everything is well, a token is delivered to the client which identifies this conversation
-		with later method-calls."""
+	####################################################################################################
+	# WARNING: The debug* methods is a HUGE security liability, and MUST be removed before release.    #
+	# TODO: Remove debug-methods from the xmlrpc-server.                                               #
+	####################################################################################################
+	def debugGetCache(self):
 		d = {}
-		# Set the status-flag to false, as we are not authenticated yet.
+		for t in cache:
+			d[t] = {}
+			for e in cache[t]:
+				d[t][e] = str(cache[t][e])
+		return d
+	####################################################################################################
+	####################################################################################################
+	
+	def authenticate(self, sensorname, secret):
+		d = {}
 		d['status'] = False
 
-		# Try to grab the sensor. If it fails, return a failure.
 		try:
 			sensor = Sensor.objects.get(name=sensorname)
 		except Sensor.DoesNotExist:
 			d['message'] = "Sensor does not exist"
 			return d
 		
-		# Try to verify the secret. If it fails, return a failure.
 		if(sensor.user.check_password(secret) == False):
 			d['message'] = "Secret is incorrect"
 			return d
 		
-		# If we have not returned yet, authentication was successful. We then generates a token, 
-		# and sets up the cache-structure for this conversation.
-		# We also updates the last_login time.
 		d['status'] = True
 		d['token'] = str(sensor.id) + "-" + User.objects.make_random_password()
 		d['sensorID'] = sensor.id
@@ -97,13 +90,11 @@ class RPCInterface():
 	
 	@requireAuth
 	def deAuthenticate(self, token):
-		"""This method deauthenticates a sensor, and destroys the cache for that conversation."""
 		cache['session'].pop(token)
 		return {'status': True, 'message': "Sessiontoken is destroyed."}
 	
 	@requireAuth
 	def getRuleClasses(self, token):
-		"""This method collects all RuleClasses from the database, and returns them in a dict."""
 		classes = {}
 		for rc in RuleClass.objects.all():
 			c = {}
@@ -116,7 +107,6 @@ class RPCInterface():
 	
 	@requireAuth
 	def getGenerators(self, token):
-		"""This method collects all Generators from the database, and returns them in a dict."""
 		generators = {}
 		for generator in Generator.objects.all():
 			g = {}
@@ -128,7 +118,6 @@ class RPCInterface():
 	
 	@requireAuth
 	def getReferenceTypes(self, token):
-		"""This method collects all ReferenceTypes from the database, and returns them in a dict."""
 		referenceTypes = {}
 		for rt in RuleReferenceType.objects.all():
 			ref = {}
@@ -140,39 +129,27 @@ class RPCInterface():
 	
 	@requireAuth
 	def getRuleRevisions(self, token):
-		"""This method collects all the rules a certain sensor is supposed to have. It collects all the
-		rulesets, and from there collects all the SID/rev pairs from them.
-		The SID/rev information is then returned to the sensor."""
 		sensor = cache['session'][token]['sensor']
+		rulerevisions = {}
 		
-		activeRules = {}
 		for ruleSet in sensor.ruleSets.all():
 			if(ruleSet.active):
-				activeRules.update(ruleSet.getRuleRevisions(True))
-		
-		rulerevisions = {}
-		for sid in activeRules:
-			rulerevisions[sid] = activeRules[sid]['rev'].rev
-		
-		cache['session'][token]['rules'] = activeRules
+				rulerevisions.update(ruleSet.getRuleRevisions(True))
 		
 		return {'status': True, 'revisions': rulerevisions}
 	
 	@requireAuth
 	def getRuleSets(self, token):
-		"""This method collects a list over the RuleSets a sensor should have, and returns to the sensor."""
 		sensor = cache['session'][token]['sensor']
 
 		sets = []
 		rulesets = {}
 
-		# Collect all the rulesets.
 		for rs in sensor.ruleSets.all():
 			if(rs.active):
 				sets.append(rs)
 				sets.extend(rs.getChildSets())
 		
-		# Structure them in a dict (hashmap, so duplicates are removed )
 		for rs in sets:
 			ruleset = {}
 			ruleset['name'] = rs.name
@@ -183,8 +160,6 @@ class RPCInterface():
 	
 	@requireAuth
 	def getRules(self, token, rulelist):
-		"""This method recieves a list of SID's, and then simply collects them from the database, and returns
-		them to the client. This way, the client have a way of only requesting the revisions that is new."""
 		maxRequestSize = int(Config.get("xmlrpc-server", "max-requestsize"))
 		if(len(rulelist) > maxRequestSize):
 			raise Exception("Cannot request more than %d rules" % maxRequestSize)
@@ -192,53 +167,40 @@ class RPCInterface():
 		rules = {}
 		sensor = cache['session'][token]['sensor']
 
-		# For every  sid in the list:
 		for r in rulelist:
-			try:
-				rule = cache['session'][token]['rules'][str(r)]['rule']
-				rev = cache['session'][token]['rules'][str(r)]['rev']
-			except KeyError:
-				# Fetch the rule from the database, and collect the basic parametres from the rule.
-				rule = Rule.objects.get(SID=r)
-				rev = rule.revisions.last()
-
+			rule = Rule.objects.get(SID=r)
 			dictRule = {}
 			dictRule['SID'] = rule.SID
-			dictRule['rev'] = rev.rev
-			dictRule['msg'] = rev.msg
-			dictRule['raw'] = rev.raw
+			dictRule['rev'] = rule.revisions.last().rev
+			dictRule['msg'] = rule.revisions.last().msg
+			dictRule['raw'] = rule.revisions.last().raw
 			dictRule['ruleset'] = rule.ruleSet.name
 			dictRule['ruleclass'] = rule.ruleClass.classtype
-			dictRule['references'] = rev.getReferences()
+			dictRule['references'] = rule.revisions.last().getReferences()
 			
 			eventFilter = None
 			detectionFilter = None
 			suppress = None
 
-			# Try to determine if the rule have any filters.
 			s = sensor
 			while s != None:
 				try:
-					if not eventFilter:
-						eventFilter = s.eventFilters.get(rule=rule)
+					eventFilter = s.eventFilters.get(rule=rule)
 				except EventFilter.DoesNotExist:
 					pass
 
 				try:
-					if not detectionFilter:
-						detectionFilter = s.detectionFilters.get(rule=rule)
+					detectionFilter = s.detectionFilters.get(rule=rule)
 				except DetectionFilter.DoesNotExist:
 					pass
 
 				try:
-					if not suppress:
-						suppress = s.suppress.get(rule=rule)
+					suppress = s.suppress.get(rule=rule)
 				except Suppress.DoesNotExist:
 					pass
 				
 				s = s.parent
 				
-			# If an event-filter was found, add it to the rule we are sending to the sensor
 			if eventFilter:
 				dictRule['eventFilter'] = {}
 				dictRule['eventFilter']['type'] = eventFilter.eventFilterType
@@ -246,14 +208,12 @@ class RPCInterface():
 				dictRule['eventFilter']['count'] = eventFilter.count
 				dictRule['eventFilter']['seconds'] = eventFilter.seconds
 
-			# If an detectionfilter was found, add it to the rule.
 			if detectionFilter:
 				dictRule['detectionFilter'] = {}
 				dictRule['detectionFilter']['track'] = detectionFilter.track
 				dictRule['detectionFilter']['count'] = detectionFilter.count
 				dictRule['detectionFilter']['seconds'] = detectionFilter.seconds
-			
-			# If a supress is found, add it to the rule.
+				
 			if suppress:
 				dictRule['suppress'] = {}
 				dictRule['suppress']['track'] = suppress.track
@@ -265,11 +225,12 @@ class RPCInterface():
 	
 	@requireAuth
 	def ping(self, token):
-		"""Simple function, used to test if we can reach the server"""
 		return {'status': True, 'Message': "Pong!"}
 	
+	def dummy(self, data):
+		return str(type(data)) + ":" + str(data)
+
 def startRPCServer():
-	"""Starts the RPC-Server. This method blocks."""
 	bindAddress = Config.get("xmlrpc-server", "address")
 	bindPort = int(Config.get("xmlrpc-server", "port"))
 	
@@ -284,10 +245,4 @@ def startRPCServer():
 	server.startup()
 
 if __name__ == '__main__':
-	# Start the server in its own thread
-	thread.start_new_thread(startRPCServer, ())
-	
-	# Check the sensor-status.
-	while True:
-		Sensor.refreshStatus()
-		time.sleep(60)
+	startRPCServer()

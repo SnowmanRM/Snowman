@@ -62,9 +62,7 @@
 
 }
 
-#content.tuning,
-#content.sensors,
-#content.users {
+#content.tuning {
 
 	//clear: both;
 	//padding: 5% 2% 2% 2%;
@@ -85,9 +83,7 @@
 }
 
 #content table.rules,
-#content table.tuning,
-#content table.sensors,
-#content table.users {
+#content table.tuning {
 
 	border: 0;
 	margin-bottom: 0;
@@ -101,8 +97,7 @@
 	margin: 0;
 }
 
-#content table.rules .row,
-#content.ruleset .ruleset-panel .row {
+#content table.rules .row {
 	
 	margin-right: 0;
 	margin-left: 0;
@@ -110,11 +105,8 @@
 	padding-right: 0;
 	
 }
-#content.ruleset .ruleset-panel .row div {
-	padding-right: 0;	
-}
 
-.list-group.scrolled {
+#content table.rules .row .panel .list-group {
 	
 
 	overflow-y: scroll;
@@ -123,86 +115,59 @@
 }
 
 #content table.rules tbody,
-#content table.tuning tbody,
-#content table.sensors tbody {
+#content table.tuning tbody {
 
 	background-color: white;
 	font-size: 12px;
 }
 
-#content table.rules > tbody > tr:nth-child(4n-1),
-#content table.sensors > tbody > tr:nth-child(4n-1) {
+#content table.rules > tbody > tr:nth-child(4n-1) {
 
 	background-color: #f9f9f9;
 }
 
-#content table.rules > tbody > tr.odd:hover td,
-#content table.sensors > tbody > tr.odd:hover td {
-
-	background-color: #e5e5e5;
-}
-
-#content table.rules > tbody > tr.even:hover td,
-#content table.sensors > tbody > tr.even:hover td {
-
-	background-color: white;
-}
-/*
 #content table.rules tbody tr td:nth-child(-n+4) {
 
 	width: 1%;
 }
 
-#content table.sensors tbody tr td:nth-child(-n+1) {
-	
-	width: 1%;
+#content table.rules .table-hover > tbody > tr.even:hover > td {
+
+	background-color: white;
 }
-*/
 
 #content table.rules thead tr:first-child th:first-child,
-#content table.tuning thead tr:first-child th:first-child,
-#content table.sensors thead tr:first-child th:first-child,
-#content table.users thead tr:first-child th:first-child {
+#content table.tuning thead tr:first-child th:first-child {
 
 	border-left: 0;
 }
 
 #content table.rules thead tr:first-child th:last-child,
-#content table.tuning thead tr:first-child th:last-child,
-#content table.sensors thead tr:first-child th:last-child,
-#content table.users thead tr:first-child th:last-child {
+#content table.tuning thead tr:first-child th:last-child {
 
 	border-right: 0;
 }
 
 #content table.rules tbody tr td:first-child,
-#content table.tuning tbody tr td:first-child,
-#content table.sensors tbody tr td:first-child,
-#content table.users tbody tr td:first-child {
+#content table.tuning tbody tr td:first-child {
 
 	border-left: 0;
 }
 
 #content table.rules tbody tr td:last-child,
-#content table.tuning tbody tr td:last-child,
-#content table.sensors tbody tr td:last-child,
-#content table.users tbody tr td:last-child {
+#content table.tuning tbody tr td:last-child {
 
 	border-right: 0;
 }
 
 #content table.rules tbody tr:last-child td,
-#content table.tuning tbody tr:last-child td,
-#content table.sensors tbody tr:last-child td,
-#content table.users tbody tr:last-child td {
+#content table.tuning tbody tr:last-child td {
 
 	border-bottom: 0;
 }
 
 #content table.rules tbody td,
-#content table.tuning tbody td,
-#content table.sensors tbody td,
-#content table.users tbody td {
+#content table.tuning tbody td {
 	white-space:nowrap;
 	
 }
@@ -213,9 +178,7 @@
 }
 
 #content table.rules tbody tr td.wrappable,
-#content table.tuning tbody tr td.wrappable,
-#content table.sensors tbody tr td.wrappable,
-#content table.users tbody tr td.wrappable {
+#content table.tuning tbody tr td.wrappable {
 	white-space:normal;
 	
 }
@@ -229,31 +192,35 @@
 #search-container .input-group {
 
 	border: 2px solid grey;
-	//border-bottom: 0;
-	border-radius: 5px;
+	border-bottom: 0;
+	border-radius: 5px 5px 0 0;
 	background-color: #ddd;
 	padding: 3px;
 	//margin-right: 1%;
+}
+#search-container.ruleset .input-group,
+#search-container.ruleclass .input-group {
+	border-radius: 5px;
+	border-bottom: 2px solid grey;
 	margin-bottom: 10px;
 }
 
-#content .bg-primary:hover td {
+#content table.rules .bg-primary:hover td {
 	
-	color: #fff !important;
-	background-color: #428bca !important;
+	color: #fff;
+	background-color: #428bca;
 	
 }
 
 #content .bg-primary:hover {
 	
-	color: #fff !important;
-	background-color: #428bca !important;
+	color: #fff;
+	background-color: #428bca;
 	
 }
 #content .bg-primary {
 	
-	color: #fff !important;
-	background-color: #428bca !important;
+	background-color: #428bca;
 }
 /*
 #content .panel {
@@ -287,8 +254,7 @@
 	padding-right: 0;
 }
 #content .ruleset-panel .row h4,
-#content .ruleclass-panel .row h4,
-#content .sensors .panel h4 {
+#content .ruleclass-panel .row h4 {
 
 	margin-top: 2px;
 	margin-bottom: 0;
@@ -443,55 +409,4 @@ label.error {
 	
 	margin-top: 0;
 	margin-bottom: 0;
-}
-
-button#syncAllSensors,
-button#logOut {
-	margin-top:7px;
-}
-
-
-#loginContainer {
-	border-left: 5px solid grey;
-	border-right: 5px solid grey;
-	margin: auto;
-	height: 100%;
-	width:90%;
-	padding: 20px;
-}
-
-#loginContainer h1, 
-#loginContainer h3 {
-	margin-top: 0;
-	border-bottom: 5px solid grey;
-}
-
-#loginContainer #loginFormContainer {
-	width: 35%;
-	margin: auto;
-	border: 5px solid grey;
-	border-radius: 10px;
-	padding: 20px;
-	margin-top: 10%;
-}
-
-#loginFooter {
-	bottom: 0;
-	position: absolute;
-	width: 86%;
-}
-
-#userNameDisplay {
-	
-	margin-top: 15px;
-	margin-bottom: 0;
-	margin-right: 20px;
-}
-
-.form-padding label {
-	padding-right: 0;
-}
-
-.form-padding div {
-	padding-left: 0;
 }

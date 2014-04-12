@@ -1,11 +1,10 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+
 from core.models import Rule, RuleRevision, Sensor, RuleSet, RuleClass
 from web.utilities import UserSettings, ruleClassesToTemplate
 import logging
 
-@login_required
 def index(request):
 	"""This method is called when the url /ruleclass/ is called.
 	

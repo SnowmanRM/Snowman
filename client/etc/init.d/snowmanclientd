@@ -35,11 +35,6 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-if [ ! -e "$PID_PATH" ]; then
-	mkdir -p $PID_PATH
-	chown snort:snort $PID_PATH
-fi
-
 case "$1" in
     start)
         start

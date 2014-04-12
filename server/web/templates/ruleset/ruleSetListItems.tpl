@@ -31,20 +31,8 @@
 			</div>
 			
 			<div class="panel-body" style="display:none;">
-				<div class="row container-fluid">
-					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 pull-right">
-						<div class="panel panel-default">
-		  					<div class="panel-heading">Active On Sensors:</div>
-		  					<ul class="list-group scrolled">
-							{% for sensorName in ruleset.ruleSetActiveOnSensors %}
-								<li class="list-group-item">{{ sensorName }}</li>
-							{% endfor %}
-							</ul>
-		  				</div>
-	  				</div>
-	  			</div>
 			{% if ruleset.ruleSetHasRules %}
-				<div id="rules" class="rules-panel panel panel-default clear">
+				<div id="rules" class="rules-panel panel panel-default">
 					<!-- Default panel contents -->
 					<div class="panel-heading row">
 						<div class="col-xs-5 col-sm-5 col-md-5">
