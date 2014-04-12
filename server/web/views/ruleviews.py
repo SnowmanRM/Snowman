@@ -12,6 +12,7 @@ from web.utilities import UserSettings, rulesToTemplate
 import logging, json
 
 
+@login_required
 def index(request):
 
 	"""This method is loaded when the /rules/ url is called.
@@ -28,7 +29,7 @@ def index(request):
 	context = {}
 	
 	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	pagelength = request.user.userProfile.pageLength
 	
 	# This is always page nr 1.
 	context['pagenr'] = 1
@@ -47,7 +48,7 @@ def index(request):
 		# We need to know how many rules there are total.
 		context['itemcount'] = Rule.objects.count()
 		# Get all rules, but limited by the set pagelength.
-		context['rule_list'] = Rule.objects.all()[:pagelength]
+		context['rule_list'] = Rule.objects.all().prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[:pagelength]
 
 	except Rule.DoesNotExist:
 		logger.warning("Page request /rules/ could not be resolved, objects not found.")
@@ -58,6 +59,7 @@ def index(request):
 	#return HttpResponse(rulesToTemplate(context['rule_list']))
 	return render(request, 'rules/rules.tpl', context)
 
+@login_required
 def getRulePage(request, pagenr):
 	"""This method is loaded when the /rules/page/<int>/ url is called.
 	
@@ -72,7 +74,7 @@ def getRulePage(request, pagenr):
 	context = {}
 	
 	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	pagelength = request.user.userProfile.pageLength
 	
 	# We want pagenr with us in the template.
 	context['pagenr'] = pagenr
@@ -94,7 +96,7 @@ def getRulePage(request, pagenr):
 		# We need to know how many rules there are total.
 		context['itemcount'] = Rule.objects.count()
 		# Get all rules, within the set range.
-		context['rule_list'] = Rule.objects.all()[minrange:maxrange]
+		context['rule_list'] = Rule.objects.all().prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[minrange:maxrange]
 	except Rule.DoesNotExist:
 		logger.warning("Page request /rules/page/"+str(pagenr)+" could not be resolved, objects in range "+str(minrange)+" - "+str(maxrange)+"not found.")
 		raise Http404
@@ -103,6 +105,7 @@ def getRulePage(request, pagenr):
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
+@login_required
 def getRulesBySearch(request, pagenr):
 	
 	"""	This method is loaded when the /rules/search/<int>/ url is called. This url is called when a user has typed a string into 
@@ -123,7 +126,7 @@ def getRulesBySearch(request, pagenr):
 	searchfield = request.POST['searchf']
 	
 	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	pagelength = request.user.userProfile.pageLength
 	
 	# We set this value to true so that we can differentiate in the template.
 	context['rulesearch'] = True
@@ -153,12 +156,12 @@ def getRulesBySearch(request, pagenr):
 			# We need to know how many rules the search will produce.
 			context['itemcount'] = Rule.objects.filter(SID__istartswith=searchstring).count()
 			# Get matching rules, within the set range.
-			context['rule_list'] = Rule.objects.filter(SID__istartswith=searchstring)[minrange:maxrange]
+			context['rule_list'] = Rule.objects.filter(SID__istartswith=searchstring).prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[minrange:maxrange]
 		elif searchfield=='name':
 			# We need to know how many rules the search will produce.
 			context['itemcount'] = Rule.objects.filter(revisions__active=True, revisions__msg__icontains=searchstring).count()
 			# Get matching rules, within the set range.
-			context['rule_list'] = Rule.objects.filter(revisions__active=True, revisions__msg__icontains=searchstring)[minrange:maxrange]
+			context['rule_list'] = Rule.objects.filter(revisions__active=True, revisions__msg__icontains=searchstring).prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[minrange:maxrange]
 
 	except Rule.DoesNotExist:
 		logger.warning("Page request /rules/search for string: "+searchstring+" in field "+searchfield+" could not be resolved, objects not found.")
@@ -168,6 +171,7 @@ def getRulesBySearch(request, pagenr):
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
+@login_required
 def getRulesByRuleSet(request, ruleSetID, pagenr):
 	"""	This method is loaded when the /rules/getRulesByRuleSet/ url is called. 
 		
@@ -185,7 +189,7 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 
 	
 	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	pagelength = request.user.userProfile.pageLength
 	
 	# We set this value to true so that we can differentiate in the template.
 	context['rulesearch'] = False
@@ -214,7 +218,7 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 		# We need to know how many rules the search will produce.
 		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID).count()
 		# Get matching rules, within the set range.
-		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID)[minrange:maxrange]
+		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID).prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[minrange:maxrange]
 		
 
 	except Rule.DoesNotExist:
@@ -225,6 +229,7 @@ def getRulesByRuleSet(request, ruleSetID, pagenr):
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
+@login_required
 def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, updateID):
 	"""	This method is loaded when the /rules/getRulesByRuleSetNewRules/ url is called. 
 		
@@ -242,7 +247,7 @@ def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, updateID):
 
 	
 	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	pagelength = request.user.userProfile.pageLength
 	
 	# We set this value to true so that we can differentiate in the template.
 	context['rulesearch'] = False
@@ -270,7 +275,7 @@ def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, updateID):
 		# We need to know how many rules the search will produce.
 		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=updateID).count()
 		# Get matching rules, within the set range.
-		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=updateID)[minrange:maxrange]
+		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, update__id=updateID).prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[minrange:maxrange]
 		
 
 	except Rule.DoesNotExist:
@@ -281,6 +286,7 @@ def getRulesByRuleSetNewRules(request, ruleSetID, pagenr, updateID):
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
+@login_required
 def getRulesByRuleSetNewRuleRevisions(request, ruleSetID, pagenr, updateID):
 	"""	This method is loaded when the /rules/getRulesByRuleSetNewRuleRevisions/ url is called. 
 		
@@ -298,7 +304,7 @@ def getRulesByRuleSetNewRuleRevisions(request, ruleSetID, pagenr, updateID):
 
 	
 	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	pagelength = request.user.userProfile.pageLength
 	
 	# We set this value to true so that we can differentiate in the template.
 	context['rulesearch'] = False
@@ -337,7 +343,7 @@ def getRulesByRuleSetNewRuleRevisions(request, ruleSetID, pagenr, updateID):
 		# We need to know how many rules the search will produce.
 		context['itemcount'] = Rule.objects.filter(ruleSet__id=ruleSetID, SID__in=revList).count()
 		# Get matching rules, within the set range.
-		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, SID__in=revList)[minrange:maxrange]
+		context['rule_list'] = Rule.objects.filter(ruleSet__id=ruleSetID, SID__in=revList).prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[minrange:maxrange]
 		
 
 	except Rule.DoesNotExist:
@@ -349,6 +355,7 @@ def getRulesByRuleSetNewRuleRevisions(request, ruleSetID, pagenr, updateID):
 	return render(request, 'rules/rulePage.tpl', context)
 
 
+@login_required
 def getRulesByRuleClass(request, ruleClassID, pagenr):
 	"""	This method is loaded when the /rules/getRulesByRuleClass/ url is called. 
 		
@@ -366,7 +373,7 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 
 	
 	# Get pagelength from the utility class.
-	pagelength = UserSettings.getPageLength(request, pagetype=UserSettings.RULELIST)
+	pagelength = request.user.userProfile.pageLength
 	
 	# We set this value to true so that we can differentiate in the template.
 	context['rulesearch'] = False
@@ -394,7 +401,7 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 		# We need to know how many rules the search will produce.
 		context['itemcount'] = Rule.objects.filter(ruleClass__id=ruleClassID).count()
 		# Get matching rules, within the set range.
-		context['rule_list'] = Rule.objects.filter(ruleClass__id=ruleClassID)[minrange:maxrange]
+		context['rule_list'] = Rule.objects.filter(ruleClass__id=ruleClassID).prefetch_related('revisions','revisions__references','revisions__update','ruleSet', 'ruleSet__sensors', 'ruleClass')[minrange:maxrange]
 		
 
 	except Rule.DoesNotExist:
@@ -405,6 +412,7 @@ def getRulesByRuleClass(request, ruleClassID, pagenr):
 	context['rule_list']=rulesToTemplate(context['rule_list'])
 	return render(request, 'rules/rulePage.tpl', context)
 
+@login_required
 def reorganizeRules(request):
 	"""This method is called when the url /rules/reorganizeRules/ is called.
 	It takes a set of variables through POST and then moves the rules between RuleSets.

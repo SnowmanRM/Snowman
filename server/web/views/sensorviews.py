@@ -4,7 +4,7 @@ import os
 import re
 import subprocess
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -14,6 +14,7 @@ from util import patterns
 from web.utilities import sensorsToFormTemplate
 
 
+@login_required
 def index(request):
 	parent = Sensor.objects.get(name="All")
 	data = {}
@@ -22,6 +23,7 @@ def index(request):
 	#data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/index.tpl", data)
 
+@login_required
 def getSensorChildren(request, sensorID):
 	data = {}
 	parent = Sensor.objects.get(id=sensorID)
@@ -30,6 +32,7 @@ def getSensorChildren(request, sensorID):
 	#data['sensors'] = sensorsToTemplate(data['sensors'])
 	return render(request, "sensor/sensorList.tpl", data)
 
+@login_required
 def getCreateSensorForm(request):
 	parent = Sensor.objects.get(name="All")
 	data = {}
@@ -38,6 +41,7 @@ def getCreateSensorForm(request):
 	data['sensors'] = sensorsToFormTemplate(data['sensors'], 0)
 	return render(request, "sensor/createSensorForm.tpl", data)
 
+@login_required
 def getEditSensorForm(request, sensorID):
 	data = {}
 	data['sensor'] = Sensor.objects.get(id=sensorID)
@@ -54,6 +58,7 @@ def getEditSensorForm(request, sensorID):
 	data['sensors'] = sensorsToFormTemplate(data['sensors'], 0)
 	return render(request, "sensor/editSensorForm.tpl", data)
 
+@login_required
 def createSensor(request):
 	logger = logging.getLogger(__name__)
 	response = []
@@ -81,6 +86,10 @@ def createSensor(request):
 				user.set_password(password)
 				user.save()
 				logger.info("Created user "+str(user)+"")
+				
+				group = Group.objects.get(name="Sensors")
+				group.user_set.add(user)
+				
 				try:
 					sensor = Sensor.objects.get(name=sensorName)
 				except Sensor.DoesNotExist:
@@ -129,6 +138,7 @@ def createSensor(request):
 
 	return HttpResponse(json.dumps(response))
 
+@login_required
 def editSensor(request):
 	"""This method is called when the url /ruleset/editRuleSet/ is called.
 	It takes a set of variables through POST and then updates a RuleSet object based on them.
@@ -346,6 +356,7 @@ def editSensor(request):
 	
 	return HttpResponse(json.dumps(response))
 
+@login_required
 def deleteSensor(request):
 	
 	"""This method is called when the url /ruleset/editRuleSet/ is called.
@@ -398,6 +409,7 @@ def deleteSensor(request):
 	response.append({'response': 'sensorSuccessfulDeletion', 'text': 'Sensors was successfully deleted.'})
 	return HttpResponse(json.dumps(response))
 
+@login_required
 def regenerateSecret(request):
 	data = {}
 	data['status'] = False
@@ -417,6 +429,7 @@ def regenerateSecret(request):
 
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
+@login_required
 def requestUpdate(request):
 	data = {}
 	data['status'] = False
@@ -433,6 +446,7 @@ def requestUpdate(request):
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 
+@login_required
 def syncAllSensors(request):
 	
 	allOK =[]
