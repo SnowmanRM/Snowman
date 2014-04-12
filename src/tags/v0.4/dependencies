@@ -1,0 +1,9 @@
+Server:
+ - Django
+ - python-MySQLdb
+ - python-openssl
+
+Client:
+ - sqlalchemy
+ - python-MySQLdb
+ - python-openssl

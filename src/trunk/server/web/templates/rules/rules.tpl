@@ -8,10 +8,32 @@
 <script type="text/javascript" src="{% static 'js/rules.js' %}"></script>
 <div id="search-container" class="row col-xs-10 col-sm-10 col-md-10 pull-right">
 	<div class="pull-left">
-			<ul id="paginator" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination">
-				
-			</ul>
+		<ul id="paginator" itemcount="{{ itemcount }}" pagelength="{{ pagelength }}" class="pagination">
+			
+		</ul>
+	</div>
+
+	<div class="pull-left form-padding">
+		<label for="goToPage" class="control-label col-sm-6">Go to page:</label>
+		<div class="col-sm-6">
+			<select id="goToPage" name="goTopage" class="form-control">
+			
+			</select>
+			<p id="totalPages"></p>
 		</div>
+	</div>
+	<div class="pull-left form-padding">
+		<label for="pageLength" class="control-label col-sm-6">Items pr page:</label>
+		<div class="col-sm-6">
+			<select id="pageLength" name="pageLength" class="form-control">
+				<option value="10" {% if user.userProfile.pageLength = 10 %}selected{% endif %}>10</option>
+				<option value="25" {% if user.userProfile.pageLength = 25 %}selected{% endif %}>25</option>
+				<option value="50" {% if user.userProfile.pageLength = 50 %}selected{% endif %}>50</option>
+				<option value="100" {% if user.userProfile.pageLength = 100 %}selected{% endif %}>100</option>
+			</select>
+		</div>
+	</div>
+
 	{% csrf_token %}
 	<div class="input-group col-xs-6 col-sm-6 col-md-6 col-lg-6 pull-right">
 		

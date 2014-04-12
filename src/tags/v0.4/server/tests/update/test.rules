@@ -1,0 +1,4 @@
+alert tcp any any -> any 21 (msg:"This is a sample message"; \
+reference:arachnids,IDS287; reference:bugtraq,1387; reference:cve,CAN-2000-1574; \
+classtype: example-classtype; priority:10; detection_filter:track by_src, count 30, seconds 60;\
+threshold:type both, track by_dst, count 10, seconds 60; metadata:foo bar, ruleset community, bar 1; gid:1; sid:2000000; rev:10)

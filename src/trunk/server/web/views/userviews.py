@@ -3,9 +3,15 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.decorators import user_passes_test, login_required
+from web.models import UserProfile
 import json, logging
 
+def staff_check(user):
+	
+	return user.is_staff
 
+@user_passes_test(staff_check)
 def index(request):
 	
 	context = {}
@@ -14,10 +20,12 @@ def index(request):
 	
 	return render(request, 'user/users.tpl', context)
 
+@user_passes_test(staff_check)
 def getCreateUserForm(request):
 	
 	return render(request, 'user/createUserForm.tpl')
 
+@user_passes_test(staff_check)
 def createUser(request):
 	
 	logger = logging.getLogger(__name__)
@@ -48,17 +56,17 @@ def createUser(request):
 			if request.POST.get('firstName'):
 				firstName = request.POST.get('firstName')
 			else:
-				firstName = None
+				firstName = ""
 				
 			if request.POST.get('lastName'):
 				lastName = request.POST.get('lastName')
 			else:
-				lastName = None
+				lastName = ""
 				
 			if request.POST.get('email'):
 				email = request.POST.get('email')
 			else:
-				email = None
+				email = ""
 				
 			if request.POST.get('admin'):
 				admin = True
@@ -68,6 +76,8 @@ def createUser(request):
 			user = User.objects.create(username=username,first_name=firstName,last_name=lastName,email=email,is_staff=admin)
 			user.set_password(password)
 			user.save()
+			
+			UserProfile.objects.create(user=user)
 			
 			group = Group.objects.get(name="Users")
 			group.user_set.add(user)
@@ -80,11 +90,12 @@ def createUser(request):
 
 	return HttpResponse(json.dumps(response))
 	
-	
+@user_passes_test(staff_check)	
 def getResetPasswordForm(request):
 	
 	return render(request, 'user/resetPasswordForm.tpl')
-	
+
+@user_passes_test(staff_check)	
 def resetPassword(request):
 	logger = logging.getLogger(__name__)
 	response = []
@@ -125,14 +136,17 @@ def resetPassword(request):
 	
 	return HttpResponse(json.dumps(response))
 
+@user_passes_test(staff_check)
 def getEditUserForm(request):
 	
 	return HttpResponse(1)
 
+@user_passes_test(staff_check)
 def editUser(request):
 	
 	return HttpResponse(1)
 
+@user_passes_test(staff_check)
 def deleteUser(request):
 	# We set up the logger and a few lists.
 	logger = logging.getLogger(__name__)
@@ -159,6 +173,14 @@ def deleteUser(request):
 	
 	response.append({'response': 'userSuccessfulDeletion', 'text': 'Users was successfully deleted.'})
 	return HttpResponse(json.dumps(response))
+
+@login_required
+def setPageLength(request, length):
+	
+	request.user.userProfile.pageLength = length
+	request.user.userProfile.save()
+	
+	return HttpResponse(1)
 
 def getLoginForm(request):
 	

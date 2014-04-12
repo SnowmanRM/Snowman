@@ -1,0 +1,14 @@
+http://192.168.6.11/static/rules/testset.10000-1000.tar.gz
+http://192.168.6.11/static/rules/testset.10000-1000.tar.gz.md5
+http://192.168.6.11/static/rules/testset.1000-100.tar.gz
+http://192.168.6.11/static/rules/testset.1000-100.tar.gz.md5
+http://192.168.6.11/static/rules/testset.1000-1.tar.gz
+http://192.168.6.11/static/rules/testset.1000-1.tar.gz.md5
+http://192.168.6.11/static/rules/testset.100-10.tar.gz
+http://192.168.6.11/static/rules/testset.100-10.tar.gz.md5
+http://192.168.6.11/static/rules/testset.10-1.tar.gz
+http://192.168.6.11/static/rules/testset.10-1.tar.gz.md5
+http://192.168.6.11/static/rules/testset.1-1.tar.gz
+http://192.168.6.11/static/rules/testset.1-1.tar.gz.md5
+http://192.168.6.11/static/rules/testset.inactive.100-10.tar.gz
+http://192.168.6.11/static/rules/testset.inactive.100-10.tar.gz.md5

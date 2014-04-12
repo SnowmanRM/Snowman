@@ -19,6 +19,8 @@ from util.config import Config
 from web.views.updateforms import ManualUpdateForm, DailySelector, WeeklySelector, MonthlySelector, NewSourceForm
 from web.views.updateutils import createForm, createSourceList
 
+
+@login_required
 def index(request):
 	"""The default view for the update section."""
 	data = {}
@@ -63,6 +65,7 @@ def index(request):
 				
 	return render(request, "update/index.tpl", data)
 
+@login_required
 def changes(request):
 	CHANGE = 1
 	KEEP = 2
@@ -133,6 +136,7 @@ def changes(request):
 	#return HttpResponse(data['updates'])
 	return render(request, "update/changes.tpl", data)
 
+@login_required
 def removeUpdate(request, updateID):
 	
 	logger = logging.getLogger(__name__)
@@ -148,6 +152,7 @@ def removeUpdate(request, updateID):
 	
 	return HttpResponse('Success')
 
+@login_required
 def newSource(request):
 	"""This view recieves data from the "newSource" form. If the data recieved is valid, a new source is created.
 	Otherwise, the form is returned, with information on why the form is not valid.
@@ -190,6 +195,7 @@ def newSource(request):
 	
 	return render(request, "update/newSourceForm.tpl", data)
 
+@login_required
 def editSource(request, id):
 	"""This view is responsible to recieve and process requests for changing sources. If the form is valid, the source gets
 	updated. Otherwise, a form with a description of what is wrong gets returned.
@@ -238,12 +244,14 @@ def editSource(request, id):
 	
 	return render(request, "update/response.tpl", data)
 
+@login_required
 def getManualUpdateForm(request):
 	"""A very simple view, only returning the form for manual-updates.
 	This view is not a complete website, as it is supposed to be called via AJAX"""
 
 	return render(request, "update/manualUpdateForm.tpl", {'manualUpdateForm':ManualUpdateForm()})
 
+@login_required
 def getSourceList(request):
 	"""This view returns the list of sources, used in the index-view of update.
 	This view is not a complete website, as it is supposed to be called via AJAX"""
@@ -254,6 +262,7 @@ def getSourceList(request):
 
 	return render(request, "update/sourceList.tpl", data)
 
+@login_required
 def getTimeSelector(request, interval):
 	""" This view returns a time-select form, which matches the selected update-interval.
 	This view is not a complete website, as it is supposed to be called via AJAX"""
@@ -275,6 +284,7 @@ def getTimeSelector(request, interval):
 
 	return render(request, "update/formElement.tpl", data)
 
+@login_required
 def runUpdate(request, id):
 	"""This view is responsible to start an automatic update of a source. The update is spawned in its own process, so
 	the user is only informed that the update is started.
@@ -297,6 +307,7 @@ def runUpdate(request, id):
 	
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
+@login_required
 def getStatus(request, id):
 	"""This view returns the update-status for a given source as JSON.
 	

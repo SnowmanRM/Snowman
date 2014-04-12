@@ -147,7 +147,7 @@
 
 	background-color: white;
 }
-
+/*
 #content table.rules tbody tr td:nth-child(-n+4) {
 
 	width: 1%;
@@ -157,7 +157,7 @@
 	
 	width: 1%;
 }
-
+*/
 
 #content table.rules thead tr:first-child th:first-child,
 #content table.tuning thead tr:first-child th:first-child,
@@ -229,16 +229,11 @@
 #search-container .input-group {
 
 	border: 2px solid grey;
-	border-bottom: 0;
-	border-radius: 5px 5px 0 0;
+	//border-bottom: 0;
+	border-radius: 5px;
 	background-color: #ddd;
 	padding: 3px;
 	//margin-right: 1%;
-}
-#search-container.ruleset .input-group,
-#search-container.ruleclass .input-group {
-	border-radius: 5px;
-	border-bottom: 2px solid grey;
 	margin-bottom: 10px;
 }
 
@@ -486,3 +481,17 @@ button#logOut {
 	width: 86%;
 }
 
+#userNameDisplay {
+	
+	margin-top: 15px;
+	margin-bottom: 0;
+	margin-right: 20px;
+}
+
+.form-padding label {
+	padding-right: 0;
+}
+
+.form-padding div {
+	padding-left: 0;
+}

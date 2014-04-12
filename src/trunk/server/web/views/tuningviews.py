@@ -12,6 +12,7 @@ from itertools import chain
 from util import patterns
 
 
+@login_required
 def index(request):
 	"""This method is loaded when the /tuning/tuningByRule/ is called. 
 	It delivers the first page of tuning objects. """
@@ -60,6 +61,7 @@ def index(request):
 	# Send to template.
 	return render(request, 'tuning/tuning.tpl', context)
 
+@login_required
 def tuningPage(request, pagenr):
 	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
 	It delivers the page specified page of tuning objects. """
@@ -109,6 +111,7 @@ def tuningPage(request, pagenr):
 	# Send to template.
 	return render(request, 'tuning/tuningPage.tpl', context)
 
+@login_required
 def tuningSearch(request, pagenr):
 	"""This method is loaded when the /tuning/tuningByRulePage/ is called. 
 	It delivers the page specified page of tuning objects based on search parameters. """
@@ -191,6 +194,7 @@ def tuningSearch(request, pagenr):
 	# Send to template.
 	return render(request, 'tuning/tuningPage.tpl', context)
 
+@login_required
 def getFilterForm(request):
 	"""This method is loaded when the /tuning/getFilterForm is called. 
 	It delivers a form for EventFilters and DetectionFilters. """
@@ -210,6 +214,7 @@ def getFilterForm(request):
 	# Send to template.
 	return render(request, 'tuning/filterForm.tpl', context)
 
+@login_required
 def getEventFilterFormByID(request, tuningID):
 	"""This method is loaded when the /tuning/getThresholdForm is called. 
 	It delivers a form for thresholding. """
@@ -238,6 +243,7 @@ def getEventFilterFormByID(request, tuningID):
 	# Send to template.
 	return render(request, 'tuning/filterForm.tpl', context)
 
+@login_required
 def getDetectionFilterFormByID(request, tuningID):
 	"""This method is loaded when the /tuning/getThresholdForm is called. 
 	It delivers a form for thresholding. """
@@ -266,6 +272,7 @@ def getDetectionFilterFormByID(request, tuningID):
 	# Send to template.
 	return render(request, 'tuning/filterForm.tpl', context)
 
+@login_required
 def getSuppressForm(request):
 	"""This method is loaded when the /tuning/getSuppressForm is called. 
 	It delivers a form for suppression. """
@@ -285,6 +292,7 @@ def getSuppressForm(request):
 	# Send to template.
 	return render(request, 'tuning/suppressForm.tpl', context)
 
+@login_required
 def getSuppressFormByID(request, tuningID):
 	"""This method is loaded when the /tuning/getSuppressForm is called. 
 	It delivers a form for suppression. """
@@ -313,6 +321,7 @@ def getSuppressFormByID(request, tuningID):
 	# Send to template.
 	return render(request, 'tuning/suppressForm.tpl', context)
 
+@login_required
 def getModifyForm(request):
 	"""This method is loaded when the /tuning/getModifyForm is called. 
 	It delivers a form for enabling and disabling rulesets. """
@@ -332,6 +341,7 @@ def getModifyForm(request):
 	# Send to template.
 	return render(request, 'tuning/modifyForm.tpl', context)
 
+@login_required
 def modifyRule(request):
 	"""
 	This method processes requests directed at the /tuning/modifyRule/ url. It is used to enable and disable rules and rulesets.
@@ -473,6 +483,7 @@ def modifyRule(request):
 	
 	return HttpResponse(json.dumps(response))
 
+@login_required
 def setFilterOnRule(request):
 	"""This method is loaded when /tuning/setFilterOnRule is called.
 	The request should contain a POST of a form with all required fields. 
@@ -671,7 +682,8 @@ def setFilterOnRule(request):
 			response.append({'response': 'addFilterFailure', 'text': 'Failed when trying to add filter.'})
 			logger.error("Failed when trying to add filter: "+e.message)
 			return HttpResponse(json.dumps(response))
-		
+
+@login_required		
 def setSuppressOnRule(request):
 	"""This method is loaded when the /tuning/setSuppressOnRule is called.
 	The request should contain a POST of a form with all required fields. 
@@ -913,6 +925,7 @@ def setSuppressOnRule(request):
 			logger.error("Failed when trying to add suppressions.")
 			return HttpResponse(json.dumps(response))
 
+@login_required
 def deleteTuning(request):
 	"""This method is loaded when the /tuning/deleteTuning is called.
 	The request should contain a POST of a form with all required fields. 

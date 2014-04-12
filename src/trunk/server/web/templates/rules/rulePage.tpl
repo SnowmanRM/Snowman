@@ -19,7 +19,7 @@
 		<th class="text-center">
 			Updated
 		</th>
-		<th class="left">
+		<th class="test-left">
 			Name
 		</th>
 		<th class="text-center">
@@ -47,13 +47,13 @@
 				<input id="checkbox" rid="{{rule.ruleID}}" gid="{{ rule.ruleGID }}" sid="{{ rule.ruleSID }}" status="{% if rule.ruleThresholdCount %} T{% endif %}
 				{% if rule.ruleSuppressCount %} S{% endif %}" type="checkbox">
 			</td>
-			<td class="text-right">
+			<td class="text-center">
 				{{ rule.ruleSID }}
 			</td>
-			<td class="text-right">
+			<td class="text-center">
 				{{ rule.ruleRev }}
 			</td>
-			<td class="text-right">
+			<td class="text-center">
 				{{ rule.ruleUpdateTime|date:"Y-m-d" }}
 			</td>
 			<td class="wrappable">
@@ -71,7 +71,7 @@
 			<td class="text-center">
 				<span class="badge {{ rule.ruleClassPriorityColor }}">{{ rule.ruleClassPriority }}</span>
 			</td>
-			<td class="text-right wrappable">
+			<td class="text-right">
 				
 				{% if rule.ruleDetectionFilterCount %}<span class="badge btn-warning">D</span>{% endif %}
 				{% if rule.ruleEventFilterCount %}<span class="badge btn-warning">E</span>{% endif %}

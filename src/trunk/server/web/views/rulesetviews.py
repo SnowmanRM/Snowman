@@ -7,6 +7,7 @@ from update.models import Update
 from web.utilities import UserSettings, ruleSetsToTemplate, ruleSetHierarchyListToTemplate, ruleSetsWithNewRulesToTemplate, ruleSetsWithNewRuleRevisionsToTemplate
 import logging, json
 
+@login_required
 def index(request):
 	"""This method is called when the url /ruleset/ is called.
 	
@@ -37,6 +38,7 @@ def index(request):
 	
 	return render(request, 'ruleset/ruleSet.tpl', context)
 
+@login_required
 def getRuleSetByUpdate(request, updateID):
 	"""This method is called when the url /ruleset/byUpdate/ is called.
 	
@@ -73,6 +75,7 @@ def getRuleSetByUpdate(request, updateID):
 
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 	
+@login_required
 def getRuleSetByUpdateNewRules(request, updateID):
 	"""This method is called when the url /ruleset/byNewRules is called.
 	
@@ -110,6 +113,7 @@ def getRuleSetByUpdateNewRules(request, updateID):
 	#return HttpResponse(ruleSetsToTemplate(context['ruleset_list']))
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
+@login_required
 def getRuleSetByUpdateNewRuleRevisions(request, updateID):
 	"""This method is called when the url /ruleset/byNewRuleRevisions is called.
 	
@@ -147,6 +151,7 @@ def getRuleSetByUpdateNewRuleRevisions(request, updateID):
 	#return HttpResponse(context['ruleset_list'])
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
+@login_required
 def getRuleSetChildren(request,ruleSetID):
 	"""This method is called when the url /ruleset/children/ is called.
 	
@@ -179,6 +184,7 @@ def getRuleSetChildren(request,ruleSetID):
 
 	return render(request, 'ruleset/ruleSetListItems.tpl', context)
 
+@login_required
 def getCreateRuleSetForm(request):
 	"""This method is called when the url /ruleset/getCreateRuleSetForm/ is called.
 	It delivers a form to the render.
@@ -200,6 +206,7 @@ def getCreateRuleSetForm(request):
 	# Send to template.
 	return render(request, 'ruleset/createRuleSetForm.tpl', context)
 
+@login_required
 def getEditRuleSetForm(request, ruleSetID):
 	"""This method is called when the url /ruleset/getEditRuleSetForm/ is called.
 	It delivers a form to the render.
@@ -235,6 +242,7 @@ def getEditRuleSetForm(request, ruleSetID):
 	# Send to template.
 	return render(request, 'ruleset/editRuleSetForm.tpl', context)
 
+@login_required
 def getReorganizeRulesForm(request):
 	"""This method is called when the url /ruleset/getReorganizeRulesForm/ is called.
 	It delivers a form to the render.
@@ -257,6 +265,7 @@ def getReorganizeRulesForm(request):
 	# Send to template.
 	return render(request, 'ruleset/reorganizeRulesForm.tpl', context)
 
+@login_required
 def createRuleSet(request):
 	"""This method is called when the url /ruleset/createRuleSet/ is called.
 	It takes a set of variables through POST and then creates a RuleSet object based on them.
@@ -311,6 +320,7 @@ def createRuleSet(request):
 			return HttpResponse(json.dumps(response))
 
 
+@login_required
 def editRuleSet(request):
 	"""This method is called when the url /ruleset/editRuleSet/ is called.
 	It takes a set of variables through POST and then updates a RuleSet object based on them.
@@ -498,6 +508,7 @@ def editRuleSet(request):
 	
 	return HttpResponse(json.dumps(response))
 
+@login_required
 def deleteRuleSet(request):
 	"""This method is called when the url /ruleset/editRuleSet/ is called.
 	It takes a set of variables through POST and then deletes RuleSet objects based on them.

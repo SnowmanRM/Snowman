@@ -41,6 +41,21 @@ function listInitialize() {
 	
 	});
 
+	$('#goToPage').unbind('change');
+	$('#goToPage').change(function(event){
+		
+		$('#paginator').bootstrapPaginator("show",this.value);
+	});
+	
+	$('#pageLength').unbind('change');
+	$('#pageLength').change(function(event){
+		
+		$.get('/web/users/setPageLength/'+this.value+'/',function(data) {
+			if (data == true) {
+				setTimeout(function() {location.reload(true)}, 500);
+			}
+		});
+	});
 		
 }
 // This function is used to dynamically retrieve a page that contains a list of rules.
@@ -49,53 +64,57 @@ function getPage(pageNr){
 	// Copies pagenr to local _pagenr variable.
 	var _pageNr = parseInt(pageNr); 
 	
-	// Ajax-call for the required page. We return it so we can use $.when
-	return $.get('page/'+_pageNr+'/', function(html) { 
-		downloadId = $('table', $('<div/>').html(html)).attr("id");
-		pageAlreadyExists = $('#content table[id="'+downloadId+'"]');
 
-		if( pageAlreadyExists.length ) {
-
-			$('#content [id="'+downloadId+'"]').replaceWith(html);
-			
-		}
-		else {
+		// Ajax-call for the required page. We return it so we can use $.when
+		return $.get('page/'+_pageNr+'/', function(html) { 
+			downloadId = $('table', $('<div/>').html(html)).attr("id");
+			pageAlreadyExists = $('#content table[id="'+downloadId+'"]');
 	
-			// When the content is loaded, append to content container.
-			$('#content').append(html);
+			if( pageAlreadyExists.length ) {
+	
+				$('#content [id="'+downloadId+'"]').replaceWith(html);
+				
+			}
+			else {
+		
+				// When the content is loaded, append to content container.
+				$('#content').append(html);
+				
+			}
 			
-		}
-		
-		
-		// We need to reinitialize all the click events and switchbuttons.
-		listInitialize();
-
-	})
+			
+			// We need to reinitialize all the click events and switchbuttons.
+			listInitialize();
+	
+		});
+	
 	
 }
 
 // This function is used to dynamically retrieve a page that contains a list of rules.
 // This function is utilized for the search pages.
 function getSearchPage(pagenr, searchfield, searchstring){
-	// Copies pagenr to local _pagenr variable.
-	var _pagenr = parseInt(pagenr); 
-	var _searchfield = searchfield;
-	var _searchstring = searchstring;
-		
-	// Ajax-call for the required page. We return it so we can use $.when.
-	// We also include the CSRF token so Django can know we are friendly.
-	return $.ajax({
-		url:'page/search/'+_pagenr+'/',
-		type:'POST',
-		data: {searchf: _searchfield, searchs: _searchstring, csrfmiddlewaretoken: $('input').attr('name', 'csrfmiddlewaretoken').val()}
-		
-	}).done(function(html) { 
-		// When the content is loaded, append to content container.
-		
-		$('#content').append(html);
-		listInitialize();
-		
-	});
+	
+	
+		// Copies pagenr to local _pagenr variable.
+		var _pagenr = parseInt(pagenr); 
+		var _searchfield = searchfield;
+		var _searchstring = searchstring;
+			
+		// Ajax-call for the required page. We return it so we can use $.when.
+		// We also include the CSRF token so Django can know we are friendly.
+		return $.ajax({
+			url:'page/search/'+_pagenr+'/',
+			type:'POST',
+			data: {searchf: _searchfield, searchs: _searchstring, csrfmiddlewaretoken: $('input').attr('name', 'csrfmiddlewaretoken').val()}
+			
+		}).done(function(html) { 
+			// When the content is loaded, append to content container.
+			
+			$('#content').append(html);
+			listInitialize();
+			
+		});
 	
 }
 
@@ -156,11 +175,12 @@ function loadNextSearchPages(currentpage, pagecount, searchfield, searchstring) 
 function switchPage(page) {
 
 	var _page = page;
+
 	// Hide the page marked .current and then turn off its .current class.
 	$('#content .current').hide().toggleClass('current');
 	// Show the page we want and set it to contain the .current class. Select first in case ajax hickups and produces two.
 	$('#content .table#'+_page).show().toggleClass('current');
-
+	
 }
 
 // This function loads the paginator used when displaying a full list of all rules.
@@ -172,18 +192,26 @@ function loadPaginator(currentpage, pagecount) {
 			totalPages: pagecount,
 			numberOfPages: 3,
 			bootstrapMajorVersion: 3,
-			onPageClicked: function(e,originalEvent,type,page){
-				
-				originalEvent.preventDefault();
-				// Load the next pages.
-				loadNextPages(page, pagecount);
-				// Hide the page we no longer want and show the one we want.
-				if ($.active > 0) {
-					$(document).ajaxStop(function() {switchPage(page)});
+			onPageChanged: function(e,oldpage,page){
+				if ((page-oldpage) > 3 ) {
+					$.when(getPage(page)).done(function(){
+						switchPage(page);						
+						loadNextPages(page, pagecount);
+					});
 				}
 				else {
-					switchPage(page);
+					
+					if ($('#content .table#'+page).length) {
+						switchPage(page);
+					}
+					else {
+						$(document).ajaxStop(function() {switchPage(page)});
+					}						
+					loadNextPages(page, pagecount);
 				}
+				
+				// Load the next pages.
+				
 				//window.location.hash = page;
 			}
 	}
@@ -339,5 +367,11 @@ $(document).ready(function(){
 	
 	// Initialize the search field above content.
 	searchField();
+	
+	for (var i=1;i<=pagecount;i++) {
+		$('#goToPage').append('<option value="'+i+'">'+i+'</option>');
+		
+	}
+	$('#totalPages').html('of '+pagecount)
 
 });

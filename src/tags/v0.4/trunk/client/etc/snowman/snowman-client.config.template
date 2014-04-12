@@ -1,0 +1,41 @@
+[general]
+sensorname: sensorname
+secret: sensorsecret
+binarydir: /usr/bin
+
+[configfiles]
+location: /var/snowman-client/rules
+
+# Configures the applications logging. Severity defines how severe an event should
+# be before it is logged. Possible values are:
+#   - CRITICAL, ERROR, WARNING, INFO, DEBUG
+[logging]
+logfile: /var/log/snowman-client.log
+severity: DEBUG
+
+# Configuration for where the snortrulemanager client can keep a local cache of
+# the rules recieved from the central server. Hostname/Username/Password is skipped
+# if the database-type is sqlite.
+[localdb]
+debug: 0
+type: sqlite
+name: /var/snowman-client/snowman-client.db
+hostname: 
+username: 
+password: 
+
+# Configuration for where snortrulemanager can find the central server.
+[srm-server]
+address: 127.0.0.1
+port: 13471
+
+# Configuration on where to bind the socket the client uses to listen
+#   for orders from the central server
+[xmlrpc-server]
+address: 0.0.0.0
+port: 13472
+keyfile: /etc/snowman/xmlrpc.key.pem
+certfile: /etc/snowman/xmlrpc.pem
+
+[sync]
+maxRulesInRequest: 250
