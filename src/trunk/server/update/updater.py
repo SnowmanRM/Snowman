@@ -1,15 +1,37 @@
 #!/usr/bin/python
 """
-update.updater
+update.updater.Updater
 
 The updater module is responsible to recieve the parsed rules, and store them in the database.
+It will raise an TypeError if any of the data is of wrong types..
 """
 
+from util.config import Config
+
 class Updater():
-	def __init__(self):
-		pass
+	RAW = 0
+	NEW = 1
+	CHANGED = 2
+	SAVED = 3
 	
-	def addGenerator(self, gid, alertID = None, message = None):
+	def __init__(self):
+		# Get config from the configfile, and if the config is not valid,
+		#   just set it to be "first"
+		self.msgsource = Config.get("update", "ruleMessageSource")
+		if(self.msgsource != "sidmsg" and self.msgsource != "rule"):
+			self.msgsource = "first"
+		
+		# Initialize the dictionaries to store the data in.
+		self.generators = {}
+		self.ruleSets = {}
+		self.rules = {}
+		self.classes = {}
+		self.references = {}
+		self.referenceTypes = {}
+		self.suppress = {}
+		self.filters = {}
+		
+	def addGenerator(self, gid, alertID = 1, message = ""):
 		"""
 		Adds the definition of a generator.
 			
@@ -18,7 +40,19 @@ class Updater():
 			alertID		int
 			message		string
 		"""
-		pass
+		
+		# Validate the datatypes
+		if(type(gid) != int):
+			raise TypeError("GeneratorID needs to be an integer")
+		if(type(alertID) != int):
+			raise TypeError("alertID needs to be an integer")
+		if(type(message) != str):
+			raise TypeError("message needs to be a string")
+		
+		# Add the generator to the data-structure. If a generator with the
+		# same gid-alertID exists, it will simply be overwritten.
+		key = "%d-%d" % (gid, alertID) 
+		self.generators[key] = [self.RAW, (gid, alertID, message)]
 	
 	def addRule(self, sid, rev, raw, message, active, ruleset, classtype, priority = None, gid = 1):
 		"""
@@ -37,7 +71,46 @@ class Updater():
 			priority	int			Priority
 			gid			int			Generator ID
 		"""
-		pass
+		
+		# Validate the datatypes
+		if(type(sid) != int):
+			raise TypeError("SignatureID needs to be an integer")
+		if(type(rev) != int):
+			raise TypeError("Revision needs to be an integer")
+		if(type(raw) != str):
+			raise TypeError("raw needs to be a string")
+		if(type(message) != str):
+			raise TypeError("message needs to be a string")
+		if(type(active) != bool):
+			raise TypeError("active needs to be a bool")
+		if(type(ruleset) != str):
+			raise TypeError("ruleset needs to be a string")
+		if(type(classtype) != str):
+			raise TypeError("classtype needs to be a string")
+		if(priority != None and type(priority) != int):
+			raise TypeError("priority needs to be an integer")
+		if(type(gid) != int):
+			raise TypeError("GeneratorID needs to be an integer")
+		
+		# If there is no rule recieved yet with this SID, just save it.
+		if(sid not in self.rules):
+			self.rules[sid] = [self.RAW, (sid, rev, raw, message, active, ruleset, classtype, 
+						priority, gid)]
+		
+		# If a rule with the same SID already exists (it might be just a message):
+		else:
+			# Determine which of the message-strings we are going to use. 
+			if(self.msgsource == "sidmsg"):
+				if(self.rules[sid][0] == self.RAW):
+					msg = self.rules[sid][1][3]
+				else:
+					msg = self.rules[sid][1].msg
+			else:
+				msg = message	
+			
+			# Add the rule to the data-structure.
+			self.rules[sid] = [self.RAW, (sid, rev, raw, msg, active, ruleset, classtype, 
+						priority, gid)]
 	
 	def addMessage(self, sid, message):
 		"""
@@ -47,7 +120,30 @@ class Updater():
 			sid			int			Signature ID
 			message		string		The message to be updated to.
 		"""
-		pass
+		
+		# Validate the datatypes
+		if(type(sid) != int):
+			raise TypeError("SignatureID needs to be an integer")
+		if(type(message) != str):
+			raise TypeError("message needs to be a string")
+		
+		# Either create an empty rule, where we add the message.
+		if(sid not in self.rules):
+			self.rules[sid] = [self.RAW, (sid, None, None, message, None, None, 
+							None, None, None)]
+		
+		# Or, if the config says that sidmsg should be the message-source, update the
+		# existing rule.
+		elif(self.msgsource == "sidmsg"):
+			rule = self.rules[sid][1]
+			if(self.rules[sid][0] == self.RAW):
+				self.rules[sid] = [self.RAW, (sid, rule[1], rule[2], message, rule[4], 
+							rule[5], rule[6], rule[7], rule[8])]
+			else:
+				rev = rule.getCurrentRevision()
+				self.rules[sid] = [self.RAW, (sid, rev.rev, rev.raw, message, rule.active, 
+							rule.ruleSet.name, rule.ruleClass.classtype, rule.priority, 
+							rule.generator.gid)]
 	
 	def addClass(self, classtype, description, priority):
 		"""
@@ -58,7 +154,15 @@ class Updater():
 			description	string		
 			priority	int
 		"""
-		pass
+		
+		if(type(classtype) != str):
+			raise TypeError("classtype needs to be a string")
+		if(type(description) != str):
+			raise TypeError("description needs to be a string")
+		if(type(priority) != int):
+			raise TypeError("priority needs to be an integer")
+
+		self.classes[classtype] = [self.RAW, (classtype, description, priority)]
 	
 	def addReferenceType(self, name, urlPrefix):
 		"""
@@ -69,7 +173,13 @@ class Updater():
 			urlPrefix	string		The prefix of the url's referenced from this
 									references of this type.	
 		"""
-		pass
+		
+		if(type(name) != str):
+			raise TypeError("name needs to be a string")
+		if(type(urlPrefix) != str):
+			raise TypeError("urlPrefix needs to be a string")
+		
+		self.referenceTypes[name] = [self.RAW, (name, urlPrefix)]
 	
 	def addReference(self, referenceType, reference, sid):
 		"""
@@ -80,7 +190,16 @@ class Updater():
 			reference		string	Content of the reference
 			sid				int		ID of the rule this reference belongs to.
 		"""
-		pass
+		
+		if(type(referenceType) != str):
+			raise TypeError("referenceType needs to be a string")
+		if(type(reference) != str):
+			raise TypeError("reference needs to be a string")
+		if(type(sid) != int):
+			raise TypeError("sid needs to be an integer")
+
+		key = "%s-%s-%d" % (referenceType, reference, sid)
+		self.references[key] = [self.RAW, (referenceType, reference, sid)]
 	
 	def addRuleSet(self, name):
 		"""
@@ -89,7 +208,11 @@ class Updater():
 		Required parametres:
 			name			string	The name of the ruleSet.
 		"""
-		pass
+		
+		if(type(name) != str):
+			raise TypeError("name needs to be a string")
+
+		self.ruleSets[name] = [self.RAW, name]
 	
 	def addSuppress(self, sid, track = None, addresses = None, gid = 1):
 		"""
@@ -103,7 +226,23 @@ class Updater():
 			addresses		[string]	Which addresses to track
 			gid				int			ID of the generator to suppress. Default: 1
 		"""
-		pass
+		
+		# Verifies that the arguments make sense.
+		if(type(sid) != int):
+			raise TypeError("sid needs to be an integer")
+		if(track not in [None, "by_src", "by_dst"]):
+			raise TypeError("track needs to be by_src or by_dst")
+		if(addresses and type(addresses) != list):
+			raise TypeError("addresses should be a list.")
+		if(addresses):
+			for element in addresses:
+				if(type(element) != str):
+					raise TypeError("The elements in addresses should be strings.")
+		if(type(gid) != int):
+			raise TypeError("The GeneratorID needs to be an int.")
+
+		# Save the suppress to memory.
+		self.suppress[sid] = [self.RAW, (sid, track, addresses, gid)]
 	
 	def addFilter(self, sid, track, count, second, filterType = None, gid = 1):
 		"""
@@ -113,13 +252,43 @@ class Updater():
 			sid			int			Signature ID
 			track		string		Track by which addresses	(by_src|by_dst)
 			count		int
-			seconds		int
+			second		int
 
 		Optional parametres:
 			filterType	string		Which type is this filter? (limit, threshold, both, None)
 										(None means that the filter is a Detection Filter.
 										otherwise, it is an EventFilter).
-			gig			int			Generator ID, if this filter is for a rule with another 
+			gid			int			Generator ID, if this filter is for a rule with another 
 										generator than 1.
 		"""
-		pass
+		
+		# Validate the parametres.
+		if(type(sid) != int):
+			raise TypeError("SID needs to be an int")
+		if(track not in ["by_src", "by_dst"]):
+			raise TypeError("track needs to be either \"by_src\" or \"by_dst\"")
+		if(type(count) != int):
+			raise TypeError("count needs to be an int")
+		if(type(second) != int):
+			raise TypeError("Second needs to be an int")
+		if(filterType not in [None, "limit", "threshold", "both"]):
+			raise TypeError("Invalid data passed as filterType")
+		if(type(gid) != int):
+			raise TypeError("GeneratorID needs to be an int.")
+			
+		# Generate a key which helps us keep up to one filter of each type.
+		if filterType:
+			key = "EF-%d" % sid
+		else:
+			key = "DF-%d" % sid
+		
+		# Save the parametres to memory.
+		self.filters[key] = [self.RAW, (sid, track, count, second, filterType, gid)]
+	
+	def debug(self):
+		""" Simple debug-method dumping all the data to stdout. """
+		for l in [self.generators, self.ruleSets, self.rules, self.classes, self.references,
+				self.referenceTypes, self.suppress, self.filters]:
+			print "Start:"
+			for element in l:
+				print " - ", l[element]
