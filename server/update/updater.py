@@ -6,6 +6,10 @@ The updater module is responsible to recieve the parsed rules, and store them in
 It will raise an TypeError if any of the data is of wrong types..
 """
 
+import logging
+
+from core.models import Generator, Rule, RuleSet, RuleClass, RuleReference, RuleReferenceType
+from tuning.models import Suppress, SuppressAddress, DetectionFilter, EventFilter
 from util.config import Config
 
 class Updater():
@@ -284,6 +288,70 @@ class Updater():
 		
 		# Save the parametres to memory.
 		self.filters[key] = [self.RAW, (sid, track, count, second, filterType, gid)]
+	
+	def saveGenerators(self):
+		"""Saves all the new/changed generators to the dabase, while trying to
+		minimize the impact on DB performance."""
+		logger = logging.getLogger(__name__)
+		
+		# Analyze the retrieved generators, and create list of all the generators
+		# we would need to try to fetch from the database.
+		newGenerators = {}
+		rawGid = []
+		rawAlertID = []
+		for gen in self.generators:
+			if self.generators[gen][0] == self.RAW:
+				newGenerators[gen] = self.generators[gen][1]
+				rawGid.append(self.generators[gen][1][0])
+				rawAlertID.append(self.generators[gen][1][1])
+		
+		logger.debug("Found %d new generators to be checked" % len(rawGid))
+		
+		# Try to fetch the generators from the database, and loop trough them:
+		generators = Generator.objects.filter(GID__in = rawGid, alertID__in = rawAlertID).all()
+		for generator in generators:
+			key = "%d-%d" % (generator.GID, generator.alertID)
+			# If this is a generator that we want to look at (as we will also get 1-2 when we
+			#   look for 1-1 and 2-2... )
+			if key in newGenerators:
+				status = self.SAVED
+				rawGenerator = newGenerators.pop(key)
+				
+				# If the message is new, add the new message.
+				if(rawGenerator[2] != generator.message):
+					status = self.CHANGED
+					generator.message = rawGenerator[2]
+				
+				# If anything needed to be changed, save the object.
+				if(status == self.CHANGED):
+					generator.save()
+					status = self.SAVED
+					logger.debug("Updated %s" % str(generator))
+
+				# Store the object in the local cache, in case it is needed later.
+				self.generators[key] = [status, generator]
+		
+		# If there are any generators we could not find in the database
+		if(len(newGenerators)):
+			# Make a list of new Generator objects, a list of gid's and a list of alertID's.
+			g = []
+			gids = []
+			alertIDs = []
+			for gen in newGenerators:
+				generator = newGenerators[gen]
+				gids.append(generator[0])
+				alertIDs.append(generator[1])
+				g.append(Generator(GID=generator[0], alertID=generator[1], message=generator[2]))
+			
+			# Insert the created Generator objects to the database.
+			Generator.objects.bulk_create(g)	
+			logger.debug("Created %d new generators" % len(g))
+			
+			# Read them back out, and store them in memory. In case somebody needs them later in the
+			# update.
+			for generator in Generator.objects.filter(GID__in = gids, alertID__in = alertIDs).all():
+				key = "%d-%d" % (generator.GID, generator.alertID)
+				self.generators[key] = [self.SAVED, generator]
 	
 	def debug(self):
 		""" Simple debug-method dumping all the data to stdout. """
