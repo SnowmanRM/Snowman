@@ -1,0 +1,33 @@
+\section{Functional Requirements}
+
+\subsection{Program Workflow}
+To develop our requirements, we decided to chart the program workflow in order to better understand what the system is expected to do. Since this is to be a highly user-oriented system, we accomplished this by going over the old system, BHTB, step by step and detailing the functions and various needs for improvement or additional functionality. From this, we developed a workflow chart that details the major system parts.
+
+\begin{figure}[ht!]
+\includegraphics[width=130mm]{./img/program_workflow.png}
+\caption{Program Workflow}
+\label{program_workflow}
+\end{figure}
+
+*Detail the workflow*
+
+It's important to note that very early on, we decided that writing rules, automatically check them for errors and commenting them were nice-to-have features that we could implement if we had time to do so. Hence they are greyed out in the drawings.
+
+From this workflow we could outline a rough modular design based on the naturally separate functions of updating rules, tuning them, distributing them and show them. In addition, we added a database module. 
+
+\begin{figure}[ht!]
+\includegraphics[width=130mm]{./img/program_modules.png}
+\caption{Program Modules}
+\label{program_modules}
+\end{figure}
+
+*Detail the modules*
+
+Looking at the arrows, it is pretty apparent that the program workflow is heavily centered around the database module, and the major parts of the system revovles around the importing of rules and then distributing them. We therefore began developing our use cases around those major movements.
+
+\subsection{Use Case Diagram}
+
+\input{./tex/usecases.tex}
+\subsection{High Level Use Cases}
+\subsection{Detailed Use Cases}
+\subsection{Domain Model}
