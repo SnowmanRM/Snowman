@@ -10,6 +10,7 @@ import ConfigParser
 
 from util.config import Config
 from update.models import Source, Update, UpdateLog
+from update.parser import Parser
 
 class UpdateTasks:
 	"""This class exposes the different method which we use for processing update-files."""
@@ -108,6 +109,8 @@ class UpdateTasks:
 		if(update == None):
 			update = Update.objects.create(time=datetime.datetime.now(), source=source)
 			
+		parser = Parser(update)
+			
 		if sourceName == "Manual":
 			storeHash = False
 		else:
@@ -191,28 +194,28 @@ class UpdateTasks:
 			
 			if(foundClassifications):
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="15 Parsing %s" % classificationFile[1])
-				update.parseClassificationFile(classificationFile, ruleclasses=ruleclasses)
+				parser.parseClassificationFile(classificationFile)
 			if(foundGenMsg):
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="17 Parsing %s" % genMsgFile[1])
-				update.parseGenMsgFile(genMsgFile, generators=generators)
+				parser.parseGenMsgFile(genMsgFile)
 			if(foundReferences):
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="19 Parsing %s" % referenceConfigFile[1])
-				update.parseReferenceConfigFile(referenceConfigFile)
+				parser.parseReferenceConfigFile(referenceConfigFile)
 			
 			current = 20
 			step = float(50) / float(len(ruleFiles))
 			for updateFile in ruleFiles:
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="%d Parsing %s" % (int(current), updateFile[1]))
-				update.parseRuleFile(updateFile, rulesets=rulesets, ruleclasses=ruleclasses, generators=generators)
+				parser.parseRuleFile(updateFile)
 				current = current + step
 
 			if foundSidMsg:		
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="70 Parsing %s" % sidMsgFile[1])
-				update.parseSidMsgFile(sidMsgFile)
+				parser.parseSidMsgFile(sidMsgFile)
 				
 			if foundFilter:
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="95 Parsing %s" % filterFile[1])
-				update.parseFilterFile(filterFile)
+				parser.parseFilterFile(filterFile)
 		
 		else:
 			
@@ -245,7 +248,7 @@ class UpdateTasks:
 			step = float(50) / float(len(files))
 			for updateFile in files:
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="%d Parsing %s" % (int(current), updateFile[1]))
-				update.parseConfigFile(updateFile, storeHash, rulesets=rulesets, ruleclasses=ruleclasses, generators=generators)
+				parser.parseConfigFile(updateFile, storeHash)
 				current = current + step
 		
 		logger.info("Finished processing the update-folder: %s" % path)

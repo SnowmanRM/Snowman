@@ -248,7 +248,7 @@ class Updater():
 		# Save the suppress to memory.
 		self.suppress[sid] = [self.RAW, (sid, track, addresses, gid)]
 	
-	def addFilter(self, sid, track, count, second, filterType = None, gid = 1):
+	def addFilter(self, sid, track, count, seconds, filterType = None, gid = 1):
 		"""
 		Adds a filter to a rule.
 		
@@ -273,7 +273,7 @@ class Updater():
 			raise TypeError("track needs to be either \"by_src\" or \"by_dst\"")
 		if(type(count) != int):
 			raise TypeError("count needs to be an int")
-		if(type(second) != int):
+		if(type(seconds) != int):
 			raise TypeError("Second needs to be an int")
 		if(filterType not in [None, "limit", "threshold", "both"]):
 			raise TypeError("Invalid data passed as filterType")
@@ -287,7 +287,7 @@ class Updater():
 			key = "DF-%d" % sid
 		
 		# Save the parametres to memory.
-		self.filters[key] = [self.RAW, (sid, track, count, second, filterType, gid)]
+		self.filters[key] = [self.RAW, (sid, track, count, seconds, filterType, gid)]
 	
 	def saveGenerators(self):
 		"""Saves all the new/changed generators to the dabase, while trying to

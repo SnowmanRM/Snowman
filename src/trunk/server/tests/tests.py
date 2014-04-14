@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from core.models import Rule, RuleRevision, Generator, RuleClass, RuleSet, Sensor, RuleReferenceType
 from update.models import Source, Update
-from tuning.models import DetectionFilter, EventFilter
+from tuning.models import DetectionFilter, EventFilter, Suppress
 
 from update.tasks import UpdateTasks
 
@@ -127,9 +127,15 @@ class Test(TestCase):
 		# Check filter
 		rule.eventFilters.get(sensor=self.allSensors, eventFilterType=EventFilter.LIMIT, track=EventFilter.SOURCE, count=1, seconds=60)
 		
+		# Check suppress
+		suppress = rule.suppress.get(sensor=self.allSensors, track=Suppress.DESTINATION)
+		for ip in suppress.getAddresses:
+			if ip not in ["192.168.0.1", "192.168.1.1/24"]:
+				self.fail("Suppress address not found or incorrect.")
+		
 	def test_runUpdate(self):
 		UpdateTasks.runUpdate("update/test.rules")
-		rule = Rule.objects.get(SID=2000000, active=True, priority=10)
+		Rule.objects.get(SID=2000000, active=True, priority=10)
 		
 # 	def test_weirdRule(self):
 # 		rule = self.update.updateRule('alert udp any 53 -> ![$DNS_SERVERS,$SMTP_SERVERS] any (msg:"ET POLICY Unusual number of DNS No Such Name Responses"; content:"|83|"; offset:3; depth:1; threshold: type both , track by_dst, count 50, seconds 300; reference:url,doc.emergingthreats.net/2003195; classtype:bad-unknown; sid:2003195; rev:5;)', "example2.rules")
