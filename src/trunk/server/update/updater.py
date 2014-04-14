@@ -8,7 +8,7 @@ It will raise an TypeError if any of the data is of wrong types..
 
 import logging
 
-from core.models import Generator, Rule, RuleSet, RuleClass, RuleReference, RuleReferenceType
+from core.models import Generator, Rule, RuleRevision, RuleSet, RuleClass, RuleReference, RuleReferenceType
 from tuning.models import Suppress, SuppressAddress, DetectionFilter, EventFilter
 from util.config import Config
 
@@ -352,6 +352,258 @@ class Updater():
 			for generator in Generator.objects.filter(GID__in = gids, alertID__in = alertIDs).all():
 				key = "%d-%d" % (generator.GID, generator.alertID)
 				self.generators[key] = [self.SAVED, generator]
+	
+	def saveClasses(self):
+		"""Saves all the new/changed ruleclasses to the dabase, while trying to
+		minimize the impact on DB performance."""
+		logger = logging.getLogger(__name__)
+		
+		# Analyze the retrieved classes, and create list of all the classes
+		# we would need to try to fetch from the database.
+		newClasses = {}
+		classnames = []
+		for c in self.classes:
+			if self.classes[c][0] == self.RAW:
+				newClasses[c] = self.classes[c][1]
+				classnames.append(self.classes[c][1][0])
+		
+		logger.debug("Found %d new classes to be checked" % len(classnames))
+		
+		# Try to fetch the classtypes from the database, and loop trough them:
+		classes = RuleClass.objects.filter(classtype__in = classnames).all()
+		for c in classes:
+			status = self.SAVED
+			raw = newClasses.pop(c.classtype)
+			
+			# If any of the parametres have changed, update them, and set the
+			# status-flag to changed
+			if(raw[1] != c.description):
+				status = self.CHANGED
+				c.description = raw[1]
+			if(raw[2] != c.priority):
+				status = self.CHANGED
+				c.priority = raw[2]
+			
+			# If anything needed to be changed, save the object.
+			if(status == self.CHANGED):
+				c.save()
+				status = self.SAVED
+				logger.debug("Updated %s" % str(c))
+
+			# Store the object in the local cache, in case it is needed later.
+			self.classes[c.classtype] = [status, c]
+		
+		if(len(newClasses)):
+			# Make a list of new RuleClass objects, and a list of classtypes..
+			ruleClasses = []
+			classtypes = []
+			for c in newClasses:
+				classtypes.append(newClasses[c][0])
+				ruleClasses.append(RuleClass(classtype=newClasses[c][0], description=newClasses[c][1], priority=newClasses[c][2]))
+			
+			# Insert the created RuleClass objects to the database.
+			RuleClass.objects.bulk_create(ruleClasses)	
+			logger.debug("Created %d new RuleClass-es" % len(ruleClasses))
+			
+			# Read them back out, and store them in memory. In case somebody needs them later in the
+			# update.
+			for classtype in RuleClass.objects.filter(classtype__in=classtypes).all():
+				self.classes[classtype.classtype] = [self.SAVED, classtype]
+	
+	def saveReferenceTypes(self):
+		"""Saves all the new/changed RuleReferenceType's to the dabase, while trying to
+		minimize the impact on DB performance."""
+		logger = logging.getLogger(__name__)
+		
+		# Analyze the retrieved referencetypes, and create list of all the types
+		# we would need to try to fetch from the database.
+		newTypes = {}
+		typenames = []
+		for refType in self.referenceTypes:
+			if self.referenceTypes[refType][0] == self.RAW:
+				newTypes[refType] = self.referenceTypes[refType][1]
+				typenames.append(self.referenceTypes[refType][1][0])
+		
+		logger.debug("Found %d new RuleReferenceType's to be checked" % len(newTypes))
+		
+		# Try to fetch the referenceType from the database, and loop trough them:
+		refTypes = RuleReferenceType.objects.filter(name__in=typenames).all()
+		for t in refTypes:
+			status = self.SAVED
+			raw = newTypes.pop(t.name)
+			
+			# If any of the parametres have changed, update them, and set the
+			# status-flag to changed
+			if(raw[1] != t.urlPrefix):
+				t.urlPrefix = raw[1]
+				t.save()
+				status = self.SAVED
+				logger.debug("Updated %s" % str(t))
+
+			# Store the object in the local cache, in case it is needed later.
+			self.referenceTypes[t.name] = [status, t]
+		
+		if(len(newTypes)):
+			# Make a list of new RuleReferenceType objects, and a list of their names.
+			refTypes = []
+			typeNames = []
+			for t in newTypes:
+				typeNames.append(newTypes[t][0])
+				refTypes.append(RuleReferenceType(name=newTypes[t][0], urlPrefix=newTypes[t][1]))
+			
+			# Insert the created RuleReferenceType objects to the database.
+			RuleReferenceType.objects.bulk_create(refTypes)	
+			logger.debug("Created %d new RuleReferenceType's" % len(refTypes))
+			
+			# Read them back out, and store them in memory. In case somebody needs them later in the
+			# update.
+			for refType in RuleReferenceType.objects.filter(name__in=typeNames).all():
+				self.referenceTypes[refType.name] = [self.SAVED, refType]
+			
+	def saveRuleSets(self):
+		"""Saves all the new/changed RuleSet's to the dabase, while trying to
+		minimize the impact on DB performance."""
+		logger = logging.getLogger(__name__)
+		
+		# Analyze the retrieved sets, and create list of all the sets
+		# we would need to try to fetch from the database.
+		newSets = []
+		for ruleSet in self.ruleSets:
+			if self.ruleSets[ruleSet][0] == self.RAW:
+				newSets.append(ruleSet)
+		
+		logger.debug("Found %d new RuleSet's to be checked" % len(newSets))
+		
+		# Try to fetch the referenceType from the database, and loop trough them:
+		sets = RuleSet.objects.filter(name__in=newSets).all()
+		for s in sets:
+			status = self.SAVED
+			newSets.remove(s.name)
+			self.ruleSets[s.name] = [status, s]
+		
+		if(len(newSets)):
+			# Make a list of new RuleSet objects.
+			ruleSets = []
+			for s in newSets:
+				ruleSets.append(RuleSet(name=s, active=True, description=s))
+			
+			# Insert the created RuleReferenceType objects to the database.
+			RuleSet.objects.bulk_create(ruleSets)	
+			logger.debug("Created %d new RuleSet's" % len(ruleSets))
+			
+			# Read them back out, and store them in memory. In case somebody needs them later in the
+			# update.
+			for ruleSet in RuleSet.objects.filter(name__in=newSets).all():
+				self.ruleSets[ruleSet.name] = [self.SAVED, ruleSet]
+	
+	def saveRules(self):
+		"""Saves the rules recieved"""
+		logger = logging.getLogger(__name__)
+
+		# Create a list of rule's SID
+		sids = []
+		newRules = {}
+		for rule in self.rules:
+			if(self.rules[rule][0] == self.RAW):
+				sids.append(self.rules[rule][1][0])
+				newRules[self.rules[rule][1][0]] = self.rules[rule][1]
+		
+		# Collect a list of the SID/rev pairs matching any SID we currently have the rule in RAW format.
+		revisionids = RuleRevision.objects.filter(rule__SID__in = sids).values_list("pk", flat=True).distinct()
+		sidrev = RuleRevision.objects.filter(pk__in=revisionids).values_list("rule__SID", "rev").all()
+		
+		# Compare the SID/rev of all new Rules with the results from the database, and determine which rules
+		# really is new, and which rules are updated, and which have no changes. (We still skip looking at
+		# rules where the SID/rev values is seen before.)
+		updated = {}
+		unchanged = {}
+		for sid, rev in sidrev:
+			if(sid in newRules):
+				raw = newRules.pop(sid)
+				if(raw[1] > rev):
+					updated[sid] = raw
+				else:
+					unchanged[sid] = raw
+		
+		# Create new revisions to all the rules that needs an update.
+		activateNewRevisions = (Config.get("update", "activateNewRevisions") == "true")
+		changeRuleSet = (Config.get("update", "changeRuleset") == "true")
+		newRevisions = []
+		for rule in Rule.objects.filter(SID__in=updated.keys()).select_related('ruleSet', 'ruleClass').all():
+			status = self.SAVED
+			raw = updated[rule.SID]
+
+			# Create a new rule-revision.
+			newRevisions.append(RuleRevision(rule=rule, rev=raw[1], msg=raw[3], raw=raw[2], active=activateNewRevisions))
+			
+			# Update ruleset and/or classification if they have changed:
+			if(rule.ruleSet.name != raw[5]):
+				if(changeRuleSet):
+					status = self.CHANGED
+					rule.ruleSet = self.ruleSets[raw[5]][1]
+				#TODO: Create RuleChange objects.
+			if(rule.ruleClass.name != raw[6]):
+				status = self.CHANGED
+				rule.ruleClass = self.classes[raw[6]][1]
+
+			# Update various other parametres if they are changed:
+			if(rule.active != raw[4]):
+				status = self.CHANGED
+				rule.active = raw[4]
+			if(rule.priority != raw[7]):
+				status = self.CHANGED
+				rule.priority = raw[7]
+			if(rule.generator_id != raw[8]):
+				status = self.CHANGED
+				rule.generator_id = raw[8]
+				
+			# If anything is saved in the Rule-object, save it:
+			if(status == self.CHANGED):
+				logger.debug("Updated %s" % str(rule))
+				rule.save()
+				self.rules[rule.SID] = [self.SAVED, rule]
+			
+		# Create new Rule objects for all the new rules
+		newRuleObjects = []
+		for sid in newRules:
+			newRuleObjects.append(Rule(SID=sid, active=(activateNewRevisions and newRules[sid][4]), 
+					ruleSet=self.ruleSets[newRules[sid][5]][1], ruleClass=self.classes[newRules[sid][6]][1],
+					priority=newRules[sid][7], generator_id=newRules[sid][8]))
+		Rule.objects.bulk_create(newRuleObjects)
+		logger.debug("Created %d new Rule's" % len(newRuleObjects))
+		
+		for rule in Rule.objects.filter(SID__in=newRules.keys()).all():
+			raw = newRules[rule.SID]
+			self.rules[rule.SID] = [self.SAVED, rule]
+			newRevisions.append(RuleRevision(rule=rule, rev=raw[1], msg=raw[3], raw=raw[2], active=activateNewRevisions))
+		
+		# Store the new revisions to the database
+		RuleRevision.objects.bulk_create(newRevisions)
+		logger.debug("Created %d new RuleRevision's" % len(newRevisions))
+
+		# If the config states so, retrieve the rule-objects of all the rules that have not been changed yet.
+		if(Config.get("update", "cacheUnchangedRules") == "true"):
+			for rule in Rule.objects.filter(SID__in=unchanged.keys()).all():
+				self.rules[rule.SID] = [self.SAVED, rule]
+			
+	def saveReferences(self):
+		#self.references[key] = [self.RAW, (referenceType, reference, sid)]
+		pass
+	
+	def saveSuppress(self):
+		#self.suppress[sid] = [self.RAW, (sid, track, addresses, gid)]
+		pass
+	
+	def saveFilters(self):
+		#self.filters[key] = [self.RAW, (sid, track, count, second, filterType, gid)]
+		pass
+		
+	def saveAll(self):
+		self.saveGenerators()
+		self.saveClasses()
+		self.saveReferenceTypes()
+		self.saveRuleSets()
+		self.saveRules()
 	
 	def debug(self):
 		""" Simple debug-method dumping all the data to stdout. """
