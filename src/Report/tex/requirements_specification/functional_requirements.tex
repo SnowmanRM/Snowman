@@ -1,7 +1,11 @@
 \section{Functional Requirements}
 
 \subsection{Program Workflow}
-To develop our requirements, we decided to chart the program workflow in order to better understand what the system is expected to do. Since this is to be a highly user-oriented system, we accomplished this by going over the old system, BHTB, step by step and detailing the functions and various needs for improvement or additional functionality. From this, we developed a workflow chart that details the major system parts.
+To develop our requirements, we decided to chart the program workflow in order
+to better understand what the system is expected to do. Since this is to be a
+highly user-oriented system, we accomplished this by going over the old system,
+BHTB, step by step with the client and detailing the functions and various needs
+for improvement or additional functionality. From this, we developed a workflow chart that details the major system parts.
 
 \begin{figure}[ht!]
 \includegraphics[width=130mm]{./img/program_workflow.png}
@@ -9,11 +13,22 @@ To develop our requirements, we decided to chart the program workflow in order t
 \label{program_workflow}
 \end{figure}
 
-*Detail the workflow*
+To explain the workflow chart, the blue boxes are the major system
+functionalities, the green boxes are the major goals of the system and the
+arrows show the direction of flow the system should have.
 
-It's important to note that very early on, we decided that writing rules, automatically check them for errors and commenting them were nice-to-have features that we could implement if we had time to do so. Hence they are greyed out in the drawings.
+As you can see, if you trace the arrows, all of the program flow ends up with
+rules being syncronized to the sensors. This makes sense, because that is the
+whole purpose of the system to begin with.
 
-From this workflow we could outline a rough modular design based on the naturally separate functions of updating rules, tuning them, distributing them and show them. In addition, we added a database module. 
+It's important to note that very early on, we decided that writing rules,
+automatically check them for errors and commenting them were nice-to-have
+features that we could implement if we had time to do so. Hence they are greyed out in the drawings.
+
+From this workflow we could outline a rough modular design based on the
+naturally separate functions of updating rules, tuning them, distributing them
+and show them. We also added a database module, since most of our program was
+going to be centered around it.
 
 \begin{figure}[ht!]
 \includegraphics[width=130mm]{./img/program_modules.png}
@@ -21,13 +36,43 @@ From this workflow we could outline a rough modular design based on the naturall
 \label{program_modules}
 \end{figure}
 
-*Detail the modules*
-
-Looking at the arrows, it is pretty apparent that the program workflow is heavily centered around the database module, and the major parts of the system revovles around the importing of rules and then distributing them. We therefore began developing our use cases around those major movements.
+\subsubsection{Rule Downloading Module}
+This module will handle all functionality related to downloading rules,
+including comparing MD5 checksums.
+\subsubsection{Rule Pre-Storage Processing Module}
+This module will essentially take downloaded rules and parse and process them
+into objects that can be fed into the database.
+\subsubsection{DB Module}
+This module will handle all input and output to/from the database.
+\subsubsection{Rule Pre-Distribution Processing Module}
+This module will essentially take rules stored in the database and prepare them for
+distribution to sensors.
+\subsubsection{Rule Distribution Module}
+This module will be in charge of distributing rules out to the Snort sensors.
+\subsubsection{Tuning Module}
+This module will handle all functionality related to turning rules on or off, thresholding them
+or suppressing them.
+\subsubsection{Rule View Module}
+This module will contain all the functionality needed to display the system
+status and system functions to the user. It will be the primary way the user
+interacts with the system.
+\subsubsection{Daemon Module}
+This module will run continually on the system to ensure that the system is
+responsive and to carry out any interval based tasks, such as automatic updates or distributions.
+\subsubsection{Commenting Module}
+This module will allow users to attach comments to rules.
+\subsubsection{Rule Writing Module}
+This module will handle functionality for writing custom rules and editing existing rules.
+\subsubsection{Automatic Rule Checking Module}
+This module will be responsible for verifying rules to ensure that there are no malformed or
+misconfigured rules that may potentially break or cause a halt on a Snort
+sensor.
 
 \subsection{Use Case Diagram}
 
-\input{./tex/usecases.tex}
-\subsection{High Level Use Cases}
-\subsection{Detailed Use Cases}
+***Putt inn nytt use case diagram her!***
+
+\input{./tex/requirements_specification/usecases.tex}
+
 \subsection{Domain Model}
+
