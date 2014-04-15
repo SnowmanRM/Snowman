@@ -8,7 +8,7 @@ It will raise an TypeError if any of the data is of wrong types..
 
 import logging
 
-from core.models import Generator, Rule, RuleRevision, RuleSet, RuleClass, RuleReference, RuleReferenceType
+from core.models import Sensor, Generator, Rule, RuleRevision, RuleSet, RuleClass, RuleReference, RuleReferenceType
 from tuning.models import Suppress, SuppressAddress, DetectionFilter, EventFilter
 from util.config import Config
 
@@ -588,11 +588,99 @@ class Updater():
 			
 	def saveReferences(self):
 		#self.references[key] = [self.RAW, (referenceType, reference, sid)]
-		pass
-	
+
+		# Create a list over the references that needs processing, and a list over the SID's
+		#   that theese references should reffer to.
+		newReferences = {}
+		for ref in self.references:
+			if(self.references[ref][0] == self.RAW):
+				try:
+					newReferences[self.references[ref][1][2]].append(self.references[ref][1])
+				except KeyError:
+					newReferences[self.references[ref][1][2]] = [self.references[ref][1]]
+
+		# Create a overview of the primary-key for the latest RuleRevision objects related
+		#   to the rules the reference-objects should relate to.
+		latestRevisions = {}
+		sidLookup = {}
+		revisions = RuleRevision.objects.filter(rule__SID__in=newReferences.keys()).values("pk", "rule__SID", "rev").all()
+		for revision in revisions:
+			sidLookup[revision["pk"]] = revision["rule__SID"]
+			try:
+				if(latestRevisions[revision["rule__SID"]][1] < revision["rev"]):
+					latestRevisions[revision["rule__SID"]] = (revision["pk"], revision["rev"])
+			except KeyError:
+				latestRevisions[revision["rule__SID"]] = (revision["pk"], revision["rev"])
+		pklist = [x[0] for x in latestRevisions.values()]
+		
+		# Remover the existing references from the newReferences dict.
+		for reference in RuleReference.objects.filter(rulerevision_id__in = pklist).all():
+			sid = sidLookup[reference.rulerevision_id]
+			try:
+				for e in newReferences[sid]:
+					if(e[1] == reference.reference):
+						newReferences[sid].remove(e)
+				if(len(newReferences[sid]) == 0):
+					newReferences.pop(sid)
+			except:
+				pass
+		
+		# Create new references for whatever references that did not exist already.
+		objects = []
+		for l in newReferences:
+			revID = latestRevisions[l][0]
+			for ref in newReferences[l]:
+				objects.append(RuleReference(reference=ref[1], referenceType=self.referenceTypes[ref[0]][1], rulerevision_id=revID))
+		RuleReference.objects.bulk_create(objects)
+		
 	def saveSuppress(self):
-		#self.suppress[sid] = [self.RAW, (sid, track, addresses, gid)]
-		pass
+		allSensor = Sensor.objects.get(name="All")
+		newSuppress = {}	
+
+		for suppress in self.suppress.keys():
+			newSuppress[suppress] = self.suppress[suppress][1]
+
+		for suppress in Suppress.objects.filter(rule__SID__in=newSuppress.keys()).filter(sensor=allSensor).select_related('rule').all():
+			status = self.SAVED
+			if(self.suppress[suppress.rule.SID][1][1] == "by_src"):
+				track = Suppress.SOURCE
+			else:
+				track = Suppress.DESTINATION
+			
+			if(suppress.track != track):
+				status = self.CHANGED
+				suppress.track = track
+			
+			#TODO: Check every item in the suppress.addresses list to see if any changed.
+			if(len(self.suppress[suppress.rule.SID][1][2]) != suppress.addresses.count()):
+				status = self.CHANGED
+				suppress.addresses = []
+				for address in self.suppress[suppress.rule.SID][1][2]:
+					# TODO: Try to bulk-insert this, even though it is a ManyToMany relation
+					suppress.addresses.create(ipAddress=address)
+			
+			if(status == self.CHANGED):
+				suppress.save()
+			
+			self.suppress[suppress.rule.SID] = [status, suppress]
+			newSuppress.pop(suppress.rule.SID)
+		
+		objects = []
+		for suppress in newSuppress:
+			if(self.suppress[suppress][1][1] == "by_src"):
+				track = Suppress.SOURCE
+			else:
+				track = Suppress.DESTINATION
+
+			objects.append(Suppress(rule=self.rules[suppress][1], sensor=allSensor, track=track))
+		Suppress.objects.bulk_create(objects)
+		
+		for s in Suppress.objects.filter(rule__SID__in = newSuppress).select_related('rule').all():
+			self.suppress[s.rule.SID] = [self.SAVED, s]
+		
+		for suppress in newSuppress:
+			for address in newSuppress[suppress]:
+				self.suppress[suppress][1].addresses.create(ipAddress=address)
 	
 	def saveFilters(self):
 		#self.filters[key] = [self.RAW, (sid, track, count, second, filterType, gid)]
@@ -604,6 +692,9 @@ class Updater():
 		self.saveReferenceTypes()
 		self.saveRuleSets()
 		self.saveRules()
+		self.saveReferences()
+		self.saveSuppress()
+		self.saveFilters()
 	
 	def debug(self):
 		""" Simple debug-method dumping all the data to stdout. """
