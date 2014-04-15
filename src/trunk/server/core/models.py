@@ -6,6 +6,7 @@ import xmlrpclib
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.timezone import utc
 
 from util.config import Config
 from util.constants import dbObjects
@@ -398,13 +399,13 @@ class Sensor(models.Model):
 			with Timeout(timeout):
 				result = sensor.ping(self.name)
 		except Timeout.Timeout:
-			logger.warning("Ping to sensor timed out")
+			logger.warning("Ping to sensor %s timed out" % self.name)
 			return {'status': False, 'message': "Ping to sensor timed out"}
 		except socket.gaierror:
-			logger.warning("Could not ping sensor. Address is malformed")
+			logger.warning("Could not ping sensor %s. Address is malformed" % self.name)
 			return {'status': False, 'message': "Could not ping sensor. Address is malformed"}
 		except socket.error as e:
-			logger.warning("Could not ping sensor. %s" % str(e))
+			logger.warning("Could not ping sensor %s. %s" % (self.name, str(e)))
 			return {'status': False, 'message': "Could not ping sensor. %s" % str(e)}
 		
 		return result
