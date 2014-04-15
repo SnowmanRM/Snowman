@@ -32,10 +32,10 @@ class Suppress(models.Model):
 	track = models.IntegerField()
 	
 	def __repr__(self):
-		return "<Suppress Rule:%d, Sensor:%s, comment:'%s', track:%s>" % (self.rule.SID, self.sensor.name, self.comment.comment, Suppress.TRACK[self.track])
+		return "<Suppress Rule:%d, Sensor:%s track:%s>" % (self.rule.SID, self.sensor.name, Suppress.TRACK[self.track])
 
 	def __str__(self):
-		return "<Suppress Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment.comment)
+		return "<Suppress Rule:%d, Sensor:%s>" % (self.rule.SID, self.sensor.name)
 	
 	def getAddresses(self):
 		addresslist = []

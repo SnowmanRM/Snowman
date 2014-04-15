@@ -36,7 +36,11 @@ u.addRuleSet("Sett2")
 u.addRule(1337, 1, "RAW", "MSG", True, "Sett1", "Test1")
 u.addRule(1, 1, "RAW", "MSG", True, "Sett1", "Test1")
 
+u.addReference("url", "Referanse", 1337)
+u.addReference("url", "ReferanseNummer2", 1337)
+u.addReference("hei", "Referanse2", 1)
+
+u.addSuppress(1337, "by_src", ["1.2.3.4", "1.2.3.5"])
+
 u.saveAll()
 u.debug()
-
-print u.rules[1337][1].getCurrentRevision()
