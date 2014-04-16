@@ -1,0 +1,216 @@
+\subsection{High Level Use Cases}
+Looking at the arrows in program workflow figures, it is pretty apparent that
+the program workflow is heavily centered around the database module, and the
+major parts of the system revolves around the importing of rules and then distributing them. We therefore began developing our use cases around those major movements.
+
+We've added the most central use cases for this system below, but additional use
+cases is available in appendix B.
+
+
+%OK
+\begin{usecase}
+\addtitle{Use case}{Manual rule update}
+\addfield{Primary actor}{User}
+\addfield{Purpose}{Update the central rule database with the newest rules and 
+revisions.} \addfield{Description}{The user commands the server to update the rules, either from a local file or from external sources. When the latter is the case, the server pulls rule files from all the sources specified in the list of
+sources. In both cases rules are processed and stored in the database.}
+\addfield{Preconditions}{Either a file or one or more sources must exist.}
+\addfield{Postconditions}{The central rule database is up to date with the
+newest rules and revisions.}
+\end{usecase}
+
+%OK
+\begin{usecase}
+\addtitle{Use case}{Automatic rule update}
+\addfield{Primary actor}{Daemon}
+\addfield{Purpose}{Update the central rule database with the newest rules and 
+revisions.}
+\addfield{Description}{At configured time-intervals, the system  daemon triggers
+a rule database update. The server pulls rule files from all the sources
+specified in the list of sources to be updated at the given interval, processes
+the rules and then stores them in the database.}
+\addfield{Preconditions}{One or more sources must exist.}
+\addfield{Postconditions}{The central rule database is up to date with the
+newest rules and revisions}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Manual rule distribution}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Distribute rules to sensors as per the settings in the
+	database.}
+	\addfield{Description}{The user sends a command to distribute rules to
+	either all or specified sensors. The server then begins the distribute routine,
+	and eventually all sensors will be up to date with the rules and rulesets
+	they should have.}
+	\addfield{Preconditions}{Rules and sensors must exist}
+	\addfield{Postconditions}{Specified sensors contain rules as per settings in
+	the central database.}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Automatic rule distribution}
+	\addfield{Primary actor}{Daemon}
+	\addfield{Purpose}{Distribute rules to sensors as per the settings in the
+	database.}
+	\addfield{Description}{Configured at intervals, the system triggers a command
+	to distribute rules to specified sensors. The server then begins the distribute
+	routine, and eventually all sensors will be up to date with the rules and
+	rulesets they should have.}
+	\addfield{Preconditions}{Rules and sensors must exist}
+	\addfield{Postconditions}{Specified sensors contain rules as per settings in
+	the central database.}	
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Enable/Disable a rule or ruleset}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Enable or disable one or more rule or ruleset on one or more
+	sensors.}
+	\addfield{Description}{The user either enables or disables a rule or a ruleset
+	so that the rule is either on or off on certain sensors. This status is then
+	shared with the sensor and the sensor syncronizes as needed.}
+	\addfield{Preconditions}{Rules and/or rulesets must exist.}
+	\addfield{Postconditions}{A rule or ruleset has been modified to be enabled or
+	disabled and the change is syncronized to affected sensors.}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Set rule threshold or suppression}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Set or remove a threshold or suppression for a rule on one
+	or more sensors.}
+	\addfield{Description}{User sends a command with either
+	thresholding/suppression parameters or removal of a threshold or suppression
+	for a rule on one or more sensors. The system updates the database and distributes the change to the sensor(s).}
+	\addfield{Preconditions}{Rules and sensor(s) must exist.}
+	\addfield{Postconditions}{Rule tuning is saved in the central database and
+	distributed to affected sensors.}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{View rules}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Display rules to the user.}
+	\addfield{Description}{Rules are retrieved from the database, processed for GUI
+	format and then delivered to the GUI.}
+	\addfield{Preconditions}{Rules must exist.}
+	\addfield{Postconditions}{The user is informed of the current status of the
+	central database and the status of rules and rulesets enabled/disabled on
+	sensors.}
+\end{usecase}
+
+\newpage
+\subsection{Detailed Use Cases}
+We also worked on some detailed use cases on our more complex system modules.
+Again, more use cases are available in appendix B.
+
+%OK, create sequence diagram
+\begin{usecase}
+	\addtitle{Use case}{Central rule-database update}
+	\addfield{Primary actor}{Server}
+	\addfield{Purpose}{Update the central rule database with the newest rules and 
+revisions.}
+	\addfield{Description}{
+		An update can be triggered either by the user or the daemon. The system
+		retrieves the files in question, checks what is new and what is not and then
+		updates the database accordingly.
+	}
+	\addfield{Preconditions}{Depending on the request, this process requires a
+	local file or the server must be configured with external source(s).}
+	\addfield{Postconditions}{The central rule-database is up to date with the
+	latest rules and revisions.} \addfield{Triggers}{
+		Manual rule update,
+		Automatic rule update,
+		Write rule
+	}
+	\addscenario{Basic Flow:}{
+		\item Update is triggered.
+		\item Rule Downloading Module compares hash values from external sources with last update.
+		\item Updated rule files are downloaded from sources. The files are validated
+		and passed to the Pre-Storage Processing Module.
+		\item The new files are parsed for rule SID and revision number. 
+		\item A list of rule SID and revision numbers are gathered from the database
+		and these are compared to identify which rules are new or modified.
+		\item New or changed rules are then parsed into objects and
+		these objects are passed to the Database/Core Module.
+		\item The Database/Core Module stores the new or changed rule objects into the
+		database. The user is notified that the update is complete and given a list
+		of changes.
+	}
+	\addscenario{Extensions:}{
+		\item 
+		\begin{enumerate}
+			\item Update is triggered by user.
+			\item Update is triggered by daemon.
+		\end{enumerate}
+		\item 
+		\begin{enumerate}
+			\item The hash-values from all sources are identical with previously stored values. Database is up to date and the update process terminates. User is notified that database is up to date.
+			\item The hash value from one or more sources is newer than previously stored values. Database must be updated, and the user is notified that the database is not up to date and an update process has begun.
+		\end{enumerate}		
+	 }
+	\addscenario{Error handling:}{
+		\item The source and database checksum is different but the source rules are
+		older than what is stored in the database: \textit{The program can still
+		continue, because if the SIDs already exist they will not be added again and if the revisions are older the rules will also not be updated.}
+		\item A ruleset has changed its name or one or more rules are moved to a
+		different ruleset: \textit{Based on a configuration file, the affected rules
+		will either be a) automatically moved to the new ruleset or b) stay put in their
+		original ruleset. The user will be notified and can choose to reverse or
+		distribute the changes in either case.}
+		}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Distribute rules}
+	\addfield{Primary actor}{Server}
+	\addfield{Purpose}{Distribute rules from the central database to the sensors.}
+	\addfield{Description}{After a command to synchronise is sent either by the
+	user or the daemon, the server calculates and organizes the central database
+	data and synchronizes this information with the affected sensors.}
+	\addfield{Preconditions}{One or more rulesets or rules must be present in the
+	central database. One or more sensors must be registered.}
+	\addfield{Postconditions}{The rules on the sensor(s) are synchronized to
+	reflect those in the central database that are enabled/disabled for those
+	sensors.}
+	\addfield{Triggers}{Manual rule distribution, Automatic rule distribution}
+	\addscenario{Basic flow}{
+		\item Synchronize signal is sent.
+		\item The system calculates and organizes the data for each sensor affected by the synchronization.	
+		\item The system initializes a synchronization protocol with the affected sensor or sensors, sending a list of what the sensor should have.	
+		\item The sensor calculates diff between should have and has.
+		\item Compare diff.
+		\item Send update.
+		\item The sensor includes the new changes into its database and files and tells the central system that it is now up to date.
+		\item The system carries out maintenance to reflect the synchronization.
+		\item The user is notified that all sensors affected are now up to date.			
+	}
+	\addscenario{Extensions}{
+		\item
+		\begin{enumerate}
+			\item User sends a command to synchronize one, more or all sensors		
+			\item The system reaches an interval for synchronizing all sensors.		
+		\end{enumerate}
+		\etcounter{enumi}{4}
+		\item
+		\begin{enumerate}
+			\item The sensor content is different from what it should have, asks central system to send what it needs.
+			\item The sensor content is not different from what it should have, no further action is required. This status is sent to the central system.
+		\end{enumerate}	
+		\item
+		\begin{enumerate}
+			\item The system retrieves and sends what the sensor asks for.
+			\item The system terminates the synchronization protocol with the sensor in question.
+		\end{enumerate}				
+	}
+	\addscenario{Error handling}{
+		\item The change may never be synced to the sensor due to errors: \textit{There must be an error protocol that is followed in this scenario.}
+	}
+\end{usecase}

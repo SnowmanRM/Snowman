@@ -1,0 +1,160 @@
+\section{High-level use cases}
+
+
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Manage sensors}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Manage the Snort sensors that are attached to this system.}
+	\addfield{Description}{The user can either create, edit or delete sensors from
+	the system.}
+	\addfield{Preconditions}{None}
+	\addfield{Postconditions}{Sensors have been added, edited or removed from the
+	system.}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Manage sensor groups}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Create, edit or delete a sensor group.}
+	\addfield{Description}{A sensor group is an entity that can contain a number of
+	sensors. The user might wish to manipulate rules on a group basis rather than for one sensor at a time. The user can set up, edit or delete a sensor group and manage which sensors are part of the group.}
+	\addfield{Preconditions}{None}
+	\addfield{Postconditions}{A sensor group is added, changed or removed from the system}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Manage ruleset groups}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Create, edit or delete a ruleset group.}
+	\addfield{Description}{A ruleset group is an entity that can contain a number
+	of ruleset. The user might wish to manipulate rulesets on a group basis rather
+	than for one ruleset at a time. The user can set up, edit or delete a ruleset
+	group and manage which rulesets are part of the group.}
+	\addfield{Preconditions}{None}
+	\addfield{Postconditions}{A ruleset group is added, changed or removed from the
+	system}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Manage sources for rule updates}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Manage the sources for rule updates on the system.}
+	\addfield{Description}{The user can create, edit or delete sources for rule
+	updates.}
+	\addfield{Preconditions}{None}
+	\addfield{Postconditions}{A source has been added, edited or removed from
+	the system}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Verify rules as valid and functional}
+	\addfield{Primary actor}{Server}
+	\addfield{Description}{Before the rules are stored in the database, they are validated by doing a test run in a local SNORT-installation to catch any errors.}
+	\addfield{Preconditions}{One or more rules are ready to be stored in the
+	database.}
+	\addfield{Postconditions}{Valid rules are stored in the database, invalid rules
+	are not stored and will produce an error-message.}
+	\addfield{Triggers}{Central rule database update, Write rule}
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Manage rule comments}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Create, edit or remove comments on a rule or ruleset.}
+	\addfield{Description}{User selects a rule or ruleset and either adds, edits or removes its comment. The change is stored in the database.}
+	\addfield{Preconditions}{Rule must exist.}
+	\addfield{Postconditions}{Rule has new comment or comment is removed from
+	rule.}
+\end{usecase}
+
+\begin{usecase}
+	\addtitle{Use case}{Globally enable/disable a rule or ruleset}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Turn a rule or ruleset on/off.}
+	\addfield{Description}{User sends a command to enable/disable a specified
+	rule or ruleset, and the system updates the database to reflect that the rule
+	is enable/disabled.}
+	\addfield{Preconditions}{The rule or ruleset must exist in the database}
+	\addfield{Postconditions}{The rule or ruleset is deativated on all sensors
+	\textbf{except} if this setting is overridden in a sensor's local
+	RuleModifier.}
+\end{usecase}
+
+\section{Detailed use cases}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Write rule}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Create a custom rule}
+	\addfield{Description}{The user writes a rule via the web-interface. The rule is processed and stored in the central rule database.}
+	\addfield{Preconditions}{None}
+	\addfield{Postconditions}{The central rule database contains a new custom
+	rule.} \addscenario{Basic flow:}{
+		\item The user selects a ruleset for the new rule and writes the rule.
+		\item The rule is processed and stored in the central rule database.
+	}	
+	\addscenario{Extensions:}{
+		\item The user can specify a new ruleset which will be automatically created.
+	}
+	\addscenario{Error handling:}{
+		\setcounter{enumi}{1}
+		\item If the rule is found to be invalid it will not be added to the database, and the user can opt to make necessary changes and try again.
+	}
+\end{usecase}
+
+\begin{usecase}
+	\addtitle{Use case}{Enable/disable a rule or ruleset on one or more sensors}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Turn a rule or ruleset on/off on one or more sensors.}
+	\addfield{Description}{A user wants to either enable or disable a rule or ruleset on one or more sensors. This is done by sending a command that specifies
+	which rule or ruleset is to be affected, how it is affected and on which
+	sensor or sensors are affected. The central database is updated with this
+	new status and the change is pushed out to the affected sensor or sensors.}
+	\addfield{Preconditions}{One or more rulesets or rules must be present in the central database. One or more sensor must be registered.}
+	\addfield{Postconditions}{The changes to the rule or ruleset must be reflected on the affected sensor or sensors.}
+	\addfield{Triggers}{}
+	\addscenario{Basic flow}{
+		\item The user enables/disables a rule on a given sensor.
+		\item The central database changes the status of the rule or ruleset by
+		manipulating the status flags.
+		\item The system notifies the sensor that a change has occurred. 
+		\item The change is synced to the affected sensor. 
+	}
+	\addscenario{Error handling:}{
+		\setcounter{enumi}{3}
+		\item The change may never be synced to the sensor due to errors: \textit{There must be an error protocol that is followed in this scenario.}
+		} 
+\end{usecase}
+
+%OK
+\begin{usecase}
+	\addtitle{Use case}{Rule tuning on sensor}
+	\addfield{Primary actor}{User}
+	\addfield{Purpose}{Manipulate threshold or suppress configurations for a specific rule on one or more sensors.}
+	\addfield{Description}{A user wants to either turn on or off a threshold or a suppression modifier on a rule on one or more sensors. This is done by sending a command that specifies which rule the modification will apply to, the parameters of the modification and for which sensor(s) this will apply for. The central database is then updated with this new status and the change is pushed out to the affected sensor(s).}
+	\addfield{Preconditions}{The rule in question must be present in the central database and the sensor(s) must be registered.}
+	\addfield{Postconditions}{The modifications are applied on the rule and sensor(s) in question.}
+	\addfield{Triggers}{Set rule threshold, Set rule suppression}
+	\addscenario{Basic flow}{
+		\item The central database creates a threshold/suppression for the specified rule and sensor(s).
+		\item The system notifies the sensor(s) that a change has occurred.
+		\item The change is synchronized to the affected sensor(s).
+	}
+	\addscenario{Extensions}{
+		\item User turns off a threshold/suppression on a rule on one or more sensors.
+	}
+	\addscenario{Error handling}{
+		\setcounter{enumi}{1}
+		\item The sensor(s) already contain(s) a threshold/suppress for said rule: \textit{User is asked to overwrite or cancel operation.}
+		\item The change may never be synced to the sensor due to errors: \textit{There must be an error protocol that is followed in this scenario.}
+	}
+\end{usecase}
+
