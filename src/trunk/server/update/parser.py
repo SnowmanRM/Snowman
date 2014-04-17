@@ -2,7 +2,7 @@ import re, logging
 from os import path
 from update.models import UpdateFile
 from update.exceptions import AbnormalRuleError, BadFormatError
-from util.tools import md5sum
+from util.tools import md5sum, Replace
 from util.patterns import ConfigPatterns
 from updater import Updater
 
@@ -148,6 +148,17 @@ class Parser:
 					raise BadFormatError("Bad rule in '"+filename+"': priority is not numeric! Rulestring: "+raw)
 			else:
 				rulePriority = None
+				
+			# Remove filters from raw string before storage:
+			replace = Replace("")			
+			filters = ""
+			
+			raw = re.sub(r'detection_filter:.*?;', replace, raw)
+			filters += replace.matched or ""
+			raw = re.sub(r'threshold:.*?;', replace, raw)
+			filters += replace.matched or ""
+			
+			raw = " ".join(raw.split())			
 				
 			self.updater.addRule(ruleSID, ruleRev, raw, ruleMessage, ruleActive, rulesetName, ruleClassName, rulePriority, ruleGID)	
 

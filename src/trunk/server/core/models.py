@@ -96,7 +96,6 @@ class Rule(models.Model):
 		#   add the new revision to the database.
 		if(lastRev == None or int(lastRev.rev) < int(rev)):
 			
-			# TODO: Not checked:
 			maxRevisions = int(Config.get("update", "maxRevisions"))
 			activateNewRevisions = Config.get("update", "activateNewRevisions")
 

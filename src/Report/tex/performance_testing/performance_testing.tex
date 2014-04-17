@@ -5,24 +5,113 @@
 
 \chapter{PERFORMANCE TESTING}
 
-Beskriv testenes form\aa l og relater dette til kravspec.
+Since Snowman is similar to BHTB and Snortmanager, it has been important to
+benchmark their performance in various formal test cases in order to
+highlight the strength and weaknesses in each software solution. The
+purpose of the tests is to reach final conclusions on key questions regarding
+the performance of Snowman, and to point out where the difference between the
+three software packages lies.
 
-The software is tested on three different architectures
+To get a picture of how the software performs on different systems, it was
+tested on three architectures (table \ref{tab:testSystems}). To minimize error, each test
+was run five times where the mean value of the runs is considered the valid test
+result. All tests can be reproduced with the test procedure documentation in
+appendix. %TODO: Appendix.
 
-To minimize error, each test was run five times where the mean value of the runs
-is considered the valid test result.
+\section{Definitions}
+
+The testing is split up into \textit{test suites}, which contain a
+\textit{problem} in the form of a question. The problem forms a clear
+description of what is to be tested, and how results should be evaluated.
+A test suite also contains one or more test cases which exist to address
+the problem. Test cases describe 
+
+each test suite consists of one or 
+
+results from test cases are referred to as the test results.
+
+Each test case is composed of a series of 
+
+
 
 \section{Environment}
-Beskriv testoppsett. maskinvare, nettverk, programvare, etc.
+%Beskriv testoppsett. maskinvare, nettverk, programvare, etc.
+All tests are carried out on three systems, named \textit{S1}, \textit{S2} and
+\textit{S3} (table \ref{tab:testSystems}). These systems differ in processing
+power, available memory and storage technology, and the results will indicate
+what impact these factors have for software performance. The performance
+testing in this report is also prone to error, as tests might get disturbed by
+other background processes etc. Testing on three systems gives results with a
+higher confidence, as results are checked aginst each other for 
+inconsistencies. When an inconsistency in results is found, the test is run
+again to see if the inconsistency prevails.
 
-\subsection{Test cases}
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
 
-\subsubsection{Update processing}
-\paragraph{Q1: How fast can the software process an update?}
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{l|l|l|l}
+  	%& \multicolumn{1}{c|}{Test} &
+  	%\multicolumn{1}{c|}{S1} & \multicolumn{1}{c|}{S2} & \multicolumn{1}{c}{S3}
+  	% \\
+	System & Processor type & Memory & Storage \\
+	\hline
+	S1 & Intel\textregistered{} Core\texttrademark{} 2 Solo, 1.4GHz & 4GB RAM & 5K
+	RPM HDD \\
+	\hline
+	S2 & Intel\textregistered{} Core\texttrademark{} i7, 6x3.2GHz & 12GB RAM & 10K
+	RPM HDD \\
+	\hline
+	S3 & Intel\textregistered{} Core\texttrademark{} i5, 4x3.2GHz & 16GB RAM & SSD
+	\\
+	\hline
+	\multicolumn{4}{l}{\textit{Note: See appendix for full details.}}
+  \end{tabular}
+  \caption{Test systems.}
+  \label{tab:testSystems}
+\end{table}
+
+Deviation
+
+\section{Test suites}
+
+\subsection{Update processing}
+The Update module is tested for speed and linearity, which is compared to  
+\subsubsection{Test 1}
+\paragraph{Problem: How fast can the software process an update?}
 The purpose of this question is to determine the average
 processing time per rule. Results are ranked from short to long
 processing time, where shorter is better.
+\paragraph{Test cases}
+To address this problem, five test cases were introduced. The tests contained
+an artificially generated update with 1, 10, 100, 1000 and 10000 rules,
+respectively. Rules were split into files with ten each (table
+\ref{tab:test1Names}).
 
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{l|l|l}
+  	%& \multicolumn{1}{c|}{Test} &
+  	%\multicolumn{1}{c|}{S1} & \multicolumn{1}{c|}{S2} & \multicolumn{1}{c}{S3}
+  	% \\
+	Test case & Rules & Files \\
+	\hline
+	1-1-1 & 1 & 1 \\
+	10-1-10 & 10 & 1 \\
+	100-10-10 & 100 & 10 \\
+	1000-100-10 & 1000 & 100 \\
+	10000-1000-10 & 10000 & 1000 \\
+	\hline
+  \end{tabular}
+  \caption{Test cases in Test 1.}
+  \label{tab:test1Names}
+\end{table}
+
+\subsubsection{Test 2}
 \paragraph{Q2: How strong is the linear correlation between processing time and
 the size of an update?}
 This question rises from the requirements specification of Snowman (chapter
