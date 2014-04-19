@@ -1,7 +1,49 @@
 \section{Supplemental Requirements}
-
+In addition to the features discovered in the use cases, the system has some
+requirements that can be broken down into a RUP FURPS+ [some sort of link]
+fashion.
 \subsection{Functionality}
+	\begin{itemize}
+		\item The system should be able to restart a Snort sensor in the event that one
+		crashes.
+		\item The system should be able to detect if a Snort sensor is not responsive
+		over the network.
+		\item The system must be portable to the majority of the popular linux
+		distributions. 
+	\end{itemize}
 \subsection{Usability}
+	\begin{itemize}
+		\item The graphical user interface must be simple and clean, but still contain
+		all the features any user might require to interact with the back-end system.
+		\item The system interfaces, herein API and function calls, must be
+		self-explanatory.
+	\end{itemize}
 \subsection{Reliability}
+	\begin{itemize}
+		\item The system must not cause a SNORT sensor to crash.
+		\item The system must be responsive to API calls at all times. In the event the
+		system capacity limit is reached, new requests should be queued.
+	\end{itemize}
 \subsection{Performance}
-\subsection{Licensing}
+	\begin{itemize}
+		\item The system should handle administration of at least 200 sensors.
+		\item The database should be able to maintain at least 100 000 individual rules.
+		\item Any operation in the system in normal operations (i.e. after the first big
+		rule update) should take no longer than 1 second on average.
+		\item The relationship between time and workload should be linear, meaning that
+		if a single operation that takes 1ms, ten operations should take 10ms.
+	\end{itemize}
+\subsection{Security}
+	\begin{itemize}
+		\item The link between the system server and the remote sensor must be secured in such a way that a man in the middle cannot read the transmission in plaintext. 
+		\item The remote sensor and the system server must verify that they are trusted
+		parties in the system, through authentication.
+		\item Certain important API calls must be protected against misuse from a
+		non-trusted party.
+		\item All processes and files related to them system must exert the principle of
+		least privilege.
+	\end{itemize}
+\subsection{Interoperability}
+The system must be able to work with Snort in such a way that it can
+import new files to Snorts configuration files structure and must be able to
+reset Snort in such a way that the new configurations are loaded.
