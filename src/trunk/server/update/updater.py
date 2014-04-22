@@ -7,9 +7,13 @@ It will raise an TypeError if any of the data is of wrong types..
 """
 
 import logging
+import datetime
 
-from core.models import Sensor, Generator, Rule, RuleRevision, RuleSet, RuleClass, RuleReference, RuleReferenceType
+from django.contrib.auth.models import User
+
+from core.models import Comment, Sensor, Generator, Rule, RuleRevision, RuleSet, RuleClass, RuleReference, RuleReferenceType
 from tuning.models import Suppress, SuppressAddress, DetectionFilter, EventFilter
+from update.models import RuleChanges, Update, UpdateLog
 from util.config import Config
 
 class Updater():
@@ -18,12 +22,15 @@ class Updater():
 	CHANGED = 2
 	SAVED = 3
 	
-	def __init__(self):
+	def __init__(self, update):
 		# Get config from the configfile, and if the config is not valid,
 		#   just set it to be "first"
 		self.msgsource = Config.get("update", "ruleMessageSource")
 		if(self.msgsource != "sidmsg" and self.msgsource != "rule"):
 			self.msgsource = "first"
+		
+		self.update = update
+		self.comment = None
 		
 		# Initialize the dictionaries to store the data in.
 		self.generators = {}
@@ -34,6 +41,12 @@ class Updater():
 		self.referenceTypes = {}
 		self.suppress = {}
 		self.filters = {}
+	
+	def getComment(self):
+		if not self.comment:
+			user = User.objects.get(username="System")
+			self.comment = Comment.objects.create(user=user, comment="Added by update from %s" % self.update.source.name)
+		return self.comment
 		
 	def addGenerator(self, gid, alertID = 1, message = ""):
 		"""
@@ -202,6 +215,8 @@ class Updater():
 		if(type(sid) != int):
 			raise TypeError("sid needs to be an integer")
 
+		reference = reference.rstrip()
+		
 		key = "%s-%s-%d" % (referenceType, reference, sid)
 		self.references[key] = [self.RAW, (referenceType, reference, sid)]
 	
@@ -353,6 +368,58 @@ class Updater():
 				key = "%d-%d" % (generator.GID, generator.alertID)
 				self.generators[key] = [self.SAVED, generator]
 	
+	def getRule(self, sid):
+		try:
+			if(self.rules[int(sid)][0] == self.SAVED):
+				return self.rules[int(sid)][1]
+		except KeyError:
+			pass
+		
+		try:
+			return Rule.objects.get(SID=sid)
+		except Rule.DoesNotExist:
+			logger = logging.getLogger(__name__)
+			logger.error("Rule %s in not found" % sid)
+			raise Rule.DoesNotExist
+
+	def getRuleSet(self, name):
+		"""This method fetches the ruleset with the supplied name, and returns it.
+		The cache is tried before the database is looked into.
+		If the ruleset in cache is a raw-structure, the ruleset is fetched from db.
+		
+		If the ruleset is not in the cache, and neither in the database, a 
+		RuleSet.DoesNotExist exception is raised."""
+		
+		try:
+			if(self.ruleSets[name][0] == self.SAVED):
+				return self.ruleSets[name][1]
+		except KeyError:
+			pass
+		
+		try:
+			return RuleSet.objects.get(name=name)
+		except RuleSet.DoesNotExist:
+			logger = logging.getLogger(__name__)
+			logger.error("RuleSet %s in not found" % name)
+			raise RuleSet.DoesNotExist
+
+	def getRuleClass(self, name):
+		"""This method fetches the RuleClass with the supplied name, and returns it.
+		The cache is tried before the database is looked into.
+		If the classification in cache is a raw-structure, the classification is fetched from db.
+		
+		If the classification is not in the cache, and neither in the database, a 
+		RuleClass.DoesNotExist exception is raised."""
+		
+		try:
+			if(self.classes[name][0] == self.SAVED):
+				return self.classes[name][1]
+		except KeyError:
+			pass
+		
+		return RuleClass.objects.get(classtype=name)
+
+	
 	def saveClasses(self):
 		"""Saves all the new/changed ruleclasses to the dabase, while trying to
 		minimize the impact on DB performance."""
@@ -491,10 +558,18 @@ class Updater():
 			RuleSet.objects.bulk_create(ruleSets)	
 			logger.debug("Created %d new RuleSet's" % len(ruleSets))
 			
+			# Get a model from update, to add the rulesets to the manytomany relation.
+			throughModel = Update.ruleSets.through
+			tms = []
+			
 			# Read them back out, and store them in memory. In case somebody needs them later in the
 			# update.
 			for ruleSet in RuleSet.objects.filter(name__in=newSets).all():
 				self.ruleSets[ruleSet.name] = [self.SAVED, ruleSet]
+				tms.append(throughModel(ruleset = ruleSet, update=self.update))
+			
+			throughModel.objects.bulk_create(tms)
+			
 	
 	def saveRules(self):
 		"""Saves the rules recieved"""
@@ -528,23 +603,32 @@ class Updater():
 		# Create new revisions to all the rules that needs an update.
 		activateNewRevisions = (Config.get("update", "activateNewRevisions") == "true")
 		changeRuleSet = (Config.get("update", "changeRuleset") == "true")
+		ruleChanges = []
 		newRevisions = []
+		changedSIDs = []
 		for rule in Rule.objects.filter(SID__in=updated.keys()).select_related('ruleSet', 'ruleClass').all():
 			status = self.SAVED
 			raw = updated[rule.SID]
+			changedSIDs.append(rule.SID)
 
 			# Create a new rule-revision.
 			newRevisions.append(RuleRevision(rule=rule, rev=raw[1], msg=raw[3], raw=raw[2], active=activateNewRevisions))
 			
 			# Update ruleset and/or classification if they have changed:
 			if(rule.ruleSet.name != raw[5]):
+				sourceSet = rule.ruleSet
+				destSet = self.getRuleSet(raw[5])
 				if(changeRuleSet):
+					moved = True
 					status = self.CHANGED
 					rule.ruleSet = self.ruleSets[raw[5]][1]
-				#TODO: Create RuleChange objects.
-			if(rule.ruleClass.name != raw[6]):
+				else:
+					moved = False
+				ruleChanges.append(RuleChanges(rule=rule, originalSet=sourceSet, newSet=destSet, update=self.update, moved=moved))
+
+			if(rule.ruleClass.classtype != raw[6]):
 				status = self.CHANGED
-				rule.ruleClass = self.classes[raw[6]][1]
+				rule.ruleClass = self.getRuleClass(raw[6])
 
 			# Update various other parametres if they are changed:
 			if(rule.active != raw[4]):
@@ -562,17 +646,26 @@ class Updater():
 				logger.debug("Updated %s" % str(rule))
 				rule.save()
 				self.rules[rule.SID] = [self.SAVED, rule]
-			
+		RuleChanges.objects.bulk_create(ruleChanges)
+
 		# Create new Rule objects for all the new rules
 		newRuleObjects = []
 		for sid in newRules:
-			newRuleObjects.append(Rule(SID=sid, active=(activateNewRevisions and newRules[sid][4]), 
-					ruleSet=self.ruleSets[newRules[sid][5]][1], ruleClass=self.classes[newRules[sid][6]][1],
-					priority=newRules[sid][7], generator_id=newRules[sid][8]))
+			if(newRules[sid][5] != None):
+				newRuleObjects.append(Rule(SID=sid, active=(activateNewRevisions and newRules[sid][4]), 
+						ruleSet=self.getRuleSet(newRules[sid][5]), ruleClass=self.getRuleClass(newRules[sid][6]),
+						priority=newRules[sid][7], generator_id=newRules[sid][8]))
 		Rule.objects.bulk_create(newRuleObjects)
-		logger.debug("Created %d new Rule's" % len(newRuleObjects))
+
+		tms = []
+		newRuleIDs = Rule.objects.filter(SID__in = newRules).values_list("pk", flat=True).distinct()
+		for id in newRuleIDs:
+			tms.append(Update.rules.through(rule_id = id, update=self.update))
+		Update.rules.through.objects.bulk_create(tms)
 		
+		newSids = []
 		for rule in Rule.objects.filter(SID__in=newRules.keys()).all():
+			newSids.append(rule.SID)
 			raw = newRules[rule.SID]
 			self.rules[rule.SID] = [self.SAVED, rule]
 			newRevisions.append(RuleRevision(rule=rule, rev=raw[1], msg=raw[3], raw=raw[2], active=activateNewRevisions))
@@ -580,6 +673,13 @@ class Updater():
 		# Store the new revisions to the database
 		RuleRevision.objects.bulk_create(newRevisions)
 		logger.debug("Created %d new RuleRevision's" % len(newRevisions))
+		
+		# Add a relation between the new revisions, and the current update. 
+		newRevIDs = RuleRevision.objects.filter(rule__SID__in = newSids + changedSIDs).values_list("pk", flat=True).distinct()
+		tms = []
+		for revID in newRevIDs:
+			tms.append(Update.ruleRevisions.through(rulerevision_id = revID, update=self.update))
+		Update.ruleRevisions.through.objects.bulk_create(tms)
 
 		# If the config states so, retrieve the rule-objects of all the rules that have not been changed yet.
 		if(Config.get("update", "cacheUnchangedRules") == "true"):
@@ -587,6 +687,7 @@ class Updater():
 				self.rules[rule.SID] = [self.SAVED, rule]
 			
 	def saveReferences(self):
+		logger = logging.getLogger(__name__)
 		#self.references[key] = [self.RAW, (referenceType, reference, sid)]
 
 		# Create a list over the references that needs processing, and a list over the SID's
@@ -628,9 +729,16 @@ class Updater():
 		# Create new references for whatever references that did not exist already.
 		objects = []
 		for l in newReferences:
-			revID = latestRevisions[l][0]
+			try:
+				revID = latestRevisions[l][0]
+			except KeyError:
+				continue
+
 			for ref in newReferences[l]:
-				objects.append(RuleReference(reference=ref[1], referenceType=self.referenceTypes[ref[0]][1], rulerevision_id=revID))
+				try:
+					objects.append(RuleReference(reference=ref[1], referenceType=self.referenceTypes[ref[0]][1], rulerevision_id=revID))
+				except KeyError:
+					logger.error("Could not add reference: %s" % str(ref))
 		RuleReference.objects.bulk_create(objects)
 		
 	def saveSuppress(self):
@@ -672,7 +780,7 @@ class Updater():
 			else:
 				track = Suppress.DESTINATION
 
-			objects.append(Suppress(rule=self.rules[suppress][1], sensor=allSensor, track=track))
+			objects.append(Suppress(rule=self.rules[suppress][1], sensor=allSensor, track=track, comment=self.getComment()))
 		Suppress.objects.bulk_create(objects)
 		
 		for s in Suppress.objects.filter(rule__SID__in = newSuppress).select_related('rule').all():
@@ -683,17 +791,108 @@ class Updater():
 				self.suppress[suppress][1].addresses.create(ipAddress=address)
 	
 	def saveFilters(self):
-		#self.filters[key] = [self.RAW, (sid, track, count, second, filterType, gid)]
-		pass
+		logger = logging.getLogger(__name__)
+		allSensor = Sensor.objects.get(name="All")
+		filterTypes = {"limit": 1, "threshold": 2, "both": 3}
+		trackIDs = {"by_src": 1, "by_dst": 2}
+
+		# Find all the filters that is "RAW", and sort them in one list for each filtertype.
+		newEventFilters = {}
+		newDetectionFilters = {}
+		for filter in self.filters:
+			if (filter.startswith("DF") and self.filters[filter][0] == self.RAW):
+				newDetectionFilters[self.filters[filter][1][0]] = self.filters[filter][1]
+			elif (filter.startswith("EF") and self.filters[filter][0] == self.RAW):
+				newEventFilters[self.filters[filter][1][0]] = self.filters[filter][1]
+				
+		# Try to collect existing filters from the database:
+		currentEventFilters = EventFilter.objects.filter(rule__SID__in = newEventFilters.keys()).select_related('rule').all()
+		currentDetectionFilters = DetectionFilter.objects.filter(rule__SID__in = newDetectionFilters.keys()).select_related('rule').all()
+		
+		# Update the filters that already exists.
+		for f in currentEventFilters:
+			status = self.SAVED
+			raw = newEventFilters.pop(f.rule.SID)
+			
+			if(f.eventFilterType != filterTypes[raw[4]]):
+				status = self.CHANGED
+				f.eventFilterType = filterTypes[raw[4]]
+			if(f.track != trackIDs[raw[1]]):
+				status = self.CHANGED
+				f.track = trackIDs[raw[1]]
+			if(f.count != raw[2]):
+				status = self.CHANGED
+				f.count = raw[2]
+			if(f.seconds != raw[3]):
+				status = self.CHANGED
+				f.seconds = raw[3]
+			
+			if(status == self.CHANGED):
+				status = self.SAVED
+				f.save()
+		
+		for f in currentDetectionFilters:
+			status = self.SAVED
+			raw = newDetectionFilters.pop(f.rule.SID)
+			
+			if(f.track != trackIDs[raw[1]]):
+				status = self.CHANGED
+				f.track = trackIDs[raw[1]]
+			if(f.count != raw[2]):
+				status = self.CHANGED
+				f.count = raw[2]
+			if(f.seconds != raw[3]):
+				status = self.CHANGED
+				f.seconds = raw[3]
+			
+			if(status == self.CHANGED):
+				status = self.SAVED
+				f.save()
+		
+		# Create the filters that is new.
+		objects = []
+		for f in newEventFilters:
+			rule = self.getRule(f)
+			objects.append(EventFilter(rule=rule, 
+					sensor=allSensor, 
+					eventFilterType=filterTypes[newEventFilters[f][4]], 
+					track=trackIDs[newEventFilters[f][1]], 
+					count=newEventFilters[f][2], 
+					seconds=newEventFilters[f][3],
+					comment=self.getComment()))
+		EventFilter.objects.bulk_create(objects)
+		logger.debug("Created %d new EventFilter's" % len(objects))
+			
+		objects = []
+		for f in newDetectionFilters:
+			rule = self.getRule(f)
+			objects.append(DetectionFilter(rule=rule, 
+					sensor=allSensor, 
+					track=trackIDs[newDetectionFilters[f][1]], 
+					count=newDetectionFilters[f][2], 
+					seconds=newDetectionFilters[f][3],
+					comment=self.getComment()))
+		DetectionFilter.objects.bulk_create(objects)
+		logger.debug("Created %d new DetectionFilter's" % len(objects))
 		
 	def saveAll(self):
+		"""Saves all the raw-data in the cache, in the required order"""
+		
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="80 Saving the Generators")
 		self.saveGenerators()
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="81 Saving the Classifications")
 		self.saveClasses()
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="82 Saving the ReferenceTypes")
 		self.saveReferenceTypes()
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="83 Saving the RuleSets")
 		self.saveRuleSets()
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="85 Saving the Rules")
 		self.saveRules()
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="90 Saving the References")
 		self.saveReferences()
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="95 Saving the Suppresses")
 		self.saveSuppress()
+		UpdateLog.objects.create(update=self.update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="96 Saving the Filters")
 		self.saveFilters()
 	
 	def debug(self):

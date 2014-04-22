@@ -134,8 +134,20 @@ class Rule(models.Model):
 		This method creates a dictionary where the key is the SID, and the data is the rev of the newest rule.
 		Useful for efficient comparing of the SID/rev with the new rules, without collecting all the rule-data
 		from the database."""
-		logger = logging.getLogger(__name__)
+		
 		result = {}
+
+		sidrev = RuleRevision.objects.values_list("rule__SID", "rev").all()
+		
+		for sid, rev in sidrev:
+			try:
+				if(result[sid] < rev):
+					result[sid] = rev
+			except KeyError:
+				result[sid] = rev
+		
+		"""
+		logger = logging.getLogger(__name__)
 		
 		# If we use a MySQL-Database, we can ask it directly for the data, to optimize the queries a bit.
 		if(DATABASES['default']['ENGINE'] == "django.db.backends.mysql"):
@@ -183,7 +195,7 @@ class Rule(models.Model):
 			
 			for rule in Rule.objects.all():
 				result[rule.SID] = rule.revisions.latest(field_name = 'rev').rev
-		
+		"""
 		return result
 	
 	def getEventFilter(self):
@@ -483,7 +495,7 @@ class Comment(models.Model):
 	"""
 	Comment objects are used to track important events in the system, with who, what and when.
 	"""
-	user = models.IntegerField()
+	user = models.ForeignKey(User, related_name='comments', null=True)
 	time = models.DateTimeField(default = datetime.datetime.now())
 	comment = models.TextField()
 	type = models.CharField(max_length=100, default="")

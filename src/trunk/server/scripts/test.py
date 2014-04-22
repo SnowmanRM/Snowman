@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import datetime
 import os
 import sys
 
@@ -13,9 +14,12 @@ sys.path.append(parentdir)
 # Tell where to find the DJANGO settings.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
+from update.models import Update, Source
 from update.updater import Updater
 
-u = Updater()
+s = Source.objects.get(name="Manual")
+up = Update.objects.create(source=s, time=datetime.datetime.now())
+u = Updater(up)
 
 u.addGenerator(1)
 u.addGenerator(3, 3, "Hallo")
@@ -33,8 +37,8 @@ u.addReferenceType("hei", "http://hei.com/")
 u.addRuleSet("Sett1")
 u.addRuleSet("Sett2")
 
-u.addRule(1337, 1, "RAW", "MSG", True, "Sett1", "Test1")
-u.addRule(1, 1, "RAW", "MSG", True, "Sett1", "Test1")
+u.addRule(1337, 2, "RAW", "MSG", True, "Sett2", "Test1")
+u.addRule(1, 2, "RAW", "MSG", True, "Sett1", "Test1")
 
 u.addReference("url", "Referanse", 1337)
 u.addReference("url", "ReferanseNummer2", 1337)
@@ -42,5 +46,8 @@ u.addReference("hei", "Referanse2", 1)
 
 u.addSuppress(1337, "by_src", ["1.2.3.4", "1.2.3.5"])
 
+u.addFilter(1, "by_src", 12, 42)
+u.addFilter(1, "by_dst", 11,111, "both")
+
 u.saveAll()
-u.debug()
+#u.debug()

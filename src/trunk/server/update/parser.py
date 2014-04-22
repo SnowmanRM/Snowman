@@ -9,7 +9,10 @@ from updater import Updater
 class Parser:
 	def __init__(self, update):
 		self.update = update
-		self.updater = Updater()
+		self.updater = Updater(update)
+	
+	def save(self):
+		self.updater.saveAll()
 	
 	def parseRuleFile(self, paths):
 		"""Method to initiate parsing of a rule file.
@@ -160,20 +163,21 @@ class Parser:
 			
 			raw = " ".join(raw.split())			
 				
+			self.updater.addRuleSet(rulesetName)
 			self.updater.addRule(ruleSID, ruleRev, raw, ruleMessage, ruleActive, rulesetName, ruleClassName, rulePriority, ruleGID)	
 
 			if detectionFilter:
 				dfTrack = detectionFilter.group(1)
-				dfCount = detectionFilter.group(2)
-				dfSeconds = detectionFilter.group(3)
+				dfCount = int(detectionFilter.group(2))
+				dfSeconds = int(detectionFilter.group(3))
 				self.checkFilter(ruleGID, ruleSID, dfTrack, dfCount, dfSeconds)
 				self.updater.addFilter(ruleSID, dfTrack, dfCount, dfSeconds)
 
 			if eventFilter:
 				efType = eventFilter.group(1)
 				efTrack = eventFilter.group(2)
-				efCount = eventFilter.group(3)
-				efSeconds = eventFilter.group(4)
+				efCount = int(eventFilter.group(3))
+				efSeconds = int(eventFilter.group(4))
 				self.checkFilter(ruleGID, ruleSID, efTrack, efCount, efSeconds, efType)
 				self.updater.addFilter(ruleSID, efTrack, efCount, efSeconds, efType)
 				

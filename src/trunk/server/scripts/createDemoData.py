@@ -31,6 +31,7 @@ else:
 	logger.info("'%s' already exists.", groupSensors)
 
 sensor, created = Sensor.objects.get_or_create(name="All", user=None, active=True, autonomous=True)
+user, created = User.objects.get_or_create(username="System", first_name="System", last_name="Snowman")
 user, created = User.objects.get_or_create(username="srm")
 if created:
 	user.set_password("srm")
