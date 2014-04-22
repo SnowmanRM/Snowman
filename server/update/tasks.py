@@ -52,7 +52,7 @@ class UpdateTasks:
 			logger.debug("%d File is identified as a tar-archive" % os.getpid())
 
 			# Create a temporary working-directory
-			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="1 Unpacking downloaded archive")
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="9 Unpacking downloaded archive")
 			tmpdirectory = tempfile.mkdtemp()
 
 			# Unpack the archive
@@ -74,7 +74,7 @@ class UpdateTasks:
 			logger.debug("%d File is identified as a zip-archive" % os.getpid())
 
 			# Create a temporary working-directory
-			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="1 Unpacking downloaded archive")
+			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="9 Unpacking downloaded archive")
 			tmpdirectory = tempfile.mkdtemp()
 
 			# Unpack the archive
@@ -214,9 +214,9 @@ class UpdateTasks:
 				parser.parseSidMsgFile(sidMsgFile)
 				
 			if foundFilter:
-				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="95 Parsing %s" % filterFile[1])
+				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="75 Parsing %s" % filterFile[1])
 				parser.parseFilterFile(filterFile)
-		
+
 		else:
 			
 			skipGroup = []
@@ -245,10 +245,11 @@ class UpdateTasks:
 			UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="13 Found %d files to parse" % noFiles)			
 
 			current = 20
-			step = float(50) / float(len(files))
+			step = float(55) / float(len(files))
 			for updateFile in files:
 				UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="%d Parsing %s" % (int(current), updateFile[1]))
 				parser.parseConfigFile(updateFile, storeHash)
 				current = current + step
-		
+
+		parser.save()		
 		logger.info("Finished processing the update-folder: %s" % path)

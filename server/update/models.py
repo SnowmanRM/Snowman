@@ -18,7 +18,6 @@ from tuning.models import DetectionFilter, EventFilter
 
 from util.constants import dbObjects
 ALL_SENSORS = dbObjects.SENSORS_ALL
-SYSTEM_USER = dbObjects.USERS_SYSTEM
 
 class RuleChanges(models.Model):
 	"""RuleChanges represents the changes in the rulesets performed by the update-procedure.
@@ -699,12 +698,13 @@ class Update(models.Model):
 		
 		try:
 			defaultFilter = objects.get(rule=rule, sensor=sensor)
+			systemUser = User.objects.get(username="System")
 			
 			# Overwrite filter if update 'always' is set, or if update 'sometimes'
 			# and the last filter was set by system.
 			if (Config.get("update", "overwriteFilters") == "always") or\
 			   (Config.get("update", "overwriteFilters") == "sometimes" and\
-			    	 		  defaultFilter.comment.user == SYSTEM_USER):
+			    	 		  defaultFilter.comment.user == systemUser):
 
 				defaultFilter.eventFilterType = filterType
 				defaultFilter.track = track
@@ -712,10 +712,10 @@ class Update(models.Model):
 				defaultFilter.seconds = seconds
 				# We delete the old comment object and make a new one.
 				defaultFilter.comment.delete()
-				defaultFilter.comment = Comment.objects.create(user=SYSTEM_USER,comment="Added from update of "+str(self.source.name), type=updateTypeString)
+				defaultFilter.comment = Comment.objects.create(user=systemUser,comment="Added from update of "+str(self.source.name), type=updateTypeString)
 				defaultFilter.save()
 		except (DetectionFilter.DoesNotExist, EventFilter.DoesNotExist):
-			comment = Comment.objects.create(user=SYSTEM_USER,comment="Added from update of "+str(self.source.name)+"", type=newTypeString)
+			comment = Comment.objects.create(user=systemUser,comment="Added from update of "+str(self.source.name)+"", type=newTypeString)
 			objects.create(comment=comment, **arguments)
 
 class UpdateFile(models.Model):

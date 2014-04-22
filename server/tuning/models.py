@@ -59,6 +59,11 @@ class SuppressAddress(models.Model):
 class DetectionFilter(models.Model):
 	"""Class modeling a detection_filter. Only one per rule per sensor allowed."""
 	
+	# Constants for the "track" parametre
+	TRACK = {1: "source", 2: "destination"}
+	SOURCE = 1
+	DESTINATION = 2
+
 	rule = models.ForeignKey(Rule, related_name = 'detectionFilters')
 	sensor = models.ForeignKey(Sensor, related_name = 'detectionFilters')
 	comment = models.ForeignKey(Comment, related_name= 'detectionFilters', null=True, on_delete=models.SET_NULL)
@@ -71,8 +76,8 @@ class DetectionFilter(models.Model):
 		unique_together = ("rule", "sensor")
 
 	def __repr__(self):
-		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s', type:%s, track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
-					self.comment, EventFilter.TYPE[self.eventFilterType], EventFilter.TRACK[self.track], self.count, self.seconds)
+		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s', track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
+					self.comment, DetectionFilter.TRACK[self.track], self.count, self.seconds)
 
 	def __str__(self):
 		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
