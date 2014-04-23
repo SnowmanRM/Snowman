@@ -330,6 +330,12 @@ $(document).ready(function(){
 	// Calls function to initialize click events and buttons.
 	listInitialize();
 	
+	// Make the manipulator follow you when you scroll.
+	animateManipulator();
+	
+	// Initialize the search field above content.
+	searchField();
+	
 	// Variables needed.
 	var pagelength = $('#paginator').attr('pagelength');
 	var itemcount = $('#paginator').attr('itemcount');
@@ -338,7 +344,7 @@ $(document).ready(function(){
 	if (pagecount == 0) pagecount++;
 	// We get a hash value if there is one.
 	var hash = parseInt(window.location.hash.slice(1));
-	
+	/*
 	// If theres a hashvalue and its not the first page.
 	if (hash && hash != 1) {
 		// We obviously want another page.
@@ -358,12 +364,10 @@ $(document).ready(function(){
 	if (hash != pagecount && pagecount > 1) {
 		getPage(pagecount);
 	}
-	
+	*/
+	currentpage = 1;
 	// Load the paginator.
 	loadPaginator(currentpage, pagecount);
-
-	// Make the manipulator follow you when you scroll.
-	animateManipulator();
 	
 	// Initialize the search field above content.
 	searchField();
