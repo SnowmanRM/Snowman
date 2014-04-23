@@ -22,49 +22,60 @@ The Norwegian Armed Forces Cyber Defense (CYFOR) unit for Computer Network Defen
 (CND), Avdeling BKI, is responsible for detecting and stopping cyber-attacks against the
 critical infrastructure and command and control systems utilized by the Norwegian military.
 One of the tools used to carry out this task is the open source Intrusion Detection System
-(IDS) SNORT® (1).
+(IDS) SNORT® [some link].
 
-SNORT® is a leading open source IDS that is used to detect potentially unwanted or
-malicious network traffic based on predefined patterns described in signatures. There are both
-free and commercial signatures available for SNORT® and as SNORT® has been highly
+Snort is a leading open source IDS that is used to detect potentially unwanted
+or malicious network traffic based on predefined patterns described in signatures. There are both
+free and commercial signatures available for Snort and as Snort has been highly
 adopted by the security community, these signatures are continually updated and maintained.
-Using SNORT® has been plagued for years by the fact that it does not have a good system for
-handling, updating or maintaining the signatures (henceforth called rules and rule sets) used
-for detection, thus making it cumbersome to utilize SNORT® for security analysts.
+Using Snort has been plagued for years by the fact that it does not have a good
+system for handling, updating or maintaining the signatures (henceforth called rules and rule sets) used
+for detection, thus making it cumbersome to utilize Snort for security analysts.
 
 Avdeling BKI has therefore tasked a group of students from GUC to design and develop a
-more complete, effective and secure rule management system for SNORT® that can continue
-to live on beyond this project.
+more complete, effective and secure rule management system for Snort that can
+continue to live on beyond this project.
 
 \section{Previous Work}
-Research has shown that a good rule management system for SNORT® will improve the
+Research has shown that a good rule management system for Snort will improve the
 workflow and efficiency of the IDS significantly and a prototype for such a system was built
-in 2012 called Bring Home The Bacon (BHTB) (2). This prototype has been in use at
+in 2012 called Bring Home The Bacon (BHTB) [link to BHTB]. This prototype has been in use at
 Avdeling BKI since 2012, but is suffering from lacks in functionality and efficiency due to
 being a proof-of-concept prototype. The prototype did, however, prove that there is a
 significant gain from having an intuitive Graphical User Interface (GUI) by making the
 operator workflow much more efficient, as you go from having to do complex operations in a
 Command Line Interface (CLI) to just push buttons to make the system do things
-automagically (2).
+automagically [link to BHTB].
 
 There was another similar project conducted at Gjøvik University College (GUC) in 2012
-called Snortmanager (3) that also deals with managing SNORT® rules. However, that project
-is not properly released as open source software, the project files are available but there is no
+called Snortmanager [link to Snortmanager] that also deals with managing Snort
+rules.
+However, that project is not properly released as open source software, the project files are available but there is no
 documentation or instructions publically available that describes usage and installation. The
 project has also not been maintained since its initial release, is designed for a specific
-company in mind and is heavily designed around the user interface. Enabling, disabling and
+company in mind and is heavily designed around the user interface. 
+
+Enabling, disabling and
 configuring rules is also cumbersome in this system as this is based on plaintext arguments in
 “policies” that users must construct themselves. The rule distribution is also done manually
-4from the files generated. This makes Snortmanager not very usable for Avdeling BKI and
+from the files generated. This makes Snortmanager not very usable for Avdeling BKI and
 their routines.
 
 
 \section{Target Audence}
-Who wants to use the software and who wants to read this report.
+The software this project has produced is targeted at users of Snort as an IDS.
+More specifically, this target audience usually consists of security experts
+with a high degree of knowledge of Snort and computers in general.
+
+This report is targeted at those that may be interested in discovering just how
+complex the rule structure of Snort really is, and academics that are interested
+in reading about software complexity versus efficiency.
 
 \section{Project Objectives}
 \subsubsection{Result Objectives}
-Research, design and develop a system that as a minimum;
+We reiterate from the project plan[link to project plan] that this
+project has a goal of researching, designing and developing a system that
+as a minimum;
 \begin{itemize}
 \item Is programmatically more efficient than BHTB.
 \item Is developed as a standalone engine that responds to API calls from any arbitrary user
@@ -111,74 +122,80 @@ reduce latency and delays in the system by as much as 50% compared to the other 
 The project will therefore be measuring for this effect.
 
 Furthermore, the project will research and implement safeguards against unintentional failures
-in SNORT® as a result of user error and malformed or misconfigured rules, thus reducing the
-potential downtime of the IDS sensors, as a SNORT® sensor will simply not restart if a single
-rule is malformed or misconfigured. Efficient ways of solving this problem will have to be
+in Snort as a result of user error and malformed or misconfigured rules, thus
+reducing the potential downtime of the IDS sensors, as a Snort sensor will
+simply not restart if a single rule is malformed or misconfigured. Efficient ways of solving this problem will have to be
 researched.
 
 \section{Project Description}
-In broad strokes, this project is about designing a system that is a highly modular API-based
-engine, which is independent of any GUI. The project will be the spiritual successor to
-BHTB, but also take some inspiration from Snortmanager. Essentially taking good ideas from
-both projects, add a few of our own, and create a more adoptable open source rule
-management system for SNORT®.
+In broad strokes, this project has been about designing a system that is a
+modular API-based engine for handeling rule management for the Snort IDS. The
+project is the spiritual successor to BHTB. Essentially taking good ideas from
+BHTB, add a few of our own, and creating a more adoptable open source rule
+management system for Snort.
 
-We will utilize the latest stable version of Python as the main programming language for the
-project. C++ was also considered, but due to the limited time at our disposal, we feel we can
-create more functionality with Python, due to it requiring less memory management and
-general “programmer friendly” ways of doing things.
+We utilized the latest stable version of Python as the main programming language
+for the project. C++ was also considered, but due to the limited time at our disposal,
+we felt we could create more functionality with Python, due to it requiring less
+memory management and general “programmer friendly” ways of doing things.
 
-The system will require a database to function efficiently and the project will utilize
-MySQL, as this is the de facto standard for the Linux platform. 
+The system will require a database to function efficiently and the project
+primarily utilizes MySQL, as this is the de facto standard for the Linux
+platform.
 
-Furthermore, the project will also consist of creating a GUI that is user friendly and
-responsive. We will base this heavily on the GUI developed for BHTB in terms of displaying
-rules in lists and with buttons and checkboxes to manipulate them. We may also borrow some
-design ideas from Snorby (5), another SNORT® tool. The main technologies we will utilize
-for the GUI will consist of standard web-oriented languages such as HTML, CSS, PHP and/or
-Javascript.
+Furthermore, the project also consisted of creating a GUI that is user friendly
+and responsive. We based this heavily on the GUI developed for BHTB in terms of
+what we display, rules in various lists and with buttons and checkboxes to
+manipulate them.
+The main technologies we utilized
+for the GUI consisted of standard web-oriented languages such as HTML, CSS, and
+Javascript, but also the help of open source web technologies such as
+jQuery [link] and Bootstrap [link]. 
 
 \section{Academic Background}
 Talk about our pasts.
 
 \section{Framework}
 \subsection{Software Development Methodology}
-As this project is time-restricted, the development should be as efficient as possible. We
-therefore need a model that utilizes the manpower we have present in the best possible way.
-The size of the group is also quite small, so big and complex development models would add
-too much bureaucracy to coordinate the project and is thus overkill.
+As this project has been very time-restricted, the development should be as
+efficient as possible. We therefore needed a model that utilized the manpower we
+had available in the best possible way.
+The size of the group was quite small, so big and complex development models
+would add too much bureaucracy to coordinate the project and was thus overkill.
 
-As we want to have a lightweight development-model, some form of an agile development
-model with well-defined development-cycles is preferred. This way, each group-member can
-take an active part in the project and all members would feel a sense of ownership.
+As we wanted to have a lightweight development-model, some form of an agile
+development model with well-defined development-cycles was preferred. This way,
+each group-member could take an active part in the project and all members could
+feel a sense of ownership.
 
-Developing iterative and incrementally, we are getting the best from both the unstructured
-world, and from the very well defined waterfall approach. We are able to get feedback during
-the project, and have a structured and reasonable way of actually doing changes in the plan
-while the project is running. At the same time we would be able to maintain the overall plan
-within cycles, so that it is possible to work individually, while still being well coordinated.
+Developing iterative and incrementally, we got the best from both the
+unstructured world, and from the very well defined waterfall approach. We were
+able to get feedback during the project, and have a structured and reasonable
+way of actually doing changes to the plan while the project was running. At the
+same time we could be able to maintain the overall plan within cycles, so that
+it was possible to work individually, while still being well coordinated.
 
 To be able to develop all the modules of the project within the timeframe, each development
-cycle will consist of multiple modules developed in parallel. This allows us to maximize our
-utilization of time and personnel.
+cycle consisted of multiple modules developed in parallel. This allowed us to
+maximize our utilization of time and personnel.
 
-The start of each cycle will consist of a meeting where we define the goals for that cycle, and
-identification of the individual tasks that we need to get done. This is similar to the start of a
-sprint in the development model Scrum.
+The start of each cycle consisted of a meeting where we defined the goals for
+that cycle, and identification of the individual tasks that we needed to get
+done. This is similar to the start of a sprint in the development model Scrum.
 
-In the development part of the cycle, we will individually work on the tasks that were defined
-in the planning-part. Regular meetings and cooperative programming within the group would
-ensure that we all pull the project in the same direction.
+In the development part of the cycle, we individually worked on the tasks that
+were defined in the planning-part. Regular meetings and cooperative programming within the group would
+ensure that we all pulled the project in the same direction.
 
-At the end of each cycle we should have a working set of software, which ideally should
-comply with all the goals set in the start of each cycle. We are planning to have a meeting
-with Avdeling BKI between each cycle to present the progress, and to let them influence the
-direction of the project.
+At the end of each cycle we would have a working set of software, which ideally
+complied with all the goals set in the start of each cycle. We planned to
+have meetings with Avdeling BKI between each cycle to present the progress, and
+to let them influence the direction of the project.
 
-After all development cycles have been complete, we will then make final assurances that
-everything works as intended and that all modules coexist in harmony. This part of the
-development will also consist of hands-on testing by the client and various performance
-testing.
+After all development cycles had been completed, we then made a final
+assurances that everything worked as intended and that all modules coexisted in
+harmony. This part of the development also consisted of hands-on testing by the
+client and various performance testing.
 
 \subsection{Schedule}
 Refer to gantt diagram in project plan etc.

@@ -2,10 +2,11 @@
 
 \subsection{Program Workflow}
 To develop our requirements, we decided to chart the program workflow in order
-to better understand what the system is expected to do. Since this is to be a
+to better understand what the system is expected to do. Since this was to be a
 highly user-oriented system, we accomplished this by going over the old system,
 BHTB, step by step with the client and detailing the functions and various needs
-for improvement or additional functionality. From this, we developed a workflow chart that details the major system parts.
+for improvement or additional functionality. From this, we developed a workflow
+chart that reveals the major system parts.
 
 \begin{figure}[ht!]
 \includegraphics[width=130mm]{./img/program_workflow.png}
@@ -21,9 +22,15 @@ As you can see, if you trace the arrows, all of the program flow ends up with
 rules being syncronized to the sensors. This makes sense, because that is the
 whole purpose of the system to begin with.
 
+But the road to Rome consists of a lot more functionality that needs to be in
+place and that interacts with the rules before they are ready to be handed over
+to Snort.
+
 It's important to note that very early on, we decided that writing rules,
-automatically check them for errors and commenting them were nice-to-have
-features that we could implement if we had time to do so. Hence they are greyed out in the drawings.
+automatically check them for errors and commenting them were nice-to-have (but
+still important) features that we could implement if we had time to do so. Hence
+they are greyed out in the drawings, and as you will notice further on in the report, were never
+developed due to time contraints.
 
 From this workflow we could outline a rough modular design based on the
 naturally separate functions of updating rules, tuning them, distributing them
@@ -40,7 +47,7 @@ going to be centered around it.
 This module will handle all functionality related to downloading rules,
 including comparing MD5 checksums.
 \subsubsection{Rule Pre-Storage Processing Module}
-This module will essentially take downloaded rules and parse and process them
+This module will essentially take downloaded rules, and parse and process them
 into objects that can be fed into the database.
 \subsubsection{DB Module}
 This module will handle all input and output to/from the database.
@@ -48,14 +55,15 @@ This module will handle all input and output to/from the database.
 This module will essentially take rules stored in the database and prepare them for
 distribution to sensors.
 \subsubsection{Rule Distribution Module}
-This module will be in charge of distributing rules out to the Snort sensors.
+This module will be in charge of distributing rules out to the Snort sensors and
+handing the rules over to Snort itself.
 \subsubsection{Tuning Module}
-This module will handle all functionality related to turning rules on or off, thresholding them
-or suppressing them.
+This module will handle all functionality related to turning rules on or off,
+filtering them or suppressing them.
 \subsubsection{Rule View Module}
 This module will contain all the functionality needed to display the system
 status and system functions to the user. It will be the primary way the user
-interacts with the system.
+interacts with the system. Basically the GUI module.
 \subsubsection{Daemon Module}
 This module will run continually on the system to ensure that the system is
 responsive and to carry out any interval based tasks, such as automatic updates or distributions.

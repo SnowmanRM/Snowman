@@ -2,9 +2,9 @@
 
 URL="http://192.168.1.100/testing/"
 
-FILE=("testset.1000-100.tar.gz")
+FILE=("testset.10000-1000.tar.gz")
 
-FILE2=("testset.rev2.100-10.tar.gz" "testset.rev3.100-10.tar.gz")
+FILE2=("testset.rev2.1000-100.tar.gz" "testset.rev3.1000-100.tar.gz")
 
 FILE3=("s.1.tar.gz" "s.2.tar.gz")
 
@@ -37,13 +37,8 @@ function runSpecialTest {
 
 }
 
-for file in ${FILE[*]}
+for i in {1..5}
 do
-	echo -e "$file" >> /tmp/srm-update-timing.txt
-	for i in {1..5}
-	do
-		runTest $file
-	done
-	echo -e "\n" >> /tmp/srm-update-timing.txt
+	runSpecialTest ${FILE2[0]} ${FILE2[1]}
 done
 

@@ -9,7 +9,7 @@ class UserSettings():
 	
 	@staticmethod
 	def getPageLength(request, pagetype = DEFAULT):
-		return 20
+		return 50
 
 def rulesToTemplate(ruleList):
 	"""
