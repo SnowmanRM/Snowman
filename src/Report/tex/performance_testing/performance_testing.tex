@@ -23,16 +23,10 @@ appendix. %TODO: Appendix.
 The testing is split up into \textit{test suites}, which contain a
 \textit{problem} in the form of a question. The problem forms a clear
 description of what is to be tested, and how results should be evaluated.
-A test suite also contains one or more test cases which exist to address
-the problem. Test cases describe 
-
-each test suite consists of one or 
-
-results from test cases are referred to as the test results.
-
-Each test case is composed of a series of 
-
-
+A test suite also contains one or more \textit{test cases} which exist to
+address the problem. Test cases represent individual tests, and describe the input data
+and constraints. Test cases are carried out on the different systems, and
+results from each test case are reffered to as the \textit{test results}.
 
 \section{Environment}
 %Beskriv testoppsett. maskinvare, nettverk, programvare, etc.
@@ -75,30 +69,62 @@ again to see if the inconsistency prevails.
 Deviation
 
 \section{Test suites}
+Even though Snowman, BHTB and Snortmanager share the same goal of being a rule
+management system, it is not immediately obvious how they can be tested against
+each other to compare their performance. The first step in the performance
+testing has been to identify the areas where the three software packages share, to a
+certain extent\footnote{Snowman, BHTB and Snortmanager have been built to
+tackle many of the same challenges, however, the actual implementations may
+differ severly. For an extended walk-through of differences in implementation,
+refer to chapter \ref{chap:existing_solutions}, and chapter
+\ref{chap:analysis_of_results}.}, the same functionality. In the
+test planning, considerations have been made to ensure that the tests hold an
+acceptable degree of fairness (i.e. tests are designed so that none of the
+software enjoys any improper advantages or disatvantages), and that the tests
+are pertinent to the daily operation of the software and the Snowman requirement
+specification.
+
+Snowman, BHTB and Snortmanager all have the functionality to download and
+process an update from an external source. The first group of test
+suites presents different test cases to benchmark how each software performs in
+update processing.
 
 \subsection{Update processing}
-The Update module is tested for speed and linearity, which is compared to  
+The purpose of the tests in this section is first and foremost to test how
+quickly the software can process an update, and if the processing time is
+linear to the update size. It is interesting to test for linearity as this may
+help point out programming errors. To get a complete picture of the
+performance, the tests are set up with different constraints such as update
+size, number of files and number of changes from one update to the next.
+
+Tests numbered 1 through 4 use an artificially generated update package where
+all rules contain the same data\footnote{Only signature IDs are different. The
+rules contain a message and a classtype, see appendix for full description.}. 
+
 \subsubsection{Test 1}
 \paragraph{Problem: How fast can the software process an update?}
 The purpose of this question is to determine the average
 processing time per rule. Results are ranked from short to long
 processing time, where shorter is better.
-\paragraph{Test cases}
+\paragraph{Test cases:}
 To address this problem, five test cases were introduced. The tests contained
 an artificially generated update with 1, 10, 100, 1000 and 10000 rules,
 respectively. Rules were split into files with ten each (table
-\ref{tab:test1Names}).
+\ref{tab:test1Names}). Each test case represents one update, and the names
+denote the number of rules, files and rules per file in the following structure:
+\textit{rules-files-rules per file}.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
 
 \begin{table}[h!]
   \centering
-  \begin{tabular}{l|l|l}
-  	%& \multicolumn{1}{c|}{Test} &
+  \begin{tabular}{r|r|r}
+  	\multicolumn{1}{l|}{Test case} & \multicolumn{1}{l|}{Rules} &
+  	\multicolumn{1}{l}{Files} \\
   	%\multicolumn{1}{c|}{S1} & \multicolumn{1}{c|}{S2} & \multicolumn{1}{c}{S3}
   	% \\
-	Test case & Rules & Files \\
+	%Test case & Rules & Files \\
 	\hline
 	1-1-1 & 1 & 1 \\
 	10-1-10 & 10 & 1 \\
@@ -112,8 +138,8 @@ respectively. Rules were split into files with ten each (table
 \end{table}
 
 \subsubsection{Test 2}
-\paragraph{Q2: How strong is the linear correlation between processing time and
-the size of an update?}
+\paragraph{Problem: How strong is the linear correlation between processing time
+and the size of an update?}
 This question rises from the requirements specification of Snowman (chapter
 \ref{chap:requirements_spec}), where it is stated that Snowman shall exhibit a
 linear increase in processing time in correlation to the number of rules in the
@@ -121,13 +147,21 @@ update (where the number of rules depicts the update size). Results are ranked
 from strong correlation to no correlation, where stronger is better.
 % TODO: remeber to explain, either here or in the rec. spec., why this is an
 % important measure, e.g. no coorelation might imply programming errors.
- 
-\paragraph{Q3: Does raising the ratio between files and rules increase
+\paragraph{Test cases:}
+This test uses the same test cases as Test 1.
+
+\subsubsection{Test 3}
+\paragraph{Problem: Does raising the ratio between files and rules increase
 processing time?}
 Updates can come with the rules either gathered in one file, or distributed over 
 several files. This question is asked to examine the difference in processing
 time for these two scenarios. Results are ranked from no difference to big
 difference, where less difference is better.
+\paragraph{Test cases:}
+This test uses the \textit{1000-100-10} test case from Test 1, along with a test
+case withe the same number of rules in \textit{one} file (1000-1-1). This means
+that the two tests will yield results for 1000 rules in one file and 1000 rules in
+100 files, respectively.
 
 %\paragraph{Q4: Is the processing time identical for active and inactive
 %rules?}
@@ -135,28 +169,34 @@ difference, where less difference is better.
 % -do we really need this? We can just check the source code.
 % Question abandoned.
 
-\paragraph{Q4: Is the processing time shorter when the update contains no new
-rules?}
+\subsubsection{Test 4}
+\paragraph{Problem: Is the processing time shorter when the update contains no
+new rules?}
+This is a test for update processing when the update is not new (i.e. it has
+been completely processed by the system before). To minimize system load, it is
+essential that already processed updates are (in practice, they should be
+neglected) by the system.
+Results are ranked from shortest to longest processing time, where shorter is better.
+\paragraph{Test cases:}
+This is a compound test where a test case is run two times in succession. The
+1000-100-10 test case from Test 1 is run first to populate the database, before
+it is run again.
 
-
-\paragraph{Q5: Are the processing times for two updates identical when only one
-rule has changed between the updates?}
+\subsubsection{Test 5}
+\paragraph{Problem: Are the processing times for two updates identical when only
+one rule has changed between the updates?}
 This question seeks to determine how the software handles an update when there
 is only one change from the previous update. This is an important factor to
 consider, since an update usually contains only a small amount of changes from
 previous updates. Results are ranked from short processing time for second
 update to no difference in processing time, where shorter time is better.
-
+\paragraph{Test cases:}
+Unlike Test 1 through 4, the test cases in this suite use an update package from
+a real source. The update is run twice; the first run populates the database,
+and the second run contains one change from the previous run (one of the rules
+has an updated revision number).
 %TODO: when analyzing results, be sure to highligt that a completely new
 % update is run once, and subsequent updates often contain a small amount 
 % of changes. 
 
-
-
-
-
-
-
-
-
-An automatically generated update is used for Q1 through Q6
+\subsection{Rule distribution}

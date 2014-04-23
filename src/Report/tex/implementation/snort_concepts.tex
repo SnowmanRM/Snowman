@@ -1,10 +1,10 @@
-\section{Concepts of Snort\textregistered}
+\section{Concepts of SNORT\textregistered}
 This section will give a brief introduction to the basic concepts of
 Snort\textregistered{}, and discuss these in relation to features made in this
 project.
 
 \subsection{Rules}
-We used to be fans of \textit{modifiers}, but now we praise the hierarchy!
+%TODO: Explain planning of rule modifiers and hierarchy model in Design chapter.
 
 A rule is basically a set of options that define ways of detecting, classifying
 and reporting a potential attack or threat on the network\footnote{A rule
@@ -49,30 +49,41 @@ enabled/disabled flag on rulesets.
 %   \label{tab:ruleEnabled}
 % \end{table}
 \subsection{Rule sets}
+The term rule set, sometimes ruleset, is not formally defined in the
+SNORT\textregistered{} Users Manual, however it is used a few times to refer to
+the complete collection of official SNORT\textregistered{} rules\footnote{Also
+referred to as the Sourcefire VRT Certified Rules,
+see http://www.snort.org/snort-rules/} and to the complete set of rules applied
+on a SNORT\textregistered{} system. In practice, rules within a rule set are
+categorized by intrusion type (e.g. malware, trojan and worm). These groups of
+rules are often named by their intrusion type, and are also referred to as rule
+sets. The Snowman software and this report use only the latter definition of
+rule sets.
+
 \subsection{Generators}
-\subsection{Reference Types}
+\textit{Generator} is a term used for any subsystem of SNORT\textregistered{}
+which generates alerts from rules \cite{SnortManual}. Each generator is
+identified by a unique generator ID. The rules subsystem, generator id 1, is
+the only relevant generator for this project.
+
+\subsection{References}
+SNORT\textregistered{} contains a plugin which allows rules to contain
+references to external attack identification systems which provide
+additional information about the alerts \cite{SnortManual}.
+
 \subsection{Event and detection filters}
-Various filters can be applied to rules in order to control the amount
-and frequency of alerts triggered by a single rule.
+Filtering can be applied to rules in order to control the amount
+and frequency of alerts. Two types of filters can be applied to a rule: event
+filter and detection filters. 
+
+
 
 Inline thresholds are currently supported, but this functionality is deprecated
 
  Threshold deprecated. Detection filters.
 
-If a filter occurs inline, this filter is regarded as a default filter and will
-be active on every sensor where the rule operates. A user can choose to
-override the default filter on a sensor by defining a custom filter to be used
-on the respective sensor.
 
-To stop Snort\textregistered from adding duplicate filters, all inline filters
-are removed from the rulestrings. Any filters extracted from
-the rulestring are written as plain text (i.e. as they appear in the original
-rulestring) in the \textit{filters} field of the rule revision object. This is
-to ensure that all the original rule options are stored meaning that no data is
-lost or discarded. 
 
- Filters are removed from the rulestring and
-transformed into event filter and detection filter objects.
 
 \begin{figure}
 \centering
@@ -84,18 +95,21 @@ transformed into event filter and detection filter objects.
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
 
-\begin{table}[tbp]
+\begin{table}[b]
   \centering
   \begin{tabular}{l|l}
   	Filter type & Alerts \\
     \hline
 	\textbf{Event filter} \\
-	Limit & One for every event when \textit{count} \(\leq\) C in interval S\\
+	Limit & One for every event when number of events \(\leq\) C in interval S\\
 	Threshold & One for every C events in interval S \\
-	Both & One per interval S when \textit{count} \(=\) C\\
+	Both & One per interval S when number of events \(=\) C\\
 	\hline
 	\textbf{Detection filter} & One for every event when \textit{count} \(>\) C in
 	interval S\\
+	\hline
+	\multicolumn{2}{l}{\textit{Note: C and S represent the \em count \em and \em
+	seconds \em values in the filter.}}\\
   \end{tabular}
   \caption{Effects of different filter types.}
   \label{tab:ruleEnabled}

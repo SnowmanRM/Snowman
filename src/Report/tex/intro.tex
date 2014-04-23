@@ -1,18 +1,18 @@
 \chapter{INTRODUCTION}
-Følgende informasjon kan tas med her:
-- Organisering av rapporten og kort beskrivelse av sammenhengen mellom kapitlene.
-- Fullstendig definering av oppgaven med utdypning av hva oppgaven går ut på.
-Eksempelvis presiseres mål, problemområde, omfang og avgrensning.
-- Henvisning til eventuelle tidligere arbeider om samme emne.
-- Målgruppe for rapporten, jfr. mål- og mottakeranalysen.
-- Studentenes faglige bakgrunn.
-- Prosjektgruppens valgte arbeidsformer, f.eks. samtaler og intervjuer med kilder, reiser,
-bedriftsbesøk, litteraturstudier, laboratorieforsøk, modellbygging og testing.
-- Terminologibruk. Er eksempelvis faguttrykk brukt i en spesiell betydning?
-Innledningen skal ikke inneholde noe om det som er gjort i oppgaven og oppnådde resultater.
+% Følgende informasjon kan tas med her:
+% - Organisering av rapporten og kort beskrivelse av sammenhengen mellom kapitlene.
+% - Fullstendig definering av oppgaven med utdypning av hva oppgaven går ut på.
+% Eksempelvis presiseres mål, problemområde, omfang og avgrensning.
+% - Henvisning til eventuelle tidligere arbeider om samme emne.
+% - Målgruppe for rapporten, jfr. mål- og mottakeranalysen.
+% - Studentenes faglige bakgrunn.
+% - Prosjektgruppens valgte arbeidsformer, f.eks. samtaler og intervjuer med kilder, reiser,
+% bedriftsbesøk, litteraturstudier, laboratorieforsøk, modellbygging og testing.
+% - Terminologibruk. Er eksempelvis faguttrykk brukt i en spesiell betydning?
+% Innledningen skal ikke inneholde noe om det som er gjort i oppgaven og oppnådde resultater.
 
 \section{Document Structure}
-How have we organized this document
+How have we organized this document.
 
 \section{Terminology}
 Put explainations of difficult terms here.
@@ -21,8 +21,8 @@ Put explainations of difficult terms here.
 The Norwegian Armed Forces Cyber Defense (CYFOR) unit for Computer Network Defense
 (CND), Avdeling BKI, is responsible for detecting and stopping cyber-attacks against the
 critical infrastructure and command and control systems utilized by the Norwegian military.
-One of the tools used to carry out this task is the open source Intrusion Detection System
-(IDS) SNORT® [some link].
+One of the tools used to carry out this task is the open source Intrusion
+Detection System (IDS) SNORT® (\cite{Snort}).
 
 Snort is a leading open source IDS that is used to detect potentially unwanted
 or malicious network traffic based on predefined patterns described in signatures. There are both
@@ -39,28 +39,27 @@ continue to live on beyond this project.
 \section{Previous Work}
 Research has shown that a good rule management system for Snort will improve the
 workflow and efficiency of the IDS significantly and a prototype for such a system was built
-in 2012 called Bring Home The Bacon (BHTB) [link to BHTB]. This prototype has been in use at
-Avdeling BKI since 2012, but is suffering from lacks in functionality and efficiency due to
-being a proof-of-concept prototype. The prototype did, however, prove that there is a
-significant gain from having an intuitive Graphical User Interface (GUI) by making the
-operator workflow much more efficient, as you go from having to do complex operations in a
-Command Line Interface (CLI) to just push buttons to make the system do things
-automagically [link to BHTB].
+in 2012 called Bring Home The Bacon (BHTB) \cite{BHTB}. This prototype has been
+in use at Avdeling BKI since 2012, but is suffering from lacks in functionality
+and efficiency due to being a proof-of-concept prototype. The prototype did,
+however, prove that there is a significant gain from having an intuitive
+Graphical User Interface (GUI) by making the operator workflow much more
+efficient, as you go from having to do complex operations in a Command Line
+Interface (CLI) to just push buttons to make the system do automagically \cite{BHTB}.
 
-There was another similar project conducted at Gjøvik University College (GUC) in 2012
-called Snortmanager [link to Snortmanager] that also deals with managing Snort
-rules.
-However, that project is not properly released as open source software, the project files are available but there is no
-documentation or instructions publically available that describes usage and installation. The
-project has also not been maintained since its initial release, is designed for a specific
-company in mind and is heavily designed around the user interface. 
+There was another similar project conducted at Gjøvik University College (GUC)
+in 2012 called Snortmanager \cite{SnortManager} that also deals with managing SNORT® rules.
+However, that project is not properly released as open source software, the
+project files are available but there is no documentation or instructions
+publically available that describes usage and installation. The project has
+also not been maintained since its initial release, is designed for a specific
+company in mind and is heavily designed around the user interface.
 
 Enabling, disabling and
 configuring rules is also cumbersome in this system as this is based on plaintext arguments in
-“policies” that users must construct themselves. The rule distribution is also done manually
+``policies'' that users must construct themselves. The rule distribution is also done manually
 from the files generated. This makes Snortmanager not very usable for Avdeling BKI and
 their routines.
-
 
 \section{Target Audence}
 The software this project has produced is targeted at users of Snort as an IDS.
@@ -72,7 +71,7 @@ complex the rule structure of Snort really is, and academics that are interested
 in reading about software complexity versus efficiency.
 
 \section{Project Objectives}
-\subsubsection{Result Objectives}
+\subsection{Result Objectives}
 We reiterate from the project plan[link to project plan] that this
 project has a goal of researching, designing and developing a system that
 as a minimum;
@@ -114,7 +113,7 @@ they are distributed to production sensors.
 \end{itemize}
 Once the system has been developed, it will be released as an Open Source Software to the
 public in a well-documented format.
-\subsubsection{Effect Objectives}
+\subsection{Effect Objectives}
 Forming baselines from the current prototype BHTB and from Snortmanager, the project has
 a goal to further increase the efficiency of rule management by investigating and
 implementing programming techniques such as multi-threading and a change-based system to
@@ -143,14 +142,13 @@ The system will require a database to function efficiently and the project
 primarily utilizes MySQL, as this is the de facto standard for the Linux
 platform.
 
+%TODO: Dette skal under implementation? -Eirik
 Furthermore, the project also consisted of creating a GUI that is user friendly
 and responsive. We based this heavily on the GUI developed for BHTB in terms of
 what we display, rules in various lists and with buttons and checkboxes to
-manipulate them.
-The main technologies we utilized
-for the GUI consisted of standard web-oriented languages such as HTML, CSS, and
-Javascript, but also the help of open source web technologies such as
-jQuery [link] and Bootstrap [link]. 
+manipulate them. The main technologies we utilized for the GUI consisted of
+standard web-oriented languages such as HTML, CSS, and Javascript, but also the
+help of open source web technologies such as jQuery [link] and Bootstrap [link]
 
 \section{Academic Background}
 Talk about our pasts.
@@ -198,8 +196,7 @@ harmony. This part of the development also consisted of hands-on testing by the
 client and various performance testing.
 
 \subsection{Schedule}
-Refer to gantt diagram in project plan etc.
-
+Refer to Gantt diagram in project plan etc.
 
 \subsection{Project Organization}
 Talk about how we organized everything.

@@ -780,6 +780,21 @@ FUNCTION {mastersthesis}
   fin.entry
 }
 
+FUNCTION {bachelorsthesis}
+{ output.bibitem
+  format.authors "author" output.check
+  new.block
+  format.title "title" output.check
+  new.block
+  "Bachelor's thesis" format.thesis.type output.nonnull
+  school "school" output.check
+  address output
+  format.date "year" output.check
+  new.block
+  note output
+  fin.entry
+}
+
 FUNCTION {misc}
 { output.bibitem
   format.authors output
