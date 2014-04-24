@@ -206,6 +206,14 @@
 	white-space:nowrap;
 	
 }
+
+#content table thead th,
+#content table tbody td {
+	padding-top: 1px;
+	padding-bottom: 1px;
+	vertical-align: middle;
+}
+
 #content table.rules tbody td.row div {
 	padding-left:2px;
 	padding-right:2px;

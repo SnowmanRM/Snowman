@@ -30,6 +30,7 @@
 				<option value="25" {% if user.userProfile.pageLength = 25 %}selected{% endif %}>25</option>
 				<option value="50" {% if user.userProfile.pageLength = 50 %}selected{% endif %}>50</option>
 				<option value="100" {% if user.userProfile.pageLength = 100 %}selected{% endif %}>100</option>
+				<option value="200" {% if user.userProfile.pageLength = 200 %}selected{% endif %}>200</option>
 			</select>
 		</div>
 	</div>
