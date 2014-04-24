@@ -13,7 +13,8 @@ added to the already loaded DOM(desc) in the web browser.
 
 \subsection{Structure}
 
-The pages of the GUI is organized in the following structure:
+The pages of the GUI is organized in the following structure, which is very
+similar to the way BHTB organized it's front end.
 
 \begin{figure}[ht!]
 \includegraphics[width=130mm]{./img/gui_structure.png}
@@ -32,7 +33,7 @@ said table element, we could just add <table class=`{\bf table
 table-bordered}`> and get the table formatted nicely with colors and fonts that
 are typographically matching.
 
-\subsection{Features}
+\subsection{Overview of central GUI features}
 \subsubsection{Content Prefetching}
 One of the main features of our GUI design is our usage of prefetching to speed
 up loading. Instead of loading absolutely everything into the web browsers DOM,
@@ -47,12 +48,13 @@ through AJAX calls so that they are ready.
 This ensures that the user always has immidiate response from any interaction
 done with the GUI, while keeping loading times to a bare minimum.
 
-\subsection{Rules/All rules page}
+
+\subsubsection{Rules page}
 
 \begin{figure}[ht!]
-\includegraphics[width=150mm]{./img/gui_rules_allrules.png}
-\caption{Rules/All rules page}
-\label{gui_rules_allrules}
+\includegraphics[width=150mm]{./img/gui_rules.png}
+\caption{Rules page}
+\label{gui_rules}
 \end{figure}
 
 This page serves as the complete list of all rules currently residing in the
@@ -65,9 +67,112 @@ additional information about the rule in question.
 
 We anticipate that the main use of this page is to utilize the search function
 to find a specific rule or rules and then either retrieve information about them
-or tune them.
+or otherwise manipulate them.
 
 Rules can be tuned by checking the checkbox associated with the rule in question
-and then press the button that represent the desired function in the box to the
-left. 
+and then pressing the button that represent the desired function in the box to
+the left. 
+\newpage
+\subsubsection{Rulesets page}
+
+\begin{figure}[ht!]
+\includegraphics[width=150mm]{./img/gui_rulesets.png}
+\caption{Rulesets page}
+\label{gui_rulesets}
+\end{figure}
+
+The rulesets page consists of a list of all the rulesets stored in the
+central database. Each row contains meta information about the ruleset, such as
+the number of rules in the ruleset and so on. 
+
+A special feature of the ruleset page is that since Snowman allows you to
+structure rulesets in an hierarcical tree, the ruleset list will initially only
+show the tree roots. If the ruleset has child rulesets associated with it, those
+will be listed once you click on the ruleset and open up the additional
+information area. 
+
+The list controls also contain functionality for creating, editing, deleting and
+reorganizing the rulesets, as well as the ability to turn them on or off either
+globally or on a per sensor basis.
+
+We also have a very similar page for the sensor list, which also allows you to
+arrange sensors in a hierarchical tree. Because it is virtually the same, it is
+not detailed in the report.
+
+\subsubsection{Updates and changes}
+
+One of the big requests from the client when it came to improvements of features
+of BHTB was the need to have more feedback over the update process, as BHTB only
+told you about the status after it was done, leaving the user in an
+information-limbo.
+
+
+\begin{figure}[ht!]
+\includegraphics[width=150mm]{./img/gui_update_progressbar.png}
+\caption{Update progressbar}
+\label{gui_update_progressbar}
+\end{figure}
+
+To solve this, we added a continually updating progressbar which tells the user
+what the system is currently doing and giving a rough estimate of the percentage
+of completion. 
+
+Another requested feature was the ability to see what was changed during an
+update. We provide a list for this which contains each update and it's various
+changes. 
+
+\begin{figure}[ht!]
+\includegraphics[width=150mm]{./img/gui_update_changes.png}
+\caption{Update changes}
+\label{gui_update_changes}
+\end{figure}
+
+The list details any new rulesets, rules or rule revision an update
+might have brough with it, as well as a list of rules that have been moved from
+one ruleset to another. 
+Once the user has finished checking out the changes from one update, the user
+can remove the update from the list. This makes the list a backlog tool, rather
+than a perpetually long list or some sort of time limited list (say, updates in
+the last 7 days or something similar). 
+This gives the user a good overview of what has changed since the last time the
+user checked the list.
+
+\subsubsection{Form validation and feedback}
+
+One challenge that always face web frontends are forms, as they are a means to
+alter data in the database and thus become a security challenge. So when you
+utilize forms, it is important to protect the database against both malicious attackers and user errors. 
+
+There are three basic steps to implement protection against these
+security issues, which is to (1) validate the data provided by the form, (2)
+make sure the user can't input something it shouldn't and (3) to never let any
+raw strings or values from the form be directly inserted into a database query. 
+
+The third protection is perhaps the most important as it leaves you
+vulnerable to SQL injection attacks, which are attacks where SQL code is
+input into the form, letting the attacker carry out his/her own queries,
+leading to total database compromise.
+This problem is solved through what is called prepared statements, which makes sure a
+query doesn't do anything it's not supposed to before the query is actually carried out on the database. This protection is implemented in our system through Django's internal protection
+mechanisms.
+
+The first and second protection is something we have implemented ourselves at
+both the frontend and the backend. We make sure that the user can never input
+invalid values into any form by having Javascript validate the input. So if a user inputs characters
+where only numbers are allowed, the user will be notified immediately and not
+allowed to submit the form until it is corrected. And this is done before
+anything is ever send from the browser to the server.
+
+But if the user has input all valid values, we still validate all the data at
+the backend before we store anything in the database. This means checking
+that any referenced object ID actually exists or making sure the provided IP
+address is actually valid (within the 0.0.0.0/0 - 255.255.255.255/32 range). If
+anything is out of place, a message is sent back to the user about it.
+
+\begin{figure}[ht!]
+\includegraphics[width=150mm]{./img/gui_form_validation.png}
+\caption{Form validation}
+\label{gui_form_validation}
+\end{figure}
+
 
