@@ -19,7 +19,7 @@ def rulesToTemplate(ruleList):
 	"""
 	
 	# We get the count of all sensors in the system.
-	sensorCount = Sensor.objects.count()
+	sensorCount = Sensor.objects.exclude(name="All").count()
 	
 	# This list will be whats returned.
 	chewedRules = []
@@ -115,7 +115,7 @@ def ruleSetsToTemplate(ruleSetList):
 	"""
 	
 	# We get the count of all sensors in the system.
-	sensorCount = Sensor.objects.count()
+	sensorCount = Sensor.objects.exclude(name="All").count()
 	
 	# This list will be whats returned.
 	chewedRuleSets = []
@@ -205,7 +205,7 @@ def ruleSetsWithNewRulesToTemplate(ruleSetList, update):
 	ruleIDs = update.rules.values_list('id', flat=True)
 	
 	# We get the count of all sensors in the system.
-	sensorCount = Sensor.objects.count()
+	sensorCount = Sensor.objects.exclude(name="All").count()
 	
 	# This list will be whats returned.
 	chewedRuleSets = []
@@ -300,7 +300,7 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 	ruleSIDs = list(set(revSIDs) - set(newRuleSIDs))
 	
 	# We get the count of all sensors in the system.
-	sensorCount = Sensor.objects.count()
+	sensorCount = Sensor.objects.exclude(name="All").count()
 	
 	# This list will be whats returned.
 	chewedRuleSets = []
