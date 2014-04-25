@@ -1,6 +1,14 @@
 \chapter{DESIGN}
-Utfyllende med grunngitt valg av metoder, rammeverk etc.
-Hovedtrekk fra design av system beskrives. Fullstendig designdokument bør være vedlegg til
-prosjektrapporten, mens dette punktet omhandler diskusjon av sentrale forhold. Ulike alternative
-design som studentene vurderte bør beskrives og valg av alternativ begrunnes.
+
+We decided to develop snowman as a distributed set-up. A central server should
+be responsible for the user-interface and the sentral core-functions like
+assigning rules to the sensors, get updates from the providers and simmilar.
+
+Each sensor should in turn have installed a snowman-client, which is 
+responsible for the communication with the central server, the generation of
+the SNORT rule-files, and responding to the servers request for status.
+
+\input{./tex/design/server_design.tex}
+
+\input{./tex/design/client_design.tex}
 
