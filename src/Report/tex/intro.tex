@@ -22,22 +22,22 @@ The Norwegian Armed Forces Cyber Defense (CYFOR) unit for Computer Network Defen
 (CND), Avdeling BKI, is responsible for detecting and stopping cyber-attacks against the
 critical infrastructure and command and control systems utilized by the Norwegian military.
 One of the tools used to carry out this task is the open source Intrusion
-Detection System (IDS) SNORT® (\cite{Snort}).
+Detection System (IDS) \snort{} \cite{Snort}.
 
-Snort is a leading open source IDS that is used to detect potentially unwanted
+\snort{} is a leading open source IDS that is used to detect potentially unwanted
 or malicious network traffic based on predefined patterns described in signatures. There are both
-free and commercial signatures available for Snort and as Snort has been highly
+free and commercial signatures available for \snort{} and as \snort{} has been highly
 adopted by the security community, these signatures are continually updated and maintained.
-Using Snort has been plagued for years by the fact that it does not have a good
+Using \snort{} has been plagued for years by the fact that it does not have a good
 system for handling, updating or maintaining the signatures (henceforth called rules and rule sets) used
-for detection, thus making it cumbersome to utilize Snort for security analysts.
+for detection, thus making it cumbersome to utilize \snort{} for security analysts.
 
 Avdeling BKI has therefore tasked a group of students from GUC to design and develop a
-more complete, effective and secure rule management system for Snort that can
+more complete, effective and secure rule management system for \snort{} that can
 continue to live on beyond this project.
 
 \section{Previous Work}
-Research has shown that a good rule management system for Snort will improve the
+Research has shown that a good rule management system for \snort{} will improve the
 workflow and efficiency of the IDS significantly and a prototype for such a system was built
 in 2012 called Bring Home The Bacon (BHTB) \cite{BHTB}. This prototype has been
 in use at Avdeling BKI since 2012, but is suffering from lacks in functionality
@@ -48,7 +48,8 @@ efficient, as you go from having to do complex operations in a Command Line
 Interface (CLI) to just push buttons to make the system do automagically \cite{BHTB}.
 
 There was another similar project conducted at Gjøvik University College (GUC)
-in 2012 called Snortmanager \cite{SnortManager} that also deals with managing SNORT® rules.
+in 2012 called \snortmanager{} \cite{SnortManager} that also deals with
+managing \snort{} rules.
 However, that project is not properly released as open source software, the
 project files are available but there is no documentation or instructions
 publically available that describes usage and installation. The project has
@@ -58,16 +59,16 @@ company in mind and is heavily designed around the user interface.
 Enabling, disabling and
 configuring rules is also cumbersome in this system as this is based on plaintext arguments in
 ``policies'' that users must construct themselves. The rule distribution is also done manually
-from the files generated. This makes Snortmanager not very usable for Avdeling BKI and
+from the files generated. This makes \snortmanager{} not very usable for Avdeling BKI and
 their routines.
 
 \section{Target Audence}
-The software this project has produced is targeted at users of Snort as an IDS.
+The software this project has produced is targeted at users of \snort{} as an IDS.
 More specifically, this target audience usually consists of security experts
-with a high degree of knowledge of Snort and computers in general.
+with a high degree of knowledge of \snort{} and computers in general.
 
 This report is targeted at those that may be interested in discovering just how
-complex the rule structure of Snort really is, and academics that are interested
+complex the rule structure of \snort{} really is, and academics that are interested
 in reading about software complexity versus efficiency.
 
 \section{Project Objectives}
@@ -90,8 +91,8 @@ rules in a production environment.
 \item Has the capability to activate, deactivate, threshold and suppress rules on a per sensor
 basis, in a way that is user friendly.
 \item Supports multi-user interaction.
-\item Can efficiently and safely work with different installations of SNORT® and various
-other third party tools, such as SNORBY.
+\item Can efficiently and safely work with different installations of \snort{} and various
+other third party tools, such as SNORBY\footnote{http://snorby.org}.
 \item Is easy to install.
 \item Has an internal logging system for all activity.
 \item Is well documented and can be easily adopted by anyone as open source software.
@@ -100,9 +101,10 @@ In addition, the project will attempt to add the following functionality;
 \begin{itemize}
 \item A separate graphical user interface.
 \item Said user interface must be user friendly and intuitive, and require only
-limited knowledge of SNORT® rules from the user.
-\item The system can also distribute rules to Suricata, another SNORT®-like IDS,
-which can operate with the exact same rules as SNORT®.
+limited knowledge of \snort{} rules from the user.
+\item The system can also distribute rules to
+Suricata\footnote{http://suricata-ids.org}, another \snort{}-like IDS, which
+can operate with the exact same rules as \snort{}.
 \item Implement security features that ensure confidentiality of rules.
 \item The project will investigate and potentially implement multi-threading technology to
 exploit modern hardware capacities.
@@ -114,24 +116,25 @@ they are distributed to production sensors.
 Once the system has been developed, it will be released as an Open Source Software to the
 public in a well-documented format.
 \subsection{Effect Objectives}
-Forming baselines from the current prototype BHTB and from Snortmanager, the project has
-a goal to further increase the efficiency of rule management by investigating and
+Forming baselines from the current prototype \bhtb{} and from \snortmanager{},
+the project has a goal to further increase the efficiency of rule management by investigating and
 implementing programming techniques such as multi-threading and a change-based system to
-reduce latency and delays in the system by as much as 50% compared to the other projects.
+reduce latency and delays in the system by as much as 50%% compared to the other
+% projects.
 The project will therefore be measuring for this effect.
 
 Furthermore, the project will research and implement safeguards against unintentional failures
-in Snort as a result of user error and malformed or misconfigured rules, thus
-reducing the potential downtime of the IDS sensors, as a Snort sensor will
+in \snort{} as a result of user error and malformed or misconfigured rules, thus
+reducing the potential downtime of the IDS sensors, as a \snort{} sensor will
 simply not restart if a single rule is malformed or misconfigured. Efficient ways of solving this problem will have to be
 researched.
 
 \section{Project Description}
 In broad strokes, this project has been about designing a system that is a
-modular API-based engine for handeling rule management for the Snort IDS. The
-project is the spiritual successor to BHTB. Essentially taking good ideas from
-BHTB, add a few of our own, and creating a more adoptable open source rule
-management system for Snort.
+modular API-based engine for handeling rule management for the \snort{} IDS. The
+project is the spiritual successor to \bhtb{}. Essentially taking good ideas
+from \bhtb{}, add a few of our own, and creating a more adoptable open source rule
+management system for \snort{}.
 
 We utilized the latest stable version of Python as the main programming language
 for the project, which is version 2.7. C++ was also considered, but due to the

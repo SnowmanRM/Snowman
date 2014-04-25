@@ -1,26 +1,26 @@
-\section{Concepts of SNORT\textregistered}
+\section{Concepts of \snort}
+
 This section will give a brief introduction to the basic concepts of
-Snort\textregistered{}, and discuss these in relation to features made in this
-project.
+\snort.
 
 \subsection{Rules}
 %TODO: Explain planning of rule modifiers and hierarchy model in Design chapter.
 
 A rule is basically a set of options that define ways of detecting, classifying
 and reporting a potential attack or threat on the network\footnote{A rule
-actually consists of a header and options, rtfm.\cite{SnortManual}}.
+actually consists of a header and options \cite{SnortManual}}.
 There are several types of options, but only the general rule options are relevant for this
-project. The general rule options provide information about the rule\cite{SnortManual} (i.e.
-revision number, alert message). Other types of options, such as payload
-options which are actively used in detection, are not relevant for the management of
-rules and are thus not considered in this project.
+project. The general rule options provide information about the rule
+\cite{SnortManual} (i.e. revision number, alert message). Other types of
+options, such as payload options which are actively used in detection, are not
+relevant for the management of rules and are thus not considered in this project.
 
 A rule can either be enabled or disabled in the detection system, meaning that
 the rule will only have an effect on detection when it is enabled. Since this
 project is dealing with multiple sensors connected to one central database, this
 functionality has been expanded so that users can keep a rule enabled on one
 sensor and disabled on another. In addition, the user can also set an
-enabled/disabled flag on rulesets.
+enabled/disabled flag on \textit{rule sets}.
 
 % This is our old solution:
 % A rule \em modifier \em is created for each rule in a ruleset when the ruleset
@@ -49,41 +49,43 @@ enabled/disabled flag on rulesets.
 %   \label{tab:ruleEnabled}
 % \end{table}
 \subsection{Rule sets}
+
 The term rule set, sometimes ruleset, is not formally defined in the
-SNORT\textregistered{} Users Manual, however it is used a few times to refer to
-the complete collection of official SNORT\textregistered{} rules\footnote{Also
+\snortManual, however it is used a few times to refer to
+the complete collection of official \snort{} rules\footnote{Also
 referred to as the Sourcefire VRT Certified Rules,
 see http://www.snort.org/snort-rules/} and to the complete set of rules applied
-on a SNORT\textregistered{} system. In practice, rules within a rule set are
+on a \snort{} system. In practice, rules within a rule set are
 categorized by intrusion type (e.g. malware, trojan and worm). These groups of
 rules are often named by their intrusion type, and are also referred to as rule
-sets. The Snowman software and this report use only the latter definition of
-rule sets.
+sets. \snowman{} and this report use only the latter definition of rule sets.
 
 \subsection{Generators}
-\textit{Generator} is a term used for any subsystem of SNORT\textregistered{}
+
+\textit{Generator} is a term used for any subsystem of \snort 
 which generates alerts from rules \cite{SnortManual}. Each generator is
-identified by a unique generator ID. The rules subsystem, generator id 1, is
-the only relevant generator for this project.
+identified by a unique generator ID. The rules subsystem, which has generator id
+1, is the only relevant generator for this project.
 
 \subsection{References}
-SNORT\textregistered{} contains a plugin which allows rules to contain
+\snort{} contains a plugin which allows rules to contain
 references to external attack identification systems which provide
-additional information about the alerts \cite{SnortManual}.
+additional information about the alerts \cite{SnortManual}. A reference is
+basically a URL string pointing to a webpage containing this information.
 
 \subsection{Event and detection filters}
 Filtering can be applied to rules in order to control the amount
 and frequency of alerts. Two types of filters can be applied to a rule: event
-filter and detection filters. 
+filters and detection filters. A detection filter can only apear inline, whereas
+an event filter can only appear as a standalone option\footnote{An event filter
+can currently be written inline (called a rule threshold), but according to the
+\snortManual{} this feature is deprecated and will not be supported in future
+releases.}.
 
-
-
-Inline thresholds are currently supported, but this functionality is deprecated
-
- Threshold deprecated. Detection filters.
-
-
-
+All filters operate with a \textit{count} and \textit{seconds} variable,
+representing the number of events in a time interval and the duration of the time interval,
+respectively. Event filters are further divided into three types (table
+\ref{tab:filterTypes}).
 
 \begin{figure}
 \centering
@@ -112,5 +114,5 @@ Inline thresholds are currently supported, but this functionality is deprecated
 	seconds \em values in the filter.}}\\
   \end{tabular}
   \caption{Effects of different filter types.}
-  \label{tab:ruleEnabled}
+  \label{tab:filterTypes}
 \end{table}

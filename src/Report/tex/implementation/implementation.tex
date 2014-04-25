@@ -1,19 +1,20 @@
 \chapter{IMPLEMENTATION}
-%Anvendelsen av ulike verktøy og utviklingsmiljøer beskrives. Er det gjort
-% bevisste valg av verktøy, begrunnes disse. Videre beskrives valgte prinsipper og standarder i kodingen. Eksempler
-%fra kildekoden trekkes frem for å vise hvordan dette er etterlevd i praksis.
 
-This chapter will focus on the technical implementation of the software. It
-introduces the key concepts of SNORT\textregistered{} and walks through the
-implementation details of Snowman. Each module is described in its
-own section.
+This chapter will focus on the technical implementation of \snowman. The first
+sections cover programming languages, development tools and frameworks used
+in this project. To give a better understanding of the implementation, a short
+introduction to key concepts of \snort{} has also been included. 
  
+\input{./tex/implementation/programming_languages.tex}
+\input{./tex/implementation/development_environments.tex}
 \input{./tex/implementation/frameworks.tex}
+%\input{./tex/implementation/database.tex}
+%\input{./tex/implementation/architecture.tex}
 \input{./tex/implementation/snort_concepts.tex}
 \input{./tex/implementation/core.tex}
 \input{./tex/implementation/update.tex}
 \input{./tex/implementation/tuning.tex}
 \input{./tex/implementation/gui.tex}
-
-%Logging
-%Sourcecode, style, documentation, exceptions
+\input{./tex/implementation/logging.tex}
+\input{./tex/implementation/configuration_file.tex}
+\input{./tex/implementation/documentation.tex}

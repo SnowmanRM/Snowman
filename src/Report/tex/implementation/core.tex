@@ -1,14 +1,13 @@
 \section{Core module}
 This section will focus on the objects in the core module. This module contains
 the most vital objects in Snowman, including rules, rule revisions and sensors.
-
-Simple objects such as generators, rule references and classtypes, which are
-connected to rule objects, are not described in this section. For an overview of
-all objects and functions in this module, refer to class diagram (ref) or
-appendix (ref).
+Simple objects such as \textit{generators}, \textit{rule references} and
+\textit{classtypes}, which are connected to rule objects, are not described in
+this section. For an overview of all objects and functions in this module,
+refer to class diagram (ref) or appendix (ref).
 
 \subsection{Rules and rule revisions}
-Rules in Snowman are split into two parts; the rule and the rule revision. As
+Rules in \snowman{} are split into two parts; the rule and the rule revision. As
 threats change, or errors in the rules are discovered, a rule may become
 obsolete and a new revision of the rule is released. The rulestring, message and
 detection filter might change from one revision to the other, and are stored in
@@ -16,12 +15,12 @@ the rule revision object along with the revision number. A revision is always
 connected to a rule object which contains data that is constant for all its
 revisions, such as signature ID and rule set. The reason behind keeping rules
 and revisions in two separate objects is to avoid writing the same constant rule
-data for all revisions. Users of Snowman have the possibility to control how
+data for all revisions. Users of \snowman{} have the possibility to control how
 many revisions to store per rule, and whether incoming revisions should be
 active or inactive by default. This feature allows users to control
 automatically downloaded rules before they are put into the detection
 system. Users can also manually activate or deactivate rule revisions, and
-Snowman will distribute only the newest active revision of a rule.
+\snowman{} will distribute only the newest active revision of a rule.
 
 \subsection{Rule sets}
 As previously stated, the categorization of rules in rule sets is a de facto way
@@ -31,7 +30,7 @@ without any VRT License restrictions'' - http://www.snort.org/snort-rules/} have
 a ``ruleset'' option within the ``metadata'' option in the rulestring which
 specifies the rule set. In other releases, rules are organized into
 files where the file name denote their rule set. These two ways of specifying
-the rule set is supported by Snowman.
+the rule set are both supported by \snowman.
 
 \subsection{Sensors}
 
