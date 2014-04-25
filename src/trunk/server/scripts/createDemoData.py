@@ -15,6 +15,7 @@ from django.contrib.auth.models import User, Group
 
 from core.models import *
 from update.models import Source
+from web.models import UserProfile
 
 logger = logging.getLogger(__name__)
 logger.info("Started to create initial data.")
@@ -38,6 +39,9 @@ if created:
 	user.groups.add(groupUsers)
 	user.groups.add(groupSensors)
 	user.save()
+	profile = UserProfile.objects.create(user=user)
+	
+	
 
 # Initial-data, which should always be there.
 a, created = Generator.objects.get_or_create(GID=1, alertID=1, message="Generic SNORT rule")
