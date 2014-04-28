@@ -1,14 +1,13 @@
 \chapter{DESIGN}
 
-We decided to develop snowman as a distributed set-up. A central server should
-be responsible for the user-interface and the sentral core-functions like
-assigning rules to the sensors, get updates from the providers and simmilar.
+This chapter will present the design specification of \snowman{}. \snowman{} is
+developed as a distributed system (why?), with a central server which is
+responsible for the user-interface and the central core functions such as
+distributing rules to the sensors and downaload updates from external sources.
+A \snowman{} client, responsible for the communication with the central server,
+is installed on each sensor. The principal tasks of the client is to generate
+\snort{} rule files and respond to the server's status requests.
 
-Each sensor should in turn have installed a snowman-client, which is 
-responsible for the communication with the central server, the generation of
-the SNORT rule-files, and responding to the servers request for status.
-
-\input{./tex/design/server_design.tex}
+\input{./tex/design/server.tex}
 
 \input{./tex/design/client_design.tex}
-
