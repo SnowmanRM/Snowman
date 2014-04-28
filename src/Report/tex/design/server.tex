@@ -1,11 +1,12 @@
 \section{Server}
 
-The central server would be the main piece of \snowman{}. It will consist of:
+The server is the central component of \snowman{} and generally consists of:
+
 \begin{itemize}
-  \item Central rule-storage
-  \item Web-interface for user-interaction
+  \item Central rule storage
+  \item Web-interface for user interaction
   \item Update-module to get updates from rule-sources
-  \item RPC-Interface to communicate with the clients
+  \item RPC-interface to communicate with the clients
 \end{itemize}
 
 The central storage of rules would be a normal relation database. As we have
@@ -59,7 +60,7 @@ The core database-architecture used for storing the rules is as following:
 \begin{figure}[h]
 	\includegraphics[width=127mm]{./img/Server-DB-Core.png}
 	\caption{Core server-database}
-	\label{server_database_core}
+	\label{fig:server_database_core}
 \end{figure}
 
 The most central part of our system is the representation of a Rule. A single
@@ -79,10 +80,10 @@ tuning-parametres on the rules. As sensors might have different
 tuning-parametres, we cannot add the tuning directly to the rules. We rather add
 the tuning to its own module:
 
-\begin{figure}[H]
+\begin{figure}[h]
 	\includegraphics[width=127mm]{./img/Server-DB-Tuning.png}
 	\caption{Tuning server-database}
-	\label{server_database_tuning}
+	\label{fig:server_database_tuning}
 \end{figure}
 
 Both filters, and the suppresses is connected to a Rule and a Sensor. This way
@@ -96,10 +97,10 @@ When rules are inserted to the database, we would like to have some traceability
 to be able to determine from where a rule have entered our system. To be able to
 do this, we have the update-module:
 
-\begin{figure}[H]
+\begin{figure}[h]
 	\includegraphics[width=127mm]{./img/Server-DB-Update.png}
 	\caption{Update server-database}
-	\label{server_database_update}
+	\label{fig:server_database_update}
 \end{figure}
 
 The structure of the database to update would let us store the update-sources,
