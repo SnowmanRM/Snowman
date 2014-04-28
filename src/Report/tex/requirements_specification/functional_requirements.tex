@@ -11,36 +11,36 @@ chart that reveals the major system parts.
 \begin{figure}[ht!]
 \includegraphics[width=130mm]{./img/program_workflow.png}
 \caption{Program Workflow}
-\label{program_workflow}
+\label{fig:program_workflow}
 \end{figure}
 
-To explain the workflow chart, the blue boxes are the major system
-functionalities, the green boxes are the major goals of the system and the
+To explain the workflow chart in figure \ref{fig:program_workflow}, the blue
+boxes are the major system functionalities, the green boxes are the major goals of the system and the
 arrows show the direction of flow the system should have.
 
 As you can see, if you trace the arrows, all of the program flow ends up with
-rules being syncronized to the sensors. This makes sense, because that is the
-whole purpose of the system to begin with.
+rules being syncronized to the sensors. This, of course, makes sense
+since that is the whole purpose of the system to begin with.
 
 But the road to Rome consists of a lot more functionality that needs to be in
-place and that interacts with the rules before they are ready to be handed over
-to Snort.
+place, and that interacts with the rules, before they are ready to be handed
+over to Snort.
 
 It's important to note that very early on, we decided that writing rules,
 automatically check them for errors and commenting them were nice-to-have (but
 still important) features that we could implement if we had time to do so. Hence
-they are greyed out in the drawings, and as you will notice further on in the report, were never
-developed due to time contraints.
+they are greyed out in the drawings, and as you will notice further on in the
+report, wes never developed due to time contraints.
 
-From this workflow we could outline a rough modular design based on the
-naturally separate functions of updating rules, tuning them, distributing them
-and show them. We also added a database module, since most of our program was
+From this workflow we could outline a rough modular design (figure
+\ref{fig:program_modules}) based on the naturally separate functions of updating
+rules, tuning them, distributing them and show them. We also added a database module, since most of our program was
 going to be centered around it.
 
 \begin{figure}[ht!]
 \includegraphics[width=130mm]{./img/program_modules.png}
 \caption{Program Modules}
-\label{program_modules}
+\label{fig:program_modules}
 \end{figure}
 
 \subsubsection{Rule Downloading Module}
@@ -78,11 +78,26 @@ sensor.
 
 \subsection{Use Case Diagram}
 
-***Putt inn nytt use case diagram her!***
+\begin{figure}[ht!]
+\includegraphics[width=130mm]{./img/use-case-diagram.png} 
+\caption{Use Case Diagram}
+\label{fig:use_case_diagram}
+\end{figure}
 
 \input{./tex/requirements_specification/usecases.tex}
 
 \subsection{Domain Model}
+After outlining all the things above, we put together a concept for the objects
+we would need in the system. Even though a Snort rule is quite simple in and of
+itself, there are a lot of meta information surrounding to them, like rule
+revisions and rule classes.
+Thus our system needs at least 16 different classes in order to fullfil the
+basics of the required functionality.
 
-***Vi trenger en domene modell!!***
+
+\begin{figure}[ht!]
+\includegraphics[width=130mm]{./img/conceptual-class-diagram.png}
+\caption{Conceptual Class Diagram}
+\label{fig:conceptual_class_diagram}
+\end{figure}
 

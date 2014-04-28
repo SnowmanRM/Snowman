@@ -2,14 +2,16 @@
 % our `technical dictionary`. Ref is used as a request for a  regular citation.
 \section{Graphical User Interface}
 
-The Graphical User Interface (GUI) is a template- and AJAX-based
-(desc/footnote?) Web application which uses Django's (desc) template system to
-implement the View part of the MVC-principle(ref). Each webpage is a template populated through
-Python-code before it is delivered to the Web server and ultimately the requesting Web browser.
+The Graphical User Interface (GUI) is a template- and AJAX-based\footnote{AJAX
+is web development technique that allows you to send asynchronous requests to a
+web server.} web application which uses \django{}'s template
+system to implement the View part of the MVC-principle\ref{chap:}. Each webpage is a template populated through Python-code before it is delivered to the Web server and ultimately the requesting Web browser.
 
 Additional data that needs to be sent to a Web page, e.g. the user interacts
-with the GUI, is requested through JavaScript(desc) and AJAX-calls and then gets
-added to the already loaded DOM(desc) in the web browser.
+with the GUI, is requested through JavaScript\footnote{A programming language
+commonly used for client-side scripts.} and AJAX-calls and then gets added to
+the already loaded DOM\footnote{The webpage content or elements.} in the web
+browser.
 
 \subsection{Structure}
 
@@ -25,10 +27,11 @@ similar to the way BHTB organized it's front end.
 \subsection{Design}
 
 The GUI is designed with simplicity in mind, which is achieved by using a
-front-end framework called Bootstrap(ref). This framework provides easy-to-use
-and ready-made design elements for HTML and CSS(desc), which has been crucial
-for saving time and energy in the project. Consider the example job of creating
-a <table> element and spending hours setting up and tweaking the CSS for the
+front-end framework called Bootstrap\footnote{http://getbootstrap.com/}. This
+framework provides easy-to-use and ready-made design elements for HTML and
+CSS\footnote{A styling language for webpages.}, which has been crucial for
+saving time and energy in the project.
+Consider the example job of creating a <table> element and spending hours setting up and tweaking the CSS for the
 said table element, we could just add <table class=`{\bf table
 table-bordered}`> and get the table formatted nicely with colors and fonts that
 are typographically matching.

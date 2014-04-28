@@ -15,7 +15,16 @@
 How have we organized this document.
 
 \section{Terminology}
-Put explainations of difficult terms here.
+\textbf{Open Source Software} - Software where the program code is publically
+available and is licensed in such a way that the copyright holder provides the rights to
+study, alter or distribute the software to anyone for any purpose
+\cite{OpenSourceSoftware}.
+\newline
+\textbf{Daemon} - A computer program that runs as a background process, usually
+without any user interaction.
+\newline
+\textbf{Sensor} - A computer system wherein Snort and/or other security software
+is recording network traffic and produces alerts when malicious content is detected.
 
 \section{Project Background}
 The Norwegian Armed Forces Cyber Defense (CYFOR) unit for Computer Network Defense
@@ -37,30 +46,40 @@ more complete, effective and secure rule management system for \snort{} that can
 continue to live on beyond this project.
 
 \section{Previous Work}
-Research has shown that a good rule management system for \snort{} will improve the
-workflow and efficiency of the IDS significantly and a prototype for such a system was built
+Research \cite{BHTB} has shown that a good rule management system for \snort{}
+will improve the workflow and efficiency of the IDS significantly and a prototype for such a system was built
 in 2012 called Bring Home The Bacon (BHTB) \cite{BHTB}. This prototype has been
 in use at Avdeling BKI since 2012, but is suffering from lacks in functionality
 and efficiency due to being a proof-of-concept prototype. The prototype did,
 however, prove that there is a significant gain from having an intuitive
-Graphical User Interface (GUI) by making the operator workflow much more
+Graphical User Interface (GUI). The operators workflow becomes much more
 efficient, as you go from having to do complex operations in a Command Line
-Interface (CLI) to just push buttons to make the system do automagically \cite{BHTB}.
+Interface (CLI) to just pushing buttons to make the system do
+things automagically.
 
 There was another similar project conducted at Gjøvik University College (GUC)
 in 2012 called \snortmanager{} \cite{SnortManager} that also deals with
 managing \snort{} rules.
-However, that project is not properly released as open source software, the
+However, that project was not properly released as open source software. The
 project files are available but there is no documentation or instructions
 publically available that describes usage and installation. The project has
-also not been maintained since its initial release, is designed for a specific
-company in mind and is heavily designed around the user interface.
+also not been maintained since its initial release and is designed for a
+specific company in mind.
 
 Enabling, disabling and
-configuring rules is also cumbersome in this system as this is based on plaintext arguments in
-``policies'' that users must construct themselves. The rule distribution is also done manually
-from the files generated. This makes \snortmanager{} not very usable for Avdeling BKI and
-their routines.
+configuring rules is also cumbersome in this system as it is based on plaintext
+arguments in ``policies'' that users must construct themselves. The rule distribution is also done manually
+from the files generated. This makes \snortmanager{} something not very usable
+for Avdeling BKI and their routines.
+
+There are also other software available in the \snort{} community that work very
+well for that they do, but are limited in their scopes are more suited for
+smaller, single sensor implementations of \snort{}. Good examples of these
+are Pulled\_Pork\footnote{https://code.google.com/p/pulledpork/} and
+Oinkmaster\footnote{http://oinkmaster.sourceforge.net/}.
+
+The key differences between all these pieces of software and \snowman{} will be
+explained in more detail in chapter 2.
 
 \section{Target Audence}
 The software this project has produced is targeted at users of \snort{} as an IDS.
@@ -75,42 +94,44 @@ in reading about software complexity versus efficiency.
 \subsection{Result Objectives}
 We reiterate from the project plan[link to project plan] that this
 project has a goal of researching, designing and developing a system that
-as a minimum;
+as a minimum:
 \begin{itemize}
-\item Is programmatically more efficient than BHTB.
-\item Is developed as a standalone engine that responds to API calls from any arbitrary user
-interface.
+\item Is more efficient than BHTB.
+\item Is developed as an engine that responds to API calls from any arbitrary
+user interface.
 \item Is modular in design and allows future changes and additions to not affect
 existing functionality.
 \item Is scalable enough to handle both small and large sets of IDS sensors and
 rules in a production environment.
 \item Is able to download rules and rule sets from multiple customizable sources.
 \item Is able to distribute different rules to different IDS sensors.
-\item Can download and distribute automatically at set intervals.
+\item Can download and distribute rules automatically at set intervals.
 \item Is capable of exporting rules for sharing.
-\item Has the capability to activate, deactivate, threshold and suppress rules on a per sensor
-basis, in a way that is user friendly.
+\item Has the capability to activate, deactivate, filter and suppress rules on a
+per sensor basis, in a way that is user friendly.
 \item Supports multi-user interaction.
 \item Can efficiently and safely work with different installations of \snort{} and various
 other third party tools, such as SNORBY\footnote{http://snorby.org}.
 \item Is easy to install.
-\item Has an internal logging system for all activity.
+\item Has an internal logging system.
 \item Is well documented and can be easily adopted by anyone as open source software.
 \end{itemize}
-In addition, the project will attempt to add the following functionality;
+In addition, the project will attempt to add the following functionality if
+time permitting:
 \begin{itemize}
-\item A separate graphical user interface.
+\item A graphical user interface.
 \item Said user interface must be user friendly and intuitive, and require only
 limited knowledge of \snort{} rules from the user.
 \item The system can also distribute rules to
 Suricata\footnote{http://suricata-ids.org}, another \snort{}-like IDS, which
 can operate with the exact same rules as \snort{}.
 \item Implement security features that ensure confidentiality of rules.
-\item The project will investigate and potentially implement multi-threading technology to
-exploit modern hardware capacities.
+\item The project will investigate and potentially implement multi-threading
+technology or other optimization techniques to exploit modern hardware
+capacities.
 \item The system is capable of validating and checking rules for errors before
-they are distributed to production sensors.
-\item The system allows commenting of the rules.
+they are distributed to sensors.
+\item The system supports commenting of the rules.
 \item The system supports writing custom rules and editing existing rules.
 \end{itemize}
 Once the system has been developed, it will be released as an Open Source Software to the
@@ -119,22 +140,19 @@ public in a well-documented format.
 Forming baselines from the current prototype \bhtb{} and from \snortmanager{},
 the project has a goal to further increase the efficiency of rule management by investigating and
 implementing programming techniques such as multi-threading and a change-based system to
-reduce latency and delays in the system by as much as 50%% compared to the other
-% projects.
-The project will therefore be measuring for this effect.
+reduce latency and delays in the system by as much as 50\%.
 
-Furthermore, the project will research and implement safeguards against unintentional failures
-in \snort{} as a result of user error and malformed or misconfigured rules, thus
-reducing the potential downtime of the IDS sensors, as a \snort{} sensor will
-simply not restart if a single rule is malformed or misconfigured. Efficient ways of solving this problem will have to be
-researched.
+As a very minimum the software efficiency must be linear or better, meaning if 1
+action takes 1 second, 10 actions must take 10 or less seconds.
+
+The project will therefore be measuring for these effects.
 
 \section{Project Description}
-In broad strokes, this project has been about designing a system that is a
-modular API-based engine for handeling rule management for the \snort{} IDS. The
+In broad strokes, this project has been about designing a system that provides a
+simple and efficient way of handeling rule management for the \snort{} IDS. The
 project is the spiritual successor to \bhtb{}. Essentially taking good ideas
-from \bhtb{}, add a few of our own, and creating a more adoptable open source rule
-management system for \snort{}.
+from \bhtb{}, adding a few of our own, and creating a more adoptable open source
+rule management system for \snort{}.
 
 We utilized the latest stable version of Python as the main programming language
 for the project, which is version 2.7. C++ was also considered, but due to the
@@ -142,16 +160,18 @@ limited time at our disposal, we felt we could create more functionality with Py
 memory management and the general “programmer friendly” ways of doing things.
 
 The system required a database to function efficiently and the project
-primarily utilizes MySQL, as this is the de facto standard for the Linux
-platform.
+primarily utilizes MySQL, as it is the de facto standard for the Linux
+platform. Furthermore, the project also consisted of creating a GUI that is user
+friendly and responsive. 
 
-%TODO: Dette skal under implementation? -Eirik
-Furthermore, the project also consisted of creating a GUI that is user friendly
-and responsive. We based this heavily on the GUI developed for BHTB in terms of
-what we display, rules in various lists and with buttons and checkboxes to
-manipulate them. The main technologies we utilized for the GUI consisted of
-standard web-oriented languages such as HTML, CSS, and Javascript, but also the
-help of open source web technologies such as jQuery [link] and Bootstrap [link]
+The software that was created in this project, though still lacking some
+features and contains some minor bugs, largely fulfils the project goals
+outlined above. We did not fulfil the goal of producing software that has
+reduced latency and delays, but we are confident that this is because we have
+sacrificed efficiency for functionality. We also feel that the functionality
+gained outweighs the efficiency lost and the efficiency curve is still very much
+within the linearity objective, as you can read about in chapter \ref{chap:}.
+
 
 \section{Academic Background}
 Talk about our pasts.
@@ -199,7 +219,36 @@ harmony. This part of the development also consisted of hands-on testing by the
 client and various performance testing.
 
 \subsection{Schedule}
-Refer to Gantt diagram in project plan etc.
+We planned this project to have a fairly comprehensive initial phase for mapping
+and designing of the system. We spent the better part of the first two weeks
+figuring out how to implement the system. After the two weeks, we went to our
+client and presented our work for their feedback and a final go-ahead before we
+began programming.
+
+We then began the implementation phase which consisted of development cycles as
+described above. This phase was devided into five parts, consisting of four
+development cycles and a final cleanup/testing cycle. All the development cycles
+lasted two weeks, aside from the last development cycle and the cleanup/testing
+cycle, which lasted one week each. 
+
+During those cycles we conducted meetings with both our mentor and our client
+every two weeks, timed so that these meetings took place on alternating weeks.
+This ensured that we got continual feedback and advice throughout the entire
+process. 
+
+After these weeks, we completely shifted focus from the software to the project
+report and spent the final 5-6 weeks working on that. Because we had done a
+thorough job during the first few weeks of the project, we had a lot of the
+contents for the report more or less created.
 
 \subsection{Project Organization}
-Talk about how we organized everything.
+We organized the project work a little differently throughout the project,
+reflecting that we had multiple phases. During the first few weeks we spent most
+of the time together in a group room, working together and discussing things.
+Once most things had been planned out and the implementation phase began, there
+was more room and need to work individually to produce code. We still gathered 
+together every so often to syncronize our progress and plan the next course.
+
+Throughout the project, most decisions have been met either by confering with
+the client or achieving consensus within the group. At no point during the
+project has there been a need to enforce the project rules. 
