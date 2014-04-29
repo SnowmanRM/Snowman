@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 logger.info("Started to create initial data.")
 
 sensor, created = Sensor.objects.get_or_create(name="All", user=None, active=True, autonomous=True)
+user, created = User.objects.get_or_create(username="srm")
+if created:
+	user.set_password("srm")
+	user.save()
 
 # Initial-data, which should always be there.
 a, created = Generator.objects.get_or_create(GID=1, alertID=1, message="Generic SNORT rule")
