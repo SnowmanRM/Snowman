@@ -55,7 +55,7 @@ if __name__ == "__main__":
 		source.save()
 		logger.info("Starting the update from %s, with PID:%d." % (source.name, os.getpid()))
 	
-	if(source.md5url and len(source.md5url) > 0):
+	if(len(source.md5url) > 0):
 		UpdateLog.objects.create(update=update, time=datetime.datetime.now(), logType=UpdateLog.PROGRESS, text="1 Trying to fetch md5sum, to compare with last processed file.")
 		try:
 			socket = urllib2.urlopen(source.md5url)
