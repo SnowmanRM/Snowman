@@ -115,11 +115,6 @@ class UpdateTasks:
 			storeHash = False
 		else:
 			storeHash = True
-			
-		# Cache objects across files to save time:
-		rulesets = {}
-		ruleclasses = {}
-		generators = {}
 		
 		if Config.get("files", "useFileNames") == "true":
 			# Filenames to look for:
