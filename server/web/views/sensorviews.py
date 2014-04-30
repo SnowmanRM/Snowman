@@ -6,13 +6,13 @@ import subprocess
 
 from django.contrib.auth.models import User, Group
 from django.http import Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from core.models import Sensor
 from util.config import Config
+from util.configgenerator import ConfigGenerator
 from util import patterns
 from web.utilities import sensorsToFormTemplate
-
 
 @login_required
 def index(request):
@@ -57,6 +57,20 @@ def getEditSensorForm(request, sensorID):
 	data['sensors'] = Sensor.objects.exclude(name="All").order_by('name').filter(parent=None)
 	data['sensors'] = sensorsToFormTemplate(data['sensors'], 0)
 	return render(request, "sensor/editSensorForm.tpl", data)
+
+@login_required
+def downloadRuleSet(request, sensorID):
+	sensor = get_object_or_404(Sensor, pk=sensorID)
+	cg = ConfigGenerator(sensor)
+	ruleArchive = cg.generateConfig()
+	
+	fsock = open(ruleArchive, 'r')
+	os.unlink(ruleArchive)
+
+	response = HttpResponse(fsock, mimetype='application/x-tgz')
+	response['Content-Disposition'] = "attachment; filename=%s" % (os.path.basename(ruleArchive))
+	
+	return response
 
 @login_required
 def createSensor(request):

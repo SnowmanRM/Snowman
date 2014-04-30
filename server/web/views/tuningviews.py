@@ -648,12 +648,12 @@ def setFilterOnRule(request):
 					
 					try:
 						if filterType == 'eventFilter':
-							comment = Comment.objects.create(user=1,comment=commentString, type="newEventFilter")
+							comment = Comment.objects.create(user=request.user,comment=commentString, type="newEventFilter")
 							arguments = {'rule':trule, 'sensor':tsensor, 'comment':comment, 'eventFilterType':ttype, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
 							filterObject = EventFilter.objects.get(rule=trule, sensor=tsensor)
 							filterObject.eventFilterType = ttype
 						elif filterType == 'detectionFilter':
-							comment = Comment.objects.create(user=1,comment=commentString, type="newDetectionFilter")
+							comment = Comment.objects.create(user=request.user,comment=commentString, type="newDetectionFilter")
 							arguments = {'rule':trule, 'sensor':tsensor, 'comment':comment, 'track':ttrack, 'count':tcount, 'seconds':tseconds}
 							filterObject = DetectionFilter.objects.get(rule=trule, sensor=tsensor)
 						else:
@@ -897,7 +897,7 @@ def setSuppressOnRule(request):
 					srule = Rule.objects.get(id=ruleId)
 					ssensor = Sensor.objects.get(id=int(sensorId))
 					try:
-						comment = Comment.objects.create(user=1,comment=commentString, type="newSuppression")
+						comment = Comment.objects.create(user=request.user,comment=commentString, type="newSuppression")
 					except:
 						logger.warning("Could not create Comment.")
 					# We check to see if a suppression already exists, in that case we just update it. If not, we create one.

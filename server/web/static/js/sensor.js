@@ -469,6 +469,14 @@ function initializeRegenerateSecretButtons() {
 	});
 }
 
+function initializeDownloadRulesetButton() {
+	$('button#generateSensorRules').unbind('click');
+	$('button#generateSensorRules').click(function() {
+		url = "/web/sensors/downloadRuleSet/" + $(this).attr('sid') + "/"
+		window.open(url, '_blank');
+	});
+}
+
 function initializeRequestUpdateButtons() {
 	$('button#requestUpdate').unbind('click');
 	$('button#requestUpdate').click(function() {
@@ -501,6 +509,7 @@ $(document).ready(function(){
 	initializeClicks();
 	initializeNewSensorForm();
 	initializeRegenerateSecretButtons();
+	initializeDownloadRulesetButton();
 	initializeRequestUpdateButtons();
 	initializeEditSensorForm();
 	initializeDeleteSensorForm()
