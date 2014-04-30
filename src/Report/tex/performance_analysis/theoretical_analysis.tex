@@ -1,0 +1,43 @@
+\section{Theoretical analysis}
+The purpose of the theoretical performance analysis is to examine the most
+important features of \snowman{} and similar software, to form opinions on the
+expected performance of each software. The teoretical analysis is used to into
+concrete benchmarking tests presented in section \ref{sec:practical_analysis}.
+
+\bhtb{}, \snortmanager{} and two versions of \snowman{} are analysed.
+
+\subsection{Effectiveness of update processing}
+
+As described in chapter (impl?) \snowman{} considers during the rulestring
+parsing. \bhtb{} writes rules to one table, whereas a rule object in \snowman{}
+has multiple relations to other objects and thus several database tables are written
+to during an update. It is therefore expected that \bhtb{} and \snortmanager{}
+exhibit a more effective update processing.
+
+\subsubsection{File-to-rule ratio}
+A sample update package\footnote{link to update package used in testing}
+contained on average [number of rules per file] rules per file. \snowman{} is
+designed to 
+
+the only extra overhead for \snowman{} is to open each file. It is therefore
+expected that the difference in processing time for \snowman{} will not exceed 1 percent.
+
+\subsubsection{Incremental updates}
+One of the expected strengths of \snowman{} lies in processing incremental
+updates, i.e. updates containing only a small number of changes. It is
+significant to gauge performance for incremenal updates, as most real-life
+updates usually contain between 10 and 100 changes\footnote{Ten updates from 20.03.2014 to
+17.04.2014 contained on average 36.8 new and 53.9 updated rules. \textit{Source:
+http://www.snort.org/vrt/advisories}}.
+
+Storing the checksum for every individual file\footnote{Checksum is stored only
+files that are parsed.} is unique for \snowman{}. It allows \snowman{} to
+completely ignore files without changes, which means that only the files with
+rule changes are parsed. This is particularly useful as the current official
+\snort{} rules contain [number of files] files\footnote{link to rules.}
+
+(how does bhtb and snortmanager cache?)
+caching of files
+
+\subsection{Effectiveness of rule distribution}
+\subsection{Linearity in performance}

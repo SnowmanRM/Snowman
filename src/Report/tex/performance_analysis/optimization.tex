@@ -1,0 +1,17 @@
+\section{Optimization}
+Include here the changes made between \snowman{} v0.4 and 0.5.
+
+\begin{python}[caption=Example code]
+from core.models import RuleClass
+
+def updateClassification(type, description, priority):
+  try:
+    # Update existing classification
+    ruleclass = RuleClass.objects.get(classtype=type)
+    ruleclass.description = description
+    ruleclass.priority = priority
+    ruleclass.save()
+  except RuleClass.DoesNotExist:
+    # Add new classification
+    ruleclass = RuleClass.objects.create(classtype=type, ...)
+\end{python}
