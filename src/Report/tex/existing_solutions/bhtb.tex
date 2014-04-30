@@ -1,2 +1,37 @@
 \section{Bring Home The Bacon}
-***Beskriv hva den gjør***
+Bring Home The Bacon was a byproduct prototype of the Master thesis written by
+Henriksen in 2012\cite{BHTB}. In the thesis, Henriksen sought out to prove that having
+some central graphical-oriented system to administer multiple Snort sensors and
+their rules had a signficant improvement in workflow than the traditional command line
+environment. Henriksens tests showed that such a system could double the users
+work efficiency. If not more, as the command line environment would scale very
+badly once the number of sensors increases. Henriksen also outlines a rule
+management process, which we have taken into account in our initial work to map
+our programs workflow\ref{kapittel om workflow}.
+
+Despite being a prototype, BHTB does offer the essential functionality required
+for managing the rulesets on multiple sensors. It can display a list of rules
+where you can turn those on or off on different sensors. It can also display a
+list of rulesets and you can turn those on or off, but that only propagates down
+to the rules, turning those on or off. That has been sort of a drawback, as you
+loose whatever preferred setup you had if you simply want to turn one ruleset on
+or off for a short while, and thus have to manually remember how it was before.
+
+BHTB also lets you add thresholds and suppressions, but the system does not do
+any validation of the input, thus leaving the Snort sensor vulnerable to
+crashes\footnote{Snort will simply not restart if something in the config files
+is malformed.} if the user inputs something wrong.
+
+Technically, BHTB is programmed with Python and uses the framework
+Tornado\footnote{http://www.tornadoweb.org/} as its webserver, which works
+similar to Django with it's URL API system\ref{kapittel om django urls}. It also
+uses SQLite as it's database, which has limited abilities when it comes to
+relations and more complex data structures. 
+
+BHTB really begins to show it's
+limitations once the system begins to be populated by many rules and many
+sensors, thus having a scalability problem. Avdeling BKI has used BHTB in a
+production environment since 2012 and experiences the software as slow and
+cumbersome. 
+
+
