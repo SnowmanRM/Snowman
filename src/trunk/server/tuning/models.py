@@ -42,6 +42,12 @@ class Suppress(models.Model):
 		for address in self.addresses.all():
 			addresslist.append(address.ipAddress)
 		return addresslist
+	
+	def getConfigLine(self):
+		line = "suppress gen_id = 1, sig_id = %d, track = %s, ip =" % (self.rule.SID, Suppress.TRACK[self.track])
+		for address in self.getAddresses():
+			line += " %s" % address
+		return line
 
 class SuppressAddress(models.Model):
 	"""SupressAddress is simply a container for an address that is
@@ -76,11 +82,19 @@ class DetectionFilter(models.Model):
 		unique_together = ("rule", "sensor")
 
 	def __repr__(self):
-		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s', track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
+		return "<DetectionFilter Rule:%d, Sensor:%s, comment:'%s', track:%s, count:%d, seconds:%d>" % (self.rule.SID, self.sensor.name, 
 					self.comment, DetectionFilter.TRACK[self.track], self.count, self.seconds)
 
 	def __str__(self):
-		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
+		return "<DetectionFilter Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment)
+
+	def getRaw(self):
+		if(self.track == DetectionFilter.SOURCE):
+			track = "by_src"
+		else:
+			track = "by_dst"
+		return "detection-filter: track %s, count %d, seconds %d; " % (track, self.count, self.seconds)
+
 		
 class EventFilter(models.Model):
 	"""Class modeling an event_filter. Only one per rule per sensor allowed."""
@@ -114,4 +128,12 @@ class EventFilter(models.Model):
 
 	def __str__(self):
 		return "<EventFilter Rule:%d, Sensor:%s, comment:'%s'>" % (self.rule.SID, self.sensor.name, self.comment.comment)
+	
+	def getConfigLine(self):
+		if(self.track == EventFilter.SOURCE):
+			track = "by_src"
+		else:
+			track = "by_dst"
+
+		return "event_filter gen_id 1, sig_id %d, type %s, track %s, count %d, seconds %d" % (self.rule.SID, EventFilter.TYPE[self.eventFilterType], track, self.count, self.seconds)
 

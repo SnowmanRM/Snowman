@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import re
 import socket
 import xmlrpclib
@@ -9,6 +10,7 @@ from django.contrib.auth.models import User
 from django.utils.timezone import utc
 
 from util.config import Config
+from util.configfile import ConfigFile
 from util.constants import dbObjects
 from util.tools import Replace, Timeout
 from util.patterns import ConfigPatterns
@@ -198,16 +200,6 @@ class Rule(models.Model):
 		"""
 		return result
 	
-	def getEventFilter(self):
-		s = self
-		while s != None:
-			try:
-				eventFilter = s.eventFilters.get(rule=rule)
-			except EventFilter.DoesNotExist:
-				s = s.parent
-		return False
-		
-	
 class RuleClass(models.Model):
 	"""Class modeling a rule classification (ruleclass). Contains the name, 
 	description and priority for the ruleclass. All Rule objects should have
@@ -367,7 +359,7 @@ class RuleSet(models.Model):
 			activeRulesCount += child.getActiveRuleCount()
 				
 		return activeRulesCount
-
+	
 class Sensor(models.Model):
 	"""A Sensor is information on one SnortSensor installation. It 
 	contains name (unique), address and the secret used for authentication."""
