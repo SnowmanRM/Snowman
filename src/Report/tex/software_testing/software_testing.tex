@@ -13,12 +13,34 @@ way.
 We have also not had any specific regimes when it comes to bugfixing, we have
 mostly just handled them when they have been discovered them. 
 
-You could describe our software testing strategy as ad-hoc based. Our main focus
-has been on the performance testing.
+You could describe our software testing strategy as ad-hoc based, as is quite
+common in agile projects. Our main focus has been on the performance testing.
 
-\section{Description of problems}
-***put inn noen av problemene vi har hatt her***
+\section{Description of Problems}
 
-\subsection{List pagination}
+\subsection{List Pagination}
 One problem that has plagued the software throughout the development has been
-the pagination functionality in the GUI. 
+the pagination functionality in the GUI. Due to it using AJAX to fetch other
+pages in the background, if you changed pages so fast that the system couldn't
+catch up, it would just end up never loading anything due to AJAX's asyncronous
+nature\footnote{The code does not wait for AJAX to finish before moving on.}.
+This has been remedied by using some logic to check for outstanding AJAX calls but a better solution would
+be to implement some other mechanism or framework for pagination. The remedy has
+also put some extra latency on the rule list as waiting for the AJAX calls might
+take some time.
+
+\subsection{The Ever Changing Number of Changes}
+One smaller bug that popped up was on the Changes page where the number of new
+rulesets, rules and rule revisions there has been in the latest updates were
+displayed. Initially, only the rule revision was tied to the Update object and
+we then traversed from the revision object to the rule object and count how many
+revisions that rule had, in order to determine if the rule was new\footnote{A
+shiny new rule will always only have one revision.}. But using this method led
+to a undesired outcome when a ``new'' rule gets a new revision in later sequent
+update. As the count for revisions is done real time, this rule will suddenly
+not be listed as new anymore in the old update. 
+
+This problem was solved by tying all relevant new objects to the Update object
+and then just list those relations. The downside of this is of course a lot more
+relations to store in the database, but the Changes view was one of the more
+important features so a camel had to be swallowed.

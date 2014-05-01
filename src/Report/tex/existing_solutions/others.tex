@@ -14,7 +14,30 @@ management than something like BHTB or Snowman. But once the environment grows
 into a more professional one, with tens or even hundreds of sensors, they would
 start to slow the user down. 
 
-\section{Other Papers on Software Performance}
+\section{Research on Software Performance}
 Since this project also investigates software performance, it is relevant to
-take a look at what others in the field write on the subject.
-***Finn noen kilder om dette ***
+take a look at what others in the field write on the subject. We have noticed
+that most development reports do not really mention the subject, probably due to
+most student projects being more or less agile\cite{AGILE} development projects.
+This is something mentioned in \cite{FutureEngineering}, that agile programming
+is becoming mainstream and by it's nature is a concern for the future of software
+performance engineering, as the primary focus of an agile project is to pump out
+functionality.
+
+Early on in the project we noted that Snowman is very I/O bound, as it does a
+lot of database operations. So much so that there is a very noticable difference
+in performance between traditional rotational harddrives and SSD\ref{tester}.
+Myers speaks of this in his Master thesis\cite{Myers}. His tests show that SSD
+has a significant advantage over HDD when it comes to random read performace but
+not when it comes to write performance. This as to be expected as his tests were
+conducted in 2008 and SSD technology was fairly new back then, suffering from
+their different way of writing data\footnote{Features such as TRIM was
+introduced shortly after Myers article.}. 
+
+When we identified software performance testing as one of the goals of our
+project, we needed to identify a good testing method. Sadly, there is not a
+whole lot written on the subject, assuming most testing just follows the
+scientific method or common sense. However, the articles \cite{WOSP98} and
+\cite{WOSP04} gave us a few pointers towards developing the test cases described
+in chapter \ref{relevant kapittel}. Both articles also stress the importance of
+performance testing in the development rather than after it. 
