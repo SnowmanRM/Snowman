@@ -1,5 +1,45 @@
 \section{Frameworks}
+\subsection{Django}
 To facilitate database transactions and the creation of the Web interface, this
-project uses the \django\footnote{http://www.djangoproject.com/} framework.
+project uses the \django\cite{django} framework.
 \django{} is a Web framework which takes care of database modelling and
 transactions, and user authentication.
+\subsection{SQLAlchemy}
+Used on the client side database abstraction\ldots
+\subsection{jQuery}
+When it comes to using Javascript for client side scripting, jQuery\cite{jquery}
+is the way to go. jQuery provides a framework for common javascript operations on the DOM
+and abstracts away a lot of browser spesific code to give you a nice and clean
+interface. It also makes AJAX class a lot easier, requireing only code such as
+\begin{python}
+\$.get('/web/rules/');
+\end{python}
+instead of 
+\begin{python}
+function loadXMLDoc() {
+    var xmlhttp;
+
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+        }
+    }
+
+    xmlhttp.open("GET", "/web/rules/", true);
+    xmlhttp.send();
+}
+
+\end{python}
+\subsection{Bootstrap}
+Since noone in the group can call themselves a web designer, we decided to take
+a shortcut on that regard and utilize Bootstrap\cite{bootstrap}, which is a
+front-end framework derived from Twitter. It provides us with a lot of ready made CSS and design
+elements that makes a web page responsive and typographically readable. 

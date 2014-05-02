@@ -1,0 +1,39 @@
+\section{Security Assessment}
+During the inital phase we conducted a small security assessment in order to be
+aware of and possibly fix any security issues the software might have. We did a
+small brainstorming session and created a simple risk analysis table of the
+potential weeknesses we could find.
+
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{p{4cm}|m|p{2cm}|p{2cm}|m|p{4cm}}
+	Threat & Component & Consequence & Probability & Risk & Strategy \\
+	\hline
+	\multicolumn{1}{p{4cm}|}{Unauthorized users change data through the
+	API/Web-interface } & {API/Web} & {8} & {5} & {6,5} & {Authentication/authorization. Django support for users and authentication.} \\
+	\multicolumn{1}{p{4cm}|}{An unauthorized user gains direct access to the
+	database and is able to alter the data.} & {Central database} & {10} & {1} & {5,5} & {Assume database security is in place.} \\
+	\multicolumn{1}{p{4cm}|}{Continually sending requests to the server, filling it
+	up with requests to the point of causing a denial of service.} & {RPC Server} & {7} & {4} & {5,5} & {Authenticate requester, Rate-limiting on requests, logging.} \\
+	\multicolumn{1}{p{4cm}|}{An attacker inherits escalated privileges through
+	exploiting the software if it is run as root or other high privilege user.} & {All processes} & {8} & {3} & {5,5} & {Follow least privilege principle. Python also protects against buffer overflow} \\
+	\multicolumn{1}{p{4cm}|}{The SID/Rev of a malicious rule is newer than an
+	excisting rule, with the purpose of overwriting the excisting rule.} & {Update module} & {7} & {2} & {4,5} & {Add possibility for the user to see changes before they are commited.} \\
+	\multicolumn{1}{p{4cm}|}{In a scenario where the database is not on the
+	localhost, a man-in-the-middle attack is possible.} & {Central database} & {6} & {3} & {4,5} & {Assume database security is in place, encrypt transmissions.} \\
+	\multicolumn{1}{p{4cm}|}{Continually sending requests to the sensor client to
+	update itself, filling it up with requests to the point of causing a denial of service.} & {RPC Client} & {5} & {4} & {4,5} & {Limit the allowed update frequency, logging.} \\
+	\multicolumn{1}{p{4cm}|}{Some unauthorized machine poses as a legitimate sensor
+	and gains access to rules through update requests.} & {RPC Server} & {5} & {2} & {3,5} & {Authenticate the sensors.} \\
+	\multicolumn{1}{p{4cm}|}{During an update, one or more rules contains errors
+	that causes Snort running on a sensor to crash or shut down.} & {Update module} & {8} & {4} & {6} & {Verify the rules.} \\
+	\multicolumn{1}{p{4cm}|}{A rule file is specially crafted to contain an SQL
+	injection.} & {Update module} & {10} & {2} & {6} & {Use prepared statements and never let input directly touch the database.} \\
+	\multicolumn{1}{p{4cm}|}{SQL injections, XSS og CSRF (cross site request
+	forgery)} & {API/Web} & {5} & {5} & {5} & {Django has support for protection against these attacks. Validate input.} \\
+	\hline
+  \end{tabular}
+  \caption{Security Assessment}
+  \label{tab:security_assessment}
+\end{table}
