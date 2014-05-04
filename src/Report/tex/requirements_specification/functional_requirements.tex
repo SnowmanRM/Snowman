@@ -1,9 +1,10 @@
 \section{Functional Requirements}
 
 \subsection{Program Workflow}
+\label{sec:program_workflow}
 To develop our requirements, we decided to chart the program workflow in order
 to better understand what the system is expected to do. Since this was to be a
-highly user-oriented system, we accomplished this by going over the old system,
+highly user-oriented system we accomplished this by going over the old system,
 BHTB, step by step with the client and detailing the functions and various needs
 for improvement or additional functionality. From this, we developed a workflow
 chart that reveals the major system parts. This is in addition to taking into
@@ -23,7 +24,7 @@ As you can see, if you trace the arrows, all of the program flow ends up with
 rules being syncronized to the sensors. This, of course, makes sense
 since that is the whole purpose of the system to begin with.
 
-But the road to Rome consists of a lot more functionality that needs to be in
+But the road to Rome consisted of a lot more functionality that needed to be in
 place, and that interacts with the rules, before they are ready to be handed
 over to Snort.
 
@@ -31,7 +32,7 @@ It's important to note that very early on, we decided that writing rules,
 automatically check them for errors and commenting them were nice-to-have (but
 still important) features that we could implement if we had time to do so. Hence
 they are greyed out in the drawings, and as you will notice further on in the
-report, wes never developed due to time contraints.
+report, was never developed due to time contraints.
 
 From this workflow we could outline a rough modular design (figure
 \ref{fig:program_modules}) based on the naturally separate functions of updating
@@ -88,11 +89,11 @@ sensor.
 \input{./tex/requirements_specification/usecases.tex}
 
 \subsection{Domain Model}
-After outlining all the things above, we put together a concept for the objects
-we would need in the system. Even though a Snort rule is quite simple in and of
-itself, there are a lot of meta information surrounding to them, like rule
+After outlining all the things above, we put together the concept model in
+figure \ref{fig:conceptual_class_diagram} of the objects we would need in the
+system. Even though a Snort rule is quite simple in and of itself, there are a lot of meta information surrounding them, like rule
 revisions and rule classes.
-Thus our system needs at least 16 different classes in order to fullfil the
+Thus our system needed at least 16 different classes in order to fullfil the
 basics of the required functionality.
 
 
