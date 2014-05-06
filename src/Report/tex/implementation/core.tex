@@ -1,10 +1,13 @@
 \section{Core module}
-This section will focus on the objects in the core module. This module contains
-the most vital objects in Snowman, including rules, rule revisions and sensors.
-Simple objects such as \textit{generators}, \textit{rule references} and
-\textit{classtypes}, which are connected to rule objects, are not described in
-this section. For an overview of all objects and functions in this module,
-refer to class diagram (ref) or appendix (ref).
+This section will focus on the classes and methods in the \pythoninline{core}
+module.
+This module contains the most vital classes of the Snowman server including
+\pythoninline{Rule} and \pythoninline{RuleRevision} which hold the data of each
+rule in the system. Simple classes in this module such as
+\pythoninline{Generator}, \pythoninline{RuleReference} and \pythoninline{RuleClass}, which are connected
+to the \pythoninline{Rule} class are only briefly explained in this section. For
+an overview of all objects and functions in this module, refer to class diagram
+(ref) or appendix (ref).
 
 \subsection{Rules and rule revisions}
 Rules in \snowman{} are split into two parts; the rule and the rule revision. As
@@ -23,19 +26,19 @@ system. Users can also manually activate or deactivate rule revisions, and
 \snowman{} will distribute only the newest active revision of a rule.
 
 \subsection{Rule sets}
-As previously stated, the categorization of rules in rule sets is a de facto way
-of organizing rules. Rules in the community rule set\footnote{``The Community
-Ruleset is a GPLv2 VRT certified ruleset that is distributed free of charge
-without any VRT License restrictions'' - http://www.snort.org/snort-rules/} have
-a ``ruleset'' option within the ``metadata'' option in the rulestring which
-specifies the rule set. In other releases, rules are organized into
-files where the file name denote their rule set. These two ways of specifying
-the rule set are both supported by \snowman.
+As stated in chapter \ref{chap:concepts_of_snort}, the categorization of rules
+in rule sets is a de facto way of organizing rules. Rules in the community rule
+set\footnote{``The Community Ruleset is a GPLv2 VRT certified ruleset that is
+distributed free of charge without any VRT License restrictions'' -
+http://www.snort.org/snort-rules/} have a ``ruleset'' option within the
+``metadata'' option in the rulestring which specifies the rule set. In other
+releases, rules are organized into files where the file name denote their rule
+set. These two ways of specifying the rule set are both supported by \snowman{}.
 
 \subsection{Sensors}
 
 \subsection{Comments}
-The core module contains a comment object which can store
+The \pythoninline{core} module contains a comment object which can store
 comments from users who wish to document their operations, e.g. the user can
 attach a comment when adding a filter to a rule to describe why the filter was
 added and which effects it will have on the system. Snowman also generate

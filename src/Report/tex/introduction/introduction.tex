@@ -12,39 +12,40 @@
 % Innledningen skal ikke inneholde noe om det som er gjort i oppgaven og oppnådde resultater.
 
 \section{Document Structure}
-How have we organized this document.
+TBC: How have we organized this document.
 
 \subsection{Special styles used}
 Software names are written in a different font throughout the
-report, like so: \snowman{}. Source code is written in\ldots
+report, like so: \snowman{}. Source code is listed in an enclosed box with
+syntax highlighting (listing \ref{lst:example}). Source code can also appear in
+the text with the same syntax highlighting as the listings, especially note
+classnames which will appear as so: \pythoninline{ClassName}.
+
+\begin{python}[caption=Source code example.,label=lst:example]
+def printHello():
+  # Print a message
+  print 'Hello World!'
+\end{python}
 
 \section{Terminology}
-This report contains some parts where the language can get a little technical.
-We there fore define a few terms here to better understand the meaning of
-them;\newline
-\textbf{Open Source Software} - Software where the program code is
-publically available and is licensed in such a way that the copyright holder provides the rights to study, alter or distribute the software to anyone for any purpose \cite{OpenSourceSoftware}.
-\newline
-\textbf{Daemon} - A computer program that runs as a background process, usually
-without any user interaction.
-\newline
-\textbf{Sensor} - A computer system wherein Snort and/or other security software
-is recording network traffic and produces alerts when malicious content is detected.
+Edit: Moved to glossary.
 
 \section{Project Background}
 The Norwegian Armed Forces Cyber Defense (CYFOR) unit for Computer Network Defense
 (CND), Avdeling BKI, is responsible for detecting and stopping cyber-attacks against the
 critical infrastructure and command and control systems utilized by the Norwegian military.
-One of the tools used to carry out this task is the open source Intrusion
-Detection System (IDS) \snort{} \cite{Snort}.
+One of the tools used to carry out this task is the open source IDS \snort{}
+\cite{Snort}.
 
-\snort{} is a leading open source IDS that is used to detect potentially unwanted
-or malicious network traffic based on predefined patterns described in signatures. There are both
-free and commercial signatures available for \snort{} and as \snort{} has been highly
-adopted by the security community, these signatures are continually updated and maintained.
+\snort{} is a leading open source IDS (ref?) that is used to detect potentially
+unwanted or malicious network traffic based on predefined patterns described in
+signatures. There are both free and commercial signatures available for
+\snort{} and as \snort{} has been highly adopted by the security community,
+these signatures are continually updated and maintained.
 Using \snort{} has been plagued for years by the fact that it does not have a good
-system for handling, updating or maintaining the signatures (henceforth called rules and rule sets) used
-for detection, thus making it cumbersome to utilize \snort{} for security analysts.
+system for handling, updating or maintaining the signatures (henceforth called
+rules and rule sets) used for detection, thus making it cumbersome to utilize
+\snort{} for security analysts (ref?).
 
 Avdeling BKI has therefore tasked a group of students from Gjøvik University College (GUC) to design and develop a
 more functional, effective and secure rule management system for \snort{} that
@@ -52,39 +53,35 @@ can continue to live on beyond this project.
 
 \section{Previous Work}
 Research \cite{BHTB} has shown that a good rule management system for \snort{}
-will improve the workflow and efficiency of the IDS significantly and a prototype for such a system was built
-in 2012 called Bring Home The Bacon (BHTB) \cite{BHTB}. This prototype has been
-in use at Avdeling BKI since 2012, but is suffering from lacks in functionality
-and efficiency due to being a proof-of-concept prototype. The prototype did,
-however, prove that there is a significant gain from having an intuitive
-Graphical User Interface (GUI). The operators workflow becomes much more
-efficient, as you go from having to do complex operations in a Command Line
-Interface (CLI) to just pushing buttons to make the system do
-things automagically.
+will improve the workflow and efficiency of the IDS significantly, and a
+prototype for such a system was built in 2012 called \bringhome{} \cite{BHTB}
+(henceforth referred to as \bhtb{}). This prototype has been in use at Avdeling
+BKI since 2012, but is suffering from lacks in functionality and efficiency due
+to being a proof-of-concept prototype. \bhtb{} has, however, proven that
+there is a significant gain from having an intuitive Graphical User Interface
+(GUI) for managing rules. A GUI facilitates the work of the operator, as work is
+shifted from complex operations in a CLI to automatic execution of common
+routines triggered by buttons.
 
-There was another similar project conducted at GUC
-in 2012 called \snortmanager{} \cite{SnortManager} that also deals with
-managing \snort{} rules.
-However, that project was not properly released as open source software. The
-project files are available but there is no documentation or instructions
-publically available that describes usage and installation. The project has
-also not been maintained since its initial release and is designed for a
-specific company in mind.
+% TODO: improve below paragraph (Eirik)
+There was another similar project conducted at \GUC{} in 2012 called
+\snortmanager{} \cite{SnortManager} that also deals with management of \snort{} rules. The \snortmanager{} project files are available as
+open source software\footnote{http://github.com/stianja/SnortManager}, but no
+usage instructions are available. The source code has not been maintained since
+its initial release and is designed for a specific company in mind. Enabling,
+disabling and configuring rules is also cumbersome in this system as it is
+based on plaintext arguments in ``policies'' that users must construct
+themselves \cite{SnortManager}. The rule distribution is also done manually from the
+files generated. This makes \snortmanager{} something not very usable for
+Avdeling BKI and their routines.
 
-Enabling, disabling and
-configuring rules is also cumbersome in this system as it is based on plaintext
-arguments in ``policies'' that users must construct themselves. The rule distribution is also done manually
-from the files generated. This makes \snortmanager{} something not very usable
-for Avdeling BKI and their routines.
-
-There are also other software available in the \snort{} community that work very
-well for that they do, but are limited in their scopes are more suited for
-smaller, single sensor implementations of \snort{}. Good examples of these
-are Pulled\_Pork\cite{pulledpork} and
-Oinkmaster\cite{oinkmaster}.
-
-The key differences between all these pieces of software and \snowman{} will be
-explained in more detail in chapter 2.
+Several add-ons and other \snort-related software
+exist\footnote{http://www.snort.org/snort-downloads/additional-downloads}, and
+a few of these are built to manage \snort{} rules, most notably
+\pulledpork{} \footnote{http://code.google.com/p/pulledpork} and
+\oinkmaster{} \footnote{http://oinkmaster.sourceforge.net}. The key differences
+between all software mentioned in this section and \snowman{} will be further
+explained in chapter \ref{chap:existing_solutions}.
 
 \section{Target Audence}
 The software this project has produced is targeted at users of the \snort{} IDS

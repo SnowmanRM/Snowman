@@ -1,40 +1,51 @@
 \section{Update module}
-The purpose of the Update module is to fetch and read rules and configuration
-files from external sources, and populate the database with this information.
+The purpose of the \pythoninline{update} module is to fetch and read rules and
+configuration files from external sources, and populate the database with this information.
 Effectiveness in updates is a key issue, and a number of deliberate
 optimizations for performing updates, with the goal of saving time by omitting
-unnecessary operations, are explained in the following sections.
+unnecessary operations, are explained in the subsequent sections. To avoid
+confusion with the module, the term {\em update-package} is specifically
+used to refer to update data coming from external sources.
 
-The term Update is used to refer to the actual module, including all its classes
-and functions. To avoid confusion with the module, the term \em update-package
-\em is specifically used to refer to update data coming from external sources.
-
-This section will define an example rule to be used throughout subsequent
-sections and the remainder of the chapter, to illustrate the lifespan of a rule
-in the system.
-
-Word: rulestring.
+% This section will define an example rule to be used throughout subsequent
+% sections and the remainder of the chapter, to illustrate the lifespan of a rule
+% in the system.
+% 
+% Word: rulestring.
 
 \subsection{Sources}
-A \em source \em is used by Update to determine where the update-package is
-located. Normally this is on a remote site, and the source contains the URL
-pointing to the location of the update-package. A source can be configured to
-update at regular intervals, or the user can run an update manually on a source.
-To make the update process more effective, Update makes use of an MD5 URL which points to
-a file containing the MD5 hash of the update-package. This hash is stored for
-every source (if available) and is compared to any pre-existing hash to verify
-if the system is up to date or not. Update will only download and process an
-update-package when it encounters a new hash.
+A {\em source} is a supplier of update-packages. \snowman{} lets users define
+sources which are either external (i.e. online) or local, meaning that
+the update-package will either be downloaded from the Web or read from the
+local system. All information about each source is contained in the
+\pythoninline{Source} class. The sources determine where the update-packages are
+located, and an update-package must always come from a specific source.
+
+External sources contain a URL pointing to the location of the update-package,
+and alternatively also a URL to the MD5-hash of the package. External sources
+can be configured to pull updates at regular intervals, contrary to local
+sources which must always be updated manually.
+
+ A
+source can be configured to update at regular intervals, or the user can run an update manually on a source.
+To make the update process more effective, \pythoninline{update} makes use of
+an MD5 URL which points to a file containing the MD5 hash of the
+update-package. This hash is stored for every source (if available) and is
+compared to any pre-existing hash to verify if the system is up to date or not.
+\pythoninline{update} will only download and process an update-package when it
+encounters a new hash.
 
 \subsection{Files}
 \label{sec:update.files}
 An update-package may contain various files depending on the source it comes
-from. This section will describe files supported by Snowman.
+from. This section will describe the files supported by \snowman{}.
+
 \subsubsection{Rule files}
-A rule file is any file carrying the \em .rules \em file extension. These files
-contain raw rulestrings to be processed by Snort. A rulestring is basically a
+A rule file is any file carrying the {\em .rules} file extension. These
+files contain raw rulestrings to be processed by Snort. A rulestring is basically a
 semicolon-separated list of rule options. Specific rule options used in this system are listed in table
-\ref{tab:ruleFormat}.
+\ref{tab:ruleFormat}. A badly formatted rulestring given to \snort{} will cause a
+crash, and \snort{} must be restarted.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
@@ -68,9 +79,6 @@ semicolon-separated list of rule options. Specific rule options used in this sys
   \label{tab:ruleFormat}
 \end{table}
 
-A badly formatted rulestring given to Snort will cause a crash, and Snort must
-be restarted.
-
 \subsubsection{Classification, Generator and Reference Configuration files}
 The classification files are identified by their name \em classification.config
 \em and contain rule classification strings that are used by Snort to
@@ -81,28 +89,41 @@ updates\footnote{https://www.snort.org/vrt/snort-conf-configurations/}.
 \subsubsection{Sid message files}
 
 \subsection{Running an update}
-As an example scenario, consider a rule (name, figure reference, source,
-ruleset etc.). An update is triggered on the source at the predefined time
+An update is either triggered by the user, or automatically on regular
+intervals, for a given source. Regardless of how the update process is
+invoked, it follows the same procedure. As mentioned above, sources will often
+provide an MD5-hash of the update. When this is the case, the hash is
+stored in the database. Every new update will compare its own hash to hashes
+stored in the database, and if an identical hash is found this means that the
+update has been run before and the update process is terminated. When the hash
+does not pre-exist in the database, or for sources which does not use hashing,
+the update-package is downloaded to a temporary directory.
 
-The update is cancelled if the source is already up to date; the MD5-hashes of
-the latest update in the database, if any, and the latest update on the remote
-site are compared, and the process is terminated if these hashes are
-identical. Otherwise, the update is downloaded to a temporary directory and the
-update process continues. A file can be a tar-archive containing an arbitrary
-number of rulesets and configuration files, or it can be a plain text file
-containing Snort configuration (?).
+\snowman{} accepts update-packages in the form
+of tar-archives\footnote{Files that contain compressed files.} containing
+rule and configuration files, and also supports plain text files containing
+rules or known configuration entities\footnote{Generators, filters, references
+etc.}. Tar-archives are extracted, and folders are traversed recursively
 
-The tar-archive is extracted, and the update module recursively parses each
-file in each folder. In most cases the update-package will contain only minor
+
+
+each
+file in each folder is parsed recursively. For added efficinecy, \snowman{} creates a hash of all files which
+is stored in the database. This is later used to see whether any files in a new
+update has not changed. 
+
+In most cases the update-package will contain only minor
 changes in relation to its predecessor, e.g. only one file is different in the
 latest package, and parsing all files that has not changed would therefore be
 a waste. To address this issue and save processing time, the name, path and
 MD5-hash of every file is stored in the database per source. Every time the
 update module parses a file, it first creates a hash of the file and
 compares this with the respective file's hash in the database. If the file
-is present in the database and the two hashes coincide, the file is
+is present in the database and the two hashes are identical, the file is
 considered \em not new \em and is skipped. The following sections will elaborate
 on the parsing of files based on file type.
+
+skipping files, sequence of files.
 
 parse files with regex.
 

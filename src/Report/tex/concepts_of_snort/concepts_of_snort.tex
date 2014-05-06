@@ -1,9 +1,10 @@
-\section{Concepts of \snort}
+\chapter{CONCEPTS OF SNORT}
+\label{chap:concepts_of_snort}
 
-This section will give a brief introduction to the basic concepts of
+This chapter will give a brief introduction to the basic concepts of
 \snort.
 
-\subsection{Rules}
+\section{Rules}
 %TODO: Explain planning of rule modifiers and hierarchy model in Design chapter.
 
 A rule is basically a set of options that define ways of detecting, classifying
@@ -48,7 +49,7 @@ enabled/disabled flag on \textit{rule sets}.
 %   \caption{Determining whether a rule is enabled or disabled on a sensor.}
 %   \label{tab:ruleEnabled}
 % \end{table}
-\subsection{Rule sets}
+\section{Rule sets}
 
 The term rule set, sometimes ruleset, is not formally defined in the
 \snortManual, however it is used a few times to refer to
@@ -60,20 +61,20 @@ categorized by intrusion type (e.g. malware, trojan and worm). These groups of
 rules are often named by their intrusion type, and are also referred to as rule
 sets. \snowman{} and this report use only the latter definition of rule sets.
 
-\subsection{Generators}
+\section{Generators}
 
 \textit{Generator} is a term used for any subsystem of \snort 
 which generates alerts from rules \cite{SnortManual}. Each generator is
 identified by a unique generator ID. The rules subsystem, which has generator id
 1, is the only relevant generator for this project.
 
-\subsection{References}
+\section{References}
 \snort{} contains a plugin which allows rules to contain
 references to external attack identification systems which provide
 additional information about the alerts \cite{SnortManual}. A reference is
 basically a URL string pointing to a webpage containing this information.
 
-\subsection{Event and detection filters}
+\section{Event and detection filters}
 Filtering can be applied to rules in order to control the amount
 and frequency of alerts. Two types of filters can be applied to a rule: event
 filters and detection filters. A detection filter can only apear inline, whereas

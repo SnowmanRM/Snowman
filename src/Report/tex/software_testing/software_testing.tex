@@ -16,7 +16,46 @@ mostly just handled them when they have been discovered them.
 You could describe our software testing strategy as ad-hoc based, as is quite
 common in agile projects. Our main focus has been on the performance testing.
 
+Unit testing has not been used extensively in this project since the
+development team has limited knowledge and experience with this type of testing.
+It has been used, however, to test that data from an update is correctly
+inserted into the database. Source code listings of all unit tests in this
+project can be found in appendix.
+
 \section{Description of Problems}
+
+\subsection{Rule insertion}
+\snowman{} extracts various types of data from the rulestring and inserts
+this into the database in different tables. Since an update can contain
+thousands of rules it proved very difficult to effectively verify that all rules
+were correctly inserted into the database. To address this, a test suite was set
+up executing a dummy update with an example rulestring containing all
+possible options.
+
+\begin{python}
+def test_updateRule(self):
+  # Insert the rule
+  self.update.updateRule(self.rulestring, "example.rules")
+
+  try:
+    # Verify that all related objects exist
+    rule = Rule.objects.get(SID=1, active=True, priority=10)
+    generator = rule.generator
+    ...
+  except Rule.DoesNotExist:
+    self.fail("Rule does not exist")
+  except Generator.DoesNotExist:
+    self.fail("Generator does not exist")
+  except ...
+
+  self.assertTrue(rule.active==True)
+  self.assertTrue(int(rule.priority)==10)
+  self.assertTrue(generator.GID==1)
+\end{python}
+
+
+ These tests were also very
+useful during the refactoring of the Update module.
 
 \subsection{List Pagination}
 One problem that has plagued the software throughout the development has been

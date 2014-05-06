@@ -1,2 +1,24 @@
 \section{Configuration file}
+During the design of \snowman{} the solution to some issues was not immediately
+clear. As an example, consider the automatic update of new rule revisions. Some
+users would like to have the new revisions put into production, but others might
+want to keep the new revisions inactive until they are considered good and
+ready.
+
+It was decided that these types of issues should be specified in a configuration
+file.
+
+For these types of issues, where the project group remained inconclusive
+ 
+not clear whether it would be best to do it 
+
+(e.g. should new rules always
+assume a deactivated state or the opposite). These types of issues 
+
 Describe the purpose and structure of the config file.
+
+Some update-packages may contain source code files or modules which are of no
+interest for \snowman{}. 
+
+Users can choose between using a whitelist (parse only whitelisted files) or a
+blacklist (parse all but the blacklisted files)
