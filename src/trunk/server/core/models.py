@@ -415,7 +415,9 @@ class Sensor(models.Model):
 	
 	def requestUpdate(self):
 		"""This method contacts the sensor, and asks it to do an update of its ruleset."""
+		logger = logging.getLogger(__name__)
 		port = int(Config.get("sensor", "port"))
+		timeout = int(Config.get("sensor", "pingTimeout"))
 		sensor = xmlrpclib.Server("https://%s:%s" % (self.ipAddress, port))
 		
 		try:
