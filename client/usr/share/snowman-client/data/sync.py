@@ -129,6 +129,7 @@ class SnowmanServer:
 			
 		s.commit()
 		logger.info("Removed %d Generators from the local cache." % i)
+		s.close()
 	
 		logger.info("Synchronization of the generators is finished.")
 	
@@ -175,6 +176,7 @@ class SnowmanServer:
 			
 		s.commit()
 		logger.info("Removed %d RuleReferenceTypes from the local cache." % i)
+		s.close()
 	
 		logger.info("Synchronization of the RuleReferenceTypes is finished.")
 
@@ -223,6 +225,7 @@ class SnowmanServer:
 			
 		s.commit()
 		logger.info("Removed %d RuleClasses from the local cache." % i)
+		s.close()
 	
 		logger.info("Synchronization of the ruleclasses is finished.")
 
@@ -268,6 +271,7 @@ class SnowmanServer:
 				i += 1
 		s.commit()
 		logger.info("Removed %d RuleSets from the local cache" % i)
+		s.close()
 	
 		logger.info("RuleSet synchronization is finished.")
 		
@@ -360,3 +364,4 @@ class SnowmanServer:
 			s.commit()
 		
 		logger.info("Finished synchronizing the rules from the server")
+		s.close()

@@ -108,6 +108,8 @@ class ConfigGenerator:
 		# When all rules are added, close sid-msg.map, and add the file to the configfiles list.
 		sidmsg.close()
 		self.configfiles.append("sid-msg.map")
+		
+		s.close()
 	
 	def generateIncludes(self):
 		"""This method generates a file which includes all files this object have created.

@@ -1,9 +1,9 @@
 Package: snowman-client
-Version: 0.3.27
+Version: 0.5.0
 Priority: optional
 Architecture: all
 Essential: no
 Depends: python, python-mysqldb, python-sqlalchemy
-Maintainer: Eigil Obrestad
+Maintainer: Eigil Obrestad, Thomas Nyheim, Eirik Skogstad
 Provides: snowman-client
 Description: The client for snowman Snort-rule management.
