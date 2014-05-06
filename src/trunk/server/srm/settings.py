@@ -22,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'q6b4ktkfvx6*v1p2fzfdxu2r=ud!y*=&7pr*$7h+=pq5o@gjh$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'web/templates')]
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["192.168.6.236"]
 
 
 # Application definition
@@ -91,7 +91,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = "/home/thnyheim/snowman-static/"
 LOGGING_CONFIG = 'util.logger.initialize'
 
 LOGIN_URL = '/web/login/'

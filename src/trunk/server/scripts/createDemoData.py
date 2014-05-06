@@ -31,7 +31,7 @@ if(created):
 else:
 	logger.info("'%s' already exists.", groupSensors)
 
-sensor, created = Sensor.objects.get_or_create(name="All", user=None, active=True, autonomous=True)
+sensorall, created = Sensor.objects.get_or_create(name="All", user=None, active=True, autonomous=True)
 user, created = User.objects.get_or_create(username="System", first_name="System", last_name="Snowman")
 user, created = User.objects.get_or_create(username="srm", first_name="Demo", last_name="User")
 if created:
@@ -41,6 +41,17 @@ if created:
 	user.is_staff = True
 	user.save()
 	profile = UserProfile.objects.create(user=user)
+
+
+user, created = User.objects.get_or_create(username="Test", first_name="Test", last_name="Test")
+if created:
+	user.set_password("Test")
+	user.groups.add(groupSensors)
+	user.is_staff = False
+	user.save()
+	profile = UserProfile.objects.create(user=user)
+
+sensor, created = Sensor.objects.get_or_create(name="Test", user=user, active=True, autonomous=False, parent=sensorall, ipAddress="192.168.6.214")
 
 # Initial-data, which should always be there.
 a, created = Generator.objects.get_or_create(GID=1, alertID=1, message="Generic SNORT rule")
