@@ -62,3 +62,21 @@ SF-28064-B & S1 & 28200.953 & 239878.897 & 5606.518 \\
   \caption{Test results for update processing.}
   \label{tab:testUpdateResults}
 \end{table}
+
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{r|r|r|r}
+	Test case & System & \snowman{} v 0.5 & \bhtb{} \\
+\hline
+List rules & S1 & 2508 & 924.561 \\
+ & S3 & 1045.950 & 657.408\\
+\hline
+List rule sets & S1 & 11306 & 39432 \\
+ & S3 & 4676 & 10524 \\
+\hline
+  \end{tabular}
+  \caption{Test results for interface performance.}
+  \label{tab:testInterfaceResults}
+\end{table}
