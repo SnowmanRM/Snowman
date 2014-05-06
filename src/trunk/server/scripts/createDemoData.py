@@ -61,6 +61,12 @@ if(created):
 else:
 	logger.info("'%s' already exists.", a)
 
+a, created = Source.objects.get_or_create(name = "SourceFire", url="http://filer.rothaugane.com/rules/sf.tar.gz", 
+		md5url="http://filer.rothaugane.com/rules/sf.tar.gz.md5", schedule="0 1 * * *")
+if(created):
+	logger.info("Created '%s'" % a)
+else:
+	logger.info("'%s' already exists.", a)
 #a, created = Source.objects.get_or_create(name = "Emerging Threats", url="http://rules.emergingthreats.net/open/snort-edge/emerging.rules.tar.gz", 
 #		md5url="http://rules.emergingthreats.net/open/snort-edge/emerging.rules.tar.gz.md5", schedule="0 1 * * *")
 #if(created):
