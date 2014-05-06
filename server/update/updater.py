@@ -416,9 +416,13 @@ class Updater():
 				return self.classes[name][1]
 		except KeyError:
 			pass
+	
+		try:	
+			self.classes[name] = (self.SAVED, RuleClass.objects.get(classtype=name))
+		except RuleClass.DoesNotExist:
+			self.classes[name] = (self.SAVED, RuleClass.objects.create(classtype=name, description=name, priority=4))
 		
-		return RuleClass.objects.get(classtype=name)
-
+		return self.classes[name][1]
 	
 	def saveClasses(self):
 		"""Saves all the new/changed ruleclasses to the dabase, while trying to

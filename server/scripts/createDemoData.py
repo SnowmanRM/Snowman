@@ -61,8 +61,8 @@ if(created):
 else:
 	logger.info("'%s' already exists.", a)
 
-a, created = Source.objects.get_or_create(name = "SourceFire", url="http://filer.rothaugane.com/rules/sf.tar.gz", 
-		md5url="http://filer.rothaugane.com/rules/sf.tar.gz.md5", schedule="0 1 * * *")
+a, created = Source.objects.get_or_create(name = "SourceFire", url="http://192.168.6.11/static/rules/testset.10000-1000.tar.gz", 
+		md5url="http://192.168.6.11/static/rules/testset.10000-1000.tar.gz.md5", schedule="0 1 * * *")
 if(created):
 	logger.info("Created '%s'" % a)
 else:
