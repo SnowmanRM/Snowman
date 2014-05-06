@@ -1,0 +1,62 @@
+\subsection{User interface}
+The main user-interface for snowman is the web-interface. It is based on
+django's template-system for the generation of html which is displayed in the
+web-browser on the user's computer.
+
+The web-interface uses javascript to dynamicly be able to load/change the
+content of the pages without refreshing the whole page. Important parts of the
+webinterface is possible to download using AJAX, to update tables and simmilar.
+
+Javascript is also used to improve the user-experience of the interface, due to
+functionality which a moden computer-user expects from modern web-pages.
+
+\subsubsection{Url's}
+
+The first step of serving a page to a user is a HTTP request for a specific page
+is recieved. The pages are uniqely identified by url's, like '/web/rules/'.
+
+The url's are structured in a logical manner, where everything in the
+webinterface is found under /web/, everything regarding the administration of
+rules is found under /web/rules/, etc. The url's might contain dynamic data,
+like pagenumbers (ie: /web/rules/rules/page/3/ which will give you the third
+page of the rule-list), so that dynamic content can be loaded dynamicly when
+needed.
+
+Django uses the urls to identify which views the requested url corresponds to.
+When a view is identified, the request (and its dynamic content) is passed to
+the corresponding view.
+
+\subsubsection{Views}
+
+The views is the part of the user-interface which collects the required data
+from the models-layer, and generates a response to the web client. The response
+can contain a full web-page, or just a small subset of one if the request was
+issued by AJAX.
+
+The typical steps a view makes, to generate a response would be:
+\begin{enumerate}
+  \item Collect the requiered data from the database(s) using the \django{}
+  models.
+  \item Hand the collected data, and a template, to the template-engine to
+  generate the HTML representing the webpage the user want.
+  \item Send the created webpage as a response to the user.
+\end{enumerate}
+
+The view-system decides what to show, and then lets the template-system decide
+how to show it. The view-system in itself is not creating any html or simmilar.
+It soley creates data-structures.
+
+If the request was for some data, and not a webpage, step 2 in the list above
+might be skipped, and instead return the data as JSON or simmilar in step 3.
+
+If errors oocures in the view-system, appropriate exception can be raised to
+tell \django{} to return an error-code or an error-page to the user, instead of
+what the user requested.
+
+\subsubsection{Templates}
+
+When the view-system have prepared all the data, the template-system takes over.
+The job of the templates is to take the supplied data, and inject it into
+pre-made skeletons of HTML. This way, all the design/display part of the
+webinterface is collected to one single place, and that give us a very clear
+line between data and design.
