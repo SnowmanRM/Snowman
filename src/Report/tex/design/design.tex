@@ -4,14 +4,10 @@
 % prosjektrapporten, mens dette punktet omhandler diskusjon av sentrale forhold. Ulike alternative
 % design som studentene vurderte bør beskrives og valg av alternativ begrunnes.
 
-This chapter will present the design specification of \snowman{}. \snowman{} is
-developed as a distributed system (why?), with a central server which is
-responsible for the user-interface and the central core functions such as
-distributing rules to the sensors and downaload updates from external sources.
-A \snowman{} client, responsible for the communication with the central server,
-is installed on each sensor. The principal tasks of the client is to generate
-\snort{} rule files and respond to the server's status requests.
+This chapter will present the design specification of \snowman{}. 
 
-\input{./tex/design/server.tex}
+\input{./tex/design/general_design.tex}
+
+\input{./tex/design/server_design.tex}
 
 \input{./tex/design/client_design.tex}

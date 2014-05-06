@@ -5,12 +5,13 @@ that we have one drawing per module.
 
 \subsubsection{Core}
 
-The core database-architecture used for storing the rules is as following:
+The core database-architecture used for storing the rules is described in
+figure \ref{fig:server_database_core}. 
 
-\begin{figure}[H]
-	\includegraphics[width=127mm]{./img/Server-DB-Core.png}
-	\caption{Core server-database}
-	\label{server_database_core}
+\begin{figure}[h]
+        \includegraphics[width=127mm]{./img/Server-DB-Core.png}
+        \caption{Core server-database}
+        \label{fig:server_database_core}
 \end{figure}
 
 The most central part of our system is the representation of a Rule. A single
@@ -27,17 +28,19 @@ sensors.
 
 In addition to storing the raw rules, we would like to be able to store
 tuning-parametres on the rules. As sensors might have different
-tuning-parametres, we cannot add the tuning directly to the rules. We rather add
-the tuning to its own module:
+tuning-parametres, we cannot add the tuning directly to the rules. Own tables
+(as described in figure \ref{fig:server_database_tuning}) is hence needed to
+model the tuning-parametres.
 
-\begin{figure}[H]
-	\includegraphics[width=127mm]{./img/Server-DB-Tuning.png}
-	\caption{Tuning server-database}
-	\label{server_database_tuning}
+\begin{figure}[h]
+        \includegraphics[width=127mm]{./img/Server-DB-Tuning.png}
+        \caption{Tuning server-database}
+        \label{fig:server_database_tuning}
 \end{figure}
 
-Both filters, and the suppresses is connected to a Rule and a Sensor. This way
-we let the user spesify filters for the individual sensors if that is desired.
+Both types of filters, and the suppresses is connected to a Rule and a Sensor.
+This way we let the user spesify filters for the individual sensors if that is
+desired.
 If a sensor does not have a filter applied, but any parent of the sensor have
 one, the closest parent's filter will be applied.
 
@@ -45,12 +48,12 @@ one, the closest parent's filter will be applied.
 
 When rules are inserted to the database, we would like to have some traceability
 to be able to determine from where a rule have entered our system. To be able to
-do this, we have the update-module:
+do this, we have the update-module (figure \ref{fig:server_database_update})
 
-\begin{figure}[H]
-	\includegraphics[width=127mm]{./img/Server-DB-Update.png}
-	\caption{Update server-database}
-	\label{server_database_update}
+\begin{figure}[h]
+        \includegraphics[width=127mm]{./img/Server-DB-Update.png}
+        \caption{Update server-database}
+        \label{fig:server_database_update}
 \end{figure}
 
 The structure of the database to update would let us store the update-sources,

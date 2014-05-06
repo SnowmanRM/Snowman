@@ -1,14 +1,15 @@
-\section{Server}
+\section{Server design}
 
-The central server would be the main piece of \snowman{}. It will consist of:
+The server is the central component of \snowman{} and generally consists of:
+
 \begin{itemize}
-  \item Central rule-storage
-  \item Web-interface for user-interaction
+  \item Central rule storage
+  \item Web-interface for user interaction
   \item Update-module to get updates from rule-sources
-  \item RPC-Interface to communicate with the clients
+  \item RPC-interface to communicate with the clients
 \end{itemize}
 
-The central storage of rules would be a normal relation database. As we have
+The central storage of rules would be in a normal relation database. As we have
 decided to use Django as our framework, we have a great flexibility to which
 database we actually use. In the current version of \django{} (1.6) we might use
 MySQL, PostgreSQL, SQLite or Oracle.
@@ -19,5 +20,7 @@ requests and data to and from the server. To be able to keep an aspect of
 privacy, we encrypt the raw HTTP stream using SSL. 
 
 \input{./tex/design/server_architecture.tex}
+
+\input{./tex/design/server_gui.tex}
 
 \input{./tex/design/server_database.tex}
