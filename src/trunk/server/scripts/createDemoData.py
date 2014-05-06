@@ -33,15 +33,14 @@ else:
 
 sensor, created = Sensor.objects.get_or_create(name="All", user=None, active=True, autonomous=True)
 user, created = User.objects.get_or_create(username="System", first_name="System", last_name="Snowman")
-user, created = User.objects.get_or_create(username="srm")
+user, created = User.objects.get_or_create(username="srm", first_name="Demo", last_name="User")
 if created:
 	user.set_password("srm")
 	user.groups.add(groupUsers)
 	user.groups.add(groupSensors)
+	user.is_staff = True
 	user.save()
 	profile = UserProfile.objects.create(user=user)
-	
-	
 
 # Initial-data, which should always be there.
 a, created = Generator.objects.get_or_create(GID=1, alertID=1, message="Generic SNORT rule")
@@ -62,10 +61,10 @@ if(created):
 else:
 	logger.info("'%s' already exists.", a)
 
-a, created = Source.objects.get_or_create(name = "Emerging Threats", url="http://rules.emergingthreats.net/open/snort-edge/emerging.rules.tar.gz", 
-		md5url="http://rules.emergingthreats.net/open/snort-edge/emerging.rules.tar.gz.md5", schedule="0 1 * * *")
-if(created):
-	logger.info("Created '%s'" % a)
-else:
-	logger.info("'%s' already exists.", a)
+#a, created = Source.objects.get_or_create(name = "Emerging Threats", url="http://rules.emergingthreats.net/open/snort-edge/emerging.rules.tar.gz", 
+#		md5url="http://rules.emergingthreats.net/open/snort-edge/emerging.rules.tar.gz.md5", schedule="0 1 * * *")
+#if(created):
+#	logger.info("Created '%s'" % a)
+#else:
+#	logger.info("'%s' already exists.", a)
 logger.info("Finished to create initial data.")
