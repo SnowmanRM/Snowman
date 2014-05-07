@@ -27,7 +27,7 @@ DEBUG = False
 TEMPLATE_DEBUG = True
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'web/templates')]
 
-ALLOWED_HOSTS = ["192.168.6.236"]
+ALLOWED_HOSTS = ["192.168.1.10"]
 
 
 # Application definition

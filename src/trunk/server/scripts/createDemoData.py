@@ -51,7 +51,7 @@ if created:
 	user.save()
 	profile = UserProfile.objects.create(user=user)
 
-sensor, created = Sensor.objects.get_or_create(name="Test", user=user, active=True, autonomous=False, parent=sensorall, ipAddress="192.168.6.214")
+sensor, created = Sensor.objects.get_or_create(name="Test", user=user, active=True, autonomous=False, parent=sensorall, ipAddress="192.168.1.100")
 
 # Initial-data, which should always be there.
 a, created = Generator.objects.get_or_create(GID=1, alertID=1, message="Generic SNORT rule")
