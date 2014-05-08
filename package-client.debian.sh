@@ -5,7 +5,7 @@ echo "Using $workdir as a working-directory."
 
 # Create workdir, and copy source there.
 mkdir -p $workdir
-cp -r * $workdir
+cp -r client/* $workdir
 
 # Delete all the subversion files from the source, as we do not want them 
 #   in the final package.
