@@ -40,4 +40,15 @@ rule changes are parsed. This is particularly useful as the current official
 caching of files
 
 \subsection{Effectiveness of rule distribution}
+\subsection{GUI Latency}
+A major complaint from the client was that they experienced a large latency in
+BHTB's web component, that they had to wait long periods for it to load data.
+We've attempted to remedy this problem in Snowman by not loading absolutely
+everything into the GUI every time, like BHTB does. It is expected that this
+will reduce the latency in the GUI, as we would be processing and displaying
+only 100/28000 rules as opposed to all 28000 rules.
 \subsection{Linearity in performance}
+We're expecting all of the software to have a linear performance curve, or
+better (downwards tendency), as an upwards pointing performance curve is a sure
+sign that something has been programmed very wrong. If performing one task takes
+1 second, performing 10 tasks should take 10 seconds or less. 

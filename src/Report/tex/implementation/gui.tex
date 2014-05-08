@@ -5,7 +5,9 @@
 The Graphical User Interface (GUI) is a template- and AJAX-based\footnote{AJAX
 is web development technique that allows you to send asynchronous requests to a
 web server.} web application which uses \django{}'s template
-system to implement the View part of the MVC-principle\ref{chap:}. Each webpage is a template populated through Python-code before it is delivered to the Web server and ultimately the requesting Web browser.
+system to implement the View part of the MVC-principle\ref{chap:}. 
+Each webpage is a template populated through Python-code before it is delivered
+to the Web server and ultimately the requesting Web browser.
 
 Additional data that needs to be sent to a Web page, e.g. the user interacts
 with the GUI, is requested through JavaScript\footnote{A programming language
@@ -19,22 +21,17 @@ The pages of the GUI is organized in the following structure, which is very
 similar to the way BHTB organized it's front end.
 
 \begin{figure}[ht!]
-\includegraphics[width=130mm]{./img/gui_structure.png}
+\includegraphics[width=130mm]{./img/gui_menu.png}
 \caption{GUI Structure}
 \label{gui_structure}
 \end{figure}
 
 \subsection{Design}
 
-The GUI is designed with simplicity in mind, which is achieved by using a
-front-end framework called Bootstrap\cite{bootstrap}. This
-framework provides easy-to-use and ready-made design elements for HTML and
-CSS\footnote{A styling language for webpages.}, which has been crucial for
-saving time and energy in the project.
-Consider the example job of creating a <table> element and spending hours setting up and tweaking the CSS for the
-said table element, we could just add <table class=`{\bf table
-table-bordered}`> and get the table formatted nicely with colors and fonts that
-are typographically matching.
+The GUI is designed with simplicity and minimalism in mind, which is achieved
+partially by using Bootstrap that has a lot of default no-nonsense design elements. But we
+also opted for a lot of primary colors and simple lines to make it easy on the
+eyes. 
 
 \subsection{Overview of central GUI features}
 \subsubsection{Content Prefetching}
