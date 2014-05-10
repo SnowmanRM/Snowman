@@ -2,27 +2,28 @@
 \snowman{} is primarily written in Python 2.7 \cite{pythondoc}. The project
 group landed on this decision after discussing the aptness of C, C++, Java and
 Python to this project, with regard to development and processing efficiency.
-
 Due to the limited time-frame of this project, it was vital to get right into
-the development without having to learn a new programming language or
-unfamiliar programming concepts. It was also important to find a language which
-produces high performing programs, since this project aims to be more effective
-than similar software (see chapter ..). The  C and C++ languages were considered
-because of their performance. The project group also has some theoretical and
-practical experience with these languages, as they are taught in some courses
-at \GUC{}. These languages were abandoned as the team concluded that they would
-induce more work because of their complexity, and thereby be too time-consuming.
+the development without having to learn a new programming language or unfamiliar
+programming concepts. It was also important to find a language which produces
+high performing programs, since this project aims to be more effective than
+similar software. The  C and C++ languages were considered because these
+languages can produce programs with very high performance. The project group
+also has some theoretical and practical experience with these languages, as they
+are taught at \GUC{}. C and C++ were abandoned as the team concluded that
+they would induce more work because of their complexity, and thereby be too
+time-consuming.
 
-The final decision fell on Python (why?). no need for the programmer
-to allocate or free memory. offers a wide range of builtin tools.
-
-A concern was raised that
-Python, being a high-level language, would maybe not be efficient enough. can
-write and import C-modules.
-
-A major reason for using Python was \django{} (see section
-\ref{sec:frameworks}) which is a Python framework that greatly simplifies
-database transactions and generation of web pages. 
+The final decision fell on Python mainly because of this language lets the
+programmer develop complex programs in a short amount of time. Python has
+automatic memory management and offers a wide range of built-in tools, which
+gives the developers time to focus more on the code and functionality rather
+than overhead tasks like managing memory and including external libraries.A
+concern was raised that Python, being a high-level language, would maybe not be
+efficient enough for this project. This turned out to not be a problem, as
+python can run modules written in C. A major reason for using Python was also
+\django{} (see section \ref{sec:frameworks}), which is a Python framework used
+in this project that greatly simplifies database transactions and generation of
+web pages.
 
 The most current version of Python available at the start of this project
 was version 3.3. The project group selected version 2.7, as a break in
@@ -42,14 +43,14 @@ biggest drawback of this decision is that it does not make \snowman{}
 future-proof, and it will probably have to be ported to Python 3.X in a
 long-term perspective.
 
-As for our web technologies, we've utilized HTML and CSS for the design and
-Javascript for client side scripting. 
+For Web-programming, this project has used HTML and CSS for the design and
+JavaScript for client-side scripting.
 
 \subsection{Standards and guidelines}
 % TODO: Valgte prinsipper og standarder i kodingen. Eksempler
 % fra kildekoden trekkes frem for å vise hvordan dette er etterlevd i praksis.
-Python imposes a strict on indentation, as this is actively used in the syntax
-to delimit blocks of code. The project group has followed standard Python
+Python imposes a strict indentation regime, as this is actively used in the
+syntax to delimit blocks of code. The project group has followed standard Python
 guidelines for best practice programming, with principles as DRY\footnote{``Don't
 repeat yourself''. The principle that code should not be duplicated in a
 project.} and EAFP\footnote{``Easier to ask for forgiveness than permission''.}
@@ -57,24 +58,27 @@ project.} and EAFP\footnote{``Easier to ask for forgiveness than permission''.}
 
 Documentation has been a high priority. The project group has aimed to make the
 code self-documenting by utilizing sensible names on variables, functions and
-classes to enhance the reader's understanding. As a general rule, are written in
-camelcase\footnote{A style convention where multiple words are written as one,
-with the first letter of each word capitalized, e.g. getAllRules.} With a high
-focus on development, the project group has taken advantage of Python
-Docstrings \cite{pep257} (documentation strings) which are incorporated into the
-code, and can therefore be written at the time of coding without taking the focus away from
-the programming. The Docstrings describe how the code is used, and form the
-basis of \snowman{}'s documentation. Listing \ref{lst:permissionprinciple}
-demonstrates the EAFP-principle, also note the use of a Docstring at the
-beginning of the method.
+classes to enhance the reader's understanding. As a general rule, variable names
+are written in camelcase\footnote{A style convention where multiple words are
+written as one, with the first letter of each word capitalized, e.g.
+getAllRules.}. With a high focus on development, the project group has taken
+advantage of Python Docstrings \cite{pep257} (documentation strings) which are
+incorporated into the code, and can therefore be written at the time of coding
+without taking the focus away from the programming. The Docstrings describe how
+the code is used, and form the basis of \snowman{}'s documentation. Listing
+\ref{lst:permissionprinciple} demonstrates the EAFP-principle, also note the use
+of a Docstring at the beginning of the method.
 
-The Python manual encourages the use of exceptions
-missingobjecterror badformaterror abnormalrule
+The Python manual encourages the use of exceptions, which is a useful way of
+sending messages up the execution stack when an error or irregular behaviour is
+deceted. Customized exeptions are raised in \snowman{} for example when parsed
+data has the wrong format ({\em BadFormatError}), when critical objects are
+missing from the database ({\em MissingObjectError}) or when an unsupported
+rule is encountered ({\em AbnormalRuleError}).
 
-In Python, methods can communicate with each other using return values
-
-Writing object-oriented code has not been a goal in this project (examples of
-encapsulation, polymorphism or inheritance?).
+Writing object-oriented code has not been a goal in this project, but concepts
+such as encapsulation, polymorphism and inheritance have been applied when
+needed.
 
 \begin{python}[caption=The EAFP-principle., label=lst:permissionprinciple]
 def getSecondMessage(messages):
@@ -102,6 +106,3 @@ def getSecondMessage(messages):
     
   return message
 \end{python}
-
-
-Coding styles, use of exceptions etc.
