@@ -1,4 +1,4 @@
-\section{Theoretical analysis}
+\section{Theoretical Analysis}
 The purpose of the theoretical performance analysis is to examine the most
 important features of \snowman{} and similar software, to form opinions on the
 expected performance of each software. The teoretical analysis is used to into
@@ -6,40 +6,47 @@ concrete benchmarking tests presented in section \ref{sec:practical_analysis}.
 
 \bhtb{}, \snortmanager{} and two versions of \snowman{} are analysed.
 
-\subsection{Effectiveness of update processing}
+\subsection{Effectiveness of Update Processing}
 
-As described in chapter (impl?) \snowman{} considers during the rulestring
-parsing. \bhtb{} writes rules to one table, whereas a rule object in \snowman{}
-has multiple relations to other objects and thus several database tables are written
+As described in section \ref{sec:functionality_comparison}, \snowman{} has
+about four times as many objects in its datastructure as \bhtb{}.
+\bhtb{} writes rules to one table, whereas a rule object in \snowman{} has multiple relations to other objects and thus several database tables are written
 to during an update. It is therefore expected that \bhtb{} and \snortmanager{}
-exhibit a more effective update processing.
+exhibit a more effective update processing than \snowman{}, because of all the
+extra data it has to process and store.
 
-\subsubsection{File-to-rule ratio}
-A sample update package\footnote{link to update package used in testing}
-contained on average [number of rules per file] rules per file. \snowman{} is
-designed to 
+\subsubsection{File-to-rule Ratio}
+A typical official update package from Sourcefire contains on average 280
+rules per file. \snowman{} is designed to
 
 the only extra overhead for \snowman{} is to open each file. It is therefore
 expected that the difference in processing time for \snowman{} will not exceed 1 percent.
 
-\subsubsection{Incremental updates}
+\subsubsection{Incremental Updates}
 One of the expected strengths of \snowman{} lies in processing incremental
 updates, i.e. updates containing only a small number of changes. It is
 significant to gauge performance for incremenal updates, as most real-life
-updates usually contain between 10 and 100 changes\footnote{Ten updates from 20.03.2014 to
-17.04.2014 contained on average 36.8 new and 53.9 updated rules. \textit{Source:
-http://www.snort.org/vrt/advisories}}.
+updates usually contain between 10 and 100 changes. Ten updates from 20.03.2014
+to 17.04.2014 contained on average 36.8 new and 53.9 updated rules.
+\footnote{Source: http://www.snort.org/vrt/advisories}.
 
 Storing the checksum for every individual file\footnote{Checksum is stored only
-files that are parsed.} is unique for \snowman{}. It allows \snowman{} to
+for files that are parsed.} is unique for \snowman{}. It allows \snowman{} to
 completely ignore files without changes, which means that only the files with
 rule changes are parsed. This is particularly useful as the current official
-\snort{} rules contain [number of files] files\footnote{link to rules.}
+\snort{} rules contain over 100 files\footnote{As of May 2014}.
 
-(how does bhtb and snortmanager cache?)
-caching of files
+\subsection{Effectiveness of Rule Distribution}
+Since \snowman{} and \bhtb{} uses different strategies for distribution;
+\snowman{} uses a local client database as described in chapter
+\ref{sec:architecture_discussion} and \bhtb{} just pushes all the files out to the sensor every time, we expect
+there to be a gain in performance because of the fact that \snowman{} only
+transfers over new changes rather than everything, every time. 
 
-\subsection{Effectiveness of rule distribution}
+Also, since \bhtb{} distributes everything, every time, we expect it to have a
+very flat performance curve, since the timing will be very dependant on the bandwidth
+rather than processing power.
+
 \subsection{GUI Latency}
 A major complaint from the client was that they experienced a large latency in
 BHTB's web component, that they had to wait long periods for it to load data.
@@ -47,7 +54,8 @@ We've attempted to remedy this problem in Snowman by not loading absolutely
 everything into the GUI every time, like BHTB does. It is expected that this
 will reduce the latency in the GUI, as we would be processing and displaying
 only 100/28000 rules as opposed to all 28000 rules.
-\subsection{Linearity in performance}
+
+\subsection{Linearity in Performance}
 We're expecting all of the software to have a linear performance curve, or
 better (downwards tendency), as an upwards pointing performance curve is a sure
 sign that something has been programmed very wrong. If performing one task takes

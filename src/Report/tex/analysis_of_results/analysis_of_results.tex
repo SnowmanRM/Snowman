@@ -7,7 +7,89 @@ An update package usually contains only a small number of changes from the
 previous version
 
 \section{Effectiveness of update processing}
+It came as a big surprise to us that \bhtb{} performed so well in the
+update tests after our client had listed that as one of it's major faults. We
+suspect that it is the very simple nature of it's data structure that is making
+the difference. We also suspect that our tests didn't really reflect on the
+reality of our clients setup and database complexity, as they have multiple
+sensors and many rules turned on or off, something our tests didn't simulate. 
+
+\snortmanager{} also did well in the tests, which wasn't really all that
+surprising, as it has a very similar data structure to \bhtb{} in that it is
+very simple. But it seems to start having more problems once we introduced more
+files into the tests. There is a big difference between tests \textit{SYN-1000}
+and \textit{SYN-1000-B}, where we have the same number of rules, but spread over
+more files. This problem does not seem to exist in either \snowman{} nor
+\bhtb{}.
+
+None the less, both \snortmanager{} and \bhtb{} pummelled \snowman{} v0.4 into
+the ground in these tests, which led us to completely rework our update program
+workflow. Our problem was that for every rule, we were writing its data to the
+database and then moving on to the next rule. This caused a lot of busy-waiting
+for the database. You can see that the times accelerated a lot on the machine
+with the lower end harddrives, so the problem also manifests itself more when
+the harddrives can't keep up.
+
+We proceeded to rewrite the code so that all the rules are parsed into
+memory first and then is committed into the database in one big query. As you
+can see in table \ref{tabell med tall} we improved \snowman{}'s performance
+in v0.5 with as much as xx\% in some tests. 
+
+While we still didn't fulfil the performance goal, considering the difference in
+complexity and structure, we feel the difference is acceptable. The results in
+this test is a very good indicator that performance testing during development
+is a very useful thing to a development project.
+
 \section{Effectiveness of rule distribution}
+As we expected, \bhtb{} had a very flat performance curve in this test, but not
+exactly flat. There is a small increase in time spent when the number of rules
+go up, as you can see in table \ref{tabell}, meaning there is some degree of
+processing time infuencing the results. 
+
+Still, considering the tests on S1 and
+S2 were carried out on the same network and sensor, and S3 were carried out on a
+completely different network and sensor, it is apparent that distribution from
+\bhtb{} is mostly determined by how fast the data can be moved from the server
+to the sensor. 
+
+The same difference in testing environments is apparent in the \snowman{} tests.
+S1 and S2 have pretty much the same results while S3 probably benefits from it's
+different hardware and network setup. This leads us to conclude that the
+performance of distribution is dictated by the bandwidth and by the hardware of
+the sensor, and not so much the hardware of the central server.
+
+However, there does not seem to be a pure performance gain over \bhtb{} as we
+expected by going for a distributed model with a change based distribution
+protocol. But we are seeing a significant reduction in time spent distributing
+when there are only updates and not a massive batch of rules. While \bhtb{} uses
+roughly the same time on tests SF-28064-A and SF-28064-B, we use about 80\% less
+time on test B than on test A. 
+
+This gives merit to the model we picked for our distribution architecture and
+with a little more performance optimizations, the overall times might improve
+further as well.
+
 \section{GUI latency}
+These tests probably entails the most grim part of our performance results as we
+seeminly have failed to produce an improvement over \bhtb{} when it comes to
+displaying rules, something that does not make much sense if you do the math. We
+are only fetching and displaying a fraction of the number of rules that \bhtb{}
+does\footnote{About 100 to 28000.}, yet we spend about twice as long on it. 
+
+We have not spent much time investigating the cause of this, but we strongly
+suspect its a combination of our more complex data structure, coupled with our
+rather novice use of a complex template framework such as Django.
+
+A small optimization was attempted by enabling a setting that lets Django
+prefetch related objects from the database and that did improve the results
+somewhat, but not enough to be noticable. 
+
 \section{Linearity in performance}
+Må ha grafer for å snakke om dette.
+
 \section{Conclusions}
+- Snowman kom dårligere ut
+- Fordi større data struktur
+- Optimaliseringen i update var god
+- Viser viktigheten av performance testing i prosjekter
+

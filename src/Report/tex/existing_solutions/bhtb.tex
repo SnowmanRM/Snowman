@@ -24,6 +24,11 @@ any validation of the input, thus leaving the Snort sensor vulnerable to
 crashes\footnote{Snort will simply not restart if something in the configuration
 files is malformed.} if the user inputs something wrong.
 
+The way BHTB handles distribution is to generate all the files centrally and
+then send them to the sensors one by one via SCP. It determines which rules to
+distribute by comparing the main rule table with a second table representing
+which rules the sensor should not have. 
+
 On the technical side, BHTB is programmed with Python and uses the framework
 Tornado\cite{tornado} as its webserver, which works
 similar to Django with it's URL API system which you can read about

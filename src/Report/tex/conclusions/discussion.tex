@@ -1,10 +1,40 @@
-\section{Discussion}
-\subsection{Results}
-- we discovered that performance is hard\newline
-- it was nice to abstract the database\newline
-- we created something that works, but lacks a few features\newline
-- performance goals was not met, but functions are in place\newline
-- GUI is hard\newline
-- We learned stuff
-- something something darkside
+\section{Results}
+This project set out to develop, from the ground up, something that were to be
+better than a prototype already in use. And we have produced some that does
+indeed works and, in many cases, better than it's predecessor. We did not manage
+to build in all the features we outlined in our goals, but the features missing
+are also features not present in the predecessor \bhtb{}. 
+
+We discovered through our performance tests that we did not reach our goals when
+it came to making \snowman{} more effective than \bhtb{}, but this can be
+acredited to the more complex data structure which results in more data needing
+to be processed and moved to/from I/O devices. 
+
+Our performance tests in chapters \ref{chap:performance_analysis} to
+\ref{chap:analysis_of_results} also revealed that actually conducting them in a software development project is a very good idea, as we discovered a big bottleneck in
+our Update module and managed to fix that and improve our performance
+significantly. Some aspects of \snowman{} are
+still not within acceptable performance times, but the optimization done on the
+Update module brought it into an acceptable range.
+
+While we have not conducted tests on the matter, we believe \snowman{} does not
+have the same scalability problems that \bhtb{} seems to have when adding more
+sensors to the system. This has to do with our distributed model, removing the
+bottleneck of being dependant on a central system for the distribution of rules
+and removing the bandwidth strain of distributing everything, every time.
+
+We also created a GUI that does the same and more than what the GUI of \bhtb{}
+does. It is not perfect by any stretch of the imagination, but it features more
+essential features such as form validation and user feedback.
+
+The project also reveals that using frameworks such as Django to create an
+object abstraction on top of the database can really let you create a lot of
+functionality in a shorter amount of time, than if you had to work directly on
+the database. 
+
+And last but not least, the members of the project group has learned a great
+deal when it comes to software development projects, especially when it comes to
+working with bigger enterprise oriented frameworks such as Django, when it
+comes to time management and about IDS systems in general. 
+
 
