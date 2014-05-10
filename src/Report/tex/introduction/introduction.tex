@@ -11,287 +11,230 @@
 % - Terminologibruk. Er eksempelvis faguttrykk brukt i en spesiell betydning?
 % Innledningen skal ikke inneholde noe om det som er gjort i oppgaven og oppnådde resultater.
 
-\section{Document Structure}
-TBC: How have we organized this document.
-
-\subsection{Special styles used}
-Software names are written in a different font throughout the
-report, like so: \snowman{}. Source code is listed in an enclosed box with
-syntax highlighting (listing \ref{lst:example}). Source code can also appear in
-the text with the same syntax highlighting as the listings, especially note
-classnames which will appear as so: \pythoninline{ClassName}.
-
-\begin{python}[caption=Source code example.,label=lst:example]
-def printHello():
-  # Print a message
-  print 'Hello World!'
-\end{python}
-
-\section{Project Background}
-The Norwegian Armed Forces Cyber Defense (CYFOR) unit for Computer Network Defense
-(CND), Avdeling BKI, is responsible for detecting and stopping cyber-attacks against the
-critical infrastructure and command and control systems utilized by the Norwegian military.
-One of the tools used to carry out this task is the open source IDS \snort{}
-\cite{Snort}.
-
-\snort{} is a leading open source IDS (ref?) that is used to detect potentially
-unwanted or malicious network traffic based on predefined patterns described in
-signatures. There are both free and commercial signatures available for
-\snort{} and as \snort{} has been highly adopted by the security community,
-these signatures are continually updated and maintained.
-Using \snort{} has been plagued for years by the fact that it does not have a good
-system for handling, updating or maintaining the signatures (henceforth called
-rules and rule sets) used for detection, thus making it cumbersome to utilize
-\snort{} for security analysts (ref?).
-
-Avdeling BKI has therefore tasked a group of students from Gjøvik University College (GUC) to design and develop a
-more functional, effective and secure rule management system for \snort{} that
-can continue to live on beyond this project.
-
-\section{Previous Work}
-Research \cite{BHTB} has shown that a good rule management system for \snort{}
-will improve the workflow and efficiency of the IDS significantly, and a
-prototype for such a system was built in 2012 called \bringhome{} \cite{BHTB}
-(henceforth referred to as \bhtb{}). This prototype has been in use at Avdeling
-BKI since 2012, but is suffering from lacks in functionality and efficiency due
-to being a proof-of-concept prototype. \bhtb{} has, however, proven that
-there is a significant gain from having an intuitive Graphical User Interface
-(GUI) for managing rules. A GUI facilitates the work of the operator, as work is
-shifted from complex operations in a CLI to automatic execution of common
-routines triggered by buttons.
-
-% TODO: improve below paragraph (Eirik)
-There was another similar project conducted at \GUC{} in 2012 called
-\snortmanager{} \cite{SnortManager} that also deals with management of \snort{} rules. The \snortmanager{} project files are available as
-open source software\footnote{http://github.com/stianja/SnortManager}, but no
-usage instructions are available. The source code has not been maintained since
-its initial release and is designed for a specific company in mind. Enabling,
-disabling and configuring rules is also cumbersome in this system as it is
-based on plaintext arguments in ``policies'' that users must construct
-themselves \cite{SnortManager}. The rule distribution is also done manually from the
-files generated. This makes \snortmanager{} something not very usable for
-Avdeling BKI and their routines.
-
-Several add-ons and other \snort-related software
-exist\footnote{http://www.snort.org/snort-downloads/additional-downloads}, and
-a few of these are built to manage \snort{} rules, most notably
-\pulledpork{} \footnote{http://code.google.com/p/pulledpork} and
-\oinkmaster{} \footnote{http://oinkmaster.sourceforge.net}. The key differences
-between all software mentioned in this section and \snowman{} will be further
-explained in chapter \ref{chap:existing_solutions}.
-
-\section{Target Audence}
-The software this project has produced is targeted at users of the \snort{} IDS
-in a larger production environment with many sensors and networks.
-More specifically, that target audience usually consists of security experts
-with a high degree of knowledge of \snort{} and computers in general.
-
-This report is targeted at those that may be interested in discovering just how
-complex the rule structure of \snort{} really is, and academics that are interested
-in reading about software performance and how complexity plays into it.
-
-\section{Project Objectives}
-\label{sec:project_objectives}
-\subsection{Result Objectives}
-We reiterate from the project plan[link to project plan] that this
-project has a goal of researching, designing and developing a system that
-as a minimum:
-\begin{itemize}
-\item Is more efficient than BHTB.
-\item Is developed as an engine that responds to API calls.
-\item Is modular in design and allows future changes and additions to not affect
-existing functionality.
-\item Is scalable enough to handle both small and large sets of IDS sensors and
-rules in a production environment.
-\item Is able to download rules and rule sets from multiple customizable sources.
-\item Is able to distribute different rules to different IDS sensors.
-\item Can download and distribute rules automatically at set intervals.
-\item Is capable of exporting rules for sharing.
-\item Has the capability to activate, deactivate, filter and suppress rules on a
-per sensor basis, in a way that is user friendly.
-\item Supports multi-user interaction.
-\item Can efficiently and safely work with different installations of \snort{} and various
-other third party tools, such as SNORBY\cite{snorby}.
-\item Is easy to install.
-\item Has an internal logging system.
-\item Is well documented and can be easily adopted by anyone as open source software.
-\end{itemize}
-In addition, the project will attempt to add the following functionality if
-time permitting:
-\begin{itemize}
-\item A graphical user interface.
-\item Said user interface must be user friendly and intuitive, and require only
-limited knowledge of \snort{} rules from the user.
-\item The system can also distribute rules to
-Suricata\cite{surikata}, another \snort{}-like IDS, which
-can operate with the exact same rules as \snort{}.
-\item Implement security features that ensure confidentiality of rules.
-\item The project will investigate and potentially implement multi-threading
-technology or other optimization techniques to exploit modern hardware
-capacities.
-\item The system is capable of validating and checking rules for errors before
-they are distributed to sensors.
-\item The system supports commenting of the rules.
-\item The system supports writing custom rules and editing existing rules.
-\end{itemize}
-Once the system has been developed, it will be released as an Open Source Software to the
-public in a well-documented format.
-\subsection{Effect Objectives}
-
-Forming baselines from the current prototype \bhtb{} and from \snortmanager{},
-the project had a goal to further increase the efficiency of rule management by
-investigating and implementing programming techniques such as multi-threading
-and caching to reduce latency and delays in the system by as much as 50\%.
-
-As a very minimum the software efficiency must be linear or better, meaning if 1
-action takes 1 second, 10 actions must take 10 or less seconds.
-
-To measure our success in reaching these goals, we conducted a software
-efficiency test, comparing the three programs against each other using
-a range of test cases.
-
-\section{Project Description}
-In broad strokes, this project has been about designing a system that provides a
-simple and efficient way of handeling rule management for the \snort{} IDS. The
-project is the spiritual successor to \bhtb{}. Essentially taking good ideas
-from \bhtb{}, adding a few of our own, and creating a more adoptable open source
-rule management system for \snort{}.
-
-We utilized the latest stable version of Python as our programming language. C++
-was also considered, but due to the limited time at our disposal, we felt we could create more functionality with Python, due to it requiring less
-memory management and the general “programmer friendly” ways of doing things.
-
-The system required a database to function efficiently and the project
-primarily utilizes MySQL, as it is the de facto standard for the Linux
-platform. To make our database operations simpler, we've utilized a framework
-called Django\cite{django} which offers us an abstraction layer on top of the
-database, so that we primarily only work with objects.
-
-Furthermore, the project also consisted of creating a GUI that is user
-friendly and responsive. 
-
-The software that was created in this project, though still lacking some
-features and contains some minor bugs, largely fulfils the project goals
-outlined in section \ref{sec:project_objectives}. We did not fulfil the goal of
-producing software that has reduced latency and delays, but we are confident that this is because we have
-sacrificed efficiency for functionality. We also feel that the functionality
-gained outweighs the efficiency lost and the efficiency curve is still very much
-within the linearity objective, as you can read about in chapter \ref{chap:}.
-
-Because the project has been so performance oriented, the report has evolved to
-also contain a small study into software performance. We've discovered that it is quite difficult to achieve
-performance in software when the expectations of functionality is high. We've
-also discovered the importance of conducting software performance testing before
-it is released, rather than after. Because we conducted a performance test on
-our software, we were able to implement optimizations that drastically improved
-the performance of one of our big operations within the software, the rule
-updating process.
 
 
-\section{Academic Background}
-This project has probably benefited greatly from the fact that all three project
-members are all taking different computer science courses. One member has
-studied computer engineering, the second has been learning the operations trade
-while the third has been studying information security. This has given us a
-unique opportunity to draw from each others strengths and approach the project
-from different perspectives. 
+\input{tex/introduction/project_background}
+\input{tex/introduction/previous_work}
+\input{tex/introduction/project_description}
+\input{tex/introduction/target_audience}
+\input{tex/introduction/project_objectives}
+\input{tex/introduction/academic_background}
+\input{tex/introduction/framework}
+\input{tex/introduction/document_structure}
 
-We have also benefitted from the diverse prior experience in the group, two of
-the members spent the year prior to this project at an internship at CERN in
-Switzerland. The third member of the team has worked for Avdeling BKI for the
-past 7 years prior to this project and has good knowledge of what the client
-needs and experience from the information security field in general. 
 
-In this project we've all had to get ourselves more comfortable with Python as a
-programming language and there has been a learning curve when dealing with a
-framework such as Django.
 
-\section{Framework}
-\subsection{Software Development Methodology}
-\label{sec:dev_method}
-As this project has been very time restricted, the development needed be as
-efficient as possible. We therefore had to find a model that utilized the
-manpower we had available in the best possible way.
-The size of the group was quite small, so big and complex development models
-would add too much bureaucracy to coordinate the project and was thus overkill.
 
-As we wanted to have a lightweight development model, some form of an
-agile\cite{AGILE} development model with a set of development cycles was
-preferred. This way, each group member could take an active part in the project
-and all members could feel a sense of ownership.
 
-\begin{figure}[ht!]
-\includegraphics[width=130mm]{./img/development_model.png}
-\caption{Development Model}
-\label{fig:development_model}
-\end{figure}
 
-Developing iterative and incrementally, we got the best from both the
-agile development world and from the very well defined waterfall
-approach\cite{waterfall}.
-We were able to get feedback throughout the project, and have a structured and
-reasonable way of actually doing changes to the plan while the project was running. At the
-same time we could be able to maintain the overall plan within cycles, so that
-it was possible to work individually, while still being well coordinated.
 
-To be able to develop all the modules of the project within the timeframe, each development
-cycle consisted of multiple modules or functionality developed in parallel. This
-allowed us to maximize our utilization of time and personnel.
 
-The start of each cycle consisted of a meeting where we defined the goals for
-that cycle and identifying the individual tasks that we needed to get
-done. This is similar to the start of a sprint in the development model
-Scrum\cite{scrum}.
 
-In the development part of the cycle, we worked individually on the tasks that
-were defined in the planning. Regular meetings and cooperative programming
-within the group ensured that we all pulled the project in the same direction.
-
-At the end of each cycle we would have a working set of software, which ideally
-complied with all the goals set in the start of each cycle. We held meetings
-with Avdeling BKI between each cycle to present the progress, and to let them
-influence the direction of the project.
-
-After all the development cycles had been completed, we then made a final
-assurances that everything worked as intended and that all modules coexisted in
-harmony. This part of the development also consisted of some hands-on testing by
-the client and performance testing.
-
-\subsection{Schedule}
-We planned this project to have a fairly comprehensive initial phase for mapping
-and designing of the system. We spent the better part of the first two weeks
-figuring out how to implement the system. After the two weeks and before we
-started actually programming, we held a ``project decision meeting" with the client to confirm
-that we had modelled the system correctly, to get feedback and to get the final
-go-ahead.
-
-We then began the implementation phase which consisted of development cycles as
-described above in section \ref{sec:dev_method}. This phase was devided into
-five parts, consisting of four development cycles and a final cleanup/testing cycle. All the development cycles
-lasted two weeks, aside from the last development cycle and the cleanup/testing
-cycle, which lasted one week each. 
-
-During those cycles we conducted meetings with both our mentor and our client
-every two weeks, timed so that these meetings took place on alternating weeks.
-This ensured that we got continual feedback and advice throughout the entire
-process. 
-
-After these weeks, we completely shifted focus from the software to the project
-report and spent the final 5-6 weeks working on that. Because we had done a
-thorough job during the first few weeks of the project, we had a lot of the
-contents for the report more or less created.
-
-Our Gannt diagram for the project can be found in appendix \ref{}.
-
-\subsection{Project Organization}
-We organized the project work a little differently throughout the project,
-reflecting on the fact that we had multiple phases. During the first few weeks
-we spent most of the time together in a group room, working together and discussing things.
-
-Once most things had been worked out and the implementation phase began, there
-was more room and need to work individually to produce code. We still gathered 
-together every so often to syncronize our progress and plan the next course of
-action.
-
-Throughout the project, most decisions have been met either by confering with
-the client or achieving consensus within the group. 
+% <<<<<<< .mine
+% =======
+% \section{Project Objectives}
+% \label{sec:project_objectives}
+% \subsection{Result Objectives}
+% We reiterate from the project plan[link to project plan] that this
+% project has a goal of researching, designing and developing a system that
+% as a minimum:
+% \begin{itemize}
+% \item Is more efficient than BHTB.
+% \item Is developed as an engine that responds to API calls.
+% \item Is modular in design and allows future changes and additions to not affect
+% existing functionality.
+% \item Is scalable enough to handle both small and large sets of IDS sensors and
+% rules in a production environment.
+% \item Is able to download rules and rule sets from multiple customizable sources.
+% \item Is able to distribute different rules to different IDS sensors.
+% \item Can download and distribute rules automatically at set intervals.
+% \item Is capable of exporting rules for sharing.
+% \item Has the capability to activate, deactivate, filter and suppress rules on a
+% per sensor basis, in a way that is user friendly.
+% \item Supports multi-user interaction.
+% \item Can efficiently and safely work with different installations of \snort{} and various
+% other third party tools, such as SNORBY\cite{snorby}.
+% \item Is easy to install.
+% \item Has an internal logging system.
+% \item Is well documented and can be easily adopted by anyone as open source software.
+% \end{itemize}
+% In addition, the project will attempt to add the following functionality if
+% time permitting:
+% \begin{itemize}
+% \item A graphical user interface.
+% \item Said user interface must be user friendly and intuitive, and require only
+% limited knowledge of \snort{} rules from the user.
+% \item The system can also distribute rules to
+% Suricata\cite{surikata}, another \snort{}-like IDS, which
+% can operate with the exact same rules as \snort{}.
+% \item Implement security features that ensure confidentiality of rules.
+% \item The project will investigate and potentially implement multi-threading
+% technology or other optimization techniques to exploit modern hardware
+% capacities.
+% \item The system is capable of validating and checking rules for errors before
+% they are distributed to sensors.
+% \item The system supports commenting of the rules.
+% \item The system supports writing custom rules and editing existing rules.
+% \end{itemize}
+% Once the system has been developed, it will be released as an Open Source Software to the
+% public in a well-documented format.
+% \subsection{Effect Objectives}
+% 
+% Forming baselines from the current prototype \bhtb{} and from \snortmanager{},
+% the project had a goal to further increase the efficiency of rule management by
+% investigating and implementing programming techniques such as multi-threading
+% and caching to reduce latency and delays in the system by as much as 50\%.
+% 
+% As a very minimum the software efficiency must be linear or better, meaning if 1
+% action takes 1 second, 10 actions must take 10 or less seconds.
+% 
+% To measure our success in reaching these goals, we conducted a software
+% efficiency test, comparing the three programs against each other using
+% a range of test cases.
+% 
+% \section{Project Description}
+% In broad strokes, this project has been about designing a system that provides a
+% simple and efficient way of handeling rule management for the \snort{} IDS. The
+% project is the spiritual successor to \bhtb{}. Essentially taking good ideas
+% from \bhtb{}, adding a few of our own, and creating a more adoptable open source
+% rule management system for \snort{}.
+% 
+% We utilized the latest stable version of Python as our programming language. C++
+% was also considered, but due to the limited time at our disposal, we felt we could create more functionality with Python, due to it requiring less
+% memory management and the general “programmer friendly” ways of doing things.
+% 
+% The system required a database to function efficiently and the project
+% primarily utilizes MySQL, as it is the de facto standard for the Linux
+% platform. To make our database operations simpler, we've utilized a framework
+% called Django\cite{django} which offers us an abstraction layer on top of the
+% database, so that we primarily only work with objects.
+% 
+% Furthermore, the project also consisted of creating a GUI that is user
+% friendly and responsive. 
+% 
+% The software that was created in this project, though still lacking some
+% features and contains some minor bugs, largely fulfils the project goals
+% outlined in section \ref{sec:project_objectives}. We did not fulfil the goal of
+% producing software that has reduced latency and delays, but we are confident that this is because we have
+% sacrificed efficiency for functionality. We also feel that the functionality
+% gained outweighs the efficiency lost and the efficiency curve is still very much
+% within the linearity objective, as you can read about in chapter \ref{chap:}.
+% 
+% Because the project has been so performance oriented, the report has evolved to
+% also contain a small study into software performance. We've discovered that it is quite difficult to achieve
+% performance in software when the expectations of functionality is high. We've
+% also discovered the importance of conducting software performance testing before
+% it is released, rather than after. Because we conducted a performance test on
+% our software, we were able to implement optimizations that drastically improved
+% the performance of one of our big operations within the software, the rule
+% updating process.
+% 
+% 
+% \section{Academic Background}
+% This project has probably benefited greatly from the fact that all three project
+% members are all taking different computer science courses. One member has
+% studied computer engineering, the second has been learning the operations trade
+% while the third has been studying information security. This has given us a
+% unique opportunity to draw from each others strengths and approach the project
+% from different perspectives. 
+% 
+% We have also benefitted from the diverse prior experience in the group, two of
+% the members spent the year prior to this project at an internship at CERN in
+% Switzerland. The third member of the team has worked for Avdeling BKI for the
+% past 7 years prior to this project and has good knowledge of what the client
+% needs and experience from the information security field in general. 
+% 
+% In this project we've all had to get ourselves more comfortable with Python as a
+% programming language and there has been a learning curve when dealing with a
+% framework such as Django.
+% 
+% \section{Framework}
+% \subsection{Software Development Methodology}
+% \label{sec:dev_method}
+% As this project has been very time restricted, the development needed be as
+% efficient as possible. We therefore had to find a model that utilized the
+% manpower we had available in the best possible way.
+% The size of the group was quite small, so big and complex development models
+% would add too much bureaucracy to coordinate the project and was thus overkill.
+% 
+% As we wanted to have a lightweight development model, some form of an
+% agile\cite{AGILE} development model with a set of development cycles was
+% preferred. This way, each group member could take an active part in the project
+% and all members could feel a sense of ownership.
+% 
+% \begin{figure}[ht!]
+% \includegraphics[width=130mm]{./img/development_model.png}
+% \caption{Development Model}
+% \label{fig:development_model}
+% \end{figure}
+% 
+% Developing iterative and incrementally, we got the best from both the
+% agile development world and from the very well defined waterfall
+% approach\cite{waterfall}.
+% We were able to get feedback throughout the project, and have a structured and
+% reasonable way of actually doing changes to the plan while the project was running. At the
+% same time we could be able to maintain the overall plan within cycles, so that
+% it was possible to work individually, while still being well coordinated.
+% 
+% To be able to develop all the modules of the project within the timeframe, each development
+% cycle consisted of multiple modules or functionality developed in parallel. This
+% allowed us to maximize our utilization of time and personnel.
+% 
+% The start of each cycle consisted of a meeting where we defined the goals for
+% that cycle and identifying the individual tasks that we needed to get
+% done. This is similar to the start of a sprint in the development model
+% Scrum\cite{scrum}.
+% 
+% In the development part of the cycle, we worked individually on the tasks that
+% were defined in the planning. Regular meetings and cooperative programming
+% within the group ensured that we all pulled the project in the same direction.
+% 
+% At the end of each cycle we would have a working set of software, which ideally
+% complied with all the goals set in the start of each cycle. We held meetings
+% with Avdeling BKI between each cycle to present the progress, and to let them
+% influence the direction of the project.
+% 
+% After all the development cycles had been completed, we then made a final
+% assurances that everything worked as intended and that all modules coexisted in
+% harmony. This part of the development also consisted of some hands-on testing by
+% the client and performance testing.
+% 
+% \subsection{Schedule}
+% We planned this project to have a fairly comprehensive initial phase for mapping
+% and designing of the system. We spent the better part of the first two weeks
+% figuring out how to implement the system. After the two weeks and before we
+% started actually programming, we held a ``project decision meeting" with the client to confirm
+% that we had modelled the system correctly, to get feedback and to get the final
+% go-ahead.
+% 
+% We then began the implementation phase which consisted of development cycles as
+% described above in section \ref{sec:dev_method}. This phase was devided into
+% five parts, consisting of four development cycles and a final cleanup/testing cycle. All the development cycles
+% lasted two weeks, aside from the last development cycle and the cleanup/testing
+% cycle, which lasted one week each. 
+% 
+% During those cycles we conducted meetings with both our mentor and our client
+% every two weeks, timed so that these meetings took place on alternating weeks.
+% This ensured that we got continual feedback and advice throughout the entire
+% process. 
+% 
+% After these weeks, we completely shifted focus from the software to the project
+% report and spent the final 5-6 weeks working on that. Because we had done a
+% thorough job during the first few weeks of the project, we had a lot of the
+% contents for the report more or less created.
+% 
+% Our Gannt diagram for the project can be found in appendix \ref{}.
+% 
+% \subsection{Project Organization}
+% We organized the project work a little differently throughout the project,
+% reflecting on the fact that we had multiple phases. During the first few weeks
+% we spent most of the time together in a group room, working together and discussing things.
+% 
+% Once most things had been worked out and the implementation phase began, there
+% was more room and need to work individually to produce code. We still gathered 
+% together every so often to syncronize our progress and plan the next course of
+% action.
+% 
+% Throughout the project, most decisions have been met either by confering with
+% the client or achieving consensus within the group. 
+% >>>>>>> .r351

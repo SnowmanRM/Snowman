@@ -1,4 +1,42 @@
-\section{Configuration file}
+\section{Configuration files}
+\snowman{}'s configuration files exist to let users 
+
+The configuration files originated from a need to store database
+
+some options
+
+for example configuration files see appendix.
+
+\subsection{Server configuration file}
+
+set the number of revisions to store. \snowman{} will automatically delete the
+oldest revision when the revision count for one rule exceeds this number. The
+default value is 2, which is just enough to let users roll back to the previous
+working revision after an update. Users can also specify whether incoming
+revisions should automatically become active (i.e. go right into production) or
+remain inactive until manually activated.
+
+There is a possibility that a rule will be moved from one rule set to another
+by a source, for example the \ldots rules contain a ``deleted'' set which contains
+rules that were previously part of other rule sets but is now considered
+obsolete. Users can also choose to re-arrange rules across rule sets, which may
+create conflict during updates. In the server configuration file, users can
+specify that rules should 
+\begin{inparaenum}[\itshape a\upshape)]
+\item always be moved when an update contains the rule within a different rule
+set;
+\item moved unless a user has previously moved the rule; or 
+\item not moved at all.
+\end{inparaenum} 
+
+\subsection{Client configuration file}
+Every client in the system requires its own configuration file. In this file,
+the credentials of the sensor on which the client operates are stored, along
+with database and logging options and paths to required directories and files.
+Eigil: please describe purpose behind rules per request.
+
+
+
 During the design of \snowman{} the solution to some issues was not immediately
 clear. As an example, consider the automatic update of new rule revisions. Some
 users would like to have the new revisions put into production, but others might

@@ -1,0 +1,31 @@
+\section{Previous Work}
+Research \cite{BHTB} has shown that a good rule management system for \snort{}
+will improve the workflow and efficiency of the IDS significantly, and a
+prototype for such a system was built in 2012 called \bringhome{} \cite{BHTB}
+(henceforth referred to as \bhtb{}). This prototype has been in use at Avdeling
+BKI since 2012, but is suffering from lacks in functionality and efficiency due
+to being a proof-of-concept prototype. \bhtb{} has, however, proven that
+there is a significant gain from having an intuitive Graphical User Interface
+(GUI) for managing rules. A GUI facilitates the work of the operator, as work is
+shifted from complex operations in a CLI to automatic execution of common
+routines triggered by buttons.
+
+% TODO: improve below paragraph (Eirik)
+There was another similar project conducted at \GUC{} in 2012 called
+\snortmanager{} \cite{SnortManager} which also deals with management of \snort{}
+rules. The \snortmanager{} project files are available as open source software\footnote{http://github.com/stianja/SnortManager}, but no
+usage instructions are available. The source code has not been maintained since
+its initial release and is designed for a specific company in mind. Enabling,
+disabling and configuring rules is also cumbersome in this system as it is
+based on plaintext arguments in ``policies'' that users must construct
+themselves \cite{SnortManager}. The rule distribution is also done manually from the
+files generated. All this makes \snortmanager{} unsuitable for Avdeling BKI and
+their routines.
+
+Several add-ons and other \snort-related software
+exist\footnote{http://www.snort.org/snort-downloads/additional-downloads}, and
+a few of these are built to manage \snort{} rules, most notably
+\pulledpork{}\footnote{http://code.google.com/p/pulledpork} and
+\oinkmaster{}\footnote{http://oinkmaster.sourceforge.net}. The key differences
+between all software mentioned in this section and \snowman{} will be further
+explained in chapter \ref{chap:existing_solutions}.

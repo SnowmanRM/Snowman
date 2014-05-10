@@ -1,0 +1,47 @@
+\section{Project Description}
+This project is broken down to four main objectives: 
+\begin{enumerate}
+\item Identify the challenges of rule management in IDS's such as \snort{}.
+\item Describe how a good rule management system should operate.
+\item Develop a good open source rule management system for \snort{}.
+\item Write documentation for installation and usage of the system.
+\end{enumerate} 
+
+
+handling multiple individually configured sensors. 
+
+In broad strokes, this project has been about designing a system that provides a
+simple and efficient way of handeling rule management for the \snort{} IDS. The
+project is the spiritual successor to \bhtb{}. Essentially taking good ideas
+from \bhtb{}, adding a few of our own, and creating a more adoptable open source
+rule management system for \snort{}.
+
+We utilized the latest stable version of Python as our programming language. C++
+was also considered, but due to the limited time at our disposal, we felt we could create more functionality with Python, due to it requiring less
+memory management and the general “programmer friendly” ways of doing things.
+
+The system required a database to function efficiently and the project
+primarily utilizes MySQL, as it is the de facto standard for the Linux
+platform. To make our database operations simpler, we've utilized a framework
+called Django\cite{django} which offers us an abstraction layer on top of the
+database, so that we primarily only work with objects.
+
+Furthermore, the project also consisted of creating a GUI that is user
+friendly and responsive. 
+
+The software that was created in this project, though still lacking some
+features and contains some minor bugs, largely fulfils the project goals
+outlined in section \ref{sec:project_objectives}. We did not fulfil the goal of
+producing software that has reduced latency and delays, but we are confident that this is because we have
+sacrificed efficiency for functionality. We also feel that the functionality
+gained outweighs the efficiency lost and the efficiency curve is still very much
+within the linearity objective, as you can read about in chapter \ref{chap:}.
+
+Because the project has been so performance oriented, the report has evolved to
+also contain a small study into software performance. We've discovered that it is quite difficult to achieve
+performance in software when the expectations of functionality is high. We've
+also discovered the importance of conducting software performance testing before
+it is released, rather than after. Because we conducted a performance test on
+our software, we were able to implement optimizations that drastically improved
+the performance of one of our big operations within the software, the rule
+updating process.

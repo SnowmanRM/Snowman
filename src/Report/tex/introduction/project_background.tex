@@ -1,0 +1,26 @@
+\section{Project Background}
+The Norwegian Armed Forces Cyber Defense (CYFOR) unit for Computer Network Defense
+(CND), Avdeling BKI, is responsible for detecting and stopping cyber-attacks against the
+critical infrastructure and command and control systems utilized by the Norwegian military.
+One of the tools used to carry out this task is the open source IDS \snort{}
+\cite{Snort}.
+
+\snort{} is a leading (ref?) open source IDS that is used to detect potentially
+unwanted or malicious network traffic based on predefined patterns described in
+signatures. There are both free and commercial signatures available for
+\snort{} and as \snort{} has been highly adopted by the security community,
+these signatures are continually updated and maintained. For large networks, an
+IDS will often operate in multiple parts of the network simultaneously, where each separate instance of the IDS is known as a
+{\em sensor}. The management of \snort{} signatures (henceforth referred to as
+rules) is cumbersome in multi-sensor environments without a centralized service
+which can control that all sensors are synchronized with the latest rules.
+Avdeling BKI has therefore tasked a group of students from Gjøvik University
+College (GUC) to design and develop a more functional, effective and secure
+rule management system for \snort{} that can continue to live on beyond this project.
+
+
+% Using \snort{} has been plagued for years by the fact that it does not have a good
+% system for handling, updating or maintaining the signatures (henceforth called
+% rules and rule sets) used for detection, thus making it cumbersome to utilize
+% \snort{} for security analysts (ref?).
+% 
