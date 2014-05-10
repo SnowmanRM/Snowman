@@ -1,4 +1,4 @@
-\section{Functionality Comparison Chart}
+\section{Functionality comparison}
 \label{sec:functionality_comparison}
 To easily visualize how the various software is different from each other, we
 have gathered key functionality from all of them and created a list of support
@@ -8,24 +8,26 @@ for them.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
-\begin{table}[h]
+\begin{table}
   \centering
-  \begin{tabular}{m|m|m|m|m|m}
+  \hspace*{-1cm}\begin{tabular}{m|m|m|m|m|m}
 	Feature & \snowman{} & \bhtb{} & \snortmanager{} & Pulled\_Pork & Oinkmaster \\
 	\hline
-	\multicolumn{1}{p{5cm}|}{Can download rules from source} & \checkmark &
+	\multicolumn{1}{p{5cm}|}{Rule download and storage} & \checkmark &
 	\checkmark & \checkmark & \checkmark & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Can store rules} & \checkmark & \checkmark &
-	\checkmark & \checkmark & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Can register and administer sensors} & \checkmark & \checkmark & \checkmark & & \\
-	\multicolumn{1}{p{5cm}|}{Has a graphical user interface} & \checkmark & \checkmark & \checkmark & & \\
-	\multicolumn{1}{p{5cm}|}{Can automatically update database} & \checkmark &
+	\multicolumn{1}{p{5cm}|}{Sensor administration} & \checkmark & \checkmark &
+	\checkmark & &
+	\\
+	\multicolumn{1}{p{5cm}|}{Graphical user interface} & \checkmark & \checkmark
+	& \checkmark & &
+	\\
+	\multicolumn{1}{p{5cm}|}{Automatic updates} & \checkmark &
 	\checkmark &  & \checkmark & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Can automatically syncronize sensors} & \checkmark &
+	\multicolumn{1}{p{5cm}|}{Automatic synchronisation} & \checkmark &
 	\checkmark &  & \checkmark & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Can turn on or off rules} & \checkmark & \checkmark & 
+	\multicolumn{1}{p{5cm}|}{Enable/disable rules} & \checkmark & \checkmark & 
 	& & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Works with multiple sensors} & \checkmark & \checkmark
+	\multicolumn{1}{p{5cm}|}{Multiple sensors supported} & \checkmark & \checkmark
 	& & & \checkmark \\
 	\multicolumn{1}{p{5cm}|}{Can syncronize rules to sensors} & \checkmark &
 	\checkmark & & & \checkmark \\
@@ -73,7 +75,7 @@ for them.
 	\multicolumn{1}{p{5cm}|}{Number of objects in data structure} & 16 & 4
 	& 9 & N/A & N/A \\
 	\hline
-  \end{tabular}
+  \end{tabular}\hspace*{-1cm}
   \caption{Functionality comparison chart.}
   \label{tab:comparisonChart}
 \end{table}

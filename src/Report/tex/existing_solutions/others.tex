@@ -1,47 +1,41 @@
-\section{Other Programs of Note}
-There are two other pieces of software that also should be mentioned.
-Pulled\_Pork and Oinkmaster are both programs that can download rules and update
-your Snort sensor, and even do some of the more advanced features you
-will find in Snowman and BHTB. Pulled\_Pork even has support for the Shared
-Object rules\cite{SnortManual}, something this project has not taken into
-account due to complexity. 
-
-However, both of these programs suffer from the fact that they are
-command line oriented programs. They are both very good at what they do, but do not have the userability and
-efficiency that you get from a GUI with buttons. In a limited environment with
-one or very few Snort sensors, they are probably a better choice for rule
-management than something like BHTB or Snowman. But once the environment grows
-larger, with tens or even hundreds of sensors, they would start to slow the user
-down.
+\section{Other notable programs}
+There are two other pieces of software that also should be mentioned;
+\pulledpork{} and \oinkmaster{} are both programs that can download rules and
+update \snort{}-sensors. These programs also contain some of the features found
+in \snowman{} and \bhtb{}, and \pulledpork{} even supports
+Shared Object rules \cite{SnortManual}, which is not part of this project due to
+complexity.  However, both of these programs suffer from the fact that they are
+command-line oriented. They are both very good at what they do, but lack the
+usability and efficiency offered by GUIs with buttons. These programs are a
+good choice for rule management in a small environment with one or very few
+sensors, but once the environment grows larger, with tens or even hundreds of
+sensors, they become ineffective.
 
 \section{Research on Software Performance}
 Since this project also investigates software performance, it is relevant to
-take a look at what others in the field write on the subject. We have noticed
-that most development reports from GUC do not really mention the subject,
-probably due to most student projects being more or less agile\cite{AGILE} development projects.
-This is something mentioned in \cite{FutureEngineering}, that agile programming
-is becoming mainstream and by it's nature is a concern for the future of software
-performance engineering, as the primary focus of an agile project is to pump out
-functionality.
+take a look at what others in the field write on the subject. This subject is
+missing from most software development reports from \GUC{}, which can be
+explained by the usual high focus on agile\cite{AGILE} development. 
+\cite{FutureEngineering} mentions that agile programming is becoming mainstream
+and by its nature is a concern for the future of software performance
+engineering, as the primary focus of an agile project is on functionality.
 
-Early on in the project we noted that Snowman is very I/O bound, as it does a
-lot of database operations. So much so that there is a very noticable difference
-in performance between traditional rotational harddrives and SSD,
-as seen in section \ref{tester}.
+A proper performance testing methodology was hence not immediately available for
+this project. However, the articles \cite{WOSP98} and \cite{WOSP04} gave a few
+pointers towards developing the test cases described in chapter
+\ref{chap:performance_analysis}. Both articles also stress the importance of
+performance testing during the development rather than after it, as this allows
+for time to actually implement optimizations and improvements. The performance
+testing in this report does not strictly follow any methodology, but is a
+result of the team members' use of common sense and the scientific method.
 
-Myers speaks of this in his Master thesis\cite{Myers}. His tests show that SSD
-has a significant advantage over HDD when it comes to random read performance
-but not when it comes to write performance. This is to be expected as his tests
-were conducted in 2008 and SSD technology was fairly new back then, suffering from
-their different way of writing data\footnote{Features such as TRIM was
+Early on in the project it became clear that \snowman{} is very I/O bound, as it does
+a lot of database operations. The tests in this report show a noticable
+difference in performance between traditional rotational hard drives and SSDs.
+Myers speaks of this in his Master thesis \cite{Myers} which shows that SSD
+has a significant advantage over HDDs when it comes to random read performance
+but not when it comes to write performance. Note that these tests were performed
+in 2008, a time where SSD technology was fairly new and suffering
+from their different way of writing data\footnote{Features such as TRIM was
 introduced shortly after Myers thesis.}. As operating systems, drivers and disk
-controllers has improved, SSD's are now superior to HDD's in most tasks.
-
-When we identified software performance testing as one of the goals of our
-project, we needed to identify a good testing method. Sadly, there is not a
-whole lot written on the subject, assuming most testing just follows the
-scientific method or common sense. However, the articles \cite{WOSP98} and
-\cite{WOSP04} gave us a few pointers towards developing the test cases described
-in chapter \ref{relevant kapittel}. Both articles also stress the importance of
-performance testing during the development rather than after it, as it gives you
-time to actually implement optimizations and improvements. 
+controllers has improved, SSDs are now superior to HDDs in most tasks.

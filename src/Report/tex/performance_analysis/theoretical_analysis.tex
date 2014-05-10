@@ -1,51 +1,63 @@
 \section{Theoretical Analysis}
 The purpose of the theoretical performance analysis is to examine the most
 important features of \snowman{} and similar software, to form opinions on the
-expected performance of each software. The teoretical analysis is used to into
-concrete benchmarking tests presented in section \ref{sec:practical_analysis}.
-
-\bhtb{}, \snortmanager{} and two versions of \snowman{} are analysed.
+expected performance of each software. The theoretical analysis is used to
+create concrete benchmarking tests presented in section \ref{sec:practical_analysis}.
+The software analysed is \bhtb{}, \snortmanager{} and two versions of \snowman{}.
 
 \subsection{Effectiveness of Update Processing}
+As described in chapter \ref{chap:implementation}, \snowman{} extracts several
+rule options from the rulestring during parsing. These options will either
+create or update objects connected to the rule, such as rule set, rule message
+and classtype. These logical relations add to the complexity of the database
+transactions during the update process, as multiple database tables are
+involved. \bhtb{} and \snortmanager{}, on the other hand, write rule data to a
+single table. It is therefore expected that \bhtb{} and
+\snortmanager{} will generally exhibit a more effective update processing.
 
-As described in section \ref{sec:functionality_comparison}, \snowman{} has
-about four times as many objects in its datastructure as \bhtb{}.
-\bhtb{} writes rules to one table, whereas a rule object in \snowman{} has multiple relations to other objects and thus several database tables are written
-to during an update. It is therefore expected that \bhtb{} and \snortmanager{}
-exhibit a more effective update processing than \snowman{}, because of all the
-extra data it has to process and store.
+% =======
+% As described in section \ref{sec:functionality_comparison}, \snowman{} has
+% about four times as many objects in its datastructure as \bhtb{}.
+% \bhtb{} writes rules to one table, whereas a rule object in \snowman{} has multiple relations to other objects and thus several database tables are written
+% to during an update. It is therefore expected that \bhtb{} and \snortmanager{}
+% exhibit a more effective update processing than \snowman{}, because of all the
+% extra data it has to process and store.
+% >>>>>>> .r354
 
-\subsubsection{File-to-rule Ratio}
-A typical official update package from Sourcefire contains on average 280
-rules per file. \snowman{} is designed to
-
-the only extra overhead for \snowman{} is to open each file. It is therefore
-expected that the difference in processing time for \snowman{} will not exceed 1 percent.
-
-\subsubsection{Incremental Updates}
+\subsubsection{Incremental updates}
 One of the expected strengths of \snowman{} lies in processing incremental
 updates, i.e. updates containing only a small number of changes. It is
 significant to gauge performance for incremenal updates, as most real-life
 updates usually contain between 10 and 100 changes. Ten updates from 20.03.2014
-to 17.04.2014 contained on average 36.8 new and 53.9 updated rules.
-\footnote{Source: http://www.snort.org/vrt/advisories}.
-
-Storing the checksum for every individual file\footnote{Checksum is stored only
-for files that are parsed.} is unique for \snowman{}. It allows \snowman{} to
-completely ignore files without changes, which means that only the files with
-rule changes are parsed. This is particularly useful as the current official
-\snort{} rules contain over 100 files\footnote{As of May 2014}.
+to 17.04.2014 contained on average 36.8 new and 53.9 updated
+rules\footnote{Source: http://www.snort.org/vrt/advisories}. \snowman{} will
+effectively handle these updates, as it stores the checksum of the files in the
+update. Storing the checksum for every individual file\footnote{Checksum is
+stored only for files that are parsed.} is unique for \snowman{}. It allows
+\snowman{} to completely ignore files without changes, which means that only
+the files with rule changes are parsed. This is particularly useful as the
+current official \snort{} rules contain over 100 files\footnote{As of May 2014}.
+It is therefore expected that \snowman{} will effectively process updates that
+contain relatively few changes.
 
 \subsection{Effectiveness of Rule Distribution}
-Since \snowman{} and \bhtb{} uses different strategies for distribution;
-\snowman{} uses a local client database as described in chapter
-\ref{sec:architecture_discussion} and \bhtb{} just pushes all the files out to the sensor every time, we expect
-there to be a gain in performance because of the fact that \snowman{} only
-transfers over new changes rather than everything, every time. 
+The rule distribution, or synchronization, is a feature of \snowman{} and
+\bhtb{} where rules are distributed from the server to the sensors. Since
+\snowman{} and \bhtb{} use different strategies for distribution, \snowman{}
+uses a local client database as described in chapter
+\ref{sec:architecture_discussion} while \bhtb{} pushes all files out to the
+sensor at each synchronization, it is previsioned that \snowman{} will perform
+better because of the fact that  only transfers over new changes rather than
+everything, every time. Also, since \bhtb{} distributes everything, every time,
+it is expected to have a flat performance curve, since the timing will
+be dependent on the bandwidth rather than processing power.
 
-Also, since \bhtb{} distributes everything, every time, we expect it to have a
-very flat performance curve, since the timing will be very dependant on the bandwidth
-rather than processing power.
+\snowman{}'s server-client connection is more complex than the one of \bhtb{}
+expect a longer processing time for setting up the connection.
+
+\bhtb{} operates with a more crude way of distributing rules to sensors.
+
+\snowman{} will only synchronize changes
 
 \subsection{GUI Latency}
 A major complaint from the client was that they experienced a large latency in

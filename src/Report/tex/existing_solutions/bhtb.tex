@@ -1,46 +1,45 @@
 \section{Bring Home The Bacon}
-Bring Home The Bacon was a byproduct prototype of the Master thesis written by
-Henriksen in 2012\cite{BHTB}. In the thesis, Henriksen sought to prove that having
-a central, graphical-oriented, system to administer multiple Snort sensors and
-their rules results in a signficant improvement in user workflow over the more
-traditional command line environment. 
+Bring Home The Bacon was a by-product prototype of the Master thesis written by
+Henriksen in 2012 \cite{BHTB}. In the thesis, Henriksen seeks to prove that
+having a central, graphical-oriented, system to administer multiple
+\snort{}-sensors and their rules results in a signficant improvement in user
+workflow over the more traditional command-line environment. Henriksens tests
+show that such a system can double the users' work efficiency, if not more, as the command-line environment would scale very
+badly as the number of sensors increases. Henriksen also outlines a rule
+management process, which has been helpful during the initial phases of this
+project to map the program workflow (section \ref{sec:program_workflow}).
 
-Henriksens tests showed that such a system could double the users
-work efficiency, if not more, as the command line environment would scale very
-badly once the number of sensors increases. Henriksen also outlines a rule
-management process, which we have taken into account in our initial work to map
-the program workflow in section \ref{sec:program_workflow}.
+Despite being a prototype, \bhtb{} offers the essential functionality required
+for managing rule sets on multiple sensors. It can display a list of rules
+which can also be turned on and off on different sensors. It can also display a
+list of rule sets that can also be turned on and off, which will effect all
+rules in the rule set. This is considered a drawback, as \bhtb{} does not offer
+a mechanism where rule sets can be disabled without affecting the state of the
+rules within. This means that the original state of the rules in a rule set
+is lost whenever the state of the rule set is changed. \snowman{} improves this
+by keeping the state of the rule sets separate from the state of the rules.
 
-Despite being a prototype, BHTB does offer the essential functionality required
-for managing rulesets on multiple sensors. It can display a list of rules
-where you can turn those on or off on different sensors. It can also display a
-list of rulesets and you can turn those on or off, but that only propagates down
-to the rules, turning those on or off. That has been a drawback for BHTB, as you
-loose whatever preferred setup you had if you simply want to turn one ruleset on
-or off for a short while, and thus have to remember how it was set up before.
+\bhtb{} distributes rules to the sensors by generating all files
+centrally and sending them one by one via SCP. It determines
+which rules to distribute by comparing the main rule table with a second table
+representing which rules the sensor should not have. This way of distributing
+rules is considered ineffective, and has been solved differently in \snowman{}
+(section \ref{sec:general_design}). \bhtb{} also supports manual creation of
+rule thresholds and suppressions, but does not offer any input validation, which makes the sensors vulnerable to
+crashes\footnote{Snort will simply not restart if something in the
+configuration files is malformed.} in the case of invalid input. This weakness
+is taken into consideration in \snowman{}, which offers a comprehensive input
+validation. \bhtb{} is programmed with Python and uses the framework
+Tornado \cite{tornado} as its Web-server, which works
+similar to Django, a framework used by \snowman{}, with it's URL API system
+(section \ref{kapittel om django urls}). It also uses SQLite \cite{sqlite}
+as its database, which has limited abilities when it comes to relations and
+more complex data structures.
 
-BHTB also lets you add thresholds and suppressions, but the system does not do
-any validation of the input, thus leaving the Snort sensor vulnerable to
-crashes\footnote{Snort will simply not restart if something in the configuration
-files is malformed.} if the user inputs something wrong.
-
-The way BHTB handles distribution is to generate all the files centrally and
-then send them to the sensors one by one via SCP. It determines which rules to
-distribute by comparing the main rule table with a second table representing
-which rules the sensor should not have. 
-
-On the technical side, BHTB is programmed with Python and uses the framework
-Tornado\cite{tornado} as its webserver, which works
-similar to Django with it's URL API system which you can read about
-in section \ref{kapittel om django urls}.
-It also uses SQLite\cite{sqlite} as it's database, which has limited abilities
-when it comes to relations and more complex data structures. 
-
-BHTB really begins to show it's
-limitations once the system begins to be populated by a lot of
-rules\footnote{In the five digit range.} and many sensors, thus having a
-scalability problem.
-Avdeling BKI has used BHTB in a production environment since 2012 and experiences the software as slow and
-cumbersome. 
+According to Avdeling BKI, \bhtb{} really begins to show its limitations once the
+system is populated by a lot of rules\footnote{In the five digit range.} and
+sensors, which makes it clear that it has a scalability problem. Avdeling BKI
+has used BHTB in a production environment since 2012 and experiences the
+software as slow and cumbersome.
 
 
