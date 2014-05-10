@@ -1,0 +1,31 @@
+\subsection{Saving}
+
+During early versions of the update-code it was discovered that the saving of
+changes to the central database would need some special care. The first versions
+of \snowman \ saved every rule individually, after a change was found, and the
+objects was updated. This was discovered to be a performance-problems, as
+updates could take hours on weak hardware.
+
+A new approach was therfore planned, and now we store everything into memory
+while parsing, and only starts to save changes into the database when everything
+is parsed. As some of the objects is reffering to other objects in the database
+through foreign-keys it is vital to store the objects depending on other objects
+after the objects they depend on is stored. A safe order to save them is
+identified, and the objects are saved in this order:
+\begin{enumerate}
+  \item Generators
+  \item Classifications
+  \item Reference-types
+  \item RuleSets
+  \item Rules
+  \item RuleReferences
+  \item Suppresses
+  \item Filters
+\end{enumerate}
+
+For every point in the list above, the procedure is more or less the same.
+First, the objects recieved is attempted to be extracted from the database in
+one request. The response from the database lets us identify which objects
+are new, and which is changed. The changed objects can be updated and saved
+individually, before all the new objects are constructed, and inserted into the
+database in bulk.
