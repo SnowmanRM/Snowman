@@ -4,9 +4,9 @@
 To facilitate database transactions and the creation of the Web interface, this
 project uses the \django\cite{django} framework.
 \django{} is a Web framework which takes care of database modelling and
-transactions, and user authentication.
+transactions, and user authentication. (Eigil?)
 \subsection{SQLAlchemy}
-Used on the client side database abstraction\ldots
+Used on the client side database abstraction\ldots (Eigil?)
 \subsection{jQuery}
 When it comes to using Javascript for client side scripting, jQuery\cite{jquery}
 is the way to go. jQuery provides a framework for common javascript operations on the DOM
@@ -16,7 +16,7 @@ interface. It also makes AJAX class a lot easier, requireing only code such as
 \$.get('/web/rules/');
 \end{python}
 instead of 
-\begin{python}
+\begin{javascript}
 function loadXMLDoc() {
     var xmlhttp;
 
@@ -38,7 +38,7 @@ function loadXMLDoc() {
     xmlhttp.send();
 }
 
-\end{python}
+\end{javascript}
 \subsection{Bootstrap}
 Since no one in the group can call themselves a web designer, we decided to take
 a shortcut on that regard and utilize Bootstrap\cite{bootstrap}, which is a

@@ -27,6 +27,37 @@
 
 \usepackage{listings}
 
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\ttb\color{deepblue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\ttb\color{deepblue},
+  identifierstyle=\ttb\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\ttm\color{mygray},
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\newcommand\javascriptstyle{\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\ttm,
+   showstringspaces=false,
+   showspaces=false,
+   frame=tblr,
+   numbers=left,
+   numberstyle=\color{mygray},
+   numbersep=5pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}}
+
 % Python style for highlighting
 \newcommand\pythonstyle{\lstset{
 language=Python,
@@ -51,6 +82,14 @@ numberstyle=\color{mygray} % the style that is used for the line-numbers
 \lstnewenvironment{python}[1][]
 {
 \pythonstyle
+\lstset{#1}
+}
+{}
+
+% JavaScript environment
+\lstnewenvironment{javascript}[1][]
+{
+\javascriptstyle
 \lstset{#1}
 }
 {}
