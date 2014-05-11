@@ -1,26 +1,77 @@
+% Diskusjon rund resultatene. Det skal gjøres en evaluering av hvorvidtvalgt løsning. Avvik drøftes.
+% det er samsvar mellom kravspesifikasjonen satt opp og
+
 \chapter{ANALYSIS OF PERFORMANCE TESTING RESULTS}
 \label{chap:analysis_of_results}
-Diskusjon rund resultatene. Det skal gjøres en evaluering av hvorvidtvalgt løsning. Avvik drøftes.
-det er samsvar mellom kravspesifikasjonen satt opp og
-
-An update package usually contains only a small number of changes from the
-previous version
+% snowman 04 left out.
+% 
+% An update package usually contains only a small number of changes from the
+% previous version
 
 \section{Effectiveness of update processing}
-It came as a big surprise to us that \bhtb{} performed so well in the
-update tests after our client had listed that as one of it's major faults. We
-suspect that it is the very simple nature of it's data structure that is making
-the difference. We also suspect that our tests didn't really reflect on the
-reality of our clients setup and database complexity, as they have multiple
-sensors and many rules turned on or off, something our tests didn't simulate. 
+This section discusses the most important results from the update processing
+tests. Table \ref{tab:timeperrule} displays the average processing time per rule
+calculated from the synthetic update containing 10000 rules and the realistic update containing
+28064 rules. As can be seen, \bhtb{} is significantly faster than the two other
+across all systems. It came as a big surprise that \bhtb{} performed so well in
+the update tests, as our client had listed poor update performance as one of its
+major defects. The results are probably best explained by the very simple nature
+of \bhtb{}'s data structure. Also note that these tests might not reflect the
+reality that our client faces, as they are run in a minimalistic environment
+without any sensors or other database-objects that might affect \bhtb{}'s
+performance in a real environment. \snortmanager{} also performed well in the
+tests, which is expected as it has a very similar data structure to \bhtb{} in
+that it is very simple. 
 
-\snortmanager{} also did well in the tests, which wasn't really all that
-surprising, as it has a very similar data structure to \bhtb{} in that it is
-very simple. But it seems to start having more problems once we introduced more
-files into the tests. There is a big difference between tests \textit{SYN-1000}
-and \textit{SYN-1000-B}, where we have the same number of rules, but spread over
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{r|r|r|r|r}
+Test & System & Snowman 05 & Snortmanager & BHTB \\
+\hline
+SYN-10000 & S1 & 1.4179 & 9.2429 & 0.3606 \\
+ & S2 & 0.5762 & 0.5105 & 0.0919 \\
+ & S3 & 1.6805 & 1.3524 & 0.0440 \\
+ \hline
+SF-28064 & S1 & 6.3962 & 4.3392 & 0.5638 \\
+ & S2 & 2.6875 & 2.1128 & 0.1716 \\
+ & S3 & 1.2523 & 0.8039 & 0.1018 \\
+	\hline
+\multicolumn{5}{l}{\textit{Note: All times in milliseconds.}}
+  \end{tabular}
+  \caption{Average processing time per rule.}
+  \label{tab:timeperrule}
+\end{table}
+
+\snortmanager{} starts to struggle when more files are introduced into the
+tests. As can be seen in table \ref{tab:comparefiles}, there is a big difference
+between tests \textit{SYN-1000} and \textit{SYN-1000-B}, where we have the same number of rules, but spread over
 more files. This problem does not seem to exist in either \snowman{} nor
 \bhtb{}.
+
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{r|r|r|r|r}
+Test & System & Snowman 05 & Snortmanager & BHTB \\
+SYN-1000 & S1 & 2568.235 & \textbf{9470.460} & 568.333 \\
+SYN-1000-B & S1 & 2508.530 & 1836.396 & 445.476 \\
+\hline
+SYN-1000 & S2 & 1098.159 & 460.394 & 158.351 \\
+SYN-1000-B & S2 & 1245.906 & 496.204 & 157.817 \\
+\hline
+SYN-1000 & S3 & \textbf{1823.785} & \textbf{1360.276} & 60.313 \\
+SYN-1000-B & S3 & 404.022 & 228.044 & 49.908 \\
+	\hline
+\multicolumn{5}{l}{\textit{Note: All times in milliseconds.}}
+  \end{tabular}
+  \caption{Comparison of processing time for many files vs one file.}
+  \label{tab:comparefiles}
+\end{table}
 
 None the less, both \snortmanager{} and \bhtb{} pummelled \snowman{} v0.4 into
 the ground in these tests, which led us to completely rework our update program
@@ -85,7 +136,27 @@ prefetch related objects from the database and that did improve the results
 somewhat, but not enough to be noticable. 
 
 \section{Linearity in performance}
-Må ha grafer for å snakke om dette.
+
+Table \ref{tab:correlation} shows the linear correlation between the test
+results for the synthetic updates with 1, 10, 100, 1000, and 10000 rules. The
+first dataset is the test results and the second dataset is
+\(\{1,10,100,1000,10000\}\). As can be seen, the performance is close to linear
+for all software across all systems.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{r|r|r|r}
+System & Snowman 05 & Snortmanager & BHTB \\
+\hline
+S1 & 0.999945 & 0.999999 & 0.999695 \\
+S2 & 0.993996 & 0.999627 & 0.999931 \\
+S3 & 0.999999 & 0.999999 & 0.999983 \\
+	\hline
+\multicolumn{4}{l}{\textit{Note: All times in milliseconds.}}
+  \end{tabular}
+  \caption{Empirical linear correlation coefficients for update processing.}
+  \label{tab:correlation}
+\end{table}
 
 \section{Conclusions}
 - Snowman kom dårligere ut

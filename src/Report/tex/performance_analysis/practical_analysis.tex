@@ -117,9 +117,9 @@ rules contain a message and a classtype, see appendix for full description.}.
 		SYN-1000-D & Test 1-5 & Pre-populated database. Revision change for all rules
 		\\
 	\hline
-		SF-28064 & Test 1-6 & Blank database. \\
+		SF-28064 & Test 1-1 & Blank database. \\
 	\hline
-		SF-28064-B & Test 1-7 & Pre-populated database. Update has one	rule change.\\
+		SF-28064-B & Test 1-6 & Pre-populated database. Update has one rule change.\\
 	\hline
 	\multicolumn{3}{l}{\textit{Note: Rules are split into files with ten rules per
 	file unless other is specified.}}
@@ -130,16 +130,16 @@ rules contain a message and a classtype, see appendix for full description.}.
 
 \subsubsection{Test 1-1}
 \paragraph{Problem: How fast can the software process an update?}
-The purpose of this question is to determine the average
-processing time per rule. Results are ranked from short to long
-processing time, where shorter is better.
+The purpose of this question is to determine the average processing time per
+rule. Results are ranked from short to long processing time, where shorter is
+better.
 \paragraph{Test cases:}
-To address this problem, five test cases were introduced. The tests contained
-an artificially generated update with 1, 10, 100, 1000 and 10000 rules,
-respectively. Rules were split into files with ten each (table
-\ref{tab:test1Names}). Each test case represents one update, and the names
-denote the number of rules, files and rules per file in the following structure:
-\textit{rules-files-rules per file}.
+To address this problem, five test cases were introduced. The tests contained an
+artificially generated update with 1, 10, 100, 1000 and 10000 rules,
+respectively. Rules were split into files with ten each. Each test case
+represents one update, and the names denote the number of rules in the following structure:
+\textit{SYN-number of rules}. The test is also carried out with a realistic
+update package, \textit{SF-28064}.
 
 \subsubsection{Test 1-2}
 \paragraph{Problem: How strong is the linear correlation between processing time
@@ -162,8 +162,9 @@ several files. This question is asked to examine the difference in processing
 time for these two scenarios. Results are ranked from no difference to big
 difference, where less difference is better.
 \paragraph{Test cases:}
-This test compares the \textit{1000-100-10} test case from Test 1 with a
-test case with the same number of rules in \textit{one} file (1000-1-1).
+This test compares the \textit{SYN-1000} test case from Test 1 with a
+test case with the same number of rules in \textit{one} file
+(\textit{SYN-1000-B}).
 
 \subsubsection{Test 1-4}
 \paragraph{Problem: Is the processing time shorter when the update contains no
@@ -175,23 +176,34 @@ neglected) by the system.
 Results are ranked from shortest to longest processing time, where shorter is better.
 \paragraph{Test cases:}
 This is a compound test where a test case is run two times in succession. The
-1000-100-10 test case from Test 1 is run first to populate the database, before
-it is run again.
+\textit{SYN-1000} test case from Test 1 is run first to populate the database,
+before it is run again (\textit{SYN-1000-C}).
 
 \subsubsection{Test 1-5}
+\paragraph{Problem: Are the processing times for two updates identical when
+only revision numbers are changed between the updates?}
+This question measures how one small change in all rules affects procesing time.
+This test runs the \textit{SYN-1000} update to populate the database, and then
+the \textit{SYN-1000-D}, which contains a revision number change for all rules.
+Processing time is expected to be faster for the second update, since the
+database will already be populated with the majority of the data. Results from
+this test will be ranked by the difference in processing time between the first
+and the second updates, where bigger difference is better.
+
+\subsubsection{Test 1-6}
 \paragraph{Problem: Are the processing times for two updates identical when only
-one rule has changed between the updates?}
-This question seeks to determine how the software handles an update when there
-is only one change from the previous update. This is an important factor to
-consider, since an update usually contains only a small amount of changes from
-previous updates. Results are ranked from short processing time for second
-update to no difference in processing time, where shorter time is better.
+one rule has changed between the updates?} This question seeks to determine how
+the software handles an update when there is only one change from the previous
+update. This is an important factor to consider, since an update usually
+contains only a small amount of changes from previous updates. Results are
+ranked from short processing time for second update to no difference in
+processing time, where shorter time is better.
 \paragraph{Test cases:}
-This test suite consists of two test cases, one with an artificially generated
-update and one with an update from a real source. The test cases 1000-100-10 and
-from Test 1 are used. Each update is run twice; the first run populates the
-database, and the second run contains one change from the previous run (one of
-the rules has an updated revision number).
+This test suite contains two test cases with an update from a real source. The
+\textit{SF28061} is run first to populate the database before \textit{SF28061-B}
+is run, which contains one change (one of the rules has an updated revision
+number).
+
 %TODO: when analyzing results, be sure to highligt that a completely new
 % update is run once, and subsequent updates often contain a small amount 
 % of changes. 
