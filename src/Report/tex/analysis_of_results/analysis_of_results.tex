@@ -136,6 +136,9 @@ prefetch related objects from the database and that did improve the results
 somewhat, but not enough to be noticable. 
 
 \section{Linearity in performance}
+Our tests show that all the systems were more or less exactly linear, which
+means that none of the systems are suffering from bad programming that manifests
+itself exponentially. 
 
 Table \ref{tab:correlation} shows the linear correlation between the test
 results for the synthetic updates with 1, 10, 100, 1000, and 10000 rules. The
@@ -159,8 +162,17 @@ S3 & 0.999999 & 0.999999 & 0.999983 \\
 \end{table}
 
 \section{Conclusions}
-- Snowman kom dårligere ut
-- Fordi større data struktur
-- Optimaliseringen i update var god
-- Viser viktigheten av performance testing i prosjekter
+\snowman{} did not outperform either \bhtb{} or \snortmanager{} in any of the
+tests, but through the test we managed to discover a big performance bottleneck
+in \snowman{}'s Update module that we managed to fix in time. The fix resulted
+in a big improvement in performance.
+
+The extra latency in \snowman{} is likely due to it's more complex data
+structure surrounding rules, which means more processing and data movement is
+needed for many operations. The project has also not been able to exploit all
+possible optimization possibilities and techniques, due to limited time.
+
+These tests stand to point out that performance testing in software projects can
+reveal performance problems early enough in the development to do something
+about it.
 
