@@ -24,12 +24,16 @@ centrally and sending them one by one via SCP. It determines
 which rules to distribute by comparing the main rule table with a second table
 representing which rules the sensor should not have. This way of distributing
 rules is considered ineffective, and has been solved differently in \snowman{}
-(section \ref{sec:general_design}). \bhtb{} also supports manual creation of
+(section \ref{sec:general_design}). 
+
+\bhtb{} also supports manual creation of
 rule thresholds and suppressions, but does not offer any input validation, which makes the sensors vulnerable to
 crashes\footnote{Snort will simply not restart if something in the
 configuration files is malformed.} in the case of invalid input. This weakness
 is taken into consideration in \snowman{}, which offers a comprehensive input
-validation. \bhtb{} is programmed with Python and uses the framework
+validation. 
+
+\bhtb{} is programmed with Python and uses the framework
 Tornado \cite{tornado} as its Web-server, which works
 similar to Django, a framework used by \snowman{}, with it's URL API system
 (section \ref{kapittel om django urls}). It also uses SQLite \cite{sqlite}

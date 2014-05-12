@@ -1,14 +1,13 @@
 \section{General Design}
 \label{sec:general_design}
 
-This section is deicated to the discussion of the general design of \snowman{}.
+This section is dedicated to the discussion of the general design of \snowman{}.
 
-\subsection{Centralized or distributed setup?}
+\subsection{Centralized or Distributed Setup?}
 \label{sec:architecture_discussion}
-We decided early to create \snowman{} in such a way that it can be set up in a
-distributed manner. The main considerations behind this choise is the
-bandwidth-requirement needed by the rule-updates, and the load of the central
-server.
+We decided early on to design \snowman{} to be a distributed system. The main
+considerations behind this choice was the bandwidth usage needed by the rule
+updates, and the load on the central server.
 
 \begin{figure}[h]
 	\includegraphics[width=130mm]{./img/Architecture.png}
@@ -16,40 +15,42 @@ server.
 	\label{fig:general_architecture}
 \end{figure}
 
-On figure \ref{fig:general_architecture} you can see the difference between
-central and distributed setup. The red dotted lines represent the communication
-in a centralized setup, while the blue lines between the server and the clients
-represent the communication in a distributed setup.
+In figure \ref{fig:general_architecture} you can see the difference between a
+centralized and a distributed setup. The red dotted lines represent the
+communication in a centralized setup, while the blue lines between the
+server and the clients represent the communication in a distributed
+setup. The latter is the principle used in \snowman{}.
 
-\subsubsection{Bandwidth requirements} 
-The \snort{} sensors managed by \snowman{} might have very varying
-network-infrastructure connecting them to the central server. In worst case, the
-sensor might be placed at a military-base in the field, on the other side of the
-planet, only connected to the central server via a sattelite-connection with
-limited capabilities for transmitting data. As the rulesets applied to sensors
-typically is tens of thousands rules, and the changes between two versions of
-the sets typically affects about a thousand of them, it seems reasonable to only
-copy the changes when an update should be done.
+\subsubsection{Bandwidth Requirements} 
+The \snort{} sensors managed by \snowman{} might have varying
+network infrastructure connecting them with the central server. In a worst case
+scenario, the sensor might be located at a military base in the field, on the
+other side of the planet, only connected to the central server via a sattelite
+connection with limited capabilities for transmitting data. As the rulesets applied to sensors
+typically consists of tens of thousands of rules and the changes between two
+versions of the sets typically only affects about a thousand of them, it seems
+reasonable to only copy the changes when an update should be done. This is
+achieved by using a distributed system.
 
-\subsubsection{Central server load}
-When a full update of all the sensors is requested, new rule-sets would be
-needed to be created, and distributed to the sensors.
+\subsubsection{Central Server Load}
+When a full update of all the sensors is requested, new rulesets would have to
+be created and distributed to the sensors.
 
-In a centralized enviorment, the \snowman{} server would need to generate all
-the new rule-sets, and send them to the client. The server would not known on
-beforehand which rules currently exists on the sensor, so a full list of rules
-would need to be sent. Even if not a single rule changed. Also, if the sensor
-for some reason is unavailable, or connected trough a unreliable
-network-connection, the central server would need to put down quite some effort
-to send the rules to the sensor. Again, even if it is not neccesary as no rules
-have changed.
+In a centralized enviorment, the central server would need to generate all
+the new rulesets and send them to the sensor. The server
+would not known beforehand which rules currently exists on the sensor, so a full list of rules
+would need to be sent, even if there were no changes to any of the rules. Also,
+if the sensor for some reason is unavailable, or connected through an unreliable
+network-connection, the central server would waste a lot of extra effort to
+send the rules to the sensor. Even if it is not neccesary as no rules have
+changed.
 
-In a distributed eniorment, we would be able to put some logic (a client) onto
+In a distributed environment, we would be able to put some logic (a client) into
 the machines hosting the sensors. This way, when an update is occouring, the
-client can get a list of rule-ID's from the central server, and self be
-responsible for collecting the new revision of the rules that have changed, or
-is missing. This way, the central server would only need to collect the full
-rules from the database if the rule actually is needed by the sensor.
+client can get a list of rules from the central server, and on it's own accord
+be responsible for collecting the new revision of the rules that have changed or
+is missing. This way, the central server would only need to transmit the
+rules from its database if the rule actually is needed by the sensor.
 
 
 

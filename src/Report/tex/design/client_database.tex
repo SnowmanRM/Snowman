@@ -1,8 +1,9 @@
 \subsection{Database}
 
-The database on the client would be significantly simpler than the one on the
+The database on the client can be significantly simpler than the one on the
 server, as we only care about the rules which should be present on a given
-sensor. The full schema is available in figure \ref{fig:client_database}
+sensor. The full database schema is available in figure
+\ref{fig:client_database}
 
 \begin{figure}[h]
 	\includegraphics[width=130mm]{./img/Client_Database.png}
@@ -10,7 +11,7 @@ sensor. The full schema is available in figure \ref{fig:client_database}
 	\label{fig:client_database}
 \end{figure}
 
-The central part of the datastructure is the rule table. This table contains all
-the parametres directly related to the rule. In addition we have seperate tables
-to all the parametres modifying the rule (like filters), or that is common
-between several rules (like rulesets).
+The central part of the data structure is the rule table. This table contains
+all the parameters directly related to the rule. In addition, we have seperate
+tables for all the meta parametres surrounding the rule (like rulesets
+or filters).
