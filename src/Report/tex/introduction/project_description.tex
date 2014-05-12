@@ -1,28 +1,28 @@
 \section{Project Description}
-This project can be broken down into four main objectives: 
+In broad strokes, the purpose of this project is to design a system
+that provides a simple and efficient way of managing rules for the
+\snort{} IDS. The project is the spiritual successor to \bhtb{}, and will
+essentially expand on the good ideas from \bhtb{}, and add functionality
+requested by Avdeling BKI to create a more adoptable open source rule
+management system for \snort{}. The project can be broken down into four main
+objectives:
+
 \begin{enumerate}
 \item Identify the challenges of rule management in IDS's such as \snort{}.
 \item Describe how a good rule management system should operate.
 \item Develop a good open source rule management system for \snort{}.
-\item Measure the performance of the system compared to other similar systems.
+\item Measure the performance of the system and compare this to other similar
+systems.
 \end{enumerate} 
+The first two objectives were addressed early on in the project during the
+initial design phase of the software. To develop a good rule management system,
+it is essential to consider the tasks in the two first objectives, as they form
+the basis of how the system in the third objective is designed. Challenges and
+best practices in rule management is therefore presented throughout this report
+to support the design decisions made in the final software solution.
 
-In broad strokes, this project has been about designing a system that provides a
-simple and efficient way of handeling rule management for the \snort{} IDS. The
-project is the spiritual successor to \bhtb{}. Essentially taking good ideas
-from \bhtb{}, adding a few of our own, and creating a more adoptable open source
-rule management system for \snort{}.
+As the project became very performance-oriented, the report evolved to
+also contain a small study into software performance and practical
+performance test of related software. 
 
-To reach our third objective, we had to solve the first and second objective
-early on in the project, and the result of that work is described in this
-report in chapters \ref{} to \ref{}.
-
-Because the project became very performance oriented, the report has evolved to
-also contain a small study into software performance and a practical
-performance test of all the related software.
-
-We've found that it is quite difficult to achieve performance in software when
-the expectations of functionality is high. We've also learned the importance of
-conducting software performance testing before it is released, rather than
-after. Because we conducted a performance test on our software, we were able to
-implement optimizations that drastically improved the performance of one of our system modules.
+%tekst flyttet til konklusjon
