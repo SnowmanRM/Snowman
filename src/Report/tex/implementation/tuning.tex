@@ -1,3 +1,5 @@
+\section{Tuning module}
+
 in Snowman this is translated to one filter of each type per rule per sensor.
 
 If a filter occurs inline, this filter is regarded as a default filter and will
@@ -15,3 +17,10 @@ lost or discarded.
 
  Filters are removed from the rulestring and
 transformed into event filter and detection filter objects.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{./img/filter_flowchart.png}
+\caption{Flow}
+\label{fig:filter_flowchart}
+\end{figure}

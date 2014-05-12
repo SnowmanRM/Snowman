@@ -9,12 +9,24 @@ This chapter will give a brief introduction to the basic concepts of
 
 A rule is basically a set of options that define ways of detecting, classifying
 and reporting a potential attack or threat on the network\footnote{A rule
-actually consists of a header and options \cite{SnortManual}}.
-There are several types of options, but only the general rule options are relevant for this
-project. The general rule options provide information about the rule
-\cite{SnortManual} (i.e. revision number, alert message). Other types of
-options, such as payload options which are actively used in detection, are not
-relevant for the management of rules and are thus not considered in this project.
+actually consists of a header and options \cite{SnortManual}}. The rule options
+are specified as plain text in the {\em rulestring} (listing
+\ref{lst:rulestring}) with the general options enclosed in parentheses.
+
+\begin{lstlisting}[frame=single, caption=Example rulestring.,
+label=lst:rulestring,captionpos=b]
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 \
+(msg:"PROTOCOL-TFTP Get"; classtype:bad-unknown; \
+sid:1444; rev:9;)
+\end{lstlisting}
+There are several types of options, but only the general rule options are
+relevant for this project. The general rule options provide information about
+the rule \cite{SnortManual} (i.e. signature ID, revision number and classtype).
+Other types of options, such as payload options which are actively used in detection, are
+not relevant for the management of rules and are thus not considered in this
+project. Some of the general options can only be specified within the
+rulestring, referred to as an {\em inline} specification, while others can be
+specified in separate files, referred to as {\em external} specification.
 
 A rule can either be enabled or disabled in the detection system, meaning that
 the rule will only have an effect on detection when it is enabled. Since this
@@ -63,10 +75,10 @@ sets. \snowman{} and this report use only the latter definition of rule sets.
 
 \section{Generators}
 
-\textit{Generator} is a term used for any subsystem of \snort  
-which generates alerts from rules \cite{SnortManual}. Each generator is
-identified by a unique generator ID. The rules subsystem, which has generator id
-1, is the only relevant generator for this project.
+\textit{Generator} is a term used for any subsystem of \snort{} which generates
+alerts from rules \cite{SnortManual}. Each generator is identified by a unique
+generator ID. The rules subsystem, which has generator id 1, is the only
+relevant generator for this project.
 
 \section{References}
 \snort{} contains a plugin which allows rules to contain
@@ -75,30 +87,23 @@ additional information about the alerts \cite{SnortManual}. A reference is
 basically a URL string pointing to a webpage containing this information.
 
 \section{Event and detection filters}
-Filtering can be applied to rules in order to control the amount
-and frequency of alerts. Two types of filters can be applied to a rule: event
-filters and detection filters. A detection filter can only apear inline, whereas
-an event filter can only appear as a standalone option\footnote{An event filter
-can currently be written inline (called a rule threshold), but according to the
+Filtering can be applied to rules in order to control the amount and frequency
+of alerts. Two types of filters can be applied to a rule: event filters and
+detection filters. A detection filter can only appear inline, whereas an event
+filter can only appear as a standalone option\footnote{An event filter can
+currently be written inline (called a rule threshold), but according to the
 \snortManual{} this feature is deprecated and will not be supported in future
-releases.}.
+releases.}. All filters operate with a \textit{count} and \textit{seconds}
+variable, representing the number of events in a time interval and the duration
+of the time interval, respectively. Event filters are further divided into three
+types (table \ref{tab:filterTypes}).
 
-All filters operate with a \textit{count} and \textit{seconds} variable,
-representing the number of events in a time interval and the duration of the time interval,
-respectively. Event filters are further divided into three types (table
-\ref{tab:filterTypes}).
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.4]{./img/filter_flowchart.png}
-\caption{Flow}
-\label{fig:filter_flowchart}
-\end{figure}
+\section{Rule suppression}
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
 
-\begin{table}[b]
+\begin{table}[htb]
   \centering
   \begin{tabular}{l|l}
   	Filter type & Alerts \\
