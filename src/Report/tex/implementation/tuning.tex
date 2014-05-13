@@ -1,26 +1,27 @@
 \section{Tuning module}
+The \pythoninline{tuning} module contains classes that hold information on rule
+filtering and suppession. \snort{} supports only one filter of each type per
+rule. In Snowman this is translated to one filter of each type per rule {\em per
+sensor}, which means that a filter is always connected to both a sensor and a
+rule. If a filter occurs inline, this filter is regarded as a default filter and
+will be active on every sensor where the rule operates. This is accomplished by
+applying the filter to the rule and the {\em all sensors} sensor, which is the
+parent of all sensors. When a rule is enabled on a sensor, \snowman{} will look
+for any filter set on the rule on the respective sensor or on any of its
+parents. This means that a default filter can be overridden by setting another
+filter directly on the sensor. The routine for applying filters to a rule on a
+sensor is explained in figure \ref{fig:filter_flowchart}.
 
-in Snowman this is translated to one filter of each type per rule per sensor.
-
-If a filter occurs inline, this filter is regarded as a default filter and will
-be active on every sensor where the rule operates. A user can choose to
-override the default filter on a sensor by defining a custom filter to be used
-on the respective sensor.
-
-
-To stop \snort from adding duplicate filters, all inline filters
-are removed from the rulestrings. Any filters extracted from
-the rulestring are written as plain text (i.e. as they appear in the original
-rulestring) in the \textit{filters} field of the rule revision object. This is
-to ensure that all the original rule options are stored meaning that no data is
-lost or discarded. 
-
- Filters are removed from the rulestring and
-transformed into event filter and detection filter objects.
+To stop \snort{} from adding duplicate filters, all inline filters are removed
+from the rulestrings and transformed into event filter and detection filter
+objects. Any filters extracted from the rulestring are written as plain text
+(i.e. as they appear in the original rulestring) in the \textit{filters} field
+of the \pythoninline{RuleRevision} object. This is to ensure that all the
+original rule options are stored, meaning that no data is lost or discarded.
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.4]{./img/filter_flowchart.png}
-\caption{Flow}
+\caption{Applying a filter to a rule on a sensor}
 \label{fig:filter_flowchart}
 \end{figure}

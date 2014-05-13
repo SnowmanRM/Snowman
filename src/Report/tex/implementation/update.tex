@@ -7,12 +7,6 @@ unnecessary operations, are explained in the subsequent sections. To avoid
 confusion with the module, the term {\em update-package} is specifically
 used to refer to update data coming from external sources.
 
-% This section will define an example rule to be used throughout subsequent
-% sections and the remainder of the chapter, to illustrate the lifespan of a rule
-% in the system.
-% 
-% Word: rulestring.
-
 \subsection{Sources}
 A {\em source} is a supplier of update-packages. \snowman{} lets users define
 sources which are either external (i.e. online) or local, meaning that
@@ -26,26 +20,29 @@ and alternatively also a URL to the MD5-hash of the package. External sources
 can be configured to pull updates at regular intervals, contrary to local
 sources which must always be updated manually.
 
- A
-source can be configured to update at regular intervals, or the user can run an update manually on a source.
-To make the update process more effective, \pythoninline{update} makes use of
-an MD5 URL which points to a file containing the MD5 hash of the
-update-package. This hash is stored for every source (if available) and is
-compared to any pre-existing hash to verify if the system is up to date or not.
+A source can be configured to update at regular intervals, or the user can run
+an update manually on a source.
+To make the update process more effective, \pythoninline{update} makes use of an
+MD5 URL which points to a file containing the MD5 hash of the update-package.
+This hash is stored for every source (if available) and is compared to any
+pre-existing hash to verify if the system is up to date or not.
 \pythoninline{update} will only download and process an update-package when it
 encounters a new hash.
 
 \subsection{Files}
 \label{sec:update.files}
 An update-package may contain various files depending on the source it comes
-from. This section will describe the files supported by \snowman{}.
+from. This section will describe the files supported by \snowman{}. Note that
+file names and extensions used in this report follows the {\em de facto} names
+used in the official \snort{} rules, but are subject to change. The names and
+extensions can therefore be manually specified by \snowman{} users in a
+configuration file (section \ref{sec:configuration_files}).
 
 \subsubsection{Rule files}
 A rule file is any file carrying the {\em .rules} file extension. These
 files contain raw rulestrings to be processed by Snort. A rulestring is basically a
 semicolon-separated list of rule options. Specific rule options used in this system are listed in table
-\ref{tab:ruleFormat}. A badly formatted rulestring given to \snort{} will cause a
-crash, and \snort{} must be restarted.
+\ref{tab:ruleFormat}.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
@@ -80,39 +77,38 @@ crash, and \snort{} must be restarted.
 \end{table}
 
 \subsubsection{Classification, Generator and Reference Configuration files}
-The classification files are identified by their name \em classification.config
-\em and contain rule classification strings that are used by Snort to
-categorize event data. A classification file will normally appear once per
-update-package, and rarely changes between
+The classification files are identified by their name {\em
+classification.config} and contain rule classification strings that are used by
+Snort to categorize event data. A classification file will normally appear once
+per update-package, and rarely changes between
 updates\footnote{https://www.snort.org/vrt/snort-conf-configurations/}.
+Generator ({\em gen-msg.map}) and reference configuration ({\em
+reference.config}) files also contain strings that specify generator massages
+and rule reference types, respectively.
 
-\subsubsection{Sid message files}
+\subsubsection{Signature message files}
+These files contain alert messages for specific rules.
+
+\subsubsection{Threshold files}
+These files contain filter specifications for specific rules.
 
 \subsection{Running an update}
 An update is either triggered by the user, or automatically on regular
-intervals, for a given source. Regardless of how the update process is
-invoked, it follows the same procedure. As mentioned above, sources will often
-provide an MD5-hash of the update. When this is the case, the hash is
-stored in the database. Every new update will compare its own hash to hashes
-stored in the database, and if an identical hash is found this means that the
-update has been run before and the update process is terminated. When the hash
-does not pre-exist in the database, or for sources which does not use hashing,
-the update-package is downloaded to a temporary directory.
+intervals, for a given source. Regardless of how the update process is invoked,
+it follows the same procedure. As mentioned above, sources will often provide an
+MD5-hash of the update. When this is the case, the hash is stored in the
+database. Every new update will compare its own hash to hashes stored in the
+database, and if an identical hash is found this means that the update has been
+run before, and the update process is terminated. When the hash does not
+pre-exist in the database, or for sources which does not use hashing, the
+update-package is downloaded to a temporary directory.
 
-\snowman{} accepts update-packages in the form
-of tar-archives\footnote{Files that contain compressed files.} containing
-rule and configuration files, and also supports plain text files containing
-rules or known configuration entities\footnote{Generators, filters, references
-etc.}. Tar-archives are extracted, and folders are traversed recursively
-
-
-
-each
-file in each folder is parsed recursively. For added efficinecy, \snowman{} creates a hash of all files which
-is stored in the database. This is later used to see whether any files in a new
-update has not changed. 
-
-In most cases the update-package will contain only minor
+\snowman{} accepts update-packages in the form of tar-archives\footnote{Files
+that contain compressed files.} containing rule and configuration files, and
+also supports plain text files containing rules or known configuration
+entities\footnote{Generators, filters, references etc.}. Tar-archives are
+extracted, and folders are traversed recursively to locate files for
+parsing. In most cases the update-package will contain only minor
 changes in relation to its predecessor, e.g. only one file is different in the
 latest package, and parsing all files that has not changed would therefore be
 a waste. To address this issue and save processing time, the name, path and
@@ -120,18 +116,25 @@ MD5-hash of every file is stored in the database per source. Every time the
 update module parses a file, it first creates a hash of the file and
 compares this with the respective file's hash in the database. If the file
 is present in the database and the two hashes are identical, the file is
-considered \em not new \em and is skipped. The following sections will elaborate
-on the parsing of files based on file type.
+considered {\em not new} and is skipped. The following sections will
+elaborate on the parsing of files based on file type.
 
-skipping files, sequence of files.
-
-parse files with regex.
+The update module contains one parsing method for each supported file type.
+Since all information in an update is plain text, these methods use regular
+expressions to fetch the content. For example, a generator configuration
+contains a comma-separeted list with a name, description and priority: {\em
+config classification: unknown,Unknown Traffic,3}, which are extracted from the
+string by using a regular expression and put into a RuleClass object which is
+later stored in the database. update also contains a method for parsing files
+containing unspecified entities, where each line if first parsed to decide which
+entity the data belongs to befor it is sent to the correct parsing function for
+the respective entity.
 
 \subsection{Rule parsing}
 Some options can be defined both in the rulestring (inline) and in a separate
 file (standalone).
 
-If any properties classified as \em required \em for a rule
+If any properties classified as {\em required} for a rule
 (table \ref{tab:ruleFormat}) are missing\ldots
 
 Non-existing rule sets, rule classes and

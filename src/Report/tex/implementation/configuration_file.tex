@@ -1,60 +1,87 @@
 \section{Configuration Files}
-\snowman{}'s configuration files exist to let users 
+\label{sec:configuration_files}
+\snowman{}'s configuration files exist to give users some flexibility by
+providing a set of options that specify how \snowman{} operates.
 
-The configuration files originated from a need to store database
-
-some options
-
-for example configuration files see appendix.
+The configuration files originated from a need to store database credentials,
+which of course would differ from system to system. This was expanded to include
+some options that users might want to set differently depending on their
+situation, for example if new rule revisions shoul automatically be active in
+the production system or not. \snowman{} requires a configuration file for the
+server and one for each client, detailed below. For example configuration files
+see appendix.
 
 \subsection{Server Configuration File}
+The server configuration file contains file paths and other options used for
+logging and client connections, along with the options described below:
 
-set the number of revisions to store. \snowman{} will automatically delete the
-oldest revision when the revision count for one rule exceeds this number. The
-default value is 2, which is just enough to let users roll back to the previous
-working revision after an update. Users can also specify whether incoming
-revisions should automatically become active (i.e. go right into production) or
-remain inactive until manually activated.
+\subsubsection{Rule revisions}
+Users can specify the number of revisions to store. \snowman{} will
+automatically delete the oldest revision when the revision count for one rule
+exceeds this number. The default value is 2, which is just enough to let users
+roll back to the previous working revision after an update. Users can also
+specify whether incoming revisions should automatically become active (i.e. go
+right into production) or remain inactive until manually activated.
 
-There is a possibility that a rule will be moved from one rule set to another
-by a source, for example the \ldots rules contain a ``deleted'' set which contains
-rules that were previously part of other rule sets but is now considered
-obsolete. Users can also choose to re-arrange rules across rule sets, which may
-create conflict during updates. In the server configuration file, users can
-specify that rules should 
+\subsubsection{Rule sets}
+There is a possibility that a rule will be moved from one rule set to another by
+a source, for example the \snort{} rules contain a ``deleted'' set which
+contains rules that were previously part of other rule sets, but is now
+considered obsolete. Users can also choose to re-arrange rules across rule sets,
+which may create conflict during updates. This means that some users will prefer
+that rules automatically moves to the rule set dictated by the update, while
+others would like the rules to remain in their original rule set. This
+functionality is therefore customizable in the server configuration file.
+
+\subsubsection{Rule filters}
+Another thing that might cause problems is rule filters. Since there can
+only be one filter of each type per rule, users must decide wheter they want new
+incoming filters should automatically overwrite old filters or not. In the
+server configuration file, users can specify that filters should be
 \begin{inparaenum}[\itshape a\upshape)]
-\item always be moved when an update contains the rule within a different rule
-set;
-\item moved unless a user has previously moved the rule; or 
-\item not moved at all.
-\end{inparaenum} 
+\item always overwritten; \item overwritten unless the previous filter was
+set manually by the user; or
+\item not overwritten at all.
+\end{inparaenum}
+
+\subsubsection{Alert messages}
+Rule alert messages can appear both inline and in a separate file, and one of
+these sources must take precedence if they contain different alert messages.
+This behaviour can be configured to always use the inline or external
+specification, or which ever is encountered first. (Eigil: does this speed up
+the parsing?).
+
+\subsubsection{Rule caching}
+Users can specify whether all rules should be cached in memory during an update,
+even if they are not changed. It might be useful to enable this if the updates
+contain a lot of filters, as it will reduce database access when updating the
+filters.
+
+\subsubsection{Update files}
+Since there is no documented standard for file names and file contents within an
+update-package, users can specify both a whitelist and a blacklist over which
+files to parse during an update. If present, the whitelist will take precedence
+over the blacklist. In the whitelist, users specify a list of filenames together
+with their expected contents. If a whitelist is specified, \snowman{} will look
+for, and parse {\em only}, the following files:
+\begin{enumerate}
+  \item One file containing rule classifications.
+  \item One file containing generator messages.
+  \item One file containing alert messages.
+  \item One file containing rule filters.
+  \item An arbitrary number of files containing rulestrings.
+\end{enumerate}
+The whitelist provides the most effective update parsing, as only the files
+specified are parsed.
+
+If a blacklist is used, \snowman{} will parse every file in the update except
+files with extensions specified in the blacklist (e.g. ``.c'' and ``.so'' files
+are skipped). This will slow down the parsing, as \snowman{} has to check if
+each line in each parsed file matches a known entity, such as a classification
+or a rulestring.
 
 \subsection{Client Configuration File}
 Every client in the system requires its own configuration file. In this file,
 the credentials of the sensor on which the client operates are stored, along
 with database and logging options and paths to required directories and files.
-Eigil: please describe purpose behind rules per request.
-
-During the design of \snowman{} the solution to some issues was not immediately
-clear. As an example, consider the automatic update of new rule revisions. Some
-users would like to have the new revisions put into production, but others might
-want to keep the new revisions inactive until they are considered good and
-ready.
-
-It was decided that these types of issues should be specified in a configuration
-file.
-
-For these types of issues, where the project group remained inconclusive
- 
-not clear whether it would be best to do it 
-
-(e.g. should new rules always
-assume a deactivated state or the opposite). These types of issues 
-
-Describe the purpose and structure of the config file.
-
-Some update-packages may contain source code files or modules which are of no
-interest for \snowman{}. 
-
-Users can choose between using a whitelist (parse only whitelisted files) or a
-blacklist (parse all but the blacklisted files)
+(Eigil: please describe purpose behind rules per request.)

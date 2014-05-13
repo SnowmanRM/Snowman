@@ -62,7 +62,7 @@
 %%  * Added a spill programmering option
 %%
 %% v1.0 2011/01/18
-%%  * Added infosek-bachelor, ingeniør
+%%  * Added infosek-bachelor, ingeniï¿½r
 %%
 %% v1.01 2011/05/10
 %%  * fixed front cover for both oneside and twoside
@@ -373,32 +373,32 @@
 
 % Lists (itemize and enumerate)
 
-\renewenvironment{itemize}{\begin{list}{\ensuremath\bullet}%
-    {\labelwidth=.5em%
-      \labelsep=1em%
-      \leftmargin=\labelwidth%
-      \advance\leftmargin\labelsep%
-      \rightmargin=0pt%
-      \topsep=5pt%
-      \parsep=0pt%
-      \partopsep=\baselineskip%
-      \itemsep=\topsep%
-      }}{\end{list}}
+% \renewenvironment{itemize}{\begin{list}{\ensuremath\bullet}%
+%     {\labelwidth=.5em%
+%       \labelsep=1em%
+%       \leftmargin=\labelwidth%
+%       \advance\leftmargin\labelsep%
+%       \rightmargin=0pt%
+%       \topsep=5pt%
+%       \parsep=0pt%
+%       \partopsep=\baselineskip%
+%       \itemsep=\topsep%
+%       }}{\end{list}}
 
-\newcounter{nenum}
-\renewenvironment{enumerate}{\begin{list}{\llap{\arabic{nenum}.}}%
-     {\usecounter{nenum}%
-      \labelwidth=.7em%
-      \labelsep=.8em%
-      \leftmargin=\labelwidth%
-      \advance\leftmargin\labelsep%
-      \rightmargin=0pt%
-      \topsep=5pt%
-      \parsep=0pt%
-      \partopsep=0pt%
-      \itemsep=\topsep%
-      }%
-   }{\end{list}}
+% \newcounter{nenum}
+% \renewenvironment{enumerate}{\begin{list}{\llap{\arabic{nenum}.}}%
+%      {\usecounter{nenum}%
+%       \labelwidth=.7em%
+%       \labelsep=.8em%
+%       \leftmargin=\labelwidth%
+%       \advance\leftmargin\labelsep%
+%       \rightmargin=0pt%
+%       \topsep=5pt%
+%       \parsep=0pt%
+%       \partopsep=0pt%
+%       \itemsep=\topsep%
+%       }%
+%    }{\end{list}}
 
 %%
 %% GMT Frontpage by Kjetil:
@@ -422,7 +422,7 @@ Use $\backslash$useyear\{<year>\} to set year.
   ``BRD'' Bachelor i drift av nettverk og datasystemer,\\
   ``BIS'' Bachelor i Informasjonssikkerhet,\\
   ``BPU'' Bachelor i Programvareutvikling, \\
-  ``BIND'' Bachelor i Ingeniørfad - data. 
+  ``BIND'' Bachelor i Ingeniï¿½rfad - data. 
 }
 
 \newcommand\gmt@secondpagetext{%
@@ -434,7 +434,7 @@ Use $\backslash$useyear\{<year>\} to set year.
   ``BRD'' Bachelor i drift av nettverk og datasystemer,\\
   ``BIS'' Bachelor i Informasjonssikkerhet,\\
   ``BPU'' Bachelor i Programvareutvikling, \\
-  ``BIND'' Bachelor i Ingeniør. 
+  ``BIND'' Bachelor i Ingeniï¿½r. 
 }
 
 \newcommand\gmt@imttext{%
@@ -525,7 +525,7 @@ Use $\backslash$useyear\{<year>\} to set year.
   \renewcommand\gmt@firstpagetext{%
     \begin{tabular}{ccc}
 	Bacheloroppgave&&\\
-    	Bachelor i & ingeniørfag – data &  \\
+    	Bachelor i & ingeniï¿½rfag ï¿½ data &  \\
     	20 &ECTS&\\
     	Avdeling for& informatikk &og medieteknikk\\
     	H\o{}gskolen &i Gj\o{}vik, &\gmt@frontpagesyear\\
