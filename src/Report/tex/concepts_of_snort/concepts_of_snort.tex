@@ -99,7 +99,14 @@ variable, representing the number of events in a time interval and the duration
 of the time interval, respectively. Event filters are further divided into
 three types (table \ref{tab:filterTypes}).
 
+Detectionfilters are filters limiting the number of times a rule generates an
+event, while eventfilters limits how many events are producing alarms.
+
 \section{Rule suppression}
+Some rules might match traffic that is unwanted from most hosts, while some
+hosts would be allowed to send traffic matching the same rules. In this case,
+\snort{} gives the possibility to remove (ie: suppress) alarms when the source
+or destination of the traffic matches the configured parametres.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}

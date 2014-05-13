@@ -1,12 +1,26 @@
 \section{Frameworks}
 \label{sec:frameworks}
+To prevent re-inventing the wheel to many times, we have decided to use several
+frameworks to help us do generic tasks.
+
 \subsection{Django}
 To facilitate database transactions and the creation of the Web interface, this
 project uses the \django\cite{django} framework.
-\django{} is a Web framework which takes care of database modelling and
-transactions, and user authentication. (Eigil?)
+\django{} is an extensive web-framework, designed to make the full process of
+building web-based applications and their backends much more efficient and
+simple. It takes care of the database ORM, which controls all the
+database-transactions. \django{} is also providing a template-system for the
+web-frontend, which make a clear line between the data and design of the
+webpage.
+
 \subsection{SQLAlchemy}
-Used on the client side database abstraction\ldots (Eigil?)
+A database ORM would also be needed on the \snowman-client, but the rest of
+django is not needed there. Because of that, SQLAlchemy is used on the client.
+
+The SQLAlchemy framework is creating an abstraction over the database, and lets
+us develop the code once, and still let the user decide which kind of database
+to use on the client.
+
 \subsection{jQuery}
 When it comes to using Javascript for client side scripting, jQuery\cite{jquery}
 is the way to go. jQuery provides a framework for common javascript operations

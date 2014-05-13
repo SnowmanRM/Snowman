@@ -46,7 +46,11 @@ the parent of other sensors, allowing users to create groups of sensors with the
 same configuration. The database also contains an ``All Sensors'' object which
 is the parent of all sensors.
 
-(Eigil: active, checked, status, secret?).
+The sensors that is not autonomous is checked to be alive every minute, and the
+last registered status is stored in the database. This is then used to give a
+status-message for the sensor to the user. Each sensor does also have a user
+assigned to it. This user is used to let the sensors authenticate with the
+\snowman{} server to do a rule-synchronization.
 
 \subsection{Comments}
 The \pythoninline{core} module contains a comment object which can store
