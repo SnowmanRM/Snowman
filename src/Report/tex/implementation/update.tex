@@ -169,7 +169,18 @@ Please explain..
 Please explain..
 
 \subsubsection{Suppression}
-Always standalone.
+Suppressions can be applied any rules that might be giving off false positives
+or generating a lot of unneccessary alerts. There might also be cases where the
+traffic in question is legal on certain networks or to/from certain
+IP-addresses. Only one suppression can be applied to a rule on a sensor, but
+multiple IP-addresses or networks can be listed in the suppression in the syntax
+[1.2.3.4,4.3.2.1/24]. 
+
+We have added IP-address validation checking into \snowman{} to make sure no
+invalid addresses are entered, by running a regex match on it before we commit
+it. The match will check for a valid IPv4 syntax in the range 0.0.0.0/0 -
+255.255.255.255/32. There is no support for IPv6 at this time, but that can
+easily be added later.
 
 \subsubsection{Rule Message files}
 
