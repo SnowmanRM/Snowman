@@ -48,8 +48,7 @@ set manually by the user; or
 Rule alert messages can appear both inline and in a separate file, and one of
 these sources must take precedence if they contain different alert messages.
 This behaviour can be configured to always use the inline or external
-specification, or which ever is encountered first. (Eigil: does this speed up
-the parsing?).
+specification, or which ever is encountered first.
 
 \subsubsection{Rule caching}
 Users can specify whether all rules should be cached in memory during an update,
@@ -84,4 +83,12 @@ or a rulestring.
 Every client in the system requires its own configuration file. In this file,
 the credentials of the sensor on which the client operates are stored, along
 with database and logging options and paths to required directories and files.
-(Eigil: please describe purpose behind rules per request.)
+
+Parametres which impacts the synchronization is also included in this file.
+Notably is the request-size which controls the max amount of rules requested in
+each request. Depending on the resources available on the central-server, large
+requests might take to much time to handle, and the connection would time out.
+On the other hand, too small requests would increase the sync-time because of
+much I/O-wait between every request. Because we do not know, and do not want to
+put restrictions on, how powerful servers the \snowman{} server will be
+installed on, we pulled this option out to the configfile.
