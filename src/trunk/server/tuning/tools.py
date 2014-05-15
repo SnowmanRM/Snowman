@@ -40,7 +40,7 @@ def generateFilterConfig(rules, sensor, filters, suppresses):
 
 		# If filters exist, add them to the appropiate files
 		eventFilter = getEventFilter(sensor, rule)
-		detectionFilter = getDetectionFilter(sensor, rule)
+		#detectionFilter = getDetectionFilter(sensor, rule)
 		suppress = getSuppress(sensor, rule)
 		
 		if eventFilter:

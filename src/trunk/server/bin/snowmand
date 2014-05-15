@@ -23,6 +23,7 @@ from django.contrib.auth.models import User
 
 from core.models import Generator, Sensor, Rule, RuleSet, RuleClass, RuleReferenceType, RuleReference
 from tuning.models import Suppress, SuppressAddress, DetectionFilter, EventFilter
+from tuning.tools import getEventFilter, getDetectionFilter, getSuppress
 from util.xmlrpcserver import RPCServer
 from util.config import Config
 
@@ -155,6 +156,7 @@ class RPCInterface():
 			rulerevisions[sid] = activeRules[sid]['rev'].rev
 		
 		cache['session'][token]['rules'] = activeRules
+		cache['session'][token]['rulerevisions'] = rulerevisions
 		
 		return {'status': True, 'revisions': rulerevisions}
 	
@@ -211,53 +213,31 @@ class RPCInterface():
 			dictRule['ruleclass'] = rule.ruleClass.classtype
 			dictRule['references'] = rev.getReferences()
 			
-			eventFilter = None
-			detectionFilter = None
-			suppress = None
-
-			# Try to determine if the rule have any filters.
-			s = sensor
-			while s != None:
-				try:
-					if not eventFilter:
-						eventFilter = s.eventFilters.get(rule=rule)
-				except EventFilter.DoesNotExist:
-					pass
-
-				try:
-					if not detectionFilter:
-						detectionFilter = s.detectionFilters.get(rule=rule)
-				except DetectionFilter.DoesNotExist:
-					pass
-
-				try:
-					if not suppress:
-						suppress = s.suppress.get(rule=rule)
-				except Suppress.DoesNotExist:
-					pass
+			# Grab the tuning-parametres.
+			eventFilter = getEventFilter(sensor, rule)
+			detectionFilter = getDetectionFilter(sensor, rule)
+			suppress = getSuppress(sensor, rule)
 				
-				s = s.parent
-				
-			# If an event-filter was found, add it to the rule we are sending to the sensor
-			if eventFilter:
-				dictRule['eventFilter'] = {}
-				dictRule['eventFilter']['type'] = eventFilter.eventFilterType
-				dictRule['eventFilter']['track'] = eventFilter.track
-				dictRule['eventFilter']['count'] = eventFilter.count
-				dictRule['eventFilter']['seconds'] = eventFilter.seconds
-
+			## If an event-filter was found, add it to the rule we are sending to the sensor
+			#if eventFilter:
+			#	dictRule['eventFilter'] = {}
+			#	dictRule['eventFilter']['type'] = eventFilter.eventFilterType
+			#	dictRule['eventFilter']['track'] = eventFilter.track
+			#	dictRule['eventFilter']['count'] = eventFilter.count
+			#	dictRule['eventFilter']['seconds'] = eventFilter.seconds
+			#
 			# If an detectionfilter was found, add it to the rule.
-			if detectionFilter:
-				dictRule['detectionFilter'] = {}
-				dictRule['detectionFilter']['track'] = detectionFilter.track
-				dictRule['detectionFilter']['count'] = detectionFilter.count
-				dictRule['detectionFilter']['seconds'] = detectionFilter.seconds
-			
+			#if detectionFilter:
+			#	dictRule['detectionFilter'] = {}
+			#	dictRule['detectionFilter']['track'] = detectionFilter.track
+			#	dictRule['detectionFilter']['count'] = detectionFilter.count
+			#	dictRule['detectionFilter']['seconds'] = detectionFilter.seconds
+			#
 			# If a supress is found, add it to the rule.
-			if suppress:
-				dictRule['suppress'] = {}
-				dictRule['suppress']['track'] = suppress.track
-				dictRule['suppress']['addresses'] = suppress.getAddresses()
+			#if suppress:
+			#	dictRule['suppress'] = {}
+			#	dictRule['suppress']['track'] = suppress.track
+			#	dictRule['suppress']['addresses'] = suppress.getAddresses()
 			
 			rules[str(rule.SID)] = dictRule
 		
@@ -267,6 +247,46 @@ class RPCInterface():
 	def ping(self, token):
 		"""Simple function, used to test if we can reach the server"""
 		return {'status': True, 'Message': "Pong!"}
+	
+	@requireAuth
+	def getFilters(self, token):
+		s=cache['session'][token]['sensor']
+		try:
+			sids = cache['session'][token]['rulerevisions'].keys()
+		except KeyError:
+			self.getRuleRevisions(token)
+			sids = cache['session'][token]['rulerevisions'].keys()
+		
+		dFilters = {}
+		eFilters = {}
+		suppress = {}
+
+		while s:
+			for f in DetectionFilter.objects.filter(sensor=s).filter(rule__SID__in=sids).all():
+				if str(f.rule.SID) not in dFilters:
+					dFilters[str(f.rule.SID)] = {}
+					dFilters[str(f.rule.SID)]['track'] = f.track
+					dFilters[str(f.rule.SID)]['count'] = f.count
+					dFilters[str(f.rule.SID)]['seconds'] = f.seconds
+			
+			for e in EventFilter.objects.filter(sensor=s).filter(rule__SID__in=sids).all():
+				if str(e.rule.SID) not in eFilters:
+					eFilters[str(e.rule.SID)] = {}
+					eFilters[str(e.rule.SID)]['track'] = e.track
+					eFilters[str(e.rule.SID)]['count'] = e.count
+					eFilters[str(e.rule.SID)]['seconds'] = e.seconds
+					eFilters[str(e.rule.SID)]['type'] = e.eventFilterType
+			
+			for su in Suppress.objects.filter(sensor=s).filter(rule__SID__in=sids).all():
+				if str(su.rule.SID) not in suppress:
+					suppress[str(su.rule.SID)] = {}
+					suppress[str(su.rule.SID)]['track'] = su.track
+					suppress[str(su.rule.SID)]['addresses'] = su.getAddresses()
+			
+			s = s.parent
+		
+		return {'status': True, 'eventFilters': eFilters, 'detectionFilters': dFilters, 'suppresses': suppress}
+				
 	
 def startRPCServer():
 	"""Starts the RPC-Server. This method blocks."""
