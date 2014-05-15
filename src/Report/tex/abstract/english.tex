@@ -1,2 +1,28 @@
 \chapter*{English Abstract}
-Short version of report.
+\snort{} is a leading open source intrusion detection system that is
+used to protect computer networks the world over; by law enforcement,
+the military and security specialists alike.
+The system has many good projects going for it when it comes to handeling the actual events and alerts
+the system generates, but it is lacking a good way of dealing with the
+signatures (also known as rules) it uses to detect malicious network traffic.
+\newline
+
+This project continues the work that resulted in the prototype Bring Home The
+Bacon in 2012 and takes it a step further into something that can be used in a
+professional production environment. We have developed a rule management system
+for \snort{} which we have called \snowman{}, that can scale to the needs of a
+larger, more distributed deployment of intrusion detection systems.
+\snowman{} also employs principles such as least privilege, encrypted
+communication and form validation to ensure that an application used to secure
+networks, does not become a weakness in and of itself.
+\newline
+
+Because of the performance demands involved, the project also conducted a
+performance test that compares \snowman{} with two other similar programs in
+order to verify if we had met our performance goals. While we did not meet those
+goals, we did find a performance bottleneck in one of our systems modules that
+we managed to fix and increase our performance tenfold. Our performance testing
+has become a lesson in how important performance testing can be during development to weed out bottlenecks from a
+system before it is released.
+
+
