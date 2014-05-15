@@ -175,6 +175,7 @@ class EventFilter(Base):
 	
 	TYPE = {1: "limit", 2: "threshold", 3:"both"}
 	TRACK = {1: "by_src", 2: "by_dst"}
+	REVTRACK = {'by_src': 1, 'by_dst': 2}
 
 	id = Column(Integer, primary_key=True)
 	rule_id = Column(Integer, ForeignKey('rule.id'))

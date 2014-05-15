@@ -28,4 +28,13 @@ chown snort:snort /var/snowman-client
 touch /var/log/snowman-client.log
 chown snort:snort /var/log/snowman-client.log
 
+update-rc.d snowmanclientd defaults
+
+# Generate a new ssl-certificate used by the xmlrpc-server.
+echo "Generating SSL-Certificates"
+openssl genrsa -out /etc/snowman/xmlrpc.key.pem 1024
+openssl req -new -newkey rsa:4096 -days 3650 -nodes -subj "/C=NO/ST=Some/L=Snowman/O=Snowman/CN=server.snowman.local" -keyout /etc/snowman/xmlrpc.key.pem  -out /etc/snowman/xmlrpc.request
+openssl req -x509 -days 3650 -key /etc/snowman/xmlrpc.key.pem -in /etc/snowman/xmlrpc.request -out /etc/snowman/xmlrpc.pem
+
+echo "Installation is complete!"
 exit 0

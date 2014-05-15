@@ -1,8 +1,2 @@
-Synchronize changed filters, even if rev is the same.
-
 Scheduled rule-sync to sensors
 Scheduled update
-
-Generation of ssl-cert during install
-Auto-start daemons on boot
-

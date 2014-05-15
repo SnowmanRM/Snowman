@@ -341,27 +341,194 @@ class SnowmanServer:
 					rref.rule = rule
 					s.add(rref)
 				
-				if "detectionFilter" in rules[r]:
-					df = DetectionFilter(track=rules[r]['detectionFilter']['track'], count=rules[r]['detectionFilter']['count'], seconds=rules[r]['detectionFilter']['seconds'])
-					df.rule = rule
-					s.add(df)
-				
-				if "eventFilter" in rules[r]:
-					ef = EventFilter(ttype=rules[r]['eventFilter']['type'], track=rules[r]['eventFilter']['track'], count=rules[r]['eventFilter']['count'], seconds=rules[r]['eventFilter']['seconds'])
-					ef.rule = rule
-					s.add(ef)
-				
-				if "suppress" in rules[r]:
-					su = Suppress(track=rules[r]['suppress']['track'])
-					su.rule = rule
-					s.add(su)
-					for address in rules[r]['suppress']['addresses']:
-						sa = SuppressAddress(address)
-						sa.suppress = su
-						s.add(sa)
+				#if "detectionFilter" in rules[r]:
+				#	df = DetectionFilter(track=rules[r]['detectionFilter']['track'], count=rules[r]['detectionFilter']['count'], seconds=rules[r]['detectionFilter']['seconds'])
+				#	df.rule = rule
+				#	s.add(df)
+				#
+				#if "eventFilter" in rules[r]:
+				#	ef = EventFilter(ttype=rules[r]['eventFilter']['type'], track=rules[r]['eventFilter']['track'], count=rules[r]['eventFilter']['count'], seconds=rules[r]['eventFilter']['seconds'])
+				#	ef.rule = rule
+				#	s.add(ef)
+				#
+				#if "suppress" in rules[r]:
+				#	su = Suppress(track=rules[r]['suppress']['track'])
+				#	su.rule = rule
+				#	s.add(su)
+				#	for address in rules[r]['suppress']['addresses']:
+				#		sa = SuppressAddress(address)
+				#		sa.suppress = su
+				#		s.add(sa)
 				
 				rulerevisions.remove(r)
 			s.commit()
 		
 		logger.info("Finished synchronizing the rules from the server")
 		s.close()
+
+	def synchronizeFilters(self):
+		logger = logging.getLogger(__name__)
+		logger.info("Starting to synchronize Filters")
+		s = Session.session()
+		
+		# Connect to the snowman-server, and fetch the filters for this sensor.	
+		try:
+			response = self.server.getFilters(self.token)
+		except socket.error as e:
+			logger.error("Could not connect to %s!" % serveraddress)
+			logger.error(str(e))
+			raise SnowmanServer.ConnectionError("Error in the connection to %s!" % serveraddress)
+		
+		if(response['status']):
+			dFilters = response['detectionFilters']
+			eFilters = response['eventFilters']
+			suppresses = response['suppresses']
+		else:
+			logger.error("Could not retrieve Filters from the server: %s", response['message'])
+			raise SnowmanServer.ConnectionError("Could not retrieve Filters from the server.")
+		
+		# Collect all the rules from the local cache.
+		rules = {}
+		for r in s.query(Rule).all():
+			rules[str(r.SID)] = r
+		
+		# Collect the filters from the local cache.
+		localDFilters = {}
+		for df in s.query(DetectionFilter).all():
+			localDFilters[str(df.rule.SID)] = df
+		localEFilters = {}
+		for ef in s.query(EventFilter).all():
+			localEFilters[str(ef.rule.SID)] = ef
+		localSuppress = {}
+		for su in s.query(Suppress).all():
+			localSuppress[str(su.rule.SID)] = su
+		
+		# Add the new DetectionFilters, and update changed.
+		new = 0
+		update = 0
+		for df in dFilters:
+			if(df not in localDFilters):
+				f = DetectionFilter(track=dFilters[df]['track'], count=dFilters[df]['count'], seconds=dFilters[df]['seconds'] )
+				f.rule = rules[df]
+				s.add(f)
+				logger.debug("Added a new DetectionFilter to the local cache: " + str(df))
+				new += 1
+			else:
+				changed = False
+				if(localDFilters[df].track != dFilters[df]['track']):
+					changed = True
+					localDFilters[df].track = dFilters[df]['track']
+				if(localDFilters[df].count != dFilters[df]['count']):
+					changed = True
+					localDFilters[df].count = dFilters[df]['count']
+				if(localDFilters[df].seconds != dFilters[df]['seconds']):
+					changed = True
+					localDFilters[df].seconds = dFilters[df]['seconds']
+				if(changed):
+					update += 1
+		s.commit()
+		logger.info("Imported %d new DetectionFilters from the snowman-server" % new)
+		logger.info("Updated %d DetectionFilters" % update)
+		
+		# Add the new EventFilters, and update changed.
+		new = 0
+		update = 0
+		for ef in eFilters:
+			if(ef not in localEFilters):
+				f = EventFilter(track=eFilters[ef]['track'], count=eFilters[ef]['count'], seconds=eFilters[ef]['seconds'], ttype=eFilters[ef]['type'] )
+				f.rule = rules[ef]
+				s.add(f)
+				logger.debug("Added a new EventFilter to the local cache: " + str(ef))
+				new += 1
+			else:
+				changed = False
+				if(localEFilters[ef].track != eFilters[ef]['track']):
+					changed = True
+					localEFilters[ef].track = eFilters[ef]['track']
+				if(localEFilters[ef].count != eFilters[ef]['count']):
+					changed = True
+					localEFilters[ef].count = eFilters[ef]['count']
+				if(localEFilters[ef].seconds != eFilters[ef]['seconds']):
+					changed = True
+					localEFilters[ef].seconds = eFilters[ef]['seconds']
+				if(localEFilters[ef].filtertype != eFilters[ef]['type']):
+					changed = True
+					localEFilters[ef].filtertype = eFilters[ef]['type']
+				if(changed):
+					update += 1
+		s.commit()
+		logger.info("Imported %d new DetectionFilters from the snowman-server" % new)
+		logger.info("Updated %d DetectionFilters" % update)
+		
+		# Add new suppresses, and update the changed ones.
+		new = 0
+		update = 0
+		for suppress in suppresses:
+			if suppress not in localSuppress:
+				sup = Suppress(track=suppresses[suppress]['track'])
+				sup.rule = rules[suppress]
+				s.add(sup)
+				s.commit()
+				for address in suppresses[suppress]['addresses']:
+					a = SuppressAddress(address=address)
+					a.suppress = sup
+					s.add(a)
+				s.commit()
+				new += 1
+			else:
+				changed = False
+				if(localSuppress[suppress].track != suppresses[suppress]['track']):
+					changed = True
+					localSuppress[suppress].track = suppresses[suppress]['track']
+				addresses = s.query(SuppressAddress).filter(SuppressAddress.suppress_id==localSuppress[suppress].id).all()
+				current = []
+
+				for a in addresses:
+					if(a.address not in suppresses[suppress]['addresses']):
+						changed = True
+						s.delete(a)
+					else:
+						current.append(a.address)
+
+				for a in suppresses[suppress]['addresses']:
+					if(a not in current):
+						changed = True
+						a = SuppressAddress(address=a)
+						a.suppress = localSuppress[suppress]
+						s.add(a)
+				if changed:
+					update += 1
+					s.commit()
+
+		logger.info("Imported %d new Suppresses from the snowman-server" % new)
+		logger.info("Updated %d Suppresses" % update)
+		
+		# Delete the filters that is not on the server anymore.
+		i = 0
+		for f in localDFilters:
+			if f not in dFilters:
+				s.delete(localDFilters[f])
+				logger.debug("Deleted a DetectionFilter from the local cache: " + str(localDFilter[f]))
+				i += 1
+		s.commit()
+		logger.info("Removed %d DetectionFilters from the local cache" % i)
+		i = 0
+		for f in localEFilters:
+			if f not in eFilters:
+				s.delete(localEFilters[f])
+				logger.debug("Deleted a EventFilter from the local cache: " + str(localEFilter[f]))
+				i += 1
+		s.commit()
+		logger.info("Removed %d EventFilters from the local cache" % i)
+		i = 0
+		for su in localSuppress:
+			if su not in suppresses:
+				s.delete(localSuppress)
+				logger.debug("Deleted a Suppress fom the local cache: " + str(localSuppress[su]))
+				i+= 1
+		s.commit()
+		logger.info("Removed %d suppresses from the local cache" % i)
+
+		s.close()
+		logger.info("Filter-synchronization is finished.")
+		
