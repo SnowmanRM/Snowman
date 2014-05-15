@@ -2,11 +2,12 @@
 import datetime
 import logging
 import os
+import re
 import sys 
 
 from util.logger import initialize
 
-from data.models import Session, Rule, RuleSet, RuleClass, Generator
+from data.models import Session, Rule, RuleSet, RuleClass, Generator, DetectionFilter
 from util.config import Config
 
 class ConfigFile:
@@ -82,6 +83,10 @@ class ConfigGenerator:
 		s = Session.session()
 		sidmsg = ConfigFile(os.path.join(self.configlocation, "sid-msg.map"))
 		
+		detectionFilters = {}
+		for df in s.query(DetectionFilter).all():
+			detectionFilters[df.rule.SID] = df
+		
 		# For every ruleset:
 		for ruleset in s.query(RuleSet).all():
 			# Create a configfile
@@ -90,7 +95,18 @@ class ConfigGenerator:
 			# For every rule in the ruleset:
 			for rule in s.query(Rule).filter(Rule.ruleset_id == ruleset.id).all():
 				# Print the rule to the configfile
-				rulefile.addLine(rule.raw)
+				if(rule.SID in detectionFilters):
+					df = detectionFilters[rule.SID]
+					if(df.track == 1):
+						track = "by_src"
+					else:
+						track = "by_dst"
+					
+					rawFilter = "detection-filter: track %s, count %d, seconds %d; " % (track, df.count, df.seconds)
+					raw = re.sub(r'(.*)(sid.*\))', r'\1' + rawFilter + r'\2', rule.raw)
+					rulefile.addLine(raw)
+				else:
+					rulefile.addLine(rule.raw)
 
 				# Start generate a line with sid/msg for sid-msg.map
 				sidmsgstring = "%s || %s" % (rule.SID, rule.msg)

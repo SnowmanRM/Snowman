@@ -11,7 +11,7 @@ location: /var/snowman-client/rules
 #   - CRITICAL, ERROR, WARNING, INFO, DEBUG
 [logging]
 logfile: /var/log/snowman-client.log
-severity: DEBUG
+severity: INFO
 
 # Configuration for where the snortrulemanager client can keep a local cache of
 # the rules recieved from the central server. Hostname/Username/Password is skipped

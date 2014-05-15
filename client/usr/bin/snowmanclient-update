@@ -30,6 +30,7 @@ def main():
 		server.synchronizeRuleReferenceTypes()
 		server.synchronizeRuleSets()
 		server.synchronizeRules()
+		server.synchronizeFilters()
 	
 		server.disconnect()
 		
