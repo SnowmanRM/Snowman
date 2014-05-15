@@ -22,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'q6b4ktkfvx6*v1p2fzfdxu2r=ud!y*=&7pr*$7h+=pq5o@gjh$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'web/templates')]
 
-ALLOWED_HOSTS = ["192.168.1.10"]
+ALLOWED_HOSTS = ["192.168.1.10", "ristretto"]
 
 
 # Application definition

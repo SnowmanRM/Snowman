@@ -1,0 +1,7 @@
+/var/log/snowmanclientd.log /var/log/snowman-client.log {
+	daily
+	rotate 14
+	missingok
+	create 640 snort snort
+	compress
+}
