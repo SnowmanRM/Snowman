@@ -131,20 +131,10 @@ entity the data belongs to befor it is sent to the correct parsing function for
 the respective entity.
 
 \subsection{Rule parsing}
-Some options can be defined both in the rulestring (inline) and in a separate
-file (standalone).
-
-If any properties classified as {\em required} for a rule
-(table \ref{tab:ruleFormat}) are missing\ldots
-
-Non-existing rule sets, rule classes and
-generators are stored in the database
-
-After the initial parsing of the rulestring, the parser checks if the rule
-already exists in the database, and if so whether the incoming revision number
-is higher than the latest revision of the pre-existing rule. The parsing
-will continue only in the event of a new rule or a newer revision of an existing
-rule.
+A rule file is read line by line, and each rulestring found is sent to the rule
+parsing method. The rulestring is then matched to a predefined pattern that will
+verify that the rule is valid and extract the data fields (table
+\ref{tab:ruleFormat}.
 
 rule moved to new ruleset.
 
@@ -153,17 +143,30 @@ A rule always belogs to a ruleset which can be specified in the raw
 rulestring. If the parser does not find this attribute in the rulestring,
 the filename is considered to be the ruleset name.
 
-\subsubsection{Threshold}
+\subsubsection{Filters}
+
+
 A rule threshold defines a limit and/or threshold for the triggering of a
 specific rule, and can exist as an inline or standalone option.
 Rule thresholds are deprecated, and support for this functionality will cease in a
-future version of \snort , where it is replaced by \em detection
-filters \em and \em event filters \em (see below) \cite{SnortManual}. To
-maintain compatibility with current rules, Snowman supports reading inline and
+future version of \snort , where it is replaced by {\em detection
+filters} and {\em event filters} (see below) \cite{SnortManual}. To
+maintain compatibility with current rules, \snowman{} supports reading inline and
 standalone threshold definitions.
 
+To prevent \snort{} from adding duplicate filters, all inline filters are
+removed from the rulestrings and transformed into event filter and detection filter
+objects. This is done to prevent \snort{} from adding filters to rules when
+parsing the rulestrings, as duplicate filters for the rules will cause \snort{}
+to crash.
+
+Any filters extracted from the rulestring are written as plain text
+(i.e. as they appear in the original rulestring) in the \textit{filters} field
+of the \pythoninline{RuleRevision} object. This is to ensure that all the
+original rule options are stored, meaning that no data is lost or discarded.
+
 \subsubsection{Detection filters}
-Please explain..
+A detection filter can be specified within a rulestring
 
 \subsubsection{Event filters}
 Please explain..
@@ -176,11 +179,11 @@ IP-addresses. Only one suppression can be applied to a rule on a sensor, but
 multiple IP-addresses or networks can be listed in the suppression in the syntax
 [1.2.3.4,4.3.2.1/24]. 
 
-We have added IP-address validation checking into \snowman{} to make sure no
-invalid addresses are entered, by running a regex match on it before we commit
-it. The match will check for a valid IPv4 syntax in the range 0.0.0.0/0 -
-255.255.255.255/32. There is no support for IPv6 at this time, but that can
-easily be added later.
+\snowman{} features IP-address validation checking to make sure no
+invalid addresses are entered, by running a regex-match on the address before it
+is committed. The match will check for a valid IPv4 syntax in the
+range 0.0.0.0/0 - 255.255.255.255/32. There is currently no support for IPv6,
+but this can easily be added later.
 
 \subsubsection{Rule Message files}
 
