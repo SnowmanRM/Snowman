@@ -6,7 +6,7 @@ RET=$?
 if [ $RET -ne 0 ]; then
 	echo "Creating the user snort, in the group snort."
 	groupadd snort
-	sudo useradd -g snort snort
+	useradd -g snort snort
 else
 	echo "It exists. No need to create it"
 fi
@@ -22,8 +22,8 @@ chmod 644 /etc/snowman/snowman-client.config
 mkdir -p /var/run/snowman/
 chown snort:snort /var/run/snowman/
 
-mkdir -p /var/snowman-client
-chown snort:snort /var/snowman-client
+mkdir -p /var/snowman-client/rules
+chown -R snort:snort /var/snowman-client
 
 touch /var/log/snowman-client.log
 chown snort:snort /var/log/snowman-client.log

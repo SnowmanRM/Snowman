@@ -1,0 +1,40 @@
+#!/bin/sh
+
+echo "Checking if user snort exists:"
+id snort
+RET=$?
+if [ $RET -ne 0 ]; then
+	echo "Creating the user snort, in the group snort."
+	groupadd snort
+	useradd -g snort snort
+else
+	echo "It exists. No need to create it"
+fi
+
+if [ ! -f /etc/snowman/snowman-client.config ]; then
+	cp /etc/snowman/snowman-client.config.template /etc/snowman/snowman-client.config
+	echo "A sample-configurationfile is added to /etc/snowman/snowman-client.config"
+fi
+
+chown snort:snort /etc/snowman/snowman-client.config
+chmod 644 /etc/snowman/snowman-client.config
+
+mkdir -p /var/run/snowman/
+chown snort:snort /var/run/snowman/
+
+mkdir -p /var/snowman/rules
+chown -R snort:snort /var/snowman
+
+touch /var/log/snowman.log
+chown snort:snort /var/log/snowman.log
+
+#update-rc.d snowmanclientd defaults
+
+# Generate a new ssl-certificate used by the xmlrpc-server.
+echo "Generating SSL-Certificates"
+openssl genrsa -out /etc/snowman/xmlrpc.key.pem 1024
+openssl req -new -newkey rsa:4096 -days 3650 -nodes -subj "/C=NO/ST=Some/L=Snowman/O=Snowman/CN=server.snowman.local" -keyout /etc/snowman/xmlrpc.key.pem  -out /etc/snowman/xmlrpc.request
+openssl req -x509 -days 3650 -key /etc/snowman/xmlrpc.key.pem -in /etc/snowman/xmlrpc.request -out /etc/snowman/xmlrpc.pem
+
+echo "Installation is complete!"
+exit 0
