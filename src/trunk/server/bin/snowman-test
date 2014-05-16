@@ -1,0 +1,40 @@
+#!/usr/bin/python
+import os
+import sys
+
+# Make sure that python is installed, and in a new enough version.
+try:
+	import django
+	major, minor, rev, b, c = django.VERSION
+	if(major != 1 or minor < 6):
+		print "ERROR: The installed Django is too old (%d.%d.%d)." % (major, minor, rev)
+		print "\t\tSnowman requires version 1.6 or newer."
+		sys.exit(1)
+except ImportError as e:
+	print "ERROR: Django is not installed. Snowman requires Django version 1.6 or newer."
+	sys.exit(1)
+
+# Verify that the django-enviorment works, and that the logger can initialize.
+try:
+	sys.path.append("/usr/share/snowman/")
+	os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
+	from core.models import Sensor
+except IOError as e:
+	print "ERROR: IOError occoured. Do you have writing-permissions to the logging-locations."
+	print "\t", e
+	sys.exit(1)
+
+# Try to access the database, and see if the data is initialized. 
+try:
+	sensor = Sensor.objects.get(name="All")
+except Sensor.DoesNotExist as e:
+	print "ERROR: The database does not seem to be initialized."
+	sys.exit(1)
+except django.db.utils.OperationalError as e:
+	print "ERROR: Could not connect to the database"
+	print "\t", e
+	sys.exit(1)
+
+
+
+print "OK. Everything is OK."

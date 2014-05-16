@@ -34,11 +34,14 @@ cp server/etc/apache.conf /etc/apache2/sites-available/snowman.conf
 #   in the final package.
 find $workdir -name ".svn" -exec rm -rf {} \; &> /dev/null
 
-# Grab some variables from the configfile
+# Build the package
+cp $workdir"DEBIAN/control.ubuntu" $workdir"DEBIAN/control"
 packagename=`grep Package $workdir/DEBIAN/control | cut -d ' ' -f 2`
 packageversion=`grep Version $workdir/DEBIAN/control | cut -d ' ' -f 2`
-
-# Build the package
+fakeroot dpkg -b $workdir ARCHIVES/$packagename-$packageversion.deb
+cp $workdir"DEBIAN/control.debian" $workdir"DEBIAN/control"
+packagename=`grep Package $workdir/DEBIAN/control | cut -d ' ' -f 2`
+packageversion=`grep Version $workdir/DEBIAN/control | cut -d ' ' -f 2`
 fakeroot dpkg -b $workdir ARCHIVES/$packagename-$packageversion.deb
 
 # Clean the working directory

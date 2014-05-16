@@ -1,0 +1,67 @@
+#!/usr/bin/python
+import os
+import sys
+import logging
+
+sys.path.append("/usr/share/snowman/")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
+
+from core.models import *
+from django.contrib.auth.models import User, Group
+from update.models import Source
+from web.models import UserProfile
+
+logger = logging.getLogger(__name__)
+logger.info("Started to create initial data.")
+
+groupUsers, created = Group.objects.get_or_create(name="Users")
+if(created):
+	print "\tCreated the group \"Users\""
+	logger.info("Created '%s'" % groupUsers)
+
+groupSensors, created = Group.objects.get_or_create(name="Sensors")
+if(created):
+	print "\tCreated the group \"Sensors\""
+	logger.info("Created '%s'" % groupSensors)
+
+sensorall, created = Sensor.objects.get_or_create(name="All", user=None, active=True, autonomous=True)
+if(created):
+	print "\tCreated the sensor \"All\""
+	logger.info("Created '%s'" % sensorall)
+
+user, created = User.objects.get_or_create(username="System", first_name="System", last_name="Snowman")
+if created:
+	print "\tCreated the user \"System\""
+	logger.info("Created '%s'" % user)
+
+if(User.objects.count() == 1):
+	user, created = User.objects.get_or_create(username="srm", first_name="Demo", last_name="User")
+	if created:
+		user.set_password("srm")
+		user.groups.add(groupUsers)
+		user.groups.add(groupSensors)
+		user.is_staff = True
+		user.save()
+		profile = UserProfile.objects.create(user=user)
+		
+		print "\tCreated the user \"srm\""
+		print "\t\tThis is an administrator, and you can use the password \"srm\" to log in."
+		logger.info("Created '%s'" % user)
+
+# Initial-data, which should always be there.
+a, created = Generator.objects.get_or_create(GID=1, alertID=1, message="Generic SNORT rule")
+if(created):
+	print "\tCreated the generic generator"
+	logger.info("Created '%s'" % a)
+
+a, created = RuleReferenceType.objects.get_or_create(name = "url", urlPrefix="http://")
+if(created):
+	print "\tCreated the \"url\" reference-type."
+	logger.info("Created '%s'" % a)
+
+a, created = Source.objects.get_or_create(name = "Manual")
+if(created):
+	logger.info("Created '%s'" % a)
+	print "\tCreated the \"Manual\" update-source"
+
+logger.info("Finished to create initial data.")
