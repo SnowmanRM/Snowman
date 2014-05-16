@@ -3,6 +3,7 @@
 The main server-daemon for the snowman. This program starts the xmlrpc-server
 used by the clients to connect to the central server.
 """
+
 import datetime
 import logging
 import os
@@ -10,12 +11,7 @@ import sys
 import thread
 import time
 
-# TODO: Put a proper path here. (The installed path).
-# Add the parent folder of the script to the path
-scriptpath = os.path.realpath(__file__)
-scriptdir = os.path.dirname(scriptpath)
-parentdir = os.path.dirname(scriptdir)
-sys.path.append(parentdir)
+sys.path.append("/usr/share/snowman/")
 
 # Tell where to find the DJANGO settings.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
@@ -24,8 +20,8 @@ from django.contrib.auth.models import User
 from core.models import Generator, Sensor, Rule, RuleSet, RuleClass, RuleReferenceType, RuleReference
 from tuning.models import Suppress, SuppressAddress, DetectionFilter, EventFilter
 from tuning.tools import getEventFilter, getDetectionFilter, getSuppress
-from util.xmlrpcserver import RPCServer
 from util.config import Config
+from util.xmlrpcserver import RPCServer
 
 cache = {}
 timeOut = int(Config.get("xmlrpc-server", "client-timeout"))

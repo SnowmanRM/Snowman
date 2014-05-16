@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -22,12 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'q6b4ktkfvx6*v1p2fzfdxu2r=ud!y*=&7pr*$7h+=pq5o@gjh$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'web/templates')]
 
-ALLOWED_HOSTS = ["192.168.1.10", "ristretto"]
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 
 # Application definition
@@ -64,10 +63,10 @@ WSGI_APPLICATION = 'srm.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'srm',                      # Or path to database file if using sqlite3.
-        'USER': 'srm',                      # Not used with sqlite3.
-        'PASSWORD': 'bah5oofa6booyeeJa2Da',                  # Not used with sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': '/var/snowman/snowman-server.db',                      # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -91,7 +90,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = "/home/thnyheim/snowman-static/"
+STATIC_ROOT = "/var/snowman/static/"
 LOGGING_CONFIG = 'util.logger.initialize'
 
 LOGIN_URL = '/web/login/'

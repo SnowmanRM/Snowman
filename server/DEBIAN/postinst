@@ -22,13 +22,13 @@ chmod 644 /etc/snowman/snowman-client.config
 mkdir -p /var/run/snowman/
 chown snort:snort /var/run/snowman/
 
-mkdir -p /var/snowman-client/rules
-chown -R snort:snort /var/snowman-client
+mkdir -p /var/snowman/rules
+chown -R snort:snort /var/snowman
 
-touch /var/log/snowman-client.log
-chown snort:snort /var/log/snowman-client.log
+touch /var/log/snowman.log
+chown snort:snort /var/log/snowman.log
 
-update-rc.d snowmanclientd defaults
+#update-rc.d snowmanclientd defaults
 
 # Generate a new ssl-certificate used by the xmlrpc-server.
 echo "Generating SSL-Certificates"
