@@ -28,7 +28,7 @@ cp -r server/util $sharepath
 cp -r server/web $sharepath
 cp server/manage.py $sharepath
 cp server/etc/settings.cfg $configpath"snowman.conf"
-cp server/etc/apache.conf /etc/apache2/sites-available/snowman.conf
+cp server/etc/apache.conf $workdir"etc/apache2/sites-available/snowman.conf"
 
 # Delete all the subversion files from the source, as we do not want them 
 #   in the final package.
