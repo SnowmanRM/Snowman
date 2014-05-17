@@ -11,15 +11,17 @@ class Config:
 	djangoroot = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 	parser = None
 	get = None
+	items = None
 	
 	@staticmethod
 	def initialize():
 		"""Initializes the configparser. Reads the configfiles, and puts their content
 		into a ConfigParser object."""
-		configfiles = [os.path.join(Config.djangoroot, "etc/settings.cfg"), "/etc/snowman/snowman.conf"]
+		configfiles = [os.path.join(Config.djangoroot, "etc/settings.cfg"), "/etc/snowman/snowman.config"]
 		Config.parser = ConfigParser()
 		Config.parser.read(configfiles)
 		Config.get = Config.parser.get
+		Config.items = Config.parser.items
 
 # Makes sure that the configparser is initialized when a module is included.
 if(Config.parser == None):
