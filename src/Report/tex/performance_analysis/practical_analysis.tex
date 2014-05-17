@@ -1,25 +1,25 @@
 \section{Practical analysis}
 \label{sec:practical_analysis}
 
-Since \snowman{} is similar to \bhtb{} and \snortmanager{}, it has been
+Since \snowman{} is similar to \bhtb{} and \snortmanager{}, it was
 important to benchmark their performance in various formal test cases in order to
-highlight the strength and weaknesses in each software solution. The
+highlight the strengths and weaknesses in each software solution. The
 purpose of the tests is to reach final conclusions on key questions regarding
 the performance of \snowman{}, and to point out where the difference between the
 three software packages lies.
 
 To get a picture of how the software performs on different systems, it was
 tested on three architectures (table \ref{tab:testSystems}). To minimize error, each test
-was run five times where the mean value of the runs is considered the valid test
+was run five times where the mean value of the runs is considered a valid test
 result. All tests can be reproduced with the test procedure documentation in
 appendix. %TODO: Appendix.
 
 \subsection{Definitions}
 
-The testing is split up into \textit{test suites}, which contain a
+The testing is split up into \textit{test suites}, each containing a
 \textit{problem} in the form of a question. The problem forms a clear
 description of what is to be tested, and how results should be evaluated.
-A test suite also contains one or more \textit{test cases} which exist to
+A test suite also contains one or more \textit{test cases}, which exist to
 address the problem. Test cases represent individual tests, and describe the input data
 and constraints. Test cases are carried out on the different systems, and
 results from each test case are reffered to as the \textit{test results}.
@@ -27,9 +27,9 @@ results from each test case are reffered to as the \textit{test results}.
 \subsection{Environment}
 %Beskriv testoppsett. maskinvare, nettverk, programvare, etc.
 All tests are carried out on three systems, named \textit{S1}, \textit{S2} and
-\textit{S3} (table \ref{tab:testSystems}). These systems differ in processing
+\textit{S3} (Table \ref{tab:testSystems}). These systems differ in processing
 power, available memory and storage technology, and the results will indicate
-what impact these factors have for software performance. The performance
+what impact these factors have on software performance. The performance
 testing in this report is also prone to error, as tests might get disturbed by
 other background processes etc. Testing on three systems gives results with a
 higher confidence, as results are checked aginst each other for 
@@ -66,15 +66,15 @@ again to see if the inconsistency prevails.
 Even though \snowman{}, \bhtb{} and \snortmanager{} share the same goal of being a
 rule management system, it is not immediately obvious how they can be tested against
 each other to compare their performance. The first step in the performance
-testing has been to identify the areas where the three software packages share, to a
+testing was to identify the areas where the three software packages share, to a
 certain extent\footnote{\snowman{}, \bhtb{} and \snortmanager{} have been built
 to tackle many of the same challenges, however, the actual implementations may
-differ severly. For an extended walk-through of differences in implementation,
+differ severely. For an extended walk-through of differences in implementation,
 refer to chapter \ref{chap:existing_solutions}, and chapter
 \ref{chap:analysis_of_results}.}, the same functionality. In the
 test planning, considerations have been made to ensure that the tests hold an
 acceptable degree of fairness (i.e. tests are designed so that none of the
-software enjoys any improper advantages or disatvantages), and that the tests
+programs enjoys any improper advantages or disatvantages), and that the tests
 are pertinent to the daily operation of the software and the \snowman{}
 requirement specification.
 
@@ -86,8 +86,8 @@ update processing.
 \subsection{Update processing tests}
 The purpose of the tests in this section is first and foremost to test how
 quickly the software can process an update, and if the processing time is
-linear to the update size. It is interesting to test for linearity as this may
-help point out programming errors. To get a complete picture of the
+linear regarding the update size. It is interesting to test for linearity as
+this may help point out programming errors. To get a complete picture of the
 performance, the tests are set up with different constraints such as update
 size, number of files and number of changes from one update to the next.
 
@@ -122,7 +122,7 @@ rules contain a message and a classtype, see appendix for full description.}.
 		SF-28064-B & Test 1-6 & Pre-populated database. Update has one rule change.\\
 	\hline
 	\multicolumn{3}{l}{\textit{Note: Rules are split into files with ten rules per
-	file unless other is specified.}}
+	file unless otherwise specified.}}
   \end{tabular}
   \caption{Test cases in update processing.}
   \label{tab:updateTests}
@@ -136,15 +136,15 @@ better.
 \paragraph{Test cases:}
 To address this problem, five test cases were introduced. The tests contained an
 artificially generated update with 1, 10, 100, 1000 and 10000 rules,
-respectively. Rules were split into files with ten each. Each test case
-represents one update, and the names denote the number of rules in the following structure:
-\textit{SYN-number of rules}. The test is also carried out with a realistic
+respectively. Rules were split into files each containing ten rules. Each test
+case represents one update, and the names denote the number of rules in the following structure:
+\textit{SYN-number of rules}. The test was also carried out with a realistic
 update package, \textit{SF-28064}.
 
 \subsubsection{Test 1-2}
 \paragraph{Problem: How strong is the linear correlation between processing time
 and the size of an update?}
-This question rises from the requirements specification of Snowman (chapter
+This question rises from the requirements specification of Snowman (Chapter
 \ref{chap:requirements_spec}), where it is stated that Snowman shall exhibit a
 linear increase in processing time in correlation to the number of rules in the
 update (where the number of rules depicts the update size). Results are ranked
@@ -159,7 +159,7 @@ This test uses the same test cases as Test 1-1.
 processing time?}
 Updates can come with the rules either gathered in one file, or distributed over 
 several files. This question is asked to examine the difference in processing
-time for these two scenarios. Results are ranked from no difference to big
+time for these two scenarios. Results are ranked from no difference to great
 difference, where less difference is better.
 \paragraph{Test cases:}
 This test compares the \textit{SYN-1000} test case from Test 1 with a
@@ -171,8 +171,8 @@ test case with the same number of rules in \textit{one} file
 new rules?}
 This is a test for update processing when the update is not new (i.e. it has
 been completely processed by the system before). To minimize system load, it is
-essential that already processed updates are (in practice, they should be
-neglected) by the system.
+essential that already processed updates are (in practice, they should be)
+neglected by the system.
 Results are ranked from shortest to longest processing time, where shorter is better.
 \paragraph{Test cases:}
 This is a compound test where a test case is run two times in succession. The
@@ -188,7 +188,7 @@ the \textit{SYN-1000-D}, which contains a revision number change for all rules.
 Processing time is expected to be faster for the second update, since the
 database will already be populated with the majority of the data. Results from
 this test will be ranked by the difference in processing time between the first
-and the second updates, where bigger difference is better.
+and the second updates, where greater difference is better.
 
 \subsubsection{Test 1-6}
 \paragraph{Problem: Are the processing times for two updates identical when only
@@ -209,11 +209,15 @@ number).
 % of changes. 
 
 \subsection{Rule distribution tests}
+These tests use exactly the same test suites as update processing tests, the
+only difference being that and update from a source is replaced by
+synchronization to a client.
 
 \subsection{Interface loading tests}
-These tests will evaluate the speed of the user interface. Listing rules and
-rule sets. Uses timer in Google Chrome. Both tests use the SYN-10000 package.
-The reason for using this is..
+These tests will evaluate the speed of the user interface by listing rules and
+rule sets in a web browser. Tests are timed by using the development tools of
+the Chrome browser, which contains a simple timer. Both tests use the SYN-10000
+package.
 
 \subsubsection{Test 3-1}
 \paragraph{Problem: How quickly does the user interface list rules?}
@@ -226,8 +230,3 @@ listed in the user interface.
 \paragraph{Test cases:}
 This test uses one test case, called {\em list rule sets}, where all rule sets
 are listed in the user interface.
-
-\subsection{Abandoned tests}
-Not conducted due to time limitations. real-world tests.
-Would have been interesting to run distribution test to multiple sensors to
-verify parallellization. Tests with more realistic rules. Testing of CPU usage.

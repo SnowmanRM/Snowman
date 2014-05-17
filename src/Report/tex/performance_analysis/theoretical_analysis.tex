@@ -1,14 +1,15 @@
 \section{Theoretical Analysis}
 The purpose of the theoretical performance analysis is to examine the most
-important features of \snowman{} and similar software, to form opinions on the
-expected performance of each software. The theoretical analysis is used to
-create concrete benchmarking tests presented in section \ref{sec:practical_analysis}.
+important features of \snowman{} and similar software, and form opinions on the
+expected performance of software compared with it. The theoretical analysis is
+used to create concrete benchmarking tests presented in Section
+\ref{sec:practical_analysis}.
 The software analysed is \bhtb{}, \snortmanager{} and two versions of \snowman{}.
 
 \subsection{Effectiveness of Update Processing}
 As described in chapter \ref{chap:implementation}, \snowman{} extracts several
 rule options from the rulestring during parsing. These options will either
-create or update objects connected to the rule, such as rule set, rule message
+create or update objects related with the rule, such as ruleset, rule message
 and classtype. These logical relations add to the complexity of the database
 transactions during the update process, as multiple database tables are
 involved. \bhtb{} and \snortmanager{}, on the other hand, write rule data to a
@@ -27,9 +28,9 @@ single table. It is therefore expected that \bhtb{} and
 \subsubsection{Incremental updates}
 One of the expected strengths of \snowman{} lies in processing incremental
 updates, i.e. updates containing only a small number of changes. It is
-significant to gauge performance for incremenal updates, as most real-life
-updates usually contain between 10 and 100 changes. Ten updates from 20.03.2014
-to 17.04.2014 contained on average 36.8 new and 53.9 updated
+important to measure performance for incremenal updates, as most real-life
+updates usually contain between 10 and 100 changes. For example, ten updates
+from 20.03.2014 to 17.04.2014 contained on average 36.8 new and 53.9 updated
 rules\footnote{Source: http://www.snort.org/vrt/advisories}. \snowman{} will
 effectively handle these updates, as it stores the checksum of the files in the
 update. Storing the checksum for every individual file\footnote{Checksum is
@@ -37,27 +38,22 @@ stored only for files that are parsed.} is unique for \snowman{}. It allows
 \snowman{} to completely ignore files without changes, which means that only
 the files with rule changes are parsed. This is particularly useful as the
 current official \snort{} rules contain over 100 files\footnote{As of May 2014}.
-It is therefore expected that \snowman{} will effectively process updates that
+It is therefore expected that \snowman{} will efficiently process updates that
 contain relatively few changes.
 
 \subsection{Effectiveness of Rule Distribution}
 The rule distribution, or synchronization, is a feature of \snowman{} and
-\bhtb{} where rules are distributed from the server to the sensors. Since
-\snowman{} and \bhtb{} use different strategies for distribution, \snowman{}
+\bhtb{}, where rules are distributed from the server to the sensors. Since
+\snowman{} and \bhtb{} use different strategies for distribution (\snowman{}
 uses a local client database as described in chapter
 \ref{sec:architecture_discussion} while \bhtb{} pushes all files out to the
-sensor at each synchronization, it is previsioned that \snowman{} will perform
-better because of the fact that  only transfers over new changes rather than
+sensor at each synchronization), it is previsioned that \snowman{} will perform
+better because of the fact that it only transfers new changes rather than
 everything, every time. Also, since \bhtb{} distributes everything, every time,
 it is expected to have a flat performance curve, since the timing will
-be dependent on the bandwidth rather than processing power.
-
-\snowman{}'s server-client connection is more complex than the one of \bhtb{}
-expect a longer processing time for setting up the connection.
-
-\bhtb{} operates with a more crude way of distributing rules to sensors.
-
-\snowman{} will only synchronize changes
+be dependent on the bandwidth rather than processing power. \snowman{}'s
+server-client connection is also more complex than the one of \bhtb{}. Because
+of this, a longer processing time for setting up the connection is expected.
 
 \subsection{GUI Latency}
 A major complaint from Avdeling BKI was that they experienced a large latency in
@@ -67,8 +63,8 @@ everything into the GUI every time, like BHTB does. It is expected that this
 will reduce the latency in the GUI, as we would be processing and displaying
 only 100/28000 rules as opposed to all 28000 rules.
 
-\subsection{Linearity in Performance}
+\subsection{Sub-linearity in Performance}
 We're expecting all of the software to have a linear performance curve, or
 better (downwards tendency), as an upwards pointing performance curve is a sure
-sign that something has been programmed very wrong. If performing one task takes
-1 second, performing 10 tasks should take 10 seconds or less. 
+sign that something has been programmed in a wrong way. If performing one task
+takes 1 second, performing 10 tasks should take 10 seconds or less. 
