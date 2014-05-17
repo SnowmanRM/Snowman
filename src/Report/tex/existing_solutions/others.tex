@@ -1,5 +1,5 @@
 \section{Other notable programs}
-There are two other pieces of software that also should be mentioned;
+There are two other pieces of software that should also be mentioned.
 \pulledpork{} and \oinkmaster{} are both programs that can download rules and
 update \snort{}-sensors. These programs also contain some of the features found
 in \snowman{} and \bhtb{}, and \pulledpork{} even supports
@@ -13,29 +13,30 @@ sensors, they become ineffective.
 
 \section{Research on Software Performance}
 Since this project also investigates software performance, it is relevant to
-take a look at what others in the field write on the subject. This subject is
-missing from most software development reports from \GUC{}, which can be
-explained by the usual high focus on agile\cite{AGILE} development. 
+take a look at what others in the field have written on the subject. This
+subject is missing from most software development reports from \GUC{}, which can be
+explained by the usual high focus on agile development\cite{AGILE}. 
 \cite{FutureEngineering} mentions that agile programming is becoming mainstream
 and by its nature is a concern for the future of software performance
 engineering, as the primary focus of an agile project is on functionality.
 
-A proper performance testing methodology was hence not immediately available for
-this project. However, the articles \cite{WOSP98} and \cite{WOSP04} gave a few
-pointers towards developing the test cases described in chapter
+A proper performance testing methodology was not immediately available for
+this project. However, the papers \cite{WOSP98} and \cite{WOSP04} gave a few
+pointers towards developing the test cases described in Chapter
 \ref{chap:performance_analysis}. Both articles also stress the importance of
 performance testing during the development rather than after it, as this allows
 for time to actually implement optimizations and improvements. The performance
-testing in this report does not strictly follow any methodology, but is a
-result of the team members' use of common sense and the scientific method.
+testing in this report does not strictly follow any of these methodologies, but
+it includes the most important elements of them, e.g. performance testing during
+development.
 
-Early on in the project it became clear that \snowman{} is very I/O bound, as it does
-a lot of database operations. The tests in this report show a noticable
+Early on in the project it became clear that \snowman{} is very I/O bound, as it
+performs a lot of database operations. The tests in this report show a noticable
 difference in performance between traditional rotational hard drives and SSDs.
-Myers speaks of this in his Master thesis \cite{Myers} which shows that SSD
+Myers comments on this in his Master thesis \cite{Myers} which shows that SSD
 has a significant advantage over HDDs when it comes to random read performance
 but not when it comes to write performance. Note that these tests were performed
-in 2008, a time where SSD technology was fairly new and suffering
-from their different way of writing data\footnote{Features such as TRIM was
+in 2008, a time when SSD technology was fairly new and suffering
+from its different way of writing data\footnote{Features such as TRIM were
 introduced shortly after Myers thesis.}. As operating systems, drivers and disk
-controllers has improved, SSDs are now superior to HDDs in most tasks.
+controllers have improved, SSDs are now superior to HDDs in most tasks.

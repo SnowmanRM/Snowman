@@ -2,31 +2,28 @@
 
 \section{Strategy}
 The overall strategy of the project when it comes to testing has, first and
-foremost, been to have regular meetings from Avdeling BKI where we demonstrate
-live demo's of the software. This has lead us to either confirm things as
-feature complete or created a list of things to either fix or improve, along the
-way. 
+foremost, been to have regular meetings from Avdeling BKI where we conducted
+demonstrations of the software. This has lead us to either confirm elements as
+feature complete or to create a list of elements to either fix or improve.
 
-We have also not had any specific regimes when it comes to bugfixing, we have
+We have also not had any specific regimes when it comes to bug fixing, we have
 mostly just handled them when they have been discovered them. 
 
-You could describe our software testing strategy as ad-hoc based, as is quite
-common in agile projects. Our main focus has been on the performance testing.
+We could describe our software testing strategy as ad-hoc based, as it is quite
+common in agile projects. Our main focus was on the performance testing.
 
-Unit testing has not been used extensively in this project since the
-development team has limited knowledge and experience with this type of testing.
-It has been used, however, to test that data from an update is correctly
-inserted into the database. Source code listings of all unit tests in this
-project can be found in appendix.
+Unit testing has not been used extensively in this project, except to test that
+data from an update is correctly inserted into the database. Source code listings of all unit tests in this
+project can be found in Appendix \ref{app:}.
 
 \section{Description of Problems}
 
 \subsection{Rule insertion}
-\snowman{} extracts various types of data from the rulestring and inserts
+\snowman{} extracts various types of data from the rule string and inserts
 this into the database in different tables. Since an update can contain
-thousands of rules it proved very difficult to effectively verify that all rules
-were correctly inserted into the database. To address this, a test suite was set
-up executing a dummy update with an example rulestring containing all
+thousands of rules it proved to be very difficult to effectively verify that all
+rules were correctly inserted into the database. To address this, a test suite was set
+up executing a dummy update with an example rule string containing all
 possible options.
 
 \begin{python}
@@ -57,8 +54,8 @@ useful during the refactoring of the Update module.
 \subsection{List Pagination}
 One problem that has plagued the software throughout the development has been
 the pagination functionality in the GUI. Due to it using AJAX to fetch other
-pages in the background, if you changed pages so fast that the system couldn't
-catch up, it would just end up never loading anything due to AJAX's asyncronous
+pages in the background, if we changed pages so fast that the system could not
+catch up, it would just end up never loading anything due to AJAX's asynchronous
 nature\footnote{The code does not wait for AJAX to finish before moving on.}.
 This has been remedied by using some logic to check for outstanding AJAX calls but a better solution would
 be to implement some other mechanism or framework for pagination. The remedy has
@@ -67,16 +64,15 @@ take some time.
 
 \subsection{The Ever Changing Number of Changes}
 One smaller bug that popped up was on the Changes page where the number of new
-rulesets, rules and rule revisions there has been in the latest updates were
+rulesets, rules and rule revisions there has been in the latest updates are
 displayed. Initially, only the rule revision was tied to the Update object and
-we then traversed from the revision object to the rule object and count how many
-revisions that rule had, in order to determine if the rule was new\footnote{A
-shiny new rule will always only have one revision.}. But using this method led
-to a undesired outcome when a ``new'' rule gets a new revision in later sequent
-update. As the count for revisions is done real time, this rule will suddenly
-not be listed as new anymore in the old update. 
+we then traversed from the revision object to the rule object and counted how
+many revisions that rule had, in order to determine if the rule was new\footnote{A new rule will always only have one revision.}. But using this method led
+to an undesired outcome when a ``new'' rule gets a new revision in a later
+update. As the count for revisions is done in real time, this rule will suddenly
+not be listed as new anymore in the old update.
 
 This problem was solved by tying all relevant new objects to the Update object
-and then just list those relations. The downside of this is of course a lot more
-relations to store in the database, but the Changes view was one of the more
-important features so a camel had to be swallowed.
+and then just listing those relations. The downside of this is a lot
+more relations to store in the database, but the Changes view was one of the more
+important features so it had to be done this way.

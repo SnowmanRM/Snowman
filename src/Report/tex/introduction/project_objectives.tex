@@ -7,8 +7,8 @@ has a goal of researching, designing and developing a system that as a minimum:
 \begin{itemize} 
 \item Is more efficient than \bhtb{}.
 \item Is developed as an engine that responds to API-calls.
-\item Is modular in design and allows future changes and additions wihtout
-affecting existing functionality.
+\item Is modular in design and allows future changes and additions that will not
+affect existing functionality.
 \item Is scalable enough to handle both small and large sets of IDS-sensors and
 rules in a production environment.
 \item Is able to download rules and rule sets from multiple customizable sources.
@@ -22,15 +22,15 @@ per sensor basis, in a user friendly way.
 other third party tools, such as SNORBY \cite{snorby}.
 \item Is easy to install.
 \item Has an internal logging system.
-\item Is well documented and can be easily adopted by anyone as open source software.
+\item Is well-documented and can be easily adopted by anyone as open source
+software.
 \end{itemize}
-In addition, the project will attempt to add the following functionality if
-time permits:
+In addition, the project will attempt to add the following functionality:
 
 \begin{itemize}
 \item A graphical user interface.
-\item Said user interface must be user friendly and intuitive, and require only
-limited knowledge of \snort{} rules from the user.
+\item The mentioned user interface must be user friendly and intuitive, and
+require only limited knowledge of \snort{} rules from the user.
 \item The system can also distribute rules to
 Suricata \cite{surikata}, another \snort{}-like IDS, which
 can operate with the exact same rules as \snort{}.
@@ -43,16 +43,16 @@ they are distributed to sensors.
 \item The system supports commenting of the rules.
 \item The system supports writing custom rules and editing existing rules.
 \end{itemize}
-Once the system has been developed, it will be released as an Open Source Software to the
-public in a well-documented format.
+Once the system is developed, it will be released as an Open Source Software to
+the public in a well-documented format.
 \subsection{Effect Objectives}
 
 Forming baselines from the current prototype \bhtb{} and from \snortmanager{},
 the project has a goal to further increase the efficiency of rule management by
 investigating and implementing programming techniques such as multi-threading
 and caching to reduce latency and delays in the system by as much as 50\%. The
-software must also maintain linearity in performance, i.e. 10 executions of the
-same job should take 10 times, or less, the amount of time as a single
+software must also maintain sublinearity in performance, i.e. 10 executions of
+the same job should take 10 times, or less, the amount of time as a single
 execution.
 
 The achievement of these goals is to be measured by conducting several

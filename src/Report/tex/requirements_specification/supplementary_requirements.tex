@@ -1,7 +1,7 @@
 \section{Supplemental Requirements}
-In addition to the features discovered in the use cases, we added had some
+In addition to the features discovered in the use cases, we added some
 requirements we felt were needed, that can be broken down into a RUP
-FURPS+\cite{FURPS} fashion.
+FURPS+ fashion\cite{FURPS} .
 \subsection{Functionality}
 	\begin{itemize}
 		\item The system should be able to restart a Snort sensor in the event that one
@@ -9,7 +9,8 @@ FURPS+\cite{FURPS} fashion.
 		\item The system should be able to detect if a Snort sensor is not responsive
 		over the network.
 		\item The system must be portable to the majority of the popular linux
-		distributions. 
+		distributions. Porting to other operating systems, such as Windows, should be
+		possible through changing the operating system specific code.
 	\end{itemize}
 \subsection{Usability}
 	\begin{itemize}
@@ -30,8 +31,8 @@ FURPS+\cite{FURPS} fashion.
 		\item The database should be able to maintain at least 100 000 individual rules.
 		\item Any operation in the system in normal operations (i.e. after the first big
 		rule update) should take no longer than 1 second on average.
-		\item The relationship between time and workload should be linear, meaning that
-		if a single operation that takes 1ms, ten operations should take 10ms.
+		\item The relationship between time and workload should be sublinear, meaning
+		that if a single operation takes 1ms, ten operations should take 10ms.
 	\end{itemize}
 \subsection{Security}
 	\begin{itemize}
@@ -40,12 +41,12 @@ FURPS+\cite{FURPS} fashion.
 		parties in the system, through authentication.
 		\item Certain important API calls must be protected against misuse from a
 		non-trusted party.
-		\item All processes and files related to them system must exert the principle of
-		least privilege.
+		\item All processes and files related to the system must exhibit the principle
+		of least privilege \cite{saltzer}.
 	\end{itemize}
 \subsection{Interoperability}
-The system must be able to work with Snort in such a way that it can
-import new files to Snorts configuration files structure and must be able to
+The system must be able to work with \snort{} in such a way that it can
+import new files to the \snort{} configuration files structure and must be able to
 reset Snort in such a way that the new configurations are loaded.
 \subsection{Licensing}
 The system will be released to the public as Open Source under the GNU General

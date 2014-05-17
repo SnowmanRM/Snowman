@@ -4,10 +4,9 @@
 \label{sec:program_workflow}
 To aid the development of the functional requirements, the program workflow was
 charted in order to give a better understanding of what the system was expected
-to do. This was accomplished by going trough the functionality of \bhtb{} step
-by step with \client{} and detailing the functions and various needs for
+to do. This was accomplished by going through the functionality of \bhtb{} with \client{} and detailing the functions and various needs for
 improvement or additional functionality. From this, the workflow chart was drawn
-with the major parts of the system. In addition, Henriksens management process
+with the major parts of the system. In addition, Henriksen's management process
 \cite{BHTB} was taken into consideration.
 
 \begin{figure}[ht!]
@@ -16,26 +15,22 @@ with the major parts of the system. In addition, Henriksens management process
 \label{fig:program_workflow}
 \end{figure}
 
-To explain the workflow chart in figure \ref{fig:program_workflow}, the blue
+To explain the workflow chart in Figure \ref{fig:program_workflow}: the blue
 boxes are the major system functionalities, the green boxes are the major goals of the system and the
 arrows show the direction of flow the system should have. As can be seen, all
-of the program flow ends up with rules being syncronized to the sensors, which
-makes sense since this is the whole purpose of the system to begin with.
+of the program flow ends up with rules being syncronised to the sensors, making
+that a very central part of the system.
 
-But the road to Rome consisted of a lot more functionality that needed to be in
-place, and that interacts with the rules, before they are ready to be handed
-over to Snort.
-
-It's important to note that very early on, we decided that writing rules,
-automatically check them for errors and commenting them were nice-to-have (but
-still important) features that we could implement if we had time to do so. Hence
-they are greyed out in the drawings, and as you will notice further on in the
-report, was never developed due to time contraints.
+It is important to note that in the very early phase of development, we decided
+that writing rules, automatically check for errors and adding uder comments
+to them were nice-to-have (but still important) features that we could implement
+if we had time to do so. Hence they are greyed out in the drawings, and as the reader will notice further on in
+the report, these features were left for future work.
 
 From this workflow we could outline a rough modular design (figure
 \ref{fig:program_modules}) based on the naturally separate functions of updating
-rules, tuning them, distributing them and show them. We also added a database module, since most of our program was
-going to be centered around it.
+rules, tuning them, distributing them and showing them. We also added a database
+module, since most of our program was going to be centered around it.
 
 \begin{figure}[ht!]
 \includegraphics[width=130mm]{./img/program_modules.png}
@@ -43,7 +38,7 @@ going to be centered around it.
 \label{fig:program_modules}
 \end{figure}
 
-\subsubsection{Rule Downloading Module}
+\subsubsection{Rule Download Module}
 This module will handle all functionality related to downloading rules,
 including comparing MD5 checksums.
 \subsubsection{Rule Pre-Storage Processing Module}
@@ -65,8 +60,9 @@ This module will contain all the functionality needed to display the system
 status and system functions to the user. It will be the primary way the user
 interacts with the system. Basically the GUI module.
 \subsubsection{Daemon Module}
-This module will run continually on the system to ensure that the system is
-responsive and to carry out any interval based tasks, such as automatic updates or distributions.
+This module will run continuously on the system to ensure that the system is
+responsive and to carry out any timed tasks, such as automatic updates or
+automatic distributions.
 \subsubsection{Commenting Module}
 This module will allow users to attach comments to rules.
 \subsubsection{Rule Writing Module}
@@ -87,11 +83,11 @@ sensor.
 %\input{./tex/requirements_specification/usecases.tex}
 
 \subsection{Domain Model}
-After outlining all the things above, we put together the concept model in
-figure \ref{fig:conceptual_class_diagram} of the objects we would need in the
-system. Even though a Snort rule is quite simple in and of itself, there are a lot of meta information surrounding them, like rule
-revisions and rule classes.
-Thus our system needed at least 16 different classes in order to fullfil the
+After outlining all the concepts above, we outlined the concept model in
+Figure \ref{fig:conceptual_class_diagram} of the objects we would need in the
+system. Even though a Snort rule is quite simple by itself, there is a lot of
+meta information surrounding them, such as rule revisions and rule classes.
+Thus, our system needed at least 16 different classes in order to fullfil the
 basics of the required functionality.
 
 

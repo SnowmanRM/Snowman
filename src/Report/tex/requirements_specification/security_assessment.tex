@@ -1,8 +1,8 @@
 \section{Security Assessment}
-During the inital phase we conducted a small security assessment in order to be
-aware of and possibly fix any security issues the software might have. We did a
-small brainstorming session and created a simple risk analysis table of the
-potential weeknesses we could find.
+During the inital phase of the project, we conducted a small security assessment
+in order to be aware of and possibly fix any security issues the software might have. We created a simple risk analysis table of the
+potential weaknesses we could find, listed in Table
+\ref{tab:security_assessment}.
 
 \renewcommand{\arraystretch}{1.5}
 \begin{table}[h]
@@ -19,7 +19,7 @@ potential weeknesses we could find.
 	{An attacker inherits escalated privileges through
 	exploiting the software if it is run as root or other high privilege user.} & {All processes} & {8} & {3} & {5,5} & {Follow least privilege principle. Python also protects against buffer overflow} \\
 	{The SID/Rev of a malicious rule is newer than an
-	excisting rule, with the purpose of overwriting the excisting rule.} & {Update module} & {7} & {2} & {4,5} & {Add possibility for the user to see changes before they are commited.} \\
+	existing rule, with the purpose of overwriting the existing rule.} & {Update module} & {7} & {2} & {4,5} & {Add possibility for the user to see changes before they are commited.} \\
 	{In a scenario where the database is not on the
 	localhost, a man-in-the-middle attack is possible.} & {Central database} & {6} & {3} & {4,5} & {Assume database security is in place, encrypt transmissions.} \\
 	{Continually sending requests to the sensor client to

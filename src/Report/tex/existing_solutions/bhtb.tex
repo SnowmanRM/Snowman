@@ -1,19 +1,19 @@
 \section{Bring Home The Bacon}
 Bring Home The Bacon was a by-product prototype of the Master thesis written by
 Henriksen in 2012 \cite{BHTB}. In the thesis, Henriksen seeks to prove that
-having a central, graphical-oriented, system to administer multiple
-\snort{}-sensors and their rules results in a signficant improvement in user
+having a central, graphically-oriented system to administer multiple
+\snort{}-sensors and their rules, results in a signficant improvement in user
 workflow over the more traditional command-line environment. Henriksens tests
 show that such a system can double the users' work efficiency, if not more, as the command-line environment would scale very
 badly as the number of sensors increases. Henriksen also outlines a rule
 management process, which has been helpful during the initial phases of this
-project to map the program workflow (section \ref{sec:program_workflow}).
+project to map the program workflow (Section \ref{sec:program_workflow}).
 
 Despite being a prototype, \bhtb{} offers the essential functionality required
 for managing rule sets on multiple sensors. It can display a list of rules
-which can also be turned on and off on different sensors. It can also display a
-list of rule sets that can also be turned on and off, which will effect all
-rules in the rule set. This is considered a drawback, as \bhtb{} does not offer
+which can also be turned on and off on different sensors, as well as a list of
+rule sets that can also be turned on and off, which will effect all rules in the rule set. 
+This is considered a drawback, as \bhtb{} does not offer
 a mechanism where rule sets can be disabled without affecting the state of the
 rules within. This means that the original state of the rules in a rule set
 is lost whenever the state of the rule set is changed. \snowman{} improves this
@@ -30,13 +30,13 @@ rules is considered ineffective, and has been solved differently in \snowman{}
 rule thresholds and suppressions, but does not offer any input validation, which makes the sensors vulnerable to
 crashes\footnote{Snort will simply not restart if something in the
 configuration files is malformed.} in the case of invalid input. This weakness
-is taken into consideration in \snowman{}, which offers a comprehensive input
+is taken into consideration in \snowman{}, which offers form
 validation. 
 
 \bhtb{} is programmed with Python and uses the framework
 Tornado \cite{tornado} as its Web-server, which works
-similar to Django, a framework used by \snowman{}, with it's URL API system
-(section \ref{kapittel om django urls}). It also uses SQLite \cite{sqlite}
+similar to Django, a framework used by \snowman{}, with its URL API system
+(Section \ref{sect:django_urls}). It also uses SQLite \cite{sqlite}
 as its database, which has limited abilities when it comes to relations and
 more complex data structures.
 

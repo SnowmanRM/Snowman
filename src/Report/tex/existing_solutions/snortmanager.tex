@@ -1,8 +1,12 @@
 \section{Snortmanager}
-\snortmanager{} was created for a bachelor thesis written at \GUC{} in 2012,
-where the main purpose of the software was to make rule management more
-effective. This was done by creating a central server with a rule-database which
-automatically downloads and updates rules from external sources, and creates
-configuration files for sensors. \snortmanager{} has a high focus on producing
-configuration files containing the necessary rules and settings for each sensor,
-but does not automatically distribute the files to the sensors.
+\snortmanager{} was created for a Bachelor thesis written at \GUC{} in 2012
+\cite{SnortManager}, where the main purpose of the software was to make rule
+management more effective for the employing company. This was done by creating a central
+server with a rule-database which automatically downloads and updates rules from
+external sources. The user must then manually input which configurations are
+needed for a specified sensor and the system then creates configuration files
+for sensor.
+As \snortmanager{} has a high focus on producing configuration files containing
+the necessary rules and settings for each sensor, but does not automatically distribute the files to the sensors like \snowman{}
+does, the user is required to manually move the files to the sensor through some
+unrelated process.
