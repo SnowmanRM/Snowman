@@ -69,15 +69,16 @@ function runSpecialTest {
 
 
 
-#for i in {1..5}
-#do
-	runSpecialTest ${FILE3[0]} ${FILE3[1]}
-#done
+for i in {1..5}
+do
+	runSpecialTest ${FILE2[0]} ${FILE2[1]}
+done
 
-#for i in {1..5}
-#do
-#	runSpecialTest FILE3[0] FILE3[1]
-#done
+for i in {1..5}
+do
+	runSpecialTest ${FILE3[0]} ${FILE3[1]}
+done
+
 
 
 
