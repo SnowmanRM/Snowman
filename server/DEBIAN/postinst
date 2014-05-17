@@ -23,12 +23,16 @@ mkdir -p /var/run/snowman/
 chown snort:snort /var/run/snowman/
 
 mkdir -p /var/snowman
-chown -R snort:snort /var/snowman
+chown -R snort:www-data /var/snowman
 
 touch /var/log/snowman.log
-chown snort:snort /var/log/snowman.log
+chown snort:www-data /var/log/snowman.log
+chmod 664 /var/log/snowman.log
+touch /var/log/snowmand.log
+chown snort:www-data /var/log/snowmand.log
+chmod 664 /var/log/snowmand.log
 
-#update-rc.d snowmanclientd defaults
+update-rc.d snowmand defaults
 
 # Generate a new ssl-certificate used by the xmlrpc-server.
 echo "Generating SSL-Certificates"

@@ -1,9 +1,9 @@
 Package: snowman
-Version: 0.5.5
+Version: 0.5.6
 Priority: optional
 Architecture: all
 Essential: no
-Depends: python, python-openssl, openssl
+Depends: python, python-openssl, openssl, python-mysqldb
 Maintainer: Eigil Obrestad, Thomas Nyheim, Eirik Skogstad
 Provides: snowman
 Description: A rule-management system for Snort, and simmilar IDS's.

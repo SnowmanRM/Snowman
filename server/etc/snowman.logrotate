@@ -1,0 +1,7 @@
+/var/log/snowmand.log /var/log/snowman.log {
+	daily
+	rotate 14
+	missingok
+	create 660 snort www-data
+	compress
+}
