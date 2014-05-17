@@ -16,13 +16,13 @@ if [ ! -f /etc/snowman/snowman.config ]; then
 	echo "A sample-configurationfile is added to /etc/snowman/snowman-client.config"
 fi
 
-chown snort:snort /etc/snowman/snowman-client.config
-chmod 644 /etc/snowman/snowman-client.config
+chown snort:snort /etc/snowman/snowman.config
+chmod 644 /etc/snowman/snowman.config
 
 mkdir -p /var/run/snowman/
 chown snort:snort /var/run/snowman/
 
-mkdir -p /var/snowman/rules
+mkdir -p /var/snowman
 chown -R snort:snort /var/snowman
 
 touch /var/log/snowman.log
