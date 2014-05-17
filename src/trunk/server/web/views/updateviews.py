@@ -57,7 +57,7 @@ def index(request):
 			else:
 				data['uploadMessage'] = "The ruleset is now uploaded, and the processing of the file is started. This might take a while however, depending on the size of the file."
 				# Call the background-update script.
-				subprocess.call([os.path.join(BASE_DIR, '/usr/bin/snowman-manualUpdate'), filename, source.name])
+				subprocess.call(['/usr/bin/snowman-manualUpdate', filename, source.name])
 	
 	# If nothing is posted, create an empty form
 	else:
@@ -303,7 +303,7 @@ def runUpdate(request, id):
 		data['message'] = "Started the update from %s." % source.name
 	
 		# Call the background-update script.
-		subprocess.call([os.path.join(BASE_DIR, '/usr/bin/snowman-update'), str(source.id)])
+		subprocess.call(['/usr/bin/snowman-update', str(source.id)])
 	
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
