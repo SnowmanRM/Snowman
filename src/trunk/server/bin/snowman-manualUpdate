@@ -62,8 +62,8 @@ if __name__ == "__main__":
 	try:
 		UpdateTasks.runUpdate(filename, sourcename)
 		logger.info("Finished the update, with PID:%d, from: %s" % (os.getpid(), filename))
-	except:
-		logger.warning("Something happened while doing a manual update of %s", s.name)
+	except Exception as e:
+		logger.warning("Something happened while doing a manual update of %s:\n%s", (s.name, str(e)))
 	finally:
 		s.locked = False
 		s.save()
