@@ -1,0 +1,127 @@
+\chapter{Performance Test Scripts}
+
+\section{Lines Added to \snowman{} Code}
+
+\begin{python}[caption=Code lines used for
+timing.,label=lst:timing_code_snowman] 
+start = datetime.datetime.now()
+<code that performs update>
+end = datetime.datetime.now()
+timefile = open("/tmp/srm-update-timing.txt", "a")
+timefile.write("Time: %s\n" % str(end - start))
+timefile.close()
+\end{python}
+
+\section{Bash Script for \snowman{}}
+
+\begin{python}[caption=Bash script used for
+testing.,label=lst:bash_testing_snowman] 
+#!/bin/bash
+URL="http://192.168.1.100/testing/"
+FILE=("testset.1-1.tar.gz" "testset.10-1.tar.gz" "testset.100-10.tar.gz" "testset.1000-1.tar.gz" "testset.1000-100.tar.gz")
+FILEF="testset.10000-1000.tar.gz"
+FILE2=("testset.rev2.1000-100.tar.gz" "testset.rev3.1000-100.tar.gz")
+FILE3=("s.1.tar.gz" "s.2.tar.gz")
+
+function runTest {
+
+	echo "DROP DATABASE srm; CREATE DATABASE srm;" | mysql -usrm -pbah5oofa6booyeeJa2Da 
+	../manage.py syncdb --noinput
+	python createDemoData.py
+	python ../bin/snowmand &
+	PID=$!
+	echo "INSERT INTO update_source (name, url, md5url, schedule, locked) VALUES ('Testing', '$URL$1', '$URL$1.md5', 'No automatic updates', 0);"  | mysql -usrm -pbah5oofa6booyeeJa2Da srm
+
+	python runTimedUpdate.py 3
+	python setRuleSetsToTestSensor.py
+	sleep 25
+	kill $PID
+
+}
+
+function runTest2 {
+
+	echo "DROP DATABASE srm; CREATE DATABASE srm;" | mysql -usrm -pbah5oofa6booyeeJa2Da 
+	../manage.py syncdb --noinput
+	python createDemoData.py
+	python ../bin/snowmand &
+	PID=$!
+	echo "INSERT INTO update_source (name, url, md5url, schedule, locked) VALUES ('Testing', '$URL$1', '$URL$1.md5', 'No automatic updates', 0);"  | mysql -usrm -pbah5oofa6booyeeJa2Da srm
+
+	python runTimedUpdate.py 3
+	python setRuleSetsToTestSensor.py
+	sleep 250
+	kill $PID
+
+}
+
+function runSpecialTest {
+
+	echo "DROP DATABASE srm; CREATE DATABASE srm;" | mysql -usrm -pbah5oofa6booyeeJa2Da 
+	../manage.py syncdb --noinput
+	python createDemoData.py
+	python ../bin/snowmand &
+	PID=$!
+	echo "INSERT INTO update_source (name, url, md5url, schedule, locked) VALUES ('Testing', '$URL$1', '$URL$1.md5', 'No automatic updates', 0);"  | mysql -usrm -pbah5oofa6booyeeJa2Da srm
+
+	python runTimedUpdate.py 3
+	python setRuleSetsToTestSensor.py
+	sleep 250
+	python runTimedUpdate.py 3
+	python setRuleSetsToTestSensor.py
+	sleep 60
+
+	echo "UPDATE update_source SET url = '$URL$2', md5url = '$URL$2.md5' WHERE id=3;"  | mysql -usrm -pbah5oofa6booyeeJa2Da srm
+
+	python runTimedUpdate.py 3
+	python setRuleSetsToTestSensor.py
+	sleep 60
+	kill $PID
+
+}
+for i in {1..5}
+do
+	runSpecialTest ${FILE2[0]} ${FILE2[1]}
+done
+
+for i in {1..5}
+do
+	runSpecialTest ${FILE3[0]} ${FILE3[1]}
+done
+\end{python}
+
+\section{Lines Added to \bhtb{} Code}
+
+
+\begin{python}[caption=Code lines used for
+timing.,label=lst:timing_code_bhtb] 
+now = datetime.datetime.now()
+<code that performs update>
+stop = datetime.datetime.now()
+time = stop - now
+timefile = open('/tmp/timefile','a')
+timefile.write("\nTime: "+str(time))
+timefile.close()
+\end{python}
+\section{Bash Script for \bhtb{}}
+
+\begin{python}[caption=Bash script used for
+testing.,label=lst:bash_testing_bhtb]  
+rm -rf files_to_distribute/*
+rm -rf tmp/*
+rm -rf rules/*
+rm DB.db
+cp config.py install
+python install/install.py
+python update.py
+python test.py
+cd web/
+python web.py &
+PID=$!
+cd ..
+for i in {1..5}
+do
+	python distribute.py
+done
+kill $PID
+\end{python}

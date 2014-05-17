@@ -1,53 +1,35 @@
 \chapter*{English Abstract}
-<<<<<<< .mine
 
-**Trenger kort intro om trusler mot datanettverk**.
+In todays technological world, the Internet has become an integral part of
+businesses and organisations. However, the Internet bring a pandoras box of
+threats against computer networks as other individuals or
+organizations seek to exploit them for monetary gain, information superiority or
+political and social activism.\\
+
 In order to properly protect a computer network it is vital to be able to detect
-these threats, which is done by using an intrusion detection system (IDS).
-IDS's will normally operate by analysing the network traffic which is compared
+these threats, which is commonly done by using an intrusion detection system
+(IDS).
+An IDS will normally operate by analysing the network traffic by comparing it 
 to threat-patterns defined in signatures, raising alerts when threats are
-detected. Given the number of possible threats to a computer network, IDS's
-often have a huge amount of signatures that must be properly managed in order to
-maintain both a secure and usable network.
-Signature management therefore involves enabling and disabling of signatures, as
-well as keeping them all up to date. This can be a challenging task even for
+detected. Given the number of possible threats to a computer network, an IDS
+often have a large amount of signatures that must be properly managed in order
+to maintain both a secure and usable network.\\
+
+Signature management therefore involves enabling and disabling the signatures,
+as well as keeping them all up to date. This can be a challenging task even for
 small-sized organisations, as the IDS might operate on multiple parts of the
-network simultaneously. This thesis presents a software which facilitates
+network simultaneously. \\
+
+This thesis presents a software which facilitates
 signature management in environments with multiple instances of the IDS, called
 sensors, by using a central server which automatically updates and distributes
 signatures to the sensors. Furthermore, the software introduces a novel way of
 automatic management of signatures on each sensor. The software is controlled
 with a simple and intuitive graphical user interface which supports multiple
-users. This thesis also compares the functionality and efficiency of the
+users. \\
+
+This thesis also compares the functionality and efficiency of the
 software with similar signature management systems through a theoretical
-analysis of performance complemented with practical tests.
-
-=======
-\snort{} is a leading open source intrusion detection system that is
-used to protect computer networks the world over; by law enforcement,
-the military and security specialists alike.
-The system has many good projects going for it when it comes to handeling the actual events and alerts
-the system generates, but it is lacking a good way of dealing with the
-signatures (also known as rules) it uses to detect malicious network traffic.
-\newline
-
-This project continues the work that resulted in the prototype Bring Home The
-Bacon in 2012 and takes it a step further into something that can be used in a
-professional production environment. We have developed a rule management system
-for \snort{} which we have called \snowman{}, that can scale to the needs of a
-larger, more distributed deployment of intrusion detection systems.
-\snowman{} also employs principles such as least privilege, encrypted
-communication and form validation to ensure that an application used to secure
-networks, does not become a weakness in and of itself.
-\newline
-
-Because of the performance demands involved, the project also conducted a
-performance test that compares \snowman{} with two other similar programs in
-order to verify if we had met our performance goals. While we did not meet those
-goals, we did find a performance bottleneck in one of our systems modules that
-we managed to fix and increase our performance tenfold. Our performance testing
-has become a lesson in how important performance testing can be during development to weed out bottlenecks from a
-system before it is released.
-
-
->>>>>>> .r376
+analysis of performance, complemented with practical tests. Our performance
+testing is a lesson in how important performance testing can be during software
+development to discover bottlenecks in a system.

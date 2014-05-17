@@ -12,9 +12,9 @@
 This section discusses the most important results from the update processing
 tests. Table \ref{tab:timeperrule} displays the average processing time per rule
 calculated from the synthetic update containing 10000 rules and the realistic update containing
-28064 rules. As can be seen, \bhtb{} is significantly faster than the two other
-across all systems. It came as a big surprise that \bhtb{} performed so well in
-the update tests, as our client had listed poor update performance as one of its
+28064 rules. As it can be seen, \bhtb{} is significantly faster than the two
+other programs on all our test machines. It came as a big
+surprise that \bhtb{} performed so well in the update tests, as our client had listed poor update performance as one of its
 major defects. The results are probably best explained by the very simple nature
 of \bhtb{}'s data structure. Also note that these tests might not reflect the
 reality that our client faces, as they are run in a minimalistic environment
@@ -46,9 +46,9 @@ SF-28064 & S1 & 6.3962 & 4.3392 & 0.5638 \\
 \end{table}
 
 \snortmanager{} starts to struggle when more files are introduced into the
-tests. As can be seen in table \ref{tab:comparefiles}, there is a big difference
-between tests \textit{SYN-1000} and \textit{SYN-1000-B}, where we have the same number of rules, but spread over
-more files. This problem does not seem to exist in either \snowman{} nor
+tests. As it can be seen in Table \ref{tab:comparefiles}, there is a great
+difference between tests \textit{SYN-1000} and \textit{SYN-1000-B}, where we have the same number of rules, but spread over
+more files. This problem does not seem to exist in either \snowman{} or
 \bhtb{}.
 
 %Set row spacing:
@@ -73,29 +73,96 @@ SYN-1000-B & S3 & 404.022 & 228.044 & 49.908 \\
   \label{tab:comparefiles}
 \end{table}
 
-None the less, both \snortmanager{} and \bhtb{} pummelled \snowman{} v0.4 into
-the ground in these tests, which led us to completely rework our update program
+None the less, both \snortmanager{} and \bhtb{} was much better than \snowman{}
+v0.4 in these tests, which led us to completely rework our update program
 workflow. Our problem was that for every rule, we were writing its data to the
 database and then moving on to the next rule. This caused a lot of busy-waiting
-for the database. You can see that the times accelerated a lot on the machine
-with the lower end harddrives, so the problem also manifests itself more when
-the harddrives can't keep up.
+for the database. We can see that the times accelerated a lot on the machine
+with the lower-end hard drives, so the problem also manifests itself more when
+the hard drives cannot keep up.
 
 We proceeded to rewrite the code so that all the rules are parsed into
-memory first and then is committed into the database in one big query. As you
-can see in table \ref{tabell med tall} we improved \snowman{}'s performance
-in v0.5 with as much as xx\% in some tests. 
+memory first and then is committed into the database in one big query. As we
+can see in table \ref{tab:compareversions} we improved \snowman{}'s performance
+in v0.5 significantly. 
 
-While we still didn't fulfil the performance goal, considering the difference in
-complexity and structure, we feel the difference is acceptable. The results in
-this test is a very good indicator that performance testing during development
-is a very useful thing to a development project.
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{r|r|r|r}
+Test case & System & \snowman{} v 0.4 & \snowman{} v 0.5 \\
+\hline
+SYN-1 & S1 & 1058.179 & \textbf{1415.484}  \\
+ & S2 & 622.640 & \textbf{804.681}  \\
+ & S3 & 151.946 & \textbf{196.160}  \\
+\hline
+SYN-10 & S1 & 2289.518 & \textbf{1427.712}  \\
+ & S2 & 1668.142 & \textbf{808.218}  \\
+ & S3 & 327.655 & \textbf{195.159}  \\
+\hline
+SYN-100 & S1 & 17519.385 & \textbf{1568.224}  \\
+ & S2 & 12197.192 & \textbf{865.496}  \\
+ & S3 & 2356.610 & \textbf{343.033}  \\
+\hline
+SYN-1000 & S1 & 167645.267 & \textbf{2568.235}  \\
+ & S2 & 114617.561 & \textbf{1098.159} \\
+ & S3 & 22830.358 & \textbf{1823.785}  \\
+\hline
+SYN-10000 & S1 & 1795175.128 & \textbf{14179.095}  \\
+ & S2 & 1162468.835 & \textbf{5761.811}  \\
+ & S3 & 228038.066 & \textbf{16804.950}  \\
+\hline
+\multicolumn{5}{l}{\textit{Note: All times in milliseconds.}}
+  \end{tabular}
+  \caption{Comparison of \snowman{} v0.4 and v0.5.}
+  \label{tab:compareversions}
+\end{table}
+
+While we still did not accomplish the performance goals set in Section \ref{},
+considering the difference in complexity and structure, we assess the difference as acceptable. The results
+in this test are a very good indicator that performance testing during
+development is a very useful element in a development project.
 
 \section{Effectiveness of rule distribution}
 As we expected, \bhtb{} had a very flat performance curve in this test, but not
 exactly flat. There is a small increase in time spent when the number of rules
-go up, as you can see in table \ref{tabell}, meaning there is some degree of
-processing time infuencing the results. 
+goes up, as we can see in Table \ref{tab:bhtbtSyncResults}, meaning there is some degree of
+processing time influencing the results. 
+
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{r|r|r}
+	Test case & System & \bhtb{} \\
+\hline
+SYN-1 & S1 & \textbf{1501.465} \\
+ & S2 & 1467.612 \\
+ & S3 & 3.300 \\
+\hline
+SYN-10 & S1 & \textbf{1489.364} \\
+ & S2 & 1472.808 \\
+ & S3 & 3.462 \\
+\hline
+SYN-100 & S1 & \textbf{1489.645} \\
+ & S2 & 1473.355 \\
+ & S3 & 4.492 \\
+\hline
+SYN-1000 & S1 & \textbf{1771.004} \\
+ & S2 & 1503.511 \\
+ & S3 & 15.132 \\
+\hline
+SYN-10000 & S1 & \textbf{1839.841} \\
+ & S2 & 1593.889 \\
+ & S3 & 121.677 \\
+	\hline
+	\multicolumn{3}{l}{\textit{Note: All times in milliseconds.}}
+  \end{tabular}
+  \caption{\bhtb{} Syncronisation performance has a flat curve.}
+  \label{tab:bhtbtSyncResults}
+\end{table}
 
 Still, considering the tests on S1 and
 S2 were carried out on the same network and sensor, and S3 were carried out on a
@@ -104,38 +171,37 @@ completely different network and sensor, it is apparent that distribution from
 to the sensor. 
 
 The same difference in testing environments is apparent in the \snowman{} tests.
-S1 and S2 have pretty much the same results while S3 probably benefits from it's
+S1 and S2 have very similar results while S3 probably benefits from its
 different hardware and network setup. This leads us to conclude that the
 performance of distribution is dictated by the bandwidth and by the hardware of
-the sensor, and not so much the hardware of the central server.
+the sensor, and not so much by the hardware of the central server.
 
-However, there does not seem to be a pure performance gain over \bhtb{} as we
-expected by going for a distributed model with a change based distribution
+However, there are no indications of a pure performance gain over \bhtb{}
+as we expected by going for a distributed model with a change based distribution
 protocol. But we are seeing a significant reduction in time spent distributing
 when there are only updates and not a massive batch of rules. While \bhtb{} uses
 roughly the same time on tests SF-28064-A and SF-28064-B, we use about 80\% less
 time on test B than on test A. 
 
 This gives merit to the model we picked for our distribution architecture and
-with a little more performance optimizations, the overall times might improve
-further as well.
+with a little more performance optimisations, the overall times is likely to
+improve further as well.
 
 \section{GUI latency}
-These tests probably entails the most grim part of our performance results as we
-seeminly have failed to produce an improvement over \bhtb{} when it comes to
-displaying rules, something that does not make much sense if you do the math. We
-are only fetching and displaying a fraction of the number of rules that \bhtb{}
-does\footnote{About 100 to 28000.}, yet we spend about twice as long on it. 
+These tests show that we have not been able to produce an improvement over
+\bhtb{} when it comes to displaying rules, which comes clearn when we compare
+the numbers involved (Table \ref{tab:testInterfaceResults}).
+\snowman{} are only fetching and displaying a fraction of the number of rules that
+\bhtb{} does\footnote{About 100 to 28000.}, yet we spend about twice as long on it. 
 
-We have not spent much time investigating the cause of this, but we strongly
-suspect its a combination of our more complex data structure, coupled with our
-rather novice use of a complex template framework such as Django.
+We strongly suspect that the cause of this is a combination of our more complex
+data structure, coupled with a complex template framework such as Django.
 
 A small optimization was attempted by enabling a setting that lets Django
 prefetch related objects from the database and that did improve the results
-somewhat, but not enough to be noticable. 
+to some extent, but not enough to be noticable. 
 
-\section{Linearity in performance}
+\section{Sublinearity in performance}
 Our tests show that all the systems were more or less exactly linear, which
 means that none of the systems are suffering from bad programming that manifests
 itself exponentially. 
@@ -165,14 +231,14 @@ S3 & 0.999999 & 0.999999 & 0.999983 \\
 \snowman{} did not outperform either \bhtb{} or \snortmanager{} in any of the
 tests, but through the test we managed to discover a big performance bottleneck
 in \snowman{}'s Update module that we managed to fix in time. The fix resulted
-in a big improvement in performance.
+in a great improvement in performance.
 
-The extra latency in \snowman{} is likely due to it's more complex data
+The extra latency in \snowman{} is likely due to its more complex data
 structure surrounding rules, which means more processing and data movement is
-needed for many operations. The project has also not been able to exploit all
-possible optimization possibilities and techniques, due to limited time.
+needed for many operations. The project has not exhausted all
+possible optimization possibilities and techniques, so there is room for
+further improvements in future work.
 
 These tests stand to point out that performance testing in software projects can
-reveal performance problems early enough in the development to do something
-about it.
+reveal performance problems early enough in the development to correct them.
 
