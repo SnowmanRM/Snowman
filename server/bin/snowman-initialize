@@ -6,6 +6,10 @@ import logging
 sys.path.append("/usr/share/snowman/")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "srm.settings")
 
+# Create db-schema if it is missing.
+from django.core.management import call_command
+call_command('syncdb', interactive=False)
+
 from core.models import *
 from django.contrib.auth.models import User, Group
 from update.models import Source
