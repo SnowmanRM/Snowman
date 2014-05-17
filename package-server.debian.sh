@@ -14,7 +14,7 @@ mkdir -p $configpath
 mkdir -p $binpath
 mkdir -p $sharepath
 mkdir -p $varpath
-mkdir -p /etc/apache2/sites-available/
+mkdir -p $workdir"etc/apache2/sites-available/"
 
 cp -r server/DEBIAN $workdir
 
@@ -27,7 +27,7 @@ cp -r server/update $sharepath
 cp -r server/util $sharepath
 cp -r server/web $sharepath
 cp server/manage.py $sharepath
-cp server/etc/settings.cfg $configpath"snowman.conf"
+cp server/etc/settings.cfg $configpath"snowman.config.template"
 cp server/etc/apache.conf $workdir"etc/apache2/sites-available/snowman.conf"
 
 # Delete all the subversion files from the source, as we do not want them 

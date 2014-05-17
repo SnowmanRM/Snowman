@@ -11,8 +11,8 @@ else
 	echo "It exists. No need to create it"
 fi
 
-if [ ! -f /etc/snowman/snowman-client.config ]; then
-	cp /etc/snowman/snowman-client.config.template /etc/snowman/snowman-client.config
+if [ ! -f /etc/snowman/snowman.config ]; then
+	cp /etc/snowman/snowman.config.template /etc/snowman/snowman.config
 	echo "A sample-configurationfile is added to /etc/snowman/snowman-client.config"
 fi
 
