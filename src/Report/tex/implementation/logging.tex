@@ -2,27 +2,27 @@
 Complex software needs to log what is happening, to simplify the understanding
 of what happens when certain things go wrong. It is also needed
 to document what is done, in case someone would need to make sure that an update
-ran or other actions taken by the system. As \snowman{} is a fairly large and
-complex piece of software, we needed to think about logging of the internal
+ran or other actions have been taken by the system. As \snowman{} is a fairly
+large and complex piece of software, we needed to think about logging of the internal
 workings.
 
 For the logging of internal events in both the \snowman{}-client, and the
 \snowman{}-server, we decided to use the standard Python logging libraries.
-These library allow us to log events with a certain severity inside our code,
+These libraries allow us to log events of importance inside our code,
 depending on how important these events are. The logger would then log
 information about things like; which modules the events occur in, the time an
-event happened, and a message describing the event. Debug, Info, Warning, Error
-and Critical are the default logging severities, sorted in an ascending order
-of importance.
+event happened, and a message describing the event. The levels of logging
+are Debug, Info, Warning, Error and Critical, sorted in an ascending order of
+importance.
 
-The logger can then get assigned handlers, which decides where to store the
-logged events. \snowman{} is by default using one handler, writing events to a
-file. The configuration file for \snowman{} decides where this file is stored
-and which severities are stored. Under normal operation, it is recommended to
-not log the debug messages, as they should not be needed and therefore only use
-up diskspace.
+Handlers can be assigned to the logger, which decides where to store the logged
+events. \snowman{} uses one handler by default, which writes events to a file.
+The configuration file for \snowman{} decides where this file is stored and
+which severities are stored. Under normal operation, it is recommended not to
+log Debug messages, as they are generally not needed and therefore only use up
+disk space and may slow down the overall performance.
 
-The python logging facilities are configurable and flexible. If future needs
+The Python logging facilities are configurable and flexible. If future needs
 would require some events to be stored in a database or send messages to users
 (via SMS for example), the only thing that would be needed to be done is to
 add a new handler.

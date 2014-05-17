@@ -1,25 +1,25 @@
 \section{Deployment}
 
-The deployment of \snowman{} is a two-stage affair. First, the central server
-needs to be installed and configured. After the server have beed verified
+The deployment of \snowman{} is a two-stage procedure. First, the central server
+needs to be installed and configured. After the server has been verified
 to be working as intended, the \snowman{}-clients can be installed alongside of
 \snort{} on the sensor.
 
-Both the server and the client are delivered packed in Debian based
+Both the server and the client are delivered packed in Debian-based
 installation files. These installation files will install the
 \snowman{} software, in addition to making sure that the required dependencies
-also is present on the machine.
+are also present on the machine.
 
 However, there is one exception to the dependency solving. The server is
 delivered in both a Debian-flavour in addition to an Ubuntu-flavour. The reason
-for this is that some of the Python libraries used is currently not in the 
+for this is that some of the Python libraries used are currently not in the 
 debian-stable repository, and for Debian it is required to install them via the
-Python package source; pip. After the installation, we therefore provide some
+Python package source (pip). After the installation, we therefore provide some
 utilities as a double-check, to be able to verify that all the required tools are present.
 
 As all of the \snowman{} software is delivered in packages, automation of the
-installation can be achieved trough the use of standard tools like aptitude and
-configuration tools like puppet and cfengine.
+installation can be achieved trough the use of standard tools like {\em
+aptitude} and configuration tools such as {\em puppet} and {\em cfengine}.
 
 \subsection{Snowman Server}
 
@@ -29,28 +29,28 @@ first.
 \snowman{} is a quite flexible piece of software, it is possible to change which
 technology is used with a small configuration change.
 
-The web interface is powered by a Python WSGI\cite{wsgi} gateway and is thus
+The web interface is powered by a Python WSGI \cite{wsgi} gateway and is thus
 very flexible in which server technology is serving it. The only requirement would be that the
-webserver supports WSGI. As default, the configurations supplied uses Apache 2
-as its webserver.
+web server supports WSGI. As default, the provided configurations use \apache{}
+as their web server.
 
-For the database, as the Django database ORM is used, several
+For the database, as the \django{} database ORM is used, several
 technologies can easily be utilized. Sqlite, MySQL (and thus MariaDB),
-PostgresSQL and Oracle is all supported. Sqlite might work for smaller
+PostgresSQL and Oracle are all supported. Sqlite might work for smaller
 installations, where simplicity is preferred over performance. The only
-requirement for a Sqlite database would be access to write a file in the
-filesystem. However, if performance required, a dedicated RDMS (Relational
-Databse Management System) would be more suitable. A bog standard and free
+requirement for an Sqlite database would be access to write a file in the
+filesystem. However, if performance is required, a dedicated RDMS (Relational
+Database Management System) would be more suitable. A bog standard and free
 alternative here is MySQL.
 
 \subsubsection{Installation}
 
-When the database technology has been selected and the webserver is available,
+When the database technology has been selected and the web server is available,
 the installation of the \snowman{} package can be done. The package is delivered in
 two versions; one for Debian and one for Ubuntu. Both would work on both
 systems, as the only difference is the dependency list. In the Debian version, a
-couple of dependencies is ommitted as they are not in a new enough version in
-the debian-stable repositories. These dependencies needs to be installed
+couple of dependencies are omitted as they are not in a new enough version in
+the debian-stable repositories. These dependencies need to be installed
 manually using python pip:
 \begin{itemize}
   \item django (version >= 1.6)
@@ -59,30 +59,29 @@ manually using python pip:
 
 \subsubsection{Configuration}
 
-After the installation, a couple of configuration steps remains. First, in the
-file ``/usr/share/snowman/srm/settings.py'' the following variables needs to be
+After the installation, a couple of configuration steps remain. First, in the
+file ``/usr/share/snowman/srm/settings.py'' the following variables need to be
 updated:
 \begin{itemize}
   \item{SECRET\_KEY}: Create a random string, and insert here. It is used for
   signing messages, and make sure no tampering happens in the clients of the
-  webinterface.
-  \item{ALLOWED\_HOSTS}: An array of hostnames used by the server. If the
-  webside is requested with any other hostnames than those listed here, an error-page will be
-  displayed instad of the webinterface.
-  \item{DATABASES}: A dictionary which contains the database-settings. For more
-  information on how to configure this settings, consult the django
-  documentation
-  \footnote{https://docs.djangoproject.com/en/1.6/ref/settings/\#databases}
+  web interface.
+  \item{ALLOWED\_HOSTS}: An array of host names used by the server. If the
+  webside is requested with any other host names than those listed here, an
+  error-page will be displayed instead of the web interface.
+  \item{DATABASES}: A dictionary which contains the database-settings. More
+  information on how to configure these settings is found in the \django{}
+  documentation.
 \end{itemize}
 
 The rest of \snowman's configuration can be found in
 ``/etc/snowman/snowman.cfg''. All the configuration parameters are well
 documented in the configuration file.
 
-To configure the webserver, an Apache configuration file is supplied in
+To configure the web server, an \apache{} configuration file is provided in
 ``/etc/apache2/conf-available/snowman.conf''. If this is to be used, a symlink
 to this file can be created in ``/etc/apache2/conf-enabled/'', after which
-Apache needs to be restarted.
+\apache{} needs to be restarted.
 
 When the configuration changes are complete, the command ``snowman-initialize''
 should be used to generate the database-schema and intialize the database with
@@ -93,7 +92,7 @@ access to the database.
 \subsubsection{Verification}
 
 When \snowman{} has been configured, it is time to verify that the configuration
-is valid. There are five things that needs to be verified:
+is valid. There are five things that need to be verified:
 
 \begin{itemize}
   \item Database availability.
@@ -103,10 +102,10 @@ is valid. There are five things that needs to be verified:
   \item Availability of the socket used by clients to download updates.
 \end{itemize}
 
-The command ``snowman-test'' is supplied to have an automated way to test all
-these parametres. If everything is ok, a message will state so and the
-program returns a 0. If any of the above bulletpoints fails their corresponding
-test, a message is displayed, and the test returns a 1.
+The command ``snowman-test'' is provided in order to have an automated way to
+test all these parametres. If everything is OK, a message will state so and the
+program returns 0. If any of the above bullet points fails their corresponding
+test, a message is displayed, and the test returns 1.
 
 \subsection{Snowman Client}
 
@@ -115,9 +114,9 @@ The deployment of the \snowman{}-client is a simple three-step approach:
 \begin{enumerate}
   \item Install the snowman-client package
   \item Update ``/etc/snowman/snowman-client.config'' with database-settings,
-  address for the central server, sensor name and sensor secret.
+  address for the central server, sensor name and sensor password.
   \item Add the sensor to the \snowman-server, for example trough the
-  webinterface.
+  web interface.
 \end{enumerate}
 
 To be able to verify that everything is as it should be, a tool is provided
@@ -127,8 +126,8 @@ to test that the client is properly installed and configured. The command
 \begin{itemize}
   \item The required libraries are present.
   \item The configuration specifies a database that is accessible.
-  \item The location for creating rule-files is writeable.
-  \item A contact to the central server is able to be established.
+  \item The location for creating rule-files is writable.
+  \item A contact to the central server can be established.
 \end{itemize}
 
 \subsubsection{snowmanclientd}
@@ -137,6 +136,3 @@ There is a daemon supplied with the \snowman-client, named
 contact with the client. It is set up to automatically start at bootup, but it
 is also possible to control via the ordinary linux command ``service'';
 ``service snowmanclientd start|stop''.
-
-
-

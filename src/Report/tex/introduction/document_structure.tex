@@ -27,12 +27,16 @@ conclude our findings in the performance test.
 \subsection{Special Styles Used}
 Software names are written in a different font throughout the
 report, like so: \snowman{}. Source code is listed in an enclosed box with
-syntax highlighting (listing \ref{lst:example}). Source code can also appear in
+syntax highlighting (Listing \ref{lst:example}). Source code can also appear in
 the text with the same syntax highlighting as the listings, especially note
-classnames which will appear as so: \pythoninline{ClassName}.
+names of modules and classes which will appear as so:
+\pythoninline{module}, \pythoninline{Class}.
 
 \begin{python}[caption=Source code example.,label=lst:example]
-def printHello():
-  # Print a message
-  print 'Hello World!'
+from module import Class
+
+class Hello:
+  def printHello():
+    # Print a message
+    print 'Hello World!'
 \end{python}

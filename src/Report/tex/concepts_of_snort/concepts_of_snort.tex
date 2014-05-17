@@ -1,32 +1,34 @@
-\chapter{CONCEPTS OF SNORT}
+\chapter{BASICS OF IDS AND SNORT}
 \label{chap:concepts_of_snort}
 
-This chapter will give a brief introduction to the basic concepts of
-\snort.
+This chapter gives a brief introduction to the basic concepts of IDS's in
+general and \snort{} in particular.
 
 \section{Rules}
 %TODO: Explain planning of rule modifiers and hierarchy model in Design chapter.
 
-A rule is basically a set of options that define ways of detecting, classifying
-and reporting a potential attack or threat on the network\footnote{A rule
-actually consists of a header and options \cite{SnortManual}}. The rule options
-are specified as plain text in the {\em rulestring} (listing
-\ref{lst:rulestring}) with the general options enclosed in parentheses. Note
-that a badly formatted rulestring given to \snort{} will cause a crash.
+A \snort{} rule is made up of a header section followed by rule options. The
+header specifies which network, protocols and ports the rule is valid for, and
+which action to take if the rule matches traffic, while rule options provide
+metadata for the rule, such as its ID and classification \cite{SnortManual}. The
+rule options are specified as plain text in the {\em rule string} enclosed in
+parentheses (Listing \ref{lst:rulestring}). Note that a badly formatted
+rulestring given to \snort{} will cause a crash.
 
-\begin{lstlisting}[frame=single, caption=Example rulestring.,
+
+\begin{lstlisting}[frame=single, caption=Example rule string.,
 label=lst:rulestring,captionpos=b]
 alert udp $EXTERNAL_NET any -> $HOME_NET 69 \
 (msg:"PROTOCOL-TFTP Get"; classtype:bad-unknown; \
 sid:1444; rev:9;)
 \end{lstlisting}
-There are several types of options, but only the general rule options are
+There are several types of rule options, but only the general rule options are
 relevant for this project. The general rule options provide information about
 the rule \cite{SnortManual} (i.e. signature ID, revision number and classtype).
-Other types of options, such as payload options which are actively used in detection, are
-not relevant for the management of rules and are thus not considered in this
+Other types of options, such as payload options, which are actively used in
+detection, are not relevant for the management of rules and are thus not considered in this
 project. Some of the general options can only be specified within the
-rulestring, referred to as an {\em inline} specification, while others can be
+rulestring, referred to as {\em inline} specification, while others can be
 specified in separate files, referred to as {\em external} specification.
 
 A rule can either be enabled or disabled in the detection system, meaning that
@@ -34,7 +36,7 @@ the rule will only have an effect on detection when it is enabled. Since this
 project is dealing with multiple sensors connected to one central database, this
 functionality has been expanded so that users can keep a rule enabled on one
 sensor and disabled on another. In addition, the user can also set an
-enabled/disabled flag on \textit{rule sets}.
+enabled/disabled flag on \textit{rulesets}.
 
 % This is our old solution:
 % A rule \em modifier \em is created for each rule in a ruleset when the ruleset
@@ -62,17 +64,18 @@ enabled/disabled flag on \textit{rule sets}.
 %   \caption{Determining whether a rule is enabled or disabled on a sensor.}
 %   \label{tab:ruleEnabled}
 % \end{table}
-\section{Rule sets}
+\section{Rulesets}
 
-The term rule set, sometimes ruleset, is not formally defined in the
-\snortManual, however it is used a few times to refer to
-the complete collection of official \snort{} rules\footnote{Also
-referred to as the Sourcefire VRT Certified Rules,
-see http://www.snort.org/snort-rules/} and to the complete set of rules applied
-on a \snort{} system. In practice, rules within a rule set are
-categorized by intrusion type (e.g. malware, trojan and worm). These groups of
-rules are often named by their intrusion type, and are also referred to as rule
-sets. \snowman{} and this report use only the latter definition of rule sets.
+The term ruleset, sometimes rule set, is not formally defined in the
+\snortManual, however it is used a few times to refer to the complete collection
+of official \snort{} rules\footnote{Also referred to as the Sourcefire VRT
+Certified Rules, see http://www.snort.org/snort-rules} and to the complete set
+of rules applied on a \snort{} system. In practice, rules are categorized by
+intrusion type (e.g. malware, trojan and worm) in order to keep the rules
+structured. These groups of rules are often named by their intrusion type, and
+are also referred to as rulesets. \snowman{} and this report use only the latter
+definition of rulesets. The official \snort{} rules are split into files whose
+names denote the ruleset. 
 
 \section{Generators}
 
@@ -83,7 +86,7 @@ relevant generator for this project.
 
 \section{References}
 \snort{} contains a plugin which allows rules to contain
-references to external attack identification systems which provide
+references to external attack identification systems, which provide
 additional information about the alerts \cite{SnortManual}. A reference is
 basically a URL string pointing to a webpage containing this information.
 

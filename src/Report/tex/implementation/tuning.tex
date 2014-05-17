@@ -1,8 +1,8 @@
 \section{Tuning module}
 The \pythoninline{tuning} module contains classes that hold information on rule
 filtering and suppession. \snort{} supports only one filter of each type per
-rule. In Snowman this is translated to one filter of each type per rule {\em per
-sensor}, which means that a filter is always connected to both a sensor and a
+rule. In Snowman, this is translated to one filter of each type per rule {\em
+per sensor}, which means that a filter is always connected to both a sensor and a
 rule. If a filter occurs inline, this filter is regarded as a default filter and
 will be active on every sensor where the rule operates. This is accomplished by
 applying the filter to the rule and the {\em all sensors} sensor, which is the

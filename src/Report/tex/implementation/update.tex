@@ -8,9 +8,9 @@ confusion with the module, the term {\em update-package} is specifically
 used to refer to update data coming from external sources.
 
 \subsection{Sources}
-A {\em source} is a supplier of update-packages. \snowman{} lets users define
-sources which are either external (i.e. online) or local, meaning that
-the update-package will either be downloaded from the Web or read from the
+A {\em source} is a provider of update-packages. \snowman{} lets users define
+sources, which are either external (i.e. online) or local, meaning that
+the update-package will either be downloaded from the web or read from the
 local system. All information about each source is contained in the
 \pythoninline{Source} class. The sources determine where the update-packages are
 located, and an update-package must always come from a specific source.
@@ -18,7 +18,7 @@ located, and an update-package must always come from a specific source.
 External sources contain a URL pointing to the location of the update-package,
 and alternatively also a URL to the MD5-hash of the package. External sources
 can be configured to pull updates at regular intervals, contrary to local
-sources which must always be updated manually.
+sources, which must always be updated manually.
 
 A source can be configured to update at regular intervals, or the user can run
 an update manually on a source.
@@ -32,7 +32,7 @@ encounters a new hash.
 \subsection{Files}
 \label{sec:update.files}
 An update-package may contain various files depending on the source it comes
-from. This section will describe the files supported by \snowman{}. Note that
+from. This section describes the files supported by \snowman{}. Note that
 file names and extensions used in this report follows the {\em de facto} names
 used in the official \snort{} rules, but are subject to change. The names and
 extensions can therefore be manually specified by \snowman{} users in a
@@ -40,8 +40,8 @@ configuration file (section \ref{sec:configuration_files}).
 
 \subsubsection{Rule files}
 A rule file is any file carrying the {\em .rules} file extension. These
-files contain raw rulestrings to be processed by Snort. A rulestring is basically a
-semicolon-separated list of rule options. Specific rule options used in this system are listed in table
+files contain raw rule strings to be processed by Snort. A rule string is
+basically a semicolon-separated list of rule options. Specific rule options used in this system are listed in table
 \ref{tab:ruleFormat}.
 
 %Set row spacing:
@@ -87,13 +87,14 @@ reference.config}) files also contain strings that specify generator massages
 and rule reference types, respectively.
 
 \subsubsection{Signature message files}
-These files contain alert messages for specific rules.
+Alert messages for rules are normally written inline, but can also be specified
+in a file called {\em sid-msg.map}, which may also contain rule references.
 
 \subsubsection{Threshold files}
 These files contain filter specifications for specific rules.
 
 \subsection{Running an update}
-An update is either triggered by the user, or automatically on regular
+An update is either triggered by the user, or automatically at regular
 intervals, for a given source. Regardless of how the update process is invoked,
 it follows the same procedure. As mentioned above, sources will often provide an
 MD5-hash of the update. When this is the case, the hash is stored in the
@@ -132,44 +133,34 @@ the respective entity.
 
 \subsection{Rule parsing}
 A rule file is read line by line, and each rulestring found is sent to the rule
-parsing method. The rulestring is then matched to a predefined pattern that will
-verify that the rule is valid and extract the data fields (table
+parsing method. The rule string is then matched to a predefined pattern that
+will verify that the rule is valid and extract the data fields (table
 \ref{tab:ruleFormat}.
 
-rule moved to new ruleset.
-
-\subsubsection{Rule sets}
-A rule always belogs to a ruleset which can be specified in the raw
+\subsubsection{Rulesets}
+A rule always belogs to a ruleset, which can be specified in the raw
 rulestring. If the parser does not find this attribute in the rulestring,
 the filename is considered to be the ruleset name.
 
 \subsubsection{Filters}
+As mentioned in Chapter \ref{chap:concepts_of_snort}, rule filters may appear in
+rule strings (detection filters) or in external files (event filters). In
+addition to these filters, \snowman{} supports a filter type called {\em
+threshold}. A rule threshold defines a limit and/or threshold for the triggering
+of a specific rule, just like an event filter, but can be specified both inline
+or externally. Rule thresholds are deprecated, and support for this
+functionality will cease in a future version of \snort{} \cite{SnortManual}. To
+maintain compatibility with current rules, \snowman{} supports reading inline
+and standalone threshold definitions.
 
-
-A rule threshold defines a limit and/or threshold for the triggering of a
-specific rule, and can exist as an inline or standalone option.
-Rule thresholds are deprecated, and support for this functionality will cease in a
-future version of \snort , where it is replaced by {\em detection
-filters} and {\em event filters} (see below) \cite{SnortManual}. To
-maintain compatibility with current rules, \snowman{} supports reading inline and
-standalone threshold definitions.
-
-To prevent \snort{} from adding duplicate filters, all inline filters are
-removed from the rulestrings and transformed into event filter and detection filter
-objects. This is done to prevent \snort{} from adding filters to rules when
-parsing the rulestrings, as duplicate filters for the rules will cause \snort{}
-to crash.
-
-Any filters extracted from the rulestring are written as plain text
-(i.e. as they appear in the original rulestring) in the \textit{filters} field
-of the \pythoninline{RuleRevision} object. This is to ensure that all the
-original rule options are stored, meaning that no data is lost or discarded.
-
-\subsubsection{Detection filters}
-A detection filter can be specified within a rulestring
-
-\subsubsection{Event filters}
-Please explain..
+All inline filters are removed from the rule strings and transformed into event
+filter and detection filter objects. This is done to prevent \snort{} from
+adding filters to rules when parsing the rule strings, as duplicate filters for
+the rules will cause \snort{} to crash. Any filters extracted from rule
+strings are written as plain text (i.e. as they appear in the original
+rule string) in the \textit{filters} field of the \pythoninline{RuleRevision}
+object. This is to ensure that all the original rule options are stored,
+meaning that no data is lost or discarded.
 
 \subsubsection{Suppression}
 Suppressions can be applied any rules that might be giving off false positives
@@ -177,7 +168,7 @@ or generating a lot of unneccessary alerts. There might also be cases where the
 traffic in question is legal on certain networks or to/from certain
 IP-addresses. Only one suppression can be applied to a rule on a sensor, but
 multiple IP-addresses or networks can be listed in the suppression in the syntax
-[1.2.3.4,4.3.2.1/24]. 
+[1.2.3.4,4.3.2.1/24]. Rule suppression is always specified in external files.
 
 \snowman{} features IP-address validation checking to make sure no
 invalid addresses are entered, by running a regex-match on the address before it
@@ -185,16 +176,11 @@ is committed. The match will check for a valid IPv4 syntax in the
 range 0.0.0.0/0 - 255.255.255.255/32. There is currently no support for IPv6,
 but this can easily be added later.
 
-\subsubsection{Rule Message files}
-
 \subsection{Classification, Generator and Reference Type parsing}
 These files contain a sequence of their respective entities (section
 \ref{sec:update.files}), and are all parsed in the same manner. If a given entity is
 not already present in the database, it is created and stored. If the database
 already contains the entity, the existing entry in the database is overwritten.
-
-
-
 
 \input{./tex/implementation/saving.tex}
 

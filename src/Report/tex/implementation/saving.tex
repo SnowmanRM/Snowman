@@ -1,16 +1,38 @@
 \subsection{Saving}
+\label{sec:saving}
 
-During early versions of the update code it was discovered that the saving of
-changes to the central database needed some extra attention. The first versions
-of \snowman \ saved every rule individually after a change was found and the
-objects was updated. This turned out to be a big bottleneck, as updates could
-take hours on lower end hardware.
+Performance testing of update processing (see Chapter \ref{chap:results}) showed
+that \snowman{} version 0.4 was very slow compared to other software. The reason
+for this was examined, and found to be a large amount of database calls spread
+out in the code. \snowman{} 0.4 saved every rule individually after a change was
+found and the objects were updated. This principle is demonstrated in Listing
+\ref{lst:wrongsave}, where the method tries to fetch, alter and save a
+classification object, or create a new one if not found. This turned out to be a
+bottleneck, as updates could take hours on low-end hardware. To solve this, we
+split the methods of \pythoninline{Update} into two new classes:
+\pythoninline{Parser} and \pythoninline{Updater}, where the first would only
+parse the incoming data and send this to the latter which gathered all objects
+and wrote these in bulk when the parsing was complete. As can be seen in Chapter
+\ref{chap:results}, this had a huge impact on performance.
 
-A new approach was therefore implemented and now we store everything into
-memory while parsing, and only start to save changes into the database when everything
-has been parsed. As some of the objects is referring to other objects in the
+\begin{python}[caption=Updating a classification in \snowman{}
+0.4,label=lst:wrongsave]
+from core.models import RuleClass
+
+def updateClassification(type, description, priority):
+  try:
+    # Update existing classification
+    ruleclass = RuleClass.objects.get(classtype=type)
+    ruleclass.description = description
+    ruleclass.priority = priority
+    ruleclass.save()
+  except RuleClass.DoesNotExist:
+    # Add new classification
+    ruleclass = RuleClass.objects.create(classtype=type, ...)
+\end{python}
+As some of the objects refer to other objects in the
 database through foreign-keys, it is vital to store the objects depending on
-other objects after the objects they depend on is stored. A safe order to save
+other objects after the objects they depend on are stored. A safe order to save
 them has been identified and the objects are saved in this order:
 \begin{enumerate}
   \item Generators
@@ -23,8 +45,8 @@ them has been identified and the objects are saved in this order:
   \item Filters
 \end{enumerate}
 
-For every point in the list above the procedure is more or less the same.
-First, the objects recieved is attempted to be extracted from the database. The
+For every item in the list above the procedure is approximately the same.
+First, the objects received are attempted to be extracted from the database. The
 response from the database lets us identify which objects are new and which are
 changed. The changed objects can be updated and saved individually before all
 the new objects are constructed and everything finally gets inserted into the

@@ -6,19 +6,17 @@ Due to the limited time-frame of this project, it was vital to get right into
 the development without having to learn a new programming language or unfamiliar
 programming concepts. It was also important to find a language which produces
 high performing programs, since this project aims to be more effective than
-similar software. The  C and C++ languages were considered because these
-languages can produce programs with very high performance. The project group
-also has some theoretical and practical experience with these languages, as they
-are taught at \GUC{}. C and C++ were abandoned as the team concluded that
-they would induce more work because of their complexity, and thereby be too
-time-consuming.
+similar software. The C and C++ languages were considered because these
+languages can produce programs with very high performance, however, these were
+abandoned as we concluded that they would induce more work because of their
+complexity, and thereby be too time-consuming.
 
 The final decision fell on Python mainly because of this language lets the
 programmer develop complex programs in a short amount of time. Python has
 automatic memory management and offers a wide range of built-in tools, which
 gives the developers time to focus more on the code and functionality rather
-than overhead tasks like managing memory and including external libraries.A
-concern was raised that Python, being a high-level language, would maybe not be
+than overhead tasks like managing memory and including external libraries. A
+concern was raised that Python, being a high-level language, might not be
 efficient enough for this project. This turned out to not be a problem, as
 Python can run modules written in C. A major reason for using Python was also
 \django{} (see section \ref{sec:frameworks}), which is a Python framework used
@@ -54,7 +52,8 @@ syntax to delimit blocks of code. The project group has followed standard Python
 guidelines for best practice programming, with principles as DRY\footnote{``Don't
 repeat yourself''. The principle that code should not be duplicated in a
 project.} and EAFP\footnote{``Easier to ask for forgiveness than permission''.}
-(the latter actually caused some unforeseen performance issued described in chapter/section).
+(the latter actually caused some unforeseen performance issues described in
+Section \ref{sec:saving}).
 
 Documentation has been a high priority. The project group has aimed to make the
 code self-documenting by utilizing sensible names on variables, functions and
@@ -72,7 +71,7 @@ of a Docstring at the beginning of the method.
 The Python manual encourages the use of exceptions, which is a useful way of
 sending messages up the execution stack when an error or irregular behaviour is
 deceted. Customized exeptions are raised in \snowman{} for example when parsed
-data has the wrong format ({\em BadFormatError}), when critical objects are
+data has a wrong format ({\em BadFormatError}), when critical objects are
 missing from the database ({\em MissingObjectError}) or when an unsupported
 rule is encountered ({\em AbnormalRuleError}).
 

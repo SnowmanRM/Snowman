@@ -1,13 +1,12 @@
 \section{Configuration Files}
 \label{sec:configuration_files}
 \snowman{}'s configuration files exist to give users some flexibility by
-providing a set of options that specify how \snowman{} operates.
-
-The configuration files originated from a need to store database credentials,
-which of course would differ from system to system. This was expanded to include
-some options that users might want to set differently depending on their
-situation, for example if new rule revisions shoul automatically be active in
-the production system or not. \snowman{} requires a configuration file for the
+providing a set of options that specify how \snowman{} operates. The
+configuration files originated from a need to store database credentials, which
+of course would differ from system to system. This was expanded to include some
+options that users might want to set differently depending on their situation,
+for example if new rule revisions should automatically be active in the
+production system or not. \snowman{} requires a configuration file for the
 server and one for each client, detailed below. For example configuration files
 see appendix.
 
@@ -25,8 +24,8 @@ right into production) or remain inactive until manually activated.
 
 \subsubsection{Rule sets}
 There is a possibility that a rule will be moved from one rule set to another by
-a source, for example the \snort{} rules contain a ``deleted'' set which
-contains rules that were previously part of other rule sets, but is now
+a source, for example the \snort{} rules contain a ``deleted'' set, which
+contains rules that were previously part of other rule sets, but are now
 considered obsolete. Users can also choose to re-arrange rules across rule sets,
 which may create conflict during updates. This means that some users will prefer
 that rules automatically moves to the rule set dictated by the update, while
@@ -83,12 +82,11 @@ or a rulestring.
 Every client in the system requires its own configuration file. In this file,
 the credentials of the sensor on which the client operates are stored, along
 with database and logging options and paths to required directories and files.
-
-Parametres which impacts the synchronization is also included in this file.
-Notably is the request-size which controls the max amount of rules requested in
-each request. Depending on the resources available on the central-server, large
-requests might take to much time to handle, and the connection would time out.
-On the other hand, too small requests would increase the sync-time because of
-much I/O-wait between every request. Because we do not know, and do not want to
-put restrictions on, how powerful servers the \snowman{} server will be
-installed on, we pulled this option out to the configfile.
+Parametres which impacts the synchronization are also included in this file,
+most notably the request-size, which controls the maximum amount of rules
+requested in each request. Depending on the resources available on the server,
+large requests might take too much time to handle, which can make the
+connection time out. On the other hand, too small requests would increase the
+synchronization-time because of I/O-waiting between every request. It is
+therefore natural to let users define the request size in the configuration
+file.

@@ -1,18 +1,37 @@
 \chapter{RESULTS OF PERFORMANCE TESTING}
 \label{chap:results}
-% De faktiske observasjoner og data fra forsøk (f.eks. målinger) og undersøkelser (f.eks.
-% utspørringer) presenteres på en oversiktlig måte ved tabeller og/eller diagrammer. Bruk skjønn
-% for evt. plassering i vedlegg. Ved bruk av diagrammer skal det gis beskrivende tekst til grafer.
-% Resultatene skal kort kommenteres, men ikke diskuteres. Viktige resultater gjengis
-% kortfattet under ”Sammendrag”. En oversikt over tabeller og diagrammer med nummer og titler
-% kan plasseres etter innholdsfortegnelsen.
-This chapter presents the results from the performance testing.
+% De faktiske observasjoner og data fra forsøk (f.eks. målinger) og
+% undersøkelser (f.eks.
+% utspørringer) presenteres på en oversiktlig måte ved tabeller og/eller
+% diagrammer. Bruk skjønn for evt. plassering i vedlegg. Ved bruk av diagrammer
+% skal det gis beskrivende tekst til grafer.
+% Resultatene skal kort kommenteres, men ikke diskuteres. Viktige resultater
+% gjengis kortfattet under ”Sammendrag”. En oversikt over tabeller og diagrammer
+% med nummer og titler kan plasseres etter innholdsfortegnelsen.
+This chapter presents the results from the performance testing. Results are mean
+times calculated from five sequential test results, in microseconds. Test
+cases and systems are listed in rows, with one column per software. See appendix
+for a complete listing of results. Results for interface performance, update and
+synchronize are presented in Tables \ref{tab:testInterfaceResults}, \ref{tab:testUpdateResults} and \ref{tab:testSyncResults}, respectively.
 
- Mean times calculated from five
-  sequential test results.
-  See appendix for a complete listing of results.
+%Set row spacing:
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{r|r|r|r}
+	Test case & System & \snowman{} v 0.5 & \bhtb{} \\
+\hline
+List rules & S1 & 2508 & 924.561 \\
+ & S3 & 1045.950 & 657.408\\
+\hline
+List rule sets & S1 & 11306 & 39432 \\
+ & S3 & 4676 & 10524 \\
+\hline
+  \end{tabular}
+  \caption{Test results for interface performance.}
+  \label{tab:testInterfaceResults}
+\end{table}
 
-\section{Update processing}
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
 \begin{table}[h]
@@ -116,22 +135,4 @@ SF-28064-B & S1 & 26362.894 & 1754.601 \\
   \end{tabular}
   \caption{Test results for sensor synchronization.}
   \label{tab:testSyncResults}
-\end{table}
-
-%Set row spacing:
-\renewcommand{\arraystretch}{1.5}
-\begin{table}[h]
-  \centering
-  \begin{tabular}{r|r|r|r}
-	Test case & System & \snowman{} v 0.5 & \bhtb{} \\
-\hline
-List rules & S1 & 2508 & 924.561 \\
- & S3 & 1045.950 & 657.408\\
-\hline
-List rule sets & S1 & 11306 & 39432 \\
- & S3 & 4676 & 10524 \\
-\hline
-  \end{tabular}
-  \caption{Test results for interface performance.}
-  \label{tab:testInterfaceResults}
 \end{table}

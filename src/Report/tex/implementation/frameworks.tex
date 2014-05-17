@@ -5,7 +5,7 @@ frameworks to help us do generic tasks.
 
 \subsection{Django}
 To facilitate database transactions and the creation of the Web interface, this
-project uses the \django\cite{django} framework.
+project uses the \django{} \cite{django} framework.
 \django{} is an extensive web-framework, designed to make the full process of
 building web-based applications and their backends much more efficient and
 simple. It takes care of the database ORM, which controls all the
@@ -22,17 +22,20 @@ us develop the code once, and still let the user decide which kind of database
 to use on the client.
 
 \subsection{jQuery}
-When it comes to using Javascript for client side scripting, jQuery\cite{jquery}
-is the way to go. jQuery provides a framework for common javascript operations
-on the DOM\footnote{The webpage content or elements.} and abstracts away a lot of browser spesific code to give you a nice and clean
-interface. It also makes AJAX\footnote{AJAX
+When it comes to using JavaScript for client-side scripting, jQuery
+\cite{jquery} is a good solution, as it provides a framework for common
+JavaScript operations on the DOM\footnote{The webpage content or elements.} and
+contains abstractions for a lot of browser-spesific code, which gives
+programmers a nice and clean interface. It also makes AJAX-calls\footnote{AJAX
 is web development technique that allows you to send asynchronous requests to a
-web server.} calls a lot easier, requiring minimal code such as
-\begin{python}
+web server.} a lot easier, requiring much less code compared to regular
+JavaScript (example in Listing \ref{lst:ajax}).
+
+\begin{javascript}[caption=AJAX call in jQuery and JavaScript.,label=lst:ajax]
+// AJAX call in jQuery:
 \$.get('/web/rules/');
-\end{python}
-instead of 
-\begin{javascript}
+
+// AJAX call in JavaScript:
 function loadXMLDoc() {
     var xmlhttp;
 
@@ -56,12 +59,11 @@ function loadXMLDoc() {
 
 \end{javascript}
 \subsection{Bootstrap}
-Since no one in the group can call themselves a web designer, we decided to take
-a shortcut on that regard and utilize Bootstrap\cite{bootstrap}, which is a
-front-end framework derived from Twitter. It provides us with a lot of ready made CSS and design
-elements that makes a web page responsive and typographically readable. 
-
-Consider the example job of creating a <table> element and spending hours setting up and tweaking the CSS for the
-said table element, we could just add <table class=`{\bf table
-table-bordered}`> and get the table formatted nicely with colors and fonts that
+To facilitate the design and appearance of the web interface, this project uses
+Bootstrap \cite{bootstrap}, which is a front-end framework derived from Twitter.
+It provides a lot of ready made CSS and design elements that make a web page
+responsive and typographically readable. Consider the example job of creating a
+\htmlinline{<table>} element and spending hours setting up and tweaking the CSS
+for the said table element, we could just add \htmlinline{<table class=`table
+table-bordered`>} and get the table formatted nicely with colors and fonts that
 are typographically matching.

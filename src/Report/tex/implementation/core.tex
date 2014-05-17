@@ -1,20 +1,20 @@
 \section{Core module}
-This section will focus on the classes and methods in the \pythoninline{core}
+This section focuses on the classes and methods in the \pythoninline{core}
 module. This module contains the most vital classes of the \snowman{} server
 including \pythoninline{Rule} and \pythoninline{RuleRevision} which hold the
 data of each rule in the system. Simple classes in this module such as
 \pythoninline{Generator}, \pythoninline{RuleReference} and
 \pythoninline{RuleClass}, which are connected to the \pythoninline{Rule} class
-are only briefly explained in this section. For an overview of all objects and
-functions in this module, refer to class diagram (ref) or appendix (ref).
+are only briefly explained in this section. For an overview of all objects in
+this module, refer to the class diagram in Section ??.
 
 \subsection{Rules and rule revisions}
 Rules in \snowman{} are split into two parts; the rule and the rule revision. As
 threats change, or errors in the rules are discovered, a rule may become
-obsolete and a new revision of the rule is released. The rulestring, message and
-detection filter might change from one revision to the other, and are stored in
+obsolete and a new revision of the rule is released. The rule string, message
+and detection filter might change from one revision to the other, and are stored in
 the rule revision object along with the revision number. A revision is always
-connected to a rule object which contains data that is constant for all its
+connected to a rule object, which contains data that is constant for all its
 revisions, such as signature ID and rule set. The reason behind keeping rules
 and revisions in two separate objects is to avoid writing the same constant rule
 data for all revisions. Users of \snowman{} have the possibility to control how
@@ -24,15 +24,16 @@ automatically downloaded rules before they are put into the detection
 system. Users can also manually activate or deactivate rule revisions, and
 \snowman{} will distribute only the newest active revision of a rule.
 
-\subsection{Rule sets}
-As stated in chapter \ref{chap:concepts_of_snort}, the categorization of rules
-in rule sets is a de facto way of organizing rules. Rules in the community rule
-set\footnote{``The Community Ruleset is a GPLv2 VRT certified ruleset that is
+\subsection{Rulesets}
+As stated in Chapter \ref{chap:concepts_of_snort}, the categorization of rules
+in rule sets is a de facto way of organizing rules. The community
+rules\footnote{``The Community Ruleset is a GPLv2 VRT certified ruleset that is
 distributed free of charge without any VRT License restrictions'' -
-http://www.snort.org/snort-rules/} have a ``ruleset'' option within the
-``metadata'' option in the rulestring which specifies the rule set. In other
-releases, rules are organized into files where the file name denote their rule
-set. These two ways of specifying the rule set are both supported by \snowman{}.
+http://www.snort.org/snort-rules/} contain rules with a ``ruleset'' option
+within the ``metadata'' option in the rule string, which specifies the rule set.
+In other releases, rules are organized into files where the file name denotes
+their rule set. These two ways of specifying the rule set are both supported by
+\snowman{}.
 
 \subsection{Sensors}
 Every sensor in the system is represented in the database with its name,
@@ -43,7 +44,7 @@ meaning it will not communicate with the server. Autonomous sensors can be used
 in environments where contact between the server and sensor is unwanted or not
 possible. Rules can be manually exported for these sensors.A sensor can also be
 the parent of other sensors, allowing users to create groups of sensors with the
-same configuration. The database also contains an ``All Sensors'' object which
+same configuration. The database also contains an ``All Sensors'' object, which
 is the parent of all sensors.
 
 The sensors that is not autonomous is checked to be alive every minute, and the
@@ -53,10 +54,9 @@ assigned to it. This user is used to let the sensors authenticate with the
 \snowman{} server to do a rule-synchronization.
 
 \subsection{Comments}
-The \pythoninline{core} module contains a comment object which can store
+The \pythoninline{core} module contains a comment object, which can store
 comments from users who wish to document their operations, e.g. the user can
 attach a comment when adding a filter to a rule to describe why the filter was
-added and which effects it will have on the system. Snowman can also generate
+added and which effects it will have on the system. \snowman{} can also generate
 comments for important events, such as turning rules and rulesets on or off,
-editing and deleting sensors, etc. But this has not been implemented fully due
-to time limitations.
+editing and deleting sensors, etc.

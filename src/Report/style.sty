@@ -44,6 +44,22 @@
   morestring=[b]"
 }
 
+\newcommand\htmlstyle{\lstset{
+   language=HTML,
+   extendedchars=true,
+   basicstyle=\ttm,
+   showstringspaces=false,
+   showspaces=false,
+   frame=tblr,
+   numbers=left,
+   numberstyle=\color{mygray},
+   numbersep=5pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}}
+
 \newcommand\javascriptstyle{\lstset{
    language=JavaScript,
    extendedchars=true,
@@ -68,7 +84,7 @@ commentstyle=\ttm\color{mygray},
 otherkeywords={self},             % Add keywords here
 keywordstyle=\ttb\color{deepblue},
 % Custom highlighting:
-emph={ClassName,Rule,RuleClass,RuleRevision,RuleReference,Generator,Sensor,__init__},
+emph={Hello,Class,Rule,RuleClass,RuleRevision,RuleReference,RuleReferenceType,RuleSet,Generator,Sensor,__init__},
 emphstyle=\ttb\color{deepred},    % Custom highlighting style
 stringstyle=\color{deepgreen},
 frame=tblr,                         % Any extra options here
@@ -96,6 +112,14 @@ numberstyle=\color{mygray} % the style that is used for the line-numbers
 }
 {}
 
+% HTML environment
+\lstnewenvironment{html}[1][]
+{
+\javascriptstyle
+\lstset{#1}
+}
+{}
+
 % Python for external files
 \newcommand\pythonexternal[2][]{{
 \pythonstyle
@@ -103,3 +127,6 @@ numberstyle=\color{mygray} % the style that is used for the line-numbers
 
 % Python for inline
 \newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+% HTML for inline
+\newcommand\htmlinline[1]{{\htmlstyle\lstinline!#1!}}
