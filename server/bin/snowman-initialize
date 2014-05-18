@@ -1,4 +1,7 @@
 #!/usr/bin/python
+"""
+	This executable initializes the snowman-database with data.
+"""
 import os
 import sys
 import logging

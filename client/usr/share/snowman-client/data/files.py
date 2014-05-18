@@ -48,6 +48,7 @@ class ConfigGenerator:
 			os.makedirs(self.configlocation, 0755)
 	
 	def cleanup(self):
+		"""Deletes all the .rule files in the config-location."""
 		for filename in os.listdir(self.configlocation):
 			file_path = os.path.join(self.configlocation, filename)
 			try:
@@ -131,5 +132,6 @@ class ConfigGenerator:
 		"""This method generates a file which includes all files this object have created.
 		This is to have a simple way to configure snort to import all the files which are
 		dynamically created."""
-		self.generateConfigFile("snowman-includes.config", self.configfiles, lambda x: "include %s" % os.path.join(self.configlocation, x))
+		self.generateConfigFile("snowman-includes.config", self.configfiles, 
+				lambda x: "include %s" % os.path.join(self.configlocation, x))
 		

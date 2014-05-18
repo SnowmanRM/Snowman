@@ -128,8 +128,8 @@ def ruleSetsToTemplate(ruleSetList):
 		ruleSetName = ruleSet.name
 		ruleSetActive = ruleSet.active
 		
-		#TODO: comment this
 		if ruleSet.childSets.count() > 0:
+			# Calculates the number of rules in the set
 			ruleSetHasChildren = True
 			
 			ruleSetRulesCount = ruleSet.rules.count()
@@ -221,8 +221,8 @@ def ruleSetsWithNewRulesToTemplate(ruleSetList, update):
 			ruleSetName = ruleSet.name
 			ruleSetActive = ruleSet.active
 			
-			#TODO: comment this
 			if ruleSet.childSets.count() > 0:
+				# Calculates the number of rules in the set.
 				ruleSetHasChildren = True
 				
 				ruleSetRulesCount = ruleSet.rules.filter(id__in=ruleIDs).count()
@@ -316,8 +316,8 @@ def ruleSetsWithNewRuleRevisionsToTemplate(ruleSetList, update):
 			ruleSetName = ruleSet.name
 			ruleSetActive = ruleSet.active
 			
-			#TODO: comment this
 			if ruleSet.childSets.count() > 0:
+				# We calculate the number of rules the ruleset has.
 				ruleSetHasChildren = True
 				
 				ruleSetRulesCount = ruleSet.rules.filter(SID__in=ruleSIDs).count()

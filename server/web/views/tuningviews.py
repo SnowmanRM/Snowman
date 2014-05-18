@@ -695,7 +695,6 @@ def setSuppressOnRule(request):
 	It returns JSON objects containing the results.
 	"""
 	
-	#TODO: Put logging in here!
 	logger = logging.getLogger(__name__)
 	
 	# Get some initial post values for processing.

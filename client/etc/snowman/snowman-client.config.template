@@ -1,7 +1,15 @@
 [general]
+# The name and the secret of the sensor should be the same as configured on the
+# snowman-server.
 sensorname: sensorname
 secret: sensorsecret
+
 binarydir: /usr/bin
+
+# This option is to find the snort-process, and reload it when the config is updated.
+# If you want snowman to reload snort, make sure that snortpid contains the full path
+# to the pid-file used by your snort-instanse.
+snortpid: /var/run/snort.pid
 
 [configfiles]
 location: /var/snowman-client/rules

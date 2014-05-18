@@ -87,10 +87,13 @@ class SnowmanServer:
 			logger.info("Disconnected from the snowman-server.")
 		
 	def synchronizeGenerators(self):
+		""" Method which recieves all the generator-objects from the server, and
+		stores them to the local cache."""
 		logger = logging.getLogger(__name__)
 		logger.info("Starting Generator synchronization")
 		s = Session.session()
 	
+		# request the generators
 		try:
 			response = self.server.getGenerators(self.token)
 		except socket.error as e:
@@ -98,16 +101,19 @@ class SnowmanServer:
 			logger.error(str(e))
 			raise SnowmanServer.ConnectionError("Error in the connection to %s!" % serveraddress)
 		
+		# See that we actually got a positive response.
 		if(response['status']):
 			generators = response['generators']
 		else:
 			logger.error("Could not retrieve Generator from the server: %s", response['message'])
 			raise SnowmanServer.ConnectionError("Could not retrieve Generator from the server.")
 		
+		# Collect the generators from the local cache.
 		localGenerators = {}
 		for g in s.query(Generator).all():
 			localGenerators[str(g.gid) + "-" + str(g.alertId)] = g
 		
+		# Save the new generators
 		i = 0
 		for g in generators:
 			if g not in localGenerators:
@@ -115,11 +121,10 @@ class SnowmanServer:
 				s.add(localGenerators[g])
 				logger.debug("Added a new generator to the local cache:" + str(localGenerators[g]))
 				i += 1
-			# TODO: Update generators where the servers version is different from the sensors.
-			
 		s.commit()
 		logger.info("Imported %d new Generators from the srm-server" % i)
 		
+		# Remove obsolete generators.
 		i = 0
 		for g in localGenerators:
 			if g not in generators:
@@ -134,6 +139,8 @@ class SnowmanServer:
 		logger.info("Synchronization of the generators is finished.")
 	
 	def synchronizeRuleReferenceTypes(self):
+		"""REtrieves all the rulereferencetypes from the central server, and stores them in the
+		local cache."""
 		logger = logging.getLogger(__name__)
 		logger.info("Starting RuleReferenceType synchronization")
 		s = Session.session()
@@ -162,7 +169,9 @@ class SnowmanServer:
 				s.add(localReferenceTypes[r])
 				logger.debug("Added a new RuleReferenceType to the local cache:" + str(localReferenceTypes[r]))
 				i += 1
-			# TODO: Update referencetypes where the servers version is different from the sensors.
+			else:
+				if(localReferenceTypes[r].prefix != referenceTypes[r]['urlPrefix']):
+					localReferenceTypes[r].prefix = referenceTypes[r]['urlPrefix']
 			
 		s.commit()
 		logger.info("Imported %d new RuleReferenceTypes from the srm-server" % i)
@@ -181,6 +190,8 @@ class SnowmanServer:
 		logger.info("Synchronization of the RuleReferenceTypes is finished.")
 
 	def synchronizeClasses(self):
+		"""Retrieves all the RuleClasses from the central server, and stores them in the
+		local cache."""
 		logger = logging.getLogger(__name__)
 		logger.info("Starting RuleClass synchronization")
 		s = Session.session()
@@ -210,7 +221,11 @@ class SnowmanServer:
 				s.add(localRuleClasses[c])
 				logger.debug("Added a new ruleClass to the local cache:" + str(localRuleClasses[c]))
 				i += 1
-			# TODO: Update ruleclasses where the servers version is different from the sensors.
+			else:
+				if(localRuleClasses[c].description != serverRuleClasses[c]['description']):
+					localRuleClasses[c].description = serverRuleClasses[c]['description']
+				if(localRuleClasses[c].priority != serverRuleClasses[c]['priority']):
+					localRuleClasses[c].priority = serverRuleClasses[c]['priority']
 			
 		s.commit()
 		logger.info("Imported %d new RuleClasses from the srm-server" % i)
@@ -230,6 +245,8 @@ class SnowmanServer:
 		logger.info("Synchronization of the ruleclasses is finished.")
 
 	def synchronizeRuleSets(self):
+		"""Retrieves all the RuleSets's (not the Rules contained in them though.), and stores
+		them in the local cache. """
 		logger = logging.getLogger(__name__)
 		logger.info("Starting to synchronize RuleSets")
 		s = Session.session()
@@ -276,6 +293,8 @@ class SnowmanServer:
 		logger.info("RuleSet synchronization is finished.")
 		
 	def synchronizeRules(self):
+		"""Collects lists of rules this sensor should have, compares it with what currently
+		lies in the local cache, and request missing/changed rules from the central server."""
 		logger = logging.getLogger(__name__)
 		maxRuleRequests = int(Config.get("sync", "maxRulesInRequest"))
 	
@@ -284,6 +303,7 @@ class SnowmanServer:
 		logger.info("Starting to synchronize the Rules")
 		logger.debug("Collecting the SID/rev pairs from the server")
 		
+		# Collect sid/rev pairs from the central server.
 		response = self.server.getRuleRevisions(self.token)
 		if(response['status'] == False):
 			logger.error("Could not get rulerevisions from the server: %s" % response['message'])
@@ -291,6 +311,7 @@ class SnowmanServer:
 		
 		rulerevisions = response['revisions']
 		
+		# Collect the rules in the local cache.
 		localRules = s.query(Rule).all()
 		for r in localRules:
 			# If the current rule is in the rulerevisions-list
@@ -304,23 +325,25 @@ class SnowmanServer:
 		
 		logger.debug("Starting to download %d rules from the server" % len(rulerevisions))
 		
+		# Grab Ruleclasses, rulesets and rulereferencetypes from the local cache, to 
+		#   have them at hand when it is needed to reference them.
 		ruleClasses = {}
 		for rc in s.query(RuleClass).all():
 			ruleClasses[rc.classtype] = rc
-	
 		ruleSets = {}
 		for rs in s.query(RuleSet).all():
 			ruleSets[rs.name] = rs
-		
 		reftype = {}
 		for ref in s.query(RuleReferenceType).all():
 			reftype[ref.name] = ref
 	
+		# Start collecting the full rules from the central server:
 		rulerevisions = list(rulerevisions)
 		while len(rulerevisions) > 0:
 			request = rulerevisions[:maxRuleRequests]
 			logger.debug("Requesting %d out of %d rules" % (len(request), len(rulerevisions)))
 			
+			# Request a chunk of the rules
 			response = self.server.getRules(self.token, request)
 			if(response['status'] == False):	
 				logger.error("Could not get rulers from the server: %s" % response['message'])
@@ -328,6 +351,7 @@ class SnowmanServer:
 			else:
 				rules = response['rules']
 			
+			# Insert the recieved rules, and all its references.
 			for r in rules:
 				rule = Rule(sid=rules[r]['SID'], rev=rules[r]['rev'], msg=rules[r]['msg'], raw=rules[r]['raw'])	
 				rule.ruleset = ruleSets[rules[r]['ruleset']]
@@ -341,25 +365,6 @@ class SnowmanServer:
 					rref.rule = rule
 					s.add(rref)
 				
-				#if "detectionFilter" in rules[r]:
-				#	df = DetectionFilter(track=rules[r]['detectionFilter']['track'], count=rules[r]['detectionFilter']['count'], seconds=rules[r]['detectionFilter']['seconds'])
-				#	df.rule = rule
-				#	s.add(df)
-				#
-				#if "eventFilter" in rules[r]:
-				#	ef = EventFilter(ttype=rules[r]['eventFilter']['type'], track=rules[r]['eventFilter']['track'], count=rules[r]['eventFilter']['count'], seconds=rules[r]['eventFilter']['seconds'])
-				#	ef.rule = rule
-				#	s.add(ef)
-				#
-				#if "suppress" in rules[r]:
-				#	su = Suppress(track=rules[r]['suppress']['track'])
-				#	su.rule = rule
-				#	s.add(su)
-				#	for address in rules[r]['suppress']['addresses']:
-				#		sa = SuppressAddress(address)
-				#		sa.suppress = su
-				#		s.add(sa)
-				
 				rulerevisions.remove(r)
 			s.commit()
 		
@@ -367,6 +372,11 @@ class SnowmanServer:
 		s.close()
 
 	def synchronizeFilters(self):
+		"""Collects all filters (EventFilter, DetectionFilter and Suppress) from
+		the snowman-server, and updates the local cache to match.
+		As we do not have a rev-number on the filters, opimization simmilar to
+		the Rule-sync is not in place."""
+
 		logger = logging.getLogger(__name__)
 		logger.info("Starting to synchronize Filters")
 		s = Session.session()
