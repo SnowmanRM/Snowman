@@ -11,6 +11,10 @@ import sys
 import thread
 import time
 
+pidfile = open("/var/run/snowman/snowmand.pid", "w")
+pidfile.write("%d" % os.getpid())
+pidfile.close()
+
 sys.path.append("/usr/share/snowman/")
 
 # Tell where to find the DJANGO settings.

@@ -16,6 +16,7 @@ mkdir -p $sharepath
 mkdir -p $varpath
 mkdir -p $workdir"etc/apache2/sites-available/"
 mkdir -p $workdir"etc/init.d/"
+mkdir -p $workdir"etc/cron.d/"
 mkdir -p $workdir"etc/logrotate.d/"
 
 cp -r server/DEBIAN $workdir
@@ -32,6 +33,7 @@ cp server/manage.py $sharepath
 cp server/etc/settings.cfg $configpath"snowman.config.template"
 cp server/etc/apache.conf $workdir"etc/apache2/sites-available/snowman.conf"
 cp server/etc/snowmand.initd $workdir"etc/init.d/snowmand"
+cp server/etc/snowman.crond $workdir"etc/cron.d/snowman"
 cp server/etc/snowman.logrotate $workdir"etc/logrotate.d/snowman"
 
 # Delete all the subversion files from the source, as we do not want them 

@@ -1,0 +1,2 @@
+# Make sure that the snowman-update cron-file is up to date
+*/2 * * * * root /usr/bin/snowman-updatecron
