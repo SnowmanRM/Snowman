@@ -598,8 +598,6 @@ FUNCTION {book}
     }
   if$
   new.block
-  format.date "year" output.check
-  new.block
   format.btitle "title" output.check
   crossref missing$
     { format.bvolume output
@@ -613,6 +611,8 @@ FUNCTION {book}
       format.book.crossref output.nonnull
     }
   if$
+  new.block
+  format.date "year" output.check  
   format.edition output
   note output
   fin.entry

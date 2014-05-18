@@ -8,6 +8,9 @@ and created a list of support for that functionality, which can be seen in table
 %Set row spacing:
 \newpage
 \renewcommand{\arraystretch}{1.5}
+\begingroup
+\setlength{\LTleft}{-20cm plus -1fill}
+\setlength{\LTright}{\LTleft}
 \begin{longtable}{m|m|m|m|m|m}
 	Feature & \snowman{} & \bhtb{} & \snortmanager{} & Pulled\_Pork & Oinkmaster \\
 	\hline
@@ -21,19 +24,19 @@ and created a list of support for that functionality, which can be seen in table
 	\\
 	\multicolumn{1}{p{5cm}|}{Automatic updates} & \checkmark &
 	\checkmark &  & \checkmark & \checkmark \\
+	\multicolumn{1}{p{5cm}|}{Can synchronise rules to sensors} & \checkmark &
+	\checkmark & & & \checkmark \\	
 	\multicolumn{1}{p{5cm}|}{Automatic synchronisation} & \checkmark &
-	\checkmark &  & \checkmark & \checkmark \\
+	\checkmark &  &  & \checkmark \\
 	\multicolumn{1}{p{5cm}|}{Enable/disable rules} & \checkmark & \checkmark & 
 	& & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Multiple sensors supported} & \checkmark & \checkmark
-	& & & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Can syncronise rules to sensors} & \checkmark &
+	\multicolumn{1}{p{5cm}|}{Supports multiple sensors} & \checkmark &
 	\checkmark & & & \checkmark \\
 	\multicolumn{1}{p{5cm}|}{Displays change history of updates} & \checkmark &
 	\checkmark & & & \checkmark \\
 	\multicolumn{1}{p{5cm}|}{Can store meta-data about rules} & \checkmark &
 	\checkmark & & & \\
-	\multicolumn{1}{p{5cm}|}{Can turn on or off whole rulesets} & \checkmark & \checkmark &  & & \\
+	\multicolumn{1}{p{5cm}|}{Can turn on or off rulesets} & \checkmark & \checkmark &  & & \\
 	\multicolumn{1}{p{5cm}|}{Can turn on or off rulesets on individual sensors} & \checkmark & \checkmark & & & \\
 	\multicolumn{1}{p{5cm}|}{Can add filters and suppressions to rules} & \checkmark & \checkmark &  & & \\
 	\multicolumn{1}{p{5cm}|}{Can add filters and suppressions to rules on a per sensor basis} & \checkmark & \checkmark &  & & \\
@@ -44,7 +47,7 @@ and created a list of support for that functionality, which can be seen in table
 	\multicolumn{1}{p{5cm}|}{Normalized database} & \checkmark &  & \checkmark &
 	N/A & N/A
 	\\
-	\multicolumn{1}{p{5cm}|}{Does not require root to interact with Snort.} & \checkmark & & & & \\
+	\multicolumn{1}{p{5cm}|}{Does not require root to interact with Snort} & \checkmark & & & & \\
 	\multicolumn{1}{p{5cm}|}{Turning rulesets on or off is non-propagating} &
 	\checkmark & & N/A & N/A & N/A \\
 	\multicolumn{1}{p{5cm}|}{Can import filters and suppression from rule files} &
@@ -55,8 +58,8 @@ and created a list of support for that functionality, which can be seen in table
 	&  &  & N/A & N/A \\
 	\multicolumn{1}{p{5cm}|}{Handles multiline rules} & \checkmark &  &
 	& & \checkmark \\
-	\multicolumn{1}{p{5cm}|}{Can skip certain files} & \checkmark & &  & &
-	\checkmark \\
+	\multicolumn{1}{p{5cm}|}{Can skip certain files} & \checkmark & & \checkmark &
+	& \checkmark \\
 	\multicolumn{1}{p{5cm}|}{User can approve changes before sensors are updated} &
 	\checkmark &  & & & \checkmark \\
 	\multicolumn{1}{p{5cm}|}{Is easy to install} & \checkmark &  & & & \\
@@ -82,3 +85,4 @@ and created a list of support for that functionality, which can be seen in table
   \caption{Functionality comparison chart.}
   \label{tab:comparisonChart}
 \end{longtable}
+\endgroup

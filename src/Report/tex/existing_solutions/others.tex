@@ -1,21 +1,21 @@
 \section{Other notable programs}
 There are two other pieces of software that should also be mentioned.
 \pulledpork{} and \oinkmaster{} are both programs that can download rules and
-update \snort{}-sensors. These programs also contain some of the features found
+update \snort{}-sensors. These programs contain some of the features found
 in \snowman{} and \bhtb{}, and \pulledpork{} even supports
 Shared Object rules \cite{SnortManual}, which is not part of this project due to
-complexity.  However, both of these programs suffer from the fact that they are
+complexity. However, both of these programs suffer from the fact that they are
 command-line oriented. They are both very good at what they do, but lack the
 usability and efficiency offered by GUIs with buttons. These programs are a
 good choice for rule management in a small environment with one or very few
 sensors, but once the environment grows larger, with tens or even hundreds of
 sensors, they become ineffective.
 
-\section{Research on Software Performance}
+\section{Research on software performance}
 Since this project also investigates software performance, it is relevant to
 take a look at what others in the field have written on the subject. This
 subject is missing from most software development reports from \GUC{}, which can be
-explained by the usual high focus on agile development\cite{AGILE}. 
+explained by the usual high focus on agile development. 
 \cite{FutureEngineering} mentions that agile programming is becoming mainstream
 and by its nature is a concern for the future of software performance
 engineering, as the primary focus of an agile project is on functionality.
@@ -30,10 +30,10 @@ testing in this report does not strictly follow any of these methodologies, but
 it includes the most important elements of them, e.g. performance testing during
 development.
 
-Early on in the project it became clear that \snowman{} is very I/O bound, as it
+Early on in the project it became clear that \snowman{} is very I/O-bound, as it
 performs a lot of database operations. The tests in this report show a noticable
 difference in performance between traditional rotational hard drives and SSDs.
-Myers comments on this in his Master thesis \cite{Myers} which shows that SSD
+Myers comments on this in his master thesis \cite{Myers} which shows that SSD
 has a significant advantage over HDDs when it comes to random read performance
 but not when it comes to write performance. Note that these tests were performed
 in 2008, a time when SSD technology was fairly new and suffering

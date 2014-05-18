@@ -7,7 +7,7 @@ potential weaknesses we could find, listed in Table
 \renewcommand{\arraystretch}{1.5}
 \begin{table}[h]
   \centering
-  \begin{tabular}{p{4cm}|p{2cm}|p{1cm}|p{1cm}|p{1cm}|p{4cm}}
+  \hspace*{-4cm}\begin{tabular}{p{4cm}|p{2cm}|p{1cm}|p{1cm}|p{1cm}|p{4cm}}
 	Threat & Component & Conse-quence & Prob-ability & Risk & Strategy \\
 	\hline
 	{Unauthorized users change data through the
@@ -33,7 +33,7 @@ potential weaknesses we could find, listed in Table
 	{SQL injections, XSS og CSRF (cross site request
 	forgery)} & {API/Web} & {5} & {5} & {5} & {Django has support for protection against these attacks. Validate input.} \\
 	\hline
-  \end{tabular}
+  \end{tabular}\hspace*{-4cm}
   \caption{Security Assessment}
   \label{tab:security_assessment}
 \end{table}

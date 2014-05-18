@@ -12,32 +12,30 @@ project to map the program workflow (Section \ref{sec:program_workflow}).
 Despite being a prototype, \bhtb{} offers the essential functionality required
 for managing rule sets on multiple sensors. It can display a list of rules
 which can also be turned on and off on different sensors, as well as a list of
-rule sets that can also be turned on and off, which will effect all rules in the rule set. 
+rulesets that can also be turned on and off, which will effect all rules in the ruleset. 
 This is considered a drawback, as \bhtb{} does not offer
 a mechanism where rule sets can be disabled without affecting the state of the
-rules within. This means that the original state of the rules in a rule set
+rules within. This means that the original state of the rules in a ruleset
 is lost whenever the state of the rule set is changed. \snowman{} improves this
-by keeping the state of the rule sets separate from the state of the rules.
+by keeping the state of the rulesets separate from the state of the rules.
 
 \bhtb{} distributes rules to the sensors by generating all files
 centrally and sending them one by one via SCP. It determines
-which rules to distribute by comparing the main rule table with a second table
-representing which rules the sensor should not have. This way of distributing
+which rules to distribute by comparing the main rule database table with a
+second table representing which rules the sensor should not have. This way of distributing
 rules is considered ineffective, and has been solved differently in \snowman{}
-(section \ref{sec:general_design}). 
-
-\bhtb{} also supports manual creation of
-rule thresholds and suppressions, but does not offer any input validation, which makes the sensors vulnerable to
-crashes\footnote{Snort will simply not restart if something in the
-configuration files is malformed.} in the case of invalid input. This weakness
+(explained in Section \ref{sec:general_design}). \bhtb{} also supports manual creation of
+rule filters and suppressions, but does not offer any input validation, which
+makes the sensors vulnerable to crashes\footnote{Snort will crash and not
+restart if something in the configuration files is malformed.} in the case of invalid input. This weakness
 is taken into consideration in \snowman{}, which offers form
 validation. 
 
-\bhtb{} is programmed with Python and uses the framework
-Tornado \cite{tornado} as its Web-server, which works
-similar to Django, a framework used by \snowman{}, with its URL API system
-(Section \ref{sect:django_urls}). It also uses SQLite \cite{sqlite}
-as its database, which has limited abilities when it comes to relations and
+\bhtb{} is programmed with Python and uses the \tornado{} framework
+\cite{tornado} as its web-server, which works
+similar to \django{} \cite{django}, a framework used by \snowman{}, with its URL
+API system (see Section \ref{sect:django_urls}). It also uses \sqlite{}
+\cite{sqlite} as its database, which has limited abilities when it comes to relations and
 more complex data structures.
 
 According to Avdeling BKI, \bhtb{} really begins to show its limitations once the
