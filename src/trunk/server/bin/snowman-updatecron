@@ -30,16 +30,19 @@ for source in Source.objects.all():
 
 # Grab the current config from the configfile, and determine if it is the same
 # that is in the configfile.
-cronfile = open("/etc/cron.d/snowman-update", "r")
-changed = False
-for line in cronfile:
-	match = linePattern.match(line)
-	if(match):
-		try:
-			if(match.group(1) != sources[match.group(7)][0]):
+try:
+	cronfile = open("/etc/cron.d/snowman-update", "r")
+	changed = False
+	for line in cronfile:
+		match = linePattern.match(line)
+		if(match):
+			try:
+				if(match.group(1) != sources[match.group(7)][0]):
+					changed = True
+			except KeyError:
 				changed = True
-		except KeyError:
-			changed = True
+except IOError:
+	changed = True
 		
 # If the config have changed, update the cron-file.
 if changed:
