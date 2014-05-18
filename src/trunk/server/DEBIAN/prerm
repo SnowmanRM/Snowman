@@ -1,2 +1,6 @@
 #!/bin/sh
+update-rc.d -f snowmand remove
+if [ -e /var/run/snowman/snowmand.pid ]; then
+	/etc/init.d/snowmand stop
+fi
 exit 0
