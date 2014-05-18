@@ -1,2 +1,6 @@
 #!/bin/sh
+update-rc.d -f snowmanclientd remove
+if [ -e /var/run/snowman/snowmanclientd.pid ]; then
+	/etc/init.d/snowmanclientd stop
+fi
 exit 0
