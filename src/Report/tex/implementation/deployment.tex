@@ -12,7 +12,7 @@ are also present on the machine.
 
 However, there is one exception to the dependency solving. The server is
 delivered in both a Debian-flavour in addition to an Ubuntu-flavour. The reason
-for this is that some of the Python libraries used are currently not in the 
+for this is that one of the Python libraries used are currently not in the 
 debian-stable repository, and for Debian it is required to install them via the
 Python package source (pip). After the installation, we therefore provide some
 utilities as a double-check, to be able to verify that all the required tools are present.
@@ -40,7 +40,7 @@ PostgresSQL and Oracle are all supported. Sqlite might work for smaller
 installations, where simplicity is preferred over performance. The only
 requirement for an Sqlite database would be access to write a file in the
 filesystem. However, if performance is required, a dedicated RDMS (Relational
-Database Management System) would be more suitable. A bog standard and free
+Database Management System) would be more suitable. A standard and free
 alternative here is MySQL.
 
 \subsubsection{Installation}
@@ -48,42 +48,40 @@ alternative here is MySQL.
 When the database technology has been selected and the web server is available,
 the installation of the \snowman{} package can be done. The package is delivered in
 two versions; one for Debian and one for Ubuntu. Both would work on both
-systems, as the only difference is the dependency list. In the Debian version, a
-couple of dependencies are omitted as they are not in a new enough version in
-the debian-stable repositories. These dependencies need to be installed
-manually using python pip:
-\begin{itemize}
-  \item django (version >= 1.6)
-  \item ??
-\end{itemize} 
+systems, as the only difference is the dependency list. In the debian version,
+the dependency to {\em python-django} is omitted, as debian-stable currently
+does not delivere this package in a new enough version. Snowman requires Django
+version 1.6 or newer, which is available in the ubuntu-repositories. For debian,
+{\em python-pip} is recommended to install Django, as the pip repositories
+supplies version 1.6.
 
 \subsubsection{Configuration}
 
-After the installation, a couple of configuration steps remain. First, in the
-file ``/usr/share/snowman/srm/settings.py'' the following variables need to be
-updated:
+After the installation of snowman, it needs some configuration to be able to
+operate. The main configurationfile for snowman is
+``/etc/snowman/snowman.conf'', and all the parametres which is required to be
+configured is present in this file. The configuration-file is well documented
+inline, and all parametres are explained. The parametres that is required to be
+updated in the file would be:
 \begin{itemize}
-  \item{SECRET\_KEY}: Create a random string, and insert here. It is used for
-  signing messages, and make sure no tampering happens in the clients of the
-  web interface.
-  \item{ALLOWED\_HOSTS}: An array of host names used by the server. If the
-  webside is requested with any other host names than those listed here, an
-  error-page will be displayed instead of the web interface.
-  \item{DATABASES}: A dictionary which contains the database-settings. More
-  information on how to configure these settings is found in the \django{}
-  documentation.
+  \item{\em Database settings:} The settings determining which type of database
+  to use, where to find it and the authenticationdetails are all needed by
+  snowman. 
+  \item{\em Host names:} The names listed at this configuration-option
+  determines which names snowman's web-interface would answer for. Any request
+  hitting snowman using other hostnames than the ones listed would result in an
+  error.
 \end{itemize}
 
-The rest of \snowman's configuration can be found in
-``/etc/snowman/snowman.cfg''. All the configuration parameters are well
-documented in the configuration file.
-
 To configure the web server, an \apache{} configuration file is provided in
-``/etc/apache2/conf-available/snowman.conf''. If this is to be used, a symlink
-to this file can be created in ``/etc/apache2/conf-enabled/'', after which
-\apache{} needs to be restarted.
+``/etc/apache2/sites-available/snowman.conf''. For apache to work as the
+webserver for snowman, an apache2 wsgi-gateway needs to be installed. This is
+also widely available in most linux repositories under the name
+``libapache2-mod-wsgi''. A symlink to the configuration-file should be created
+in ``/etc/apache2/sites-enabled/'', after which \apache{} needs to be restarted,
+to finalize the webserver setup.
 
-When the configuration changes are complete, the command ``snowman-initialize''
+When the configuration changes are complete, the  command ``snowman-initialize''
 should be used to generate the database-schema and intialize the database with
 some initial data. The output of this command would also signal if the
 database settings are correct, as it cannot create the initial data without
