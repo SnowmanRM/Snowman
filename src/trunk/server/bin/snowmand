@@ -213,32 +213,6 @@ class RPCInterface():
 			dictRule['ruleclass'] = rule.ruleClass.classtype
 			dictRule['references'] = rev.getReferences()
 			
-			# Grab the tuning-parametres.
-			eventFilter = getEventFilter(sensor, rule)
-			detectionFilter = getDetectionFilter(sensor, rule)
-			suppress = getSuppress(sensor, rule)
-				
-			## If an event-filter was found, add it to the rule we are sending to the sensor
-			#if eventFilter:
-			#	dictRule['eventFilter'] = {}
-			#	dictRule['eventFilter']['type'] = eventFilter.eventFilterType
-			#	dictRule['eventFilter']['track'] = eventFilter.track
-			#	dictRule['eventFilter']['count'] = eventFilter.count
-			#	dictRule['eventFilter']['seconds'] = eventFilter.seconds
-			#
-			# If an detectionfilter was found, add it to the rule.
-			#if detectionFilter:
-			#	dictRule['detectionFilter'] = {}
-			#	dictRule['detectionFilter']['track'] = detectionFilter.track
-			#	dictRule['detectionFilter']['count'] = detectionFilter.count
-			#	dictRule['detectionFilter']['seconds'] = detectionFilter.seconds
-			#
-			# If a supress is found, add it to the rule.
-			#if suppress:
-			#	dictRule['suppress'] = {}
-			#	dictRule['suppress']['track'] = suppress.track
-			#	dictRule['suppress']['addresses'] = suppress.getAddresses()
-			
 			rules[str(rule.SID)] = dictRule
 		
 		return {'status': True, 'rules': rules}
@@ -250,6 +224,7 @@ class RPCInterface():
 	
 	@requireAuth
 	def getFilters(self, token):
+		"""Serves all the filters assigned to rules on this sensor."""
 		s=cache['session'][token]['sensor']
 		try:
 			sids = cache['session'][token]['rulerevisions'].keys()
@@ -261,6 +236,7 @@ class RPCInterface():
 		eFilters = {}
 		suppress = {}
 
+		# Start with the local filters, and traverse up the hierarchy of sensors.
 		while s:
 			for f in DetectionFilter.objects.filter(sensor=s).filter(rule__SID__in=sids).all():
 				if str(f.rule.SID) not in dFilters:

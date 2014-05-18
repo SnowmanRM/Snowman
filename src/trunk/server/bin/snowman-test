@@ -1,4 +1,8 @@
 #!/usr/bin/python
+"""
+	A executable script confirming the installation of snowman, and
+	its database.
+"""
 import os
 import sys
 

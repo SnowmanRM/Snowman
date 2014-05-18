@@ -1,4 +1,9 @@
 #!/usr/bin/python
+"""
+	This script is an executable, which binds an xml-rpc server to
+	the desired port. This xmlrpc-server is to let the snowman-server
+	to contact the client, and order an update.
+"""
 import datetime
 import logging
 import os
@@ -8,6 +13,7 @@ import sys
 # Add the parent folder of the script to the path
 sys.path.append("/usr/share/snowman-client/")
 
+# Generate a pid-file, so that it can be catched and stopped again.
 pidfile = open("/var/run/snowman/snowmanclientd.pid", "w")
 pidfile.write("%d" % os.getpid())
 pidfile.close()
@@ -16,6 +22,8 @@ from util.xmlrpcserver import RPCServer
 from util.config import Config
 
 class RPCInterface():
+	"""The snowmanclientd RPC-interface."""
+
 	def __init__(self):
 		import string
 		self.python_string = string
@@ -23,14 +31,19 @@ class RPCInterface():
 		self.sensorname = Config.get("general", "sensorname")
 	
 	def ping(self, name):
+		"""Answers on pings from the central server. Lets the central server
+		see that a sensor, with a correct name, is present."""
 		if(self.sensorname == name):
 			return {'status': True, 'message': "Connection successfull"}
 		else:
 			return {'status': False, 'message': "Wrong sensorname is supplied"}
 	
 	def startUpdate(self, name):
+		"""This method starts the rule-synchronization, if the server knows the correct
+		sensor-name, and that the last request for sync is not too recent."""
 		binarydir = Config.get("general", "binarydir")
-		if(self.sensorname == name and self.lastUpdate == None or (datetime.datetime.now() - self.lastUpdate) > datetime.timedelta(seconds = 120)):
+		if(self.sensorname == name and self.lastUpdate == None or 
+				(datetime.datetime.now() - self.lastUpdate) > datetime.timedelta(seconds = 120)):
 			self.lastUpdate = datetime.datetime.now()
 			subprocess.call([os.path.join(binarydir, 'snowmanclient-update'), 'reloadconfig'])
 			return {'status': True, 'message': "Sensor-update is requested."}
@@ -40,6 +53,11 @@ class RPCInterface():
 			return {'status': False, 'message': "Update not started. Wrong sensorname is supplied."}
 
 def startRPCServer():
+	"""This 'daemon's main function. Reads the snowman-client configfile,
+	and starts the XML-RPC server on the correct interface and port.
+	It starts the server, and let it run until a SIGTERM or SIGKILL or
+	KeyboardInterrupt is recieved."""
+
 	bindAddress = Config.get("xmlrpc-server", "address")
 	bindPort = int(Config.get("xmlrpc-server", "port"))
 	

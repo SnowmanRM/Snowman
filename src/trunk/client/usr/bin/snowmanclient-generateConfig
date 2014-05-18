@@ -4,6 +4,7 @@ import sys
 import xmlrpclib
 import logging
 import socket
+import signal
 
 # Include the snowman-module, and initialize its logger
 sys.path.append("/usr/share/snowman-client/")
@@ -11,6 +12,7 @@ from util.logger import initialize
 initialize()
 
 # Include needed snowman classes
+from util.config import Config
 from data.files import ConfigGenerator
 from data.models import Session, RuleClass, Generator, RuleReferenceType, Rule, EventFilter, Suppress
 
@@ -20,15 +22,40 @@ def main():
 	generator = ConfigGenerator()
 	s = Session.session()
 
+	# Clean the old config, and generate the new.
 	generator.cleanup()
-	generator.generateConfigFile("classification.config", s.query(RuleClass).all(), lambda x: "config classification: %s,%s,%d" % (x.classtype, x.description, int(x.priority)))
-	generator.generateConfigFile("gen-msg.map", s.query(Generator).order_by(Generator.gid).order_by(Generator.alertId).all(), lambda x: "%d || %d || %s" % (x.gid, x.alertId, x.message))
-	generator.generateConfigFile("reference.config", s.query(RuleReferenceType).all(), lambda x: "config reference: %s %s" % (x.name, x.prefix))
+	generator.generateConfigFile("classification.config", s.query(RuleClass).all(), 
+			lambda x: "config classification: %s,%s,%d" % (x.classtype, x.description, 
+			int(x.priority)))
+	generator.generateConfigFile("gen-msg.map", 
+			s.query(Generator).order_by(Generator.gid).order_by(Generator.alertId).all(), 
+			lambda x: "%d || %d || %s" % (x.gid, x.alertId, x.message))
+	generator.generateConfigFile("reference.config", s.query(RuleReferenceType).all(), 
+			lambda x: "config reference: %s %s" % (x.name, x.prefix))
 	generator.generateRuleFiles()
-	generator.generateConfigFile("suppress.config", s.query(Suppress).all(), lambda x: x.getConfigString())
+	generator.generateConfigFile("suppress.config", s.query(Suppress).all(), 
+			lambda x: x.getConfigString())
 	generator.generateConfigFile("eventfilters.config", s.query(EventFilter).all(), 
-			lambda x: "event_filter gen_id 1, sig_id %d, type %s, track %s, count %d, seconds %s" % (x.rule.SID, EventFilter.TYPE[x.filtertype], EventFilter.TRACK[x.track], x.count, x.seconds))
+			lambda x: "event_filter gen_id 1, sig_id %d, type %s, track %s, count %d, seconds %s" % \
+			(x.rule.SID, EventFilter.TYPE[x.filtertype], EventFilter.TRACK[x.track], x.count, x.seconds))
 	generator.generateIncludes()
+	
+	# Try to open the snort pid-file, and grab the pid.
+	try:
+		pidfile = Config.get("general", "snortpid")
+		pfile = open(pidfile, "r")
+		pid = int(pfile.readline())
+		pfile.close()
+	except IOError:
+		logger.debug("Snowman could not find snorts pid-file at '%s'. Snort is therfore not restarted.")
+		pid = 0
+	
+	# If a pid was found, send a SIGHUP to it, to reload its config.
+	if(pid):
+		try:
+			os.kill(pid, signal.SIGHUP)
+		except OSError as e:
+			logger.error("Could not reload snort:\n\t%s", str(e))
 	
 if __name__ == "__main__":
 	main()

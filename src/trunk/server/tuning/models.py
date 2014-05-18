@@ -2,20 +2,6 @@ from django.db import models
 
 from core.models import Rule, Sensor, Comment
 
-# TODO: Remove
-class RuleModifier(models.Model):
-	"""The RuleModifier let us modifiy if a rule should be present on
-	a sensor or not, regardless of what the ruleset says."""
-	rule = models.ForeignKey(Rule, related_name = 'modifiers')
-	sensor = models.ForeignKey(Sensor, related_name = 'ruleModifiers')
-	active = models.NullBooleanField()
-	
-	def __repr__(self):
-		return "<RuleModifier Rule:%d, Sensor:%s, active:%s>" % (self.rule.SID, self.sensor.name, str(self.active))
-
-	def __str__(self):
-		return "<RuleModifier Rule:%d, Sensor:%s, active:%s>" % (self.rule.SID, self.sensor.name, str(self.active))
-
 class Suppress(models.Model):
 	"""The suppress lets us suppress warnings from a specific rule on a
 	specific sensor, if the rule is matching listed source or destination
