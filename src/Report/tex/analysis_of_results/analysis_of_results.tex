@@ -163,52 +163,44 @@ SYN-10000 & S1 & \textbf{1839.841} \\
   \label{tab:bhtbtSyncResults}
 \end{table}
 
-Still, considering the tests on S1 and
-S2 were carried out on the same network and sensor, and S3 were carried out on a
-completely different network and sensor, it is apparent that distribution from
-\bhtb{} is mostly determined by how fast the data can be moved from the server
-to the sensor. 
-
-The same difference in testing environments is apparent in the \snowman{} tests
-(Table \ref{tab:testSyncResults}).
+Still, considering the tests on S1 and S2 were carried out on the same network
+and sensor, and S3 were carried out on a completely different network and
+sensor, it is apparent that distribution from \bhtb{} is mostly determined by
+how fast the data can be moved from the server to the sensor.  The same
+difference in testing environments is apparent in the \snowman{} tests (Table
+\ref{tab:testSyncResults}).
 S1 and S2 have very similar results while S3 probably benefits from its
 different hardware and network setup. This leads us to conclude that the
 performance of distribution is dictated by the bandwidth and by the hardware of
-the sensor, and not so much by the hardware of the central server.
-
-However, there are no indications of a pure performance gain over \bhtb{}
-as we expected by going for a distributed model with a change based distribution
-protocol. But we are seeing a significant reduction in time spent distributing
-when there are only updates and not a massive batch of rules. While \bhtb{} uses
-roughly the same time on tests SF-28064-A and SF-28064-B, we use about 80\% less
-time on test B than on test A (Table \ref{tab:testSyncResults}). 
-
-This gives merit to the model we picked for our distribution architecture and
-with a little more performance optimisations, the overall times is likely to
-improve further as well.
+the sensor, and not so much by the hardware of the central server. However,
+there are no indications of a pure performance gain over \bhtb{} as we expected
+by going for a distributed model with a change based distribution protocol. But
+we are seeing a significant reduction in time spent distributing when there are
+only updates and not a massive batch of rules. While \bhtb{} uses roughly the
+same time on tests SF-28064-A and SF-28064-B, we use about 80\% less time on
+test B than on test A (Table \ref{tab:testSyncResults}). This gives merit to the
+model we picked for our distribution architecture and with a little more
+performance optimisations, the overall times are likely to improve further as
+well.
 
 \section{GUI latency}
 These tests show that we have not been able to produce an improvement over
-\bhtb{} when it comes to displaying rules, which comes clear when we compare
-the numbers involved (Table \ref{tab:testInterfaceResults}).
-\snowman{} are only fetching and displaying a fraction of the number of rules that
-\bhtb{} does\footnote{About 100 to 28000.}, yet we spend about twice as long on it. 
-
-We strongly suspect that the cause of this is a combination of our more complex
-data structure, coupled with a complex template framework such as Django.
-
-A small optimization was attempted by enabling a setting that lets Django
-prefetch related objects from the database and that did improve the results
-to some extent, but not enough to be noticable. 
+\bhtb{} when it comes to displaying rules, which comes clear when we compare the
+numbers involved (Table \ref{tab:testInterfaceResults}).
+\snowman{} are only fetching and displaying a fraction of the number of rules
+that \bhtb{} does\footnote{About 100 to 28000.}, yet we spend about twice as
+long on it. We strongly suspect that the cause of this is a combination of our
+more complex data structure, coupled with a complex template framework such as
+Django. A small optimization was attempted by enabling a setting that lets
+Django prefetch related objects from the database and that did improve the
+results to some extent, but not enough to be noticable.
 
 \section{Sublinearity in performance}
 Our tests show that all the systems were more or less exactly linear, which
 means that none of the systems are suffering from bad programming that manifests
-itself exponentially. 
-
-Table \ref{tab:correlation} shows the linear correlation between the test
-results for the synthetic updates with 1, 10, 100, 1000, and 10000 rules. The
-first dataset is the test results and the second dataset is
+itself exponentially. Table \ref{tab:correlation} shows the linear correlation
+between the test results for the synthetic updates with 1, 10, 100, 1000, and
+10000 rules. The first dataset is the test results and the second dataset is
 \(\{1,10,100,1000,10000\}\). As can be seen, the performance is close to linear
 for all software across all systems.
 
@@ -221,6 +213,7 @@ S1 & 0.999945 & 0.999999 & 0.999695 \\
 S2 & 0.993996 & 0.999627 & 0.999931 \\
 S3 & 0.999999 & 0.999999 & 0.999983 \\
 	\hline
+	\multicolumn{4}{l}{Correlation \(\rho = \frac{Cov(X,Y)}{\sigma_x \sigma_y} \)}
   \end{tabular}
   \caption{Empirical linear correlation coefficients for update processing.}
   \label{tab:correlation}
@@ -230,14 +223,10 @@ S3 & 0.999999 & 0.999999 & 0.999983 \\
 \snowman{} did not outperform either \bhtb{} or \snortmanager{} in any of the
 tests, but through the test we managed to discover a big performance bottleneck
 in \snowman{}'s Update module that we managed to fix in time. The fix resulted
-in a great improvement in performance.
-
-The extra latency in \snowman{} is likely due to its more complex data
-structure surrounding rules, which means more processing and data movement is
-needed for many operations. The project has not exhausted all
-possible optimization possibilities and techniques, so there is room for
-further improvements in future work.
-
-These tests stand to point out that performance testing in software projects can
-reveal performance problems early enough in the development to correct them.
-
+in a great improvement in performance. The extra latency in \snowman{} is likely
+due to its more complex data structure surrounding rules, which means more
+processing and data movement is needed for many operations. The project has not
+exhausted all possible optimization possibilities and techniques, so there is
+room for further improvements in future work. These tests stand to point out
+that performance testing in software projects can reveal performance problems
+early enough in the development to correct them.

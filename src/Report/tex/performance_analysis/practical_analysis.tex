@@ -88,20 +88,19 @@ quickly the software can process an update, and if the processing time is
 sublinear regarding the update size. It is interesting to test for sublinearity
 as this may help point out programming errors. To get a complete picture of the
 performance, the tests are set up with different constraints such as update
-size, number of files and number of changes from one update to the next.
-
-Tests numbered 1-1 through 1-4 use an artificially generated update package
-where all rules contain the same data\footnote{Only signature IDs are different. The
-rules contain a message and a classtype.}, as seen in Listing
+size, number of files and number of changes from one update to the next. Tests
+numbered 1-1 through 1-4 use an artificially generated update package where all
+rules contain the same data\footnote{Only signature IDs are different. The rules
+contain a message and a classtype.}, as seen in Listing
 \ref{lst:test_rulestring}.
 
 \begin{lstlisting}[frame=single, caption=Test rule string.,
 label=lst:test_rulestring,captionpos=b]
-alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS 
-(msg:"INDICATOR-COMPROMISE c99shell.php 
-command request - security";
-flow:to_server,established; urilen:<50; content:"act=security";
-fast_pattern:only; http_uri; metadata:service http; 
+alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS \
+(msg:"INDICATOR-COMPROMISE c99shell.php \
+command request - security"; \
+flow:to_server,established; urilen:<50; content:"act=security";\
+fast_pattern:only; http_uri; metadata:service http; \
 classtype:policy-violation; sid:<int>; rev:2;)
 \end{lstlisting}
 %Set row spacing:
