@@ -1,24 +1,25 @@
 \section{Constraints}
 
 \subsection{Platform}
-As mentioned in the project plan (Appendix \ref{app:project_plan}), Snort is
+As mentioned in the project plan (Appendix \ref{app:project_plan}), \snort{} is
 primarily used in conjunction with the Linux/UNIX operating systems. For that reason, the project was restricted to
 only develop for that platform. More specifically, we limited ourselves to the
 Ubuntu and Debian operating systems, which are the primary platforms Avdeling
-BKI uses as well. We have, however, stived to make the software portable to most
-Linux distributions. A port to Windows should also be possible through changing
-some of the operating specific code.
-\subsection{Data security}
-While the system itself will not handle any data that may contain personal
-data, it may contain rules and rule sets that are considered classified or confidential. The
-system has therefore been built with this in mind and ensures confidentiality
-within the boundaries of the system. The system does not guarantee the
-confidentiality of the system outside these boundaries.
+BKI uses as well. We have, however, strived to make the software portable to
+most Linux distributions. A port to Windows should also be possible through changing
+some of the operating system-specific code.
 
-The boundaries are defined as the program and its processes and threads, and
-the network link established between the system and remote sensors. The system assumes that the
-users have already established database security.
-\subsection{Graphical User Interface}
+\subsection{Data security}
+While the system itself will not handle any data that may contain personal data,
+it may contain rules and rulesets that are considered classified or
+confidential. The system has therefore been built with this in mind and ensures
+confidentiality within the boundaries of the system. The system does not
+guarantee the confidentiality of the system outside these boundaries. The
+boundaries are defined as the program and its processes and threads, and the
+network link established between the system and remote sensors. The system
+assumes that the users have already established database security.
+
+\subsection{Graphical user interface}
 The project has had its main focus on the system functionality and efficiency,
-and developing a graphical user interface (GUI) has been considered a secondary
-task and was prioritized as such. None the less, a GUI for demonstrational purposes has been included.
+and developing a GUI has been considered a secondary task and was prioritized as
+such. None the less, a GUI for demonstrational purposes has been included.

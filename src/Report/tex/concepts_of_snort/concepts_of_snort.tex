@@ -1,8 +1,7 @@
 \chapter{CONCEPTS OF SNORT}
 \label{chap:concepts_of_snort}
 
-This chapter gives a brief introduction to the basic concepts of IDS's in
-general and \snort{} in particular.
+This chapter gives a brief introduction to the basic concepts of \snort{}.
 
 \section{Rules}
 %TODO: Explain planning of rule modifiers and hierarchy model in Design chapter.
@@ -24,11 +23,11 @@ sid:1444; rev:9;)
 \end{lstlisting}
 There are several types of rule options, but only the general rule options are
 relevant for this project. The general rule options provide information about
-the rule \cite{SnortManual} (i.e. signature ID, revision number and classtype).
+the rule, such as signature ID, revision number and classtype.
 Other types of options, such as payload options, which are actively used in
 detection, are not relevant for the management of rules and are thus not considered in this
 project. Some of the general options can only be specified within the
-rulestring, referred to as {\em inline} specification, while others can be
+rule string, referred to as {\em inline} specification, while others can be
 specified in separate files, referred to as {\em external} specification.
 
 A rule can either be enabled or disabled in the detection system, meaning that
@@ -94,22 +93,21 @@ basically a URL string pointing to a webpage containing this information.
 Filtering can be applied to rules in order to control the amount and frequency
 of alerts. Two types of filters can be applied to a rule: event filters and
 detection filters. A detection filter can only appear inline, whereas an event
-filter can only appear as a standalone option\footnote{An event filter can
-currently be written inline (called a rule threshold), but according to the
-\snortManual{} this feature is deprecated and will not be supported in future
-releases.}. All filters operate with a \textit{count} and \textit{seconds}
-variable, representing the number of events in a time interval and the duration
-of the time interval, respectively. Event filters are further divided into
-three types (table \ref{tab:filterTypes}).
-
-Detectionfilters are filters limiting the number of times a rule generates an
-event, while eventfilters limits how many events are producing alarms.
+filter can only be specified externally\footnote{An event filter can currently
+be written inline (called a rule threshold), but according to the \snortManual{}
+this feature is deprecated and will not be supported in future releases.}. All
+filters operate with a \textit{count} and \textit{seconds} variable,
+representing the number of events in a time-interval and the duration of the
+time-interval, respectively. Event filters are further divided into three types
+(table \ref{tab:filterTypes}). Detection filters are filters limiting the number
+of times a rule generates an event, while event filters limit how many events
+are producing alarms.
 
 \section{Rule suppression}
 Some rules might match traffic that is unwanted from most hosts, while some
 hosts would be allowed to send traffic matching the same rules. In this case,
-\snort{} gives the possibility to remove (ie: suppress) alarms when the source
-or destination of the traffic matches the configured parametres.
+\snort{} gives the possibility to suppress alarms when the source
+or destination of the traffic matches the configured parameters.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
