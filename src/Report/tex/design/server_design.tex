@@ -5,16 +5,15 @@ The server is the central component of \snowman{} and generally consists of:
 \begin{itemize}
   \item Central rule storage
   \item Web interface for user interaction
-  \item Update-module to get updates from rule sources
+  \item Update module to get updates from rule sources
   \item RPC interface to communicate with the clients 
 \end{itemize}
 
 The central storage of rules would be in a normal relational database. As we
-have decided to use \django{} (described in chapter \ref{chap:implementation}) as our
-framework, we have a great flexibility in choosing the database we actually use. In the current version of \django{} (1.6) we have
-support for MySQL, PostgreSQL, SQLite or Oracle.
-
-For the RPC interface, we have decided to use
+have decided to use \django{} (described in Chapter \ref{chap:implementation})
+as our framework, we have a great flexibility in selecting the database we actually
+use. The current version of \django{} (1.6) supports MySQL,
+PostgreSQL, SQLite and Oracle. For the RPC interface, we have decided to use
 XML-RPC. This is a very simple protocol using XML over HTTP to transfer 
 requests and data to and from the server. To be able to keep up with the aspect
 of privacy and security, we encrypt the raw HTTP stream using SSL. 
