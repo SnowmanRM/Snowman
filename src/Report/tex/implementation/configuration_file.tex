@@ -7,14 +7,13 @@ of course would differ from system to system. This was expanded to include some
 options that users might want to set differently depending on their situation,
 for example if new rule revisions should automatically be active in the
 production system or not. \snowman{} requires a configuration file for the
-server and one for each client, detailed below. For example configuration files
-see appendix.
+server and one for each client, detailed below.
 
 \subsection{Server Configuration File}
 The server configuration file contains file paths and other options used for
 logging and client connections, along with the options described below:
 
-\subsubsection{Rule revisions}
+\subsubsection{Rule Revisions}
 Users can specify the number of revisions to store. \snowman{} will
 automatically delete the oldest revision when the revision count for one rule
 exceeds this number. The default value is 2, which is just enough to let users
@@ -22,20 +21,20 @@ roll back to the previous working revision after an update. Users can also
 specify whether incoming revisions should automatically become active (i.e. go
 right into production) or remain inactive until manually activated.
 
-\subsubsection{Rule sets}
-There is a possibility that a rule will be moved from one rule set to another by
-a source, for example the \snort{} rules contain a ``deleted'' set, which
-contains rules that were previously part of other rule sets, but are now
-considered obsolete. Users can also choose to re-arrange rules across rule sets,
+\subsubsection{Rulesets}
+There is a possibility that a rule will be moved from one ruleset to another by
+a source, for example the \snort{} rules contain a ``deleted'' ruleset, which
+contains rules that were previously part of other rulesets, but are now
+considered obsolete. Users can also choose to re-arrange rules across rulesets,
 which may create conflict during updates. This means that some users will prefer
-that rules automatically moves to the rule set dictated by the update, while
-others would like the rules to remain in their original rule set. This
+that rules automatically moves to the ruleset dictated by the update, while
+others would like the rules to remain in their original ruleset. This
 functionality is therefore customizable in the server configuration file.
 
-\subsubsection{Rule filters}
+\subsubsection{Rule Filters}
 Another thing that might cause problems is rule filters. Since there can
-only be one filter of each type per rule, users must decide wheter they want new
-incoming filters should automatically overwrite old filters or not. In the
+only be one filter of each type per rule, users must decide whether they want
+new incoming filters to automatically overwrite old filters or not. In the
 server configuration file, users can specify that filters should be
 \begin{inparaenum}[\itshape a\upshape)]
 \item always overwritten; \item overwritten unless the previous filter was
@@ -43,19 +42,19 @@ set manually by the user; or
 \item not overwritten at all.
 \end{inparaenum}
 
-\subsubsection{Alert messages}
+\subsubsection{Alert Messages}
 Rule alert messages can appear both inline and in a separate file, and one of
 these sources must take precedence if they contain different alert messages.
 This behaviour can be configured to always use the inline or external
 specification, or which ever is encountered first.
 
-\subsubsection{Rule caching}
+\subsubsection{Rule Caching}
 Users can specify whether all rules should be cached in memory during an update,
 even if they are not changed. It might be useful to enable this if the updates
 contain a lot of filters, as it will reduce database access when updating the
 filters.
 
-\subsubsection{Update files}
+\subsubsection{Update Files}
 Since there is no documented standard for file names and file contents within an
 update-package, users can specify both a whitelist and a blacklist over which
 files to parse during an update. If present, the whitelist will take precedence
@@ -82,11 +81,11 @@ or a rulestring.
 Every client in the system requires its own configuration file. In this file,
 the credentials of the sensor on which the client operates are stored, along
 with database and logging options and paths to required directories and files.
-Parametres which impacts the synchronization are also included in this file,
+Parametres which impacts the synchronisation are also included in this file,
 most notably the request-size, which controls the maximum amount of rules
 requested in each request. Depending on the resources available on the server,
 large requests might take too much time to handle, which can make the
 connection time out. On the other hand, too small requests would increase the
-synchronization-time because of I/O-waiting between every request. It is
+synchronisation-time because of I/O-waiting between every request. It is
 therefore natural to let users define the request size in the configuration
 file.

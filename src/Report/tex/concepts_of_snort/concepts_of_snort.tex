@@ -12,7 +12,7 @@ which action to take if the rule matches traffic, while rule options provide
 metadata for the rule, such as its ID and classification \cite{SnortManual}. The
 rule options are specified as plain text in the {\em rule string} enclosed in
 parentheses (Listing \ref{lst:rulestring}). Note that a badly formatted
-rulestring given to \snort{} will cause a crash.
+rule string given to \snort{} will cause a crash.
 
 
 \begin{lstlisting}[frame=single, caption=Example rule string.,
@@ -89,7 +89,7 @@ references to external attack identification systems, which provide
 additional information about the alerts \cite{SnortManual}. A reference is
 basically a URL string pointing to a webpage containing this information.
 
-\section{Event and detection filters}
+\section{Event and Detection Filters}
 Filtering can be applied to rules in order to control the amount and frequency
 of alerts. Two types of filters can be applied to a rule: event filters and
 detection filters. A detection filter can only appear inline, whereas an event
@@ -103,7 +103,7 @@ time-interval, respectively. Event filters are further divided into three types
 of times a rule generates an event, while event filters limit how many events
 are producing alarms.
 
-\section{Rule suppression}
+\section{Rule Suppression}
 Some rules might match traffic that is unwanted from most hosts, while some
 hosts would be allowed to send traffic matching the same rules. In this case,
 \snort{} gives the possibility to suppress alarms when the source

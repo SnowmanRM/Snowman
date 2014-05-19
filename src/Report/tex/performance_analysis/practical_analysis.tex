@@ -12,7 +12,7 @@ To get a picture of how the software performs on different systems, it was
 tested on three architectures (table \ref{tab:testSystems}). To minimize error, each test
 was run five times where the mean value of the runs is considered a valid test
 result. All tests can be reproduced with the test procedure documentation in
-appendix. %TODO: Appendix.
+Appendix \ref{app:test_scripts}.
 
 \subsection{Definitions}
 
@@ -22,7 +22,7 @@ description of what is to be tested, and how results should be evaluated.
 A test suite also contains one or more \textit{test cases}, which exist to
 address the problem. Test cases represent individual tests, and describe the input data
 and constraints. Test cases are carried out on the different systems, and
-results from each test case are reffered to as the \textit{test results}.
+results from each test case are referred to as the \textit{test results}.
 
 \subsection{Environment}
 %Beskriv testoppsett. maskinvare, nettverk, programvare, etc.
@@ -56,7 +56,6 @@ again to see if the inconsistency prevails.
 	S3 & Intel\textregistered{} Core\texttrademark{} i5, 4x3.2GHz & 16GB RAM & SSD
 	\\
 	\hline
-	\multicolumn{4}{l}{\textit{Note: See appendix for full details.}}
   \end{tabular}
   \caption{Test systems.}
   \label{tab:testSystems}
@@ -70,7 +69,7 @@ testing was to identify the areas where the three software packages share, to a
 certain extent\footnote{\snowman{}, \bhtb{} and \snortmanager{} have been built
 to tackle many of the same challenges, however, the actual implementations may
 differ severely. For an extended walk-through of differences in implementation,
-refer to chapter \ref{chap:existing_solutions}, and chapter
+refer to Chapter \ref{chap:existing_solutions}, and Chapter
 \ref{chap:analysis_of_results}.}, the same functionality. In the
 test planning, considerations have been made to ensure that the tests hold an
 acceptable degree of fairness (i.e. tests are designed so that none of the
@@ -86,15 +85,25 @@ update processing.
 \subsection{Update processing tests}
 The purpose of the tests in this section is first and foremost to test how
 quickly the software can process an update, and if the processing time is
-linear regarding the update size. It is interesting to test for linearity as
-this may help point out programming errors. To get a complete picture of the
+sublinear regarding the update size. It is interesting to test for sublinearity
+as this may help point out programming errors. To get a complete picture of the
 performance, the tests are set up with different constraints such as update
 size, number of files and number of changes from one update to the next.
 
 Tests numbered 1-1 through 1-4 use an artificially generated update package
 where all rules contain the same data\footnote{Only signature IDs are different. The
-rules contain a message and a classtype, see appendix for full description.}. 
+rules contain a message and a classtype.}, as seen in Listing
+\ref{lst:test_rulestring}.
 
+\begin{lstlisting}[frame=single, caption=Test rule string.,
+label=lst:test_rulestring,captionpos=b]
+alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS 
+(msg:"INDICATOR-COMPROMISE c99shell.php 
+command request - security";
+flow:to_server,established; urilen:<50; content:"act=security";
+fast_pattern:only; http_uri; metadata:service http; 
+classtype:policy-violation; sid:<int>; rev:2;)
+\end{lstlisting}
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
 
@@ -146,8 +155,8 @@ update package, \textit{SF-28064}.
 and the size of an update?}
 This question rises from the requirements specification of Snowman (Chapter
 \ref{chap:requirements_spec}), where it is stated that Snowman shall exhibit a
-linear increase in processing time in correlation to the number of rules in the
-update (where the number of rules depicts the update size). Results are ranked
+sublinear increase in processing time in correlation to the number of rules in
+the update (where the number of rules depicts the update size). Results are ranked
 from strong correlation to no correlation, where stronger is better.
 % TODO: remeber to explain, either here or in the rec. spec., why this is an
 % important measure, e.g. no coorelation might imply programming errors.
@@ -210,8 +219,8 @@ number).
 
 \subsection{Rule distribution tests}
 These tests use exactly the same test suites as update processing tests, the
-only difference being that and update from a source is replaced by
-synchronization to a client.
+only difference being that an update from a source is replaced by
+synchronisation to a client.
 
 \subsection{Interface loading tests}
 These tests will evaluate the speed of the user interface by listing rules and

@@ -13,7 +13,7 @@ split the methods of \pythoninline{Update} into two new classes:
 \pythoninline{Parser} and \pythoninline{Updater}, where the first would only
 parse the incoming data and send this to the latter which gathered all objects
 and wrote these in bulk when the parsing was complete. As can be seen in Chapter
-\ref{chap:results}, this had a huge impact on performance.
+\ref{chap:results}, this had a significant impact on performance.
 
 \begin{python}[caption=Updating a classification in \snowman{}
 0.4,label=lst:wrongsave]
@@ -33,7 +33,7 @@ def updateClassification(type, description, priority):
 As some of the objects refer to other objects in the
 database through foreign-keys, it is vital to store the objects depending on
 other objects after the objects they depend on are stored. A safe order to save
-them has been identified and the objects are saved in this order:
+them has been identified and the objects are saved in the following order:
 \begin{enumerate}
   \item Generators
   \item Classifications

@@ -1,6 +1,6 @@
 \section{Results}
 This project set out to develop, from the ground up, something that were to be
-better than a prototype already in use. And we have produced some that does
+better than a prototype already in use. And we have produced something that does
 indeed works and, in many cases, better than it's predecessor. While not all the
 features we outlined in our goals ended up in the latest version, they can be
 added in future works with relative ease. 
@@ -11,11 +11,13 @@ results are satisfactory. The added latencies in \snowman{} can be acredited to
 the more complex data structure which results in more data needing to be processed and moved to/from I/O devices. 
 
 Our performance tests in chapters \ref{chap:performance_analysis} to
-\ref{chap:analysis_of_results} also revealed that actually conducting them in a software development project is a very good idea, as we discovered a bottleneck in
-our Update module and managed to fix that and improve our performance
-significantly. Some aspects of \snowman{} are
+\ref{chap:analysis_of_results} also revealed that actually conducting these
+tests in a software development project is a very good idea, as we discovered a
+bottleneck in our Update module and managed to fix it and improve our performance significantly. Some aspects of \snowman{} are
 still not within acceptable performance times, but the optimization done on the
-Update module brought it into an acceptable range.
+Update module brought it into an acceptable range for that module. If similar
+optimizations are implemented in other modules in future work, we are confident
+that \snowman{} can perform well across the board.
 
 While we have not conducted tests on the matter, we believe \snowman{} does not
 have the same scalability problems that \bhtb{} seems to have when adding more

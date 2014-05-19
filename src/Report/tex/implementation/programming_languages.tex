@@ -11,7 +11,7 @@ languages can produce programs with very high performance, however, these were
 abandoned as we concluded that they would induce more work because of their
 complexity, and thereby be too time-consuming.
 
-The final decision fell on Python mainly because of this language lets the
+The final decision fell on Python mainly because it lets the
 programmer develop complex programs in a short amount of time. Python has
 automatic memory management and offers a wide range of built-in tools, which
 gives the developers time to focus more on the code and functionality rather
@@ -19,12 +19,12 @@ than overhead tasks like managing memory and including external libraries. A
 concern was raised that Python, being a high-level language, might not be
 efficient enough for this project. This turned out to not be a problem, as
 Python can run modules written in C. A major reason for using Python was also
-\django{} (see section \ref{sec:frameworks}), which is a Python framework used
+\django{} (see Section \ref{sec:frameworks}), which is a Python framework used
 in this project that greatly simplifies database transactions and generation of
 web pages.
 
 The most current version of Python available at the start of this project
-was version 3.3. The project group selected version 2.7, as a break in
+was version 3.3. The project group selected version 2.7, as a disparity in
 compatibility \cite{usepython2} between 2.X and 3.X versions of Python cause
 some problems. According to a recent survey \cite{pythonusagesurvey}
 Python 2.X still holds a dominant position among developers, five years after
@@ -49,8 +49,8 @@ JavaScript for client-side scripting.
 % fra kildekoden trekkes frem for å vise hvordan dette er etterlevd i praksis.
 Python imposes a strict indentation regime, as this is actively used in the
 syntax to delimit blocks of code. The project group has followed standard Python
-guidelines for best practice programming, with principles as DRY\footnote{``Don't
-repeat yourself''. The principle that code should not be duplicated in a
+guidelines for best practice programming, with principles such as
+DRY\footnote{``Don't repeat yourself''. The principle that code should not be duplicated in a
 project.} and EAFP\footnote{``Easier to ask for forgiveness than permission''.}
 (the latter actually caused some unforeseen performance issues described in
 Section \ref{sec:saving}).
@@ -70,7 +70,7 @@ of a Docstring at the beginning of the method.
 
 The Python manual encourages the use of exceptions, which is a useful way of
 sending messages up the execution stack when an error or irregular behaviour is
-deceted. Customized exeptions are raised in \snowman{} for example when parsed
+detected. Customized exeptions are raised in \snowman{} for example when parsed
 data has a wrong format ({\em BadFormatError}), when critical objects are
 missing from the database ({\em MissingObjectError}) or when an unsupported
 rule is encountered ({\em AbnormalRuleError}).

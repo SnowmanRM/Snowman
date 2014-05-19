@@ -14,10 +14,10 @@ tests. Table \ref{tab:timeperrule} displays the average processing time per rule
 calculated from the synthetic update containing 10000 rules and the realistic update containing
 28064 rules. As it can be seen, \bhtb{} is significantly faster than the two
 other programs on all our test machines. It came as a big
-surprise that \bhtb{} performed so well in the update tests, as our client had listed poor update performance as one of its
-major defects. The results are probably best explained by the very simple nature
+surprise that \bhtb{} performed so well in the update tests, as Avdeling BKI had
+listed poor update performance as one of its major defects. The results are probably best explained by the very simple nature
 of \bhtb{}'s data structure. Also note that these tests might not reflect the
-reality that our client faces, as they are run in a minimalistic environment
+reality that Avdeling BKI faces, as they are run in a minimalistic environment
 without any sensors or other database-objects that might affect \bhtb{}'s
 performance in a real environment. \snortmanager{} also performed well in the
 tests, which is expected as it has a very similar data structure to \bhtb{} in
@@ -120,9 +120,9 @@ SYN-10000 & S1 & 1795175.128 & \textbf{14179.095}  \\
   \label{tab:compareversions}
 \end{table}
 
-While we still did not accomplish the performance goals set in Section \ref{},
-considering the difference in complexity and structure, we assess the difference as acceptable. The results
-in this test are a very good indicator that performance testing during
+While we still did not accomplish the performance goals set in Section
+\ref{sect:effect_objectives}, considering the difference in complexity and structure, we assess the difference as acceptable. The results
+in these tests are a very good indicator that performance testing during
 development is a very useful element in a development project.
 
 \section{Effectiveness of rule distribution}
@@ -170,7 +170,8 @@ completely different network and sensor, it is apparent that distribution from
 \bhtb{} is mostly determined by how fast the data can be moved from the server
 to the sensor. 
 
-The same difference in testing environments is apparent in the \snowman{} tests.
+The same difference in testing environments is apparent in the \snowman{} tests
+(Table \ref{tab:testSyncResults}).
 S1 and S2 have very similar results while S3 probably benefits from its
 different hardware and network setup. This leads us to conclude that the
 performance of distribution is dictated by the bandwidth and by the hardware of
@@ -181,7 +182,7 @@ as we expected by going for a distributed model with a change based distribution
 protocol. But we are seeing a significant reduction in time spent distributing
 when there are only updates and not a massive batch of rules. While \bhtb{} uses
 roughly the same time on tests SF-28064-A and SF-28064-B, we use about 80\% less
-time on test B than on test A. 
+time on test B than on test A (Table \ref{tab:testSyncResults}). 
 
 This gives merit to the model we picked for our distribution architecture and
 with a little more performance optimisations, the overall times is likely to
@@ -189,7 +190,7 @@ improve further as well.
 
 \section{GUI latency}
 These tests show that we have not been able to produce an improvement over
-\bhtb{} when it comes to displaying rules, which comes clearn when we compare
+\bhtb{} when it comes to displaying rules, which comes clear when we compare
 the numbers involved (Table \ref{tab:testInterfaceResults}).
 \snowman{} are only fetching and displaying a fraction of the number of rules that
 \bhtb{} does\footnote{About 100 to 28000.}, yet we spend about twice as long on it. 

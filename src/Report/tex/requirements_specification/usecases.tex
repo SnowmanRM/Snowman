@@ -1,4 +1,4 @@
-\subsection{High-level use cases}
+\subsection{High-level Use Cases}
 Since the program workflow is heavily centered around the database module, and
 the major parts of the system revolves around the importing of rules and then
 distributing them, we began developing our use cases around those
@@ -171,7 +171,7 @@ revisions.}
 	\addfield{Purpose}{Distribute rules from the central database to the sensors.}
 	\addfield{Description}{After a command to synchronise is sent either by the
 	user or the daemon, the server calculates and organizes the central database
-	data and synchronizes this information with the affected sensors.}
+	data and synchronises this information with the affected sensors.}
 	\addfield{Preconditions}{One or more rulesets or rules must be present in the
 	central database. One or more sensors must be registered.}
 	\addfield{Postconditions}{The rules on the sensor(s) are synchronized to
@@ -179,21 +179,21 @@ revisions.}
 	sensors.}
 	\addfield{Triggers}{Manual rule distribution, Automatic rule distribution}
 	\addscenario{Basic flow}{
-		\item Synchronize signal is sent.
-		\item The system calculates and organizes the data for each sensor affected by the synchronization.	
-		\item The system initializes a synchronization protocol with the affected sensor or sensors, sending a list of what the sensor should have.	
+		\item Synchronise signal is sent.
+		\item The system calculates and organizes the data for each sensor affected by the synchronisation.	
+		\item The system initializes a synchronisation protocol with the affected sensor or sensors, sending a list of what the sensor should have.	
 		\item The sensor calculates diff between should have and has.
 		\item Compare diff.
 		\item Send update.
 		\item The sensor includes the new changes into its database and files and tells the central system that it is now up to date.
-		\item The system carries out maintenance to reflect the synchronization.
+		\item The system carries out maintenance to reflect the synchronisation.
 		\item The user is notified that all sensors affected are now up to date.			
 	}
 	\addscenario{Extensions}{
 		\item
 		\begin{enumerate}
-			\item User sends a command to synchronize one, more or all sensors		
-			\item The system reaches an interval for synchronizing all sensors.		
+			\item User sends a command to synchronise one, more or all sensors		
+			\item The system reaches an interval for synchronising all sensors.		
 		\end{enumerate}
 		\etcounter{enumi}{4}
 		\item
@@ -204,7 +204,7 @@ revisions.}
 		\item
 		\begin{enumerate}
 			\item The system retrieves and sends what the sensor asks for.
-			\item The system terminates the synchronization protocol with the sensor in question.
+			\item The system terminates the synchronisation protocol with the sensor in question.
 		\end{enumerate}				
 	}
 	\addscenario{Error handling}{

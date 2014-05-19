@@ -5,39 +5,39 @@ are explained in the following three subsections.
 
 \subsection{Initiating the Distribution}
 
-Before a synchronization can start, the sensors  need to know that they
-should synchronize. There are mainly two events that can cause a synchronization
+Before a synchronisation can start, the sensors  need to know that they
+should synchronise. There are mainly two events that can cause a synchronisation
 to occur:
 
 \begin{enumerate}
-  \item Automatic synchronization based on time
+  \item Automatic synchronisation based on time
   \item Manually invoked trough the web interface on the \snowman{}-server
 \end{enumerate}
 
-In the first case, the client itself knows that it should start to synchronize
-and therefore starts the authentication/synchronization procedure with the
+In the first case, the client itself knows that it should start to synchronise
+and therefore starts the authentication/synchronisation procedure with the
 server. In the second case, the client does not initially know that anything
 happened. The central server has to contact the client via the
-``snowmanclientd'' daemon, telling it to initiate a synchronization.
+``snowmanclientd'' daemon, telling it to initiate a synchronisation.
 
-\subsection{Synchronization}
+\subsection{Synchronisation}
 
-When a synchronization is initiated the client connects to the
+When a synchronisation is initiated, the client connects to the
 ``snowmand'' daemon on the sentral server and authenticates with it. If the
 authentication is successful, the server knows that the sensor is who it
 claims to be and it also knows which rules the sensor should have installed.
-After this, the synchronization can start.
+After this, the synchronisation can start.
 
 The first action is to retrieve all the \pythoninline{RuleClass} objects and
-update the local cache on the client to correspond to the retrieved list from
+update the local cache on the client to correspond with the retrieved list from
 the server. Changed objects will be updated, new objects inserted into the local
 database and obsolete objects will be deleted. Next, lists of
 \pythoninline{Generator}, \pythoninline{RuleReferenceType} and
 \pythoninline{RuleSet} objects are retrieved and the local database is updated
 in a similar manner as with the \pythoninline{RuleClass} objects.
 
-For the synchronization of the rules, which is the main bulk of the
-data needed to be synchronized, a more efficient approach is used. First, a list
+For the synchronisation of the rules, which is the main bulk of the
+data needed to be synchronised, a different approach is used. First, a list
 of the signature-IDs and revisions of the rules that should be present on the
 sensor are retrieved from the server. If rules in the local cache are not
 mentioned in this list, or this list indicates that a new version of this rule
@@ -45,14 +45,13 @@ is available, the rule is deleted from the local cache. Any tuning parameters be
 are also removed.
 
 Next, the client starts to request the rules that it currently is missing from
-the server. To speed things up, this happens in bulks of 250 rules per request.
-This way, no single request gets too large and time-consuming. For the rules
-requested, tuning parameters like filters and suppressions is provided if the
-rules have rule tuning applied on the given sensor. References are also passed
-along with the rule.
+the server. This happens in bulks of 250 rules per request so that no single
+request becomes too large and time-consuming. For the rules requested, tuning
+parameters like filters and suppressions are provided if the rules have rule
+tuning applied on the given sensor. References are also passed along with the rule.
 
 All the received rules are then saved to the local database and the
-synchronization is complete. The final step of generating \snort{}
+synchronisation is complete. The final step of generating \snort{}
 configuration files is then started.
 
 \subsection{Generating Snort Configuration}
@@ -62,7 +61,7 @@ on the content of the local database.
 
 The naming convention of the files is similar to the one SourceFire uses with
 their rulesets and the format of the files is exactly the same. This is
-to simplify the visual inspection of the rule files if that is desirable. It
+to simplify the visual inspection of the rule files. It
 does not really matter to \snort{} which order the configuration files are in,
 as long as the content can be recognized as \snort{} configuration.
 

@@ -23,10 +23,10 @@ aptitude} and configuration tools such as {\em puppet} and {\em cfengine}.
 
 \subsection{Snowman Server}
 
-To deploy the \snowman{}-server, it is wise to do a couple of considerations
-first.
+When deploying the \snowman{}-server, it is wise to do a couple of
+considerations first.
 \snowman{} uses external software for its webserver and database and because
-\snowman{} is a quite flexible piece of software, it is possible to change which
+\snowman{} is quite flexible, it is possible to change which
 technology is used with a small configuration change.
 
 The web interface is powered by a Python WSGI \cite{wsgi} gateway and is thus
@@ -48,7 +48,7 @@ alternative here is MySQL.
 When the database technology has been selected and the web server is available,
 the installation of the \snowman{} package can be done. The package is delivered in
 two versions; one for Debian and one for Ubuntu. Both would work on both
-systems, as the only difference is the dependency list. In the debian version,
+systems, as the only difference is the dependency list. In the Debian version,
 the dependency to {\em python-django} is omitted, as debian-stable currently
 does not delivere this package in a new enough version. Snowman requires Django
 version 1.6 or newer, which is available in the ubuntu-repositories. For debian,
@@ -57,33 +57,32 @@ supplies version 1.6.
 
 \subsubsection{Configuration}
 
-After the installation of snowman, it needs some configuration to be able to
-operate. The main configurationfile for snowman is
-``/etc/snowman/snowman.conf'', and all the parametres which is required to be
-configured is present in this file. The configuration-file is well documented
-inline, and all parametres are explained. The parametres that is required to be
-updated in the file would be:
+After the installation of \snowman{}, it needs some configuration to be able to
+operate. The main configuration file for \snowman{} is
+``/etc/snowman/snowman.conf'', and all the parametres which are required to be
+configured are present in that file. The configuration file is well documented
+within, and all parametres are explained. The parametres that are required to be
+updated in the file is:
 \begin{itemize}
   \item{\em Database settings:} The settings determining which type of database
-  to use, where to find it and the authenticationdetails are all needed by
-  snowman. 
-  \item{\em Host names:} The names listed at this configuration-option
-  determines which names snowman's web-interface would answer for. Any request
-  hitting snowman using other hostnames than the ones listed would result in an
-  error.
+  to use, where to find it and the authentication details. 
+  \item{\em Host names:} The names listed at this configuration option
+  determines which hostnames the \snowman{} web interface would answer to. Any
+  request to \snowman{} using other hostnames than the ones listed would result in
+  an error.
 \end{itemize}
 
 To configure the web server, an \apache{} configuration file is provided in
-``/etc/apache2/sites-available/snowman.conf''. For apache to work as the
-webserver for snowman, an apache2 wsgi-gateway needs to be installed. This is
-also widely available in most linux repositories under the name
+``/etc/apache2/sites-available/snowman.conf''. For \apache{} to work as the
+web server for \snowman{}, an ``apache2 wsgi-gateway'' needs to be installed. This
+is also widely available in most linux repositories under the name
 ``libapache2-mod-wsgi''. A symlink to the configuration-file should be created
-in ``/etc/apache2/sites-enabled/'', after which \apache{} needs to be restarted,
+in ``/etc/apache2/sites-enabled/'', after which \apache{} needs to be restarted
 to finalize the webserver setup.
 
-When the configuration changes are complete, the  command ``snowman-initialize''
-should be used to generate the database-schema and intialize the database with
-some initial data. The output of this command would also signal if the
+When the configuration changes are complete, the command ``snowman-initialize''
+should be used to generate the database schema and initialise the database with
+some initial data. The output of this command will also signal if the
 database settings are correct, as it cannot create the initial data without
 access to the database.
 
@@ -94,16 +93,16 @@ is valid. There are five things that need to be verified:
 
 \begin{itemize}
   \item Database availability.
-  \item Access to logging locations
+  \item Access to logging locations.
   \item Access to scratch-location on the filesystem.
-  \item Availability of the webinterface
+  \item Availability of the web interface.
   \item Availability of the socket used by clients to download updates.
 \end{itemize}
 
 The command ``snowman-test'' is provided in order to have an automated way to
 test all these parametres. If everything is OK, a message will state so and the
 program returns 0. If any of the above bullet points fails their corresponding
-test, a message is displayed, and the test returns 1.
+test, a message is displayed and the test returns 1.
 
 \subsection{Snowman Client}
 
@@ -111,9 +110,9 @@ The deployment of the \snowman{}-client is a simple three-step approach:
 
 \begin{enumerate}
   \item Install the snowman-client package
-  \item Update ``/etc/snowman/snowman-client.config'' with database-settings,
+  \item Update ``/etc/snowman/snowman-client.config'' with database settings,
   address for the central server, sensor name and sensor password.
-  \item Add the sensor to the \snowman-server, for example trough the
+  \item Add the sensor to the \snowman{}-server, for example trough the
   web interface.
 \end{enumerate}
 
@@ -124,12 +123,13 @@ to test that the client is properly installed and configured. The command
 \begin{itemize}
   \item The required libraries are present.
   \item The configuration specifies a database that is accessible.
-  \item The location for creating rule-files is writable.
+  \item The location for creating \snort{} rule and configuration files is
+  writable.
   \item A contact to the central server can be established.
 \end{itemize}
 
 \subsubsection{snowmanclientd}
-There is a daemon supplied with the \snowman-client, named
+There is a daemon supplied with the \snowman{}-client, named
 ``snowmanclientd''. It is responsible for allowing the central server to make
 contact with the client. It is set up to automatically start at bootup, but it
 is also possible to control via the ordinary linux command ``service'';

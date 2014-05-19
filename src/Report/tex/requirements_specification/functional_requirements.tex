@@ -1,16 +1,16 @@
-\section{Functional requirements}
+\section{Functional Requirements}
 
-\subsection{Program workflow}
+\subsection{Program Workflow}
 \label{sec:program_workflow}
 To aid the development of the functional requirements, the program workflow was
 charted in order to give a better understanding of what the system was expected
-to do. This was accomplished by going through the functionality of \bhtb{} with \client{} and detailing the functions and various needs for
-improvement or additional functionality. From this, the workflow chart was drawn
-with the major parts of the system. In addition, Henriksen's management process
-\cite{BHTB} was taken into consideration.
+to do. This was accomplished by going through the functionality of \bhtb{} with
+Avdeling BKI and detailing the functions and various needs for improvement or
+additional functionality. From this, a workflow chart (Figure
+\ref{fig:program_workflow}) was drawn with the major parts of the system. In addition, Henriksen's management process \cite{BHTB} was taken into consideration.
 
 \begin{figure}[ht!]
-\includegraphics[width=200mm,angle=90]{./img/program_workflow.png}
+\includegraphics[width=200mm,angle=90]{./img/program_workflow_v2.png}
 \caption{Program workflow}
 \label{fig:program_workflow}
 \end{figure}
@@ -21,17 +21,17 @@ of the system and the arrows show the direction of flow the system should have.
 As can be seen, all of the program flow ends up with rules being synchronised to
 the sensors, making that a very central part of the system. It is important to
 note that in the beginning of the development, we decided that writing rules,
-automatically check for errors and adding uder comments to them were
+automatically check for errors and adding user comments to them were
 nice-to-have (but still important) features that we could implement if we had
 time to do so. Hence, they are greyed out in the drawings, and left for future work.
 
-From this workflow we could outline a rough modular design (figure
+From the workflow we could outline a rough modular design (figure
 \ref{fig:program_modules}) based on the naturally separate functions of updating
 rules, tuning them, distributing them and showing them. We also added a database
 module, since most of our program was going to be centered around it.
 
 \begin{figure}[!p]
-\includegraphics[width=200mm,angle=90]{./img/program_modules.png}
+\includegraphics[width=200mm,angle=90]{./img/program_modules_v2.png}
 \caption{Program modules}
 \label{fig:program_modules}
 \end{figure}
@@ -72,17 +72,17 @@ sensor.
 
 \input{./tex/requirements_specification/usecases.tex}
 
-\subsection{Use case diagram}
+\subsection{Use Case Diagram}
 
 The use case diagram is presented in Figure \ref{fig:use_case_diagram}.
 
 \begin{figure}[!p]
-\includegraphics[width=200mm,angle=90]{./img/use-case-diagram.png} 
+\includegraphics[width=200mm,angle=90]{./img/use-case-diagram-v2.png} 
 \caption{Use case diagram}
 \label{fig:use_case_diagram}
 \end{figure}
 
-\subsection{Domain model}
+\subsection{Domain Model}
 After outlining all the concepts above, we created the conceptual class diagram
  in Figure \ref{fig:conceptual_class_diagram}, which shows the classes needed
 in the system. Even though a \snort{} rule is quite simple by itself, there is a

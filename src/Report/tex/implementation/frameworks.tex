@@ -1,25 +1,26 @@
 \section{Frameworks}
 \label{sec:frameworks}
-To prevent re-inventing the wheel to many times, we have decided to use several
-frameworks to help us do generic tasks.
+To save the project time and effort programming generic tasks, we decided to
+utilize several frameworks to accomplish our goals, as outined in this section.
 
 \subsection{Django}
 To facilitate database transactions and the creation of the Web interface, this
 project uses the \django{} \cite{django} framework.
-\django{} is an extensive web-framework, designed to make the full process of
+\django{} is an extensive web-framework, designed to make the process of
 building web-based applications and their backends much more efficient and
 simple. It takes care of the database ORM, which controls all the
-database-transactions. \django{} is also providing a template-system for the
-web-frontend, which make a clear line between the data and design of the
-webpage.
+database-transactions, and offers us a simple and clean abstraction layer.
+\django{} is also providing a template-system for the web front end, which make
+a clear dividing line between the data and design of the webpage.
 
 \subsection{SQLAlchemy}
 A database ORM would also be needed on the \snowman-client, but the rest of
 django is not needed there. Because of that, SQLAlchemy is used on the client.
 
-The SQLAlchemy framework is creating an abstraction over the database, and lets
-us develop the code once, and still let the user decide which kind of database
-to use on the client.
+The SQLAlchemy framework creates an abstraction layer on top of the database
+just like \django{}. It also lets us create the code without worry of database
+specific query code, so that the user is free to pick and choose which database
+they want the system to operate with.
 
 \subsection{jQuery}
 When it comes to using JavaScript for client-side scripting, jQuery
@@ -64,6 +65,6 @@ Bootstrap \cite{bootstrap}, which is a front-end framework derived from Twitter.
 It provides a lot of ready made CSS and design elements that make a web page
 responsive and typographically readable. Consider the example job of creating a
 \htmlinline{<table>} element and spending hours setting up and tweaking the CSS
-for the said table element, we could just add \htmlinline{<table class=`table
-table-bordered`>} and get the table formatted nicely with colors and fonts that
+for the said table element. With Bootstrap, we can just add \htmlinline{<table
+class=`table table-bordered`>} and get the table formatted nicely with colors and fonts that
 are typographically matching.

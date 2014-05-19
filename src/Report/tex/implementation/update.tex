@@ -1,5 +1,5 @@
-\section{Update module}
-The purpose of the \pythoninline{update} module is to fetch and read rules and
+\section{Update Module}
+The purpose of the \pythoninline{Update} module is to fetch and read rules and
 configuration files from external sources, and populate the database with this information.
 Effectiveness in updates is a key issue, and a number of deliberate
 optimizations for performing updates, with the goal of saving time by omitting
@@ -41,8 +41,8 @@ configuration file (section \ref{sec:configuration_files}).
 \subsubsection{Rule files}
 A rule file is any file carrying the {\em .rules} file extension. These
 files contain raw rule strings to be processed by Snort. A rule string is
-basically a semicolon-separated list of rule options. Specific rule options used in this system are listed in table
-\ref{tab:ruleFormat}.
+basically a semicolon-separated list of rule options. Specific rule options used
+in \snowman{} are listed in table \ref{tab:ruleFormat}.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
@@ -76,24 +76,24 @@ basically a semicolon-separated list of rule options. Specific rule options used
   \label{tab:ruleFormat}
 \end{table}
 
-\subsubsection{Classification, Generator and Reference Configuration files}
+\subsubsection{Classification, Generator and Reference Configuration Files}
 The classification files are identified by their name {\em
 classification.config} and contain rule classification strings that are used by
 Snort to categorize event data. A classification file will normally appear once
 per update-package, and rarely changes between
-updates\footnote{https://www.snort.org/vrt/snort-conf-configurations/}.
+updates\cite{snort_conf_configurations}.
 Generator ({\em gen-msg.map}) and reference configuration ({\em
-reference.config}) files also contain strings that specify generator massages
+reference.config}) files contain strings that specify generator messages
 and rule reference types, respectively.
 
-\subsubsection{Signature message files}
+\subsubsection{Signature Message Files}
 Alert messages for rules are normally written inline, but can also be specified
 in a file called {\em sid-msg.map}, which may also contain rule references.
 
-\subsubsection{Threshold files}
+\subsubsection{Threshold Files}
 These files contain filter specifications for specific rules.
 
-\subsection{Running an update}
+\subsection{Running an Update}
 An update is either triggered by the user, or automatically at regular
 intervals, for a given source. Regardless of how the update process is invoked,
 it follows the same procedure. As mentioned above, sources will often provide an
@@ -126,20 +126,20 @@ expressions to fetch the content. For example, a generator configuration
 contains a comma-separeted list with a name, description and priority: {\em
 config classification: unknown,Unknown Traffic,3}, which are extracted from the
 string by using a regular expression and put into a RuleClass object which is
-later stored in the database. update also contains a method for parsing files
-containing unspecified entities, where each line if first parsed to decide which
-entity the data belongs to befor it is sent to the correct parsing function for
+later stored in the database. Update also contains a method for parsing files
+containing unspecified entities, where each line is first parsed to decide which
+entity the data belongs to before it is sent to the correct parsing function for
 the respective entity.
 
-\subsection{Rule parsing}
+\subsection{Rule Parsing}
 A rule file is read line by line, and each rulestring found is sent to the rule
 parsing method. The rule string is then matched to a predefined pattern that
 will verify that the rule is valid and extract the data fields (table
 \ref{tab:ruleFormat}.
 
 \subsubsection{Rulesets}
-A rule always belogs to a ruleset, which can be specified in the raw
-rulestring. If the parser does not find this attribute in the rulestring,
+A rule always belongs to a ruleset, which can be specified in the raw
+rule string. If the parser does not find this attribute in the rule string,
 the filename is considered to be the ruleset name.
 
 \subsubsection{Filters}
@@ -163,20 +163,21 @@ object. This is to ensure that all the original rule options are stored,
 meaning that no data is lost or discarded.
 
 \subsubsection{Suppression}
-Suppressions can be applied any rules that might be giving off false positives
-or generating a lot of unneccessary alerts. There might also be cases where the
+Suppressions can be applied to any rules that might be giving off false
+positives or generating a lot of unneccessary alerts. There might also be cases where the
 traffic in question is legal on certain networks or to/from certain
 IP-addresses. Only one suppression can be applied to a rule on a sensor, but
-multiple IP-addresses or networks can be listed in the suppression in the syntax
-[1.2.3.4,4.3.2.1/24]. Rule suppression is always specified in external files.
+multiple IP-addresses or networks can be listed in the suppression in a comma
+separated syntax, like [1.2.3.4,4.3.2.1/24]. Rule suppression is always
+specified in external files.
 
 \snowman{} features IP-address validation checking to make sure no
 invalid addresses are entered, by running a regex-match on the address before it
 is committed. The match will check for a valid IPv4 syntax in the
 range 0.0.0.0/0 - 255.255.255.255/32. There is currently no support for IPv6,
-but this can easily be added later.
+but this can easily be added in future work.
 
-\subsection{Classification, Generator and Reference Type parsing}
+\subsection{Classification, Generator and Reference Type Parsing}
 These files contain a sequence of their respective entities (section
 \ref{sec:update.files}), and are all parsed in the same manner. If a given entity is
 not already present in the database, it is created and stored. If the database

@@ -4,6 +4,7 @@ As the database of the server is quite complex, we have divided the drawings, so
 that we have one drawing per module.
 
 \subsubsection{Core}
+\label{sect:database_design_core}
 
 The core database architecture used for storing the rules is described in
 figure \ref{fig:server_database_core}. 
@@ -14,15 +15,19 @@ figure \ref{fig:server_database_core}.
         \label{fig:server_database_core}
 \end{figure}
 
-The most central part of our system is the representation of a Rule. A single
-Rule might have several Revisions, as we might want to keep some history when
-they get updated. Each Revision has its own set of References attached.
+The most central part of our system is the representation of a
+\pythoninline{Rule}. A single \pythoninline{Rule} might have several
+\pythoninline{Revisions}, as we might want to keep some history when they get
+updated. Each \pythoninline{Revision} has its own set of
+\pythoninline{References} attached.
 
-A single Rule also has a lot of other properties which it might share with
-other Rules. A Generator, a Classification and a Ruleset are examples of such.
+A single \pythoninline{Rule} also has a lot of other properties which it might
+share with other \pythoninline{Rules}. A \pythoninline{Generator},
+a \pythoninline{Classification} and a \pythoninline{Ruleset} are examples of
+such.
 
-Finally, the Rules are assigned to a Sensor by attaching Rulesets to the
-Sensor.
+Finally, the \pythoninline{Rules} are assigned to a \pythoninline{Sensor} by
+attaching \pythoninline{Rulesets} to the \pythoninline{Sensor}.
 
 \subsubsection{Tuning}
 
@@ -38,8 +43,9 @@ to model the tuning parameters.
         \label{fig:server_database_tuning}
 \end{figure}
 
-Both types of filters and the suppressions are connected to a Rule and a
-Sensor. This way, we let the user specify filters for the individual sensors.
+Both types of filters and the suppressions are connected to a
+\pythoninline{Rule} and a \pythoninline{Sensor}. This way, we let the user specify filters for the
+individual sensors.
 If a sensor does not have a filter applied, but any parent sensor of that sensor
 has one, the closest parent's filter will be applied.
 
@@ -56,7 +62,7 @@ able to do this, we have the update object (Figure
         \label{fig:server_database_update}
 \end{figure}
 
-The structure of the Update module allows us to store the update sources,
-and adds a new Update object to each update executed from a given source. These
-Update objects can in turn have relations to Rules, RuleSets and Rule Revisions,
-so that we can track changes for each update.
+The structure of the \pythoninline{Update} module allows us to store the update
+sources, and adds a new Update object to each update executed from a given source. These
+\pythoninline{Update} objects can in turn have relations to
+\pythoninline{Rules}, \pythoninline{RuleSets} and \pythoninline{Rule Revisions}, so that we can track changes for each update.
