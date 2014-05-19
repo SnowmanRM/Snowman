@@ -3,15 +3,11 @@
 The deployment of \snowman{} is a two-stage procedure. First, the central server
 needs to be installed and configured. After the server has been verified
 to be working as intended, the \snowman{}-clients can be installed alongside of
-\snort{} on the sensor.
-
-Both the server and the client are delivered packed in Debian-based
-installation files. These installation files will install the
+\snort{} on the sensor. Both the server and the client are delivered packed in
+Debian-based installation files. These installation files will install the
 \snowman{} software, in addition to making sure that the required dependencies
-are also present on the machine.
-
-However, there is one exception to the dependency solving. The server is
-delivered in both a Debian-flavour in addition to an Ubuntu-flavour. The reason
+are also present on the machine. However, there is one exception to the
+dependency solving. The server is delivered in both a Debian-flavour in addition to an Ubuntu-flavour. The reason
 for this is that one of the Python libraries used are currently not in the 
 debian-stable repository, and for Debian it is required to install them via the
 Python package source (pip). After the installation, we therefore provide some
@@ -27,16 +23,14 @@ When deploying the \snowman{}-server, it is wise to do a couple of
 considerations first.
 \snowman{} uses external software for its webserver and database and because
 \snowman{} is quite flexible, it is possible to change which
-technology is used with a small configuration change.
-
-The web interface is powered by a Python WSGI \cite{wsgi} gateway and is thus
-very flexible in which server technology is serving it. The only requirement would be that the
+technology is used with a small configuration change. The web interface is
+powered by a Python WSGI \cite{wsgi} gateway and is thus very flexible in which server technology is serving it. The only requirement would be that the
 web server supports WSGI. As default, the provided configurations use \apache{}
 as their web server.
 
 For the database, as the \django{} database ORM is used, several
-technologies can easily be utilized. Sqlite, MySQL (and thus MariaDB),
-PostgresSQL and Oracle are all supported. Sqlite might work for smaller
+technologies can easily be utilized. SQLite, MySQL (and thus MariaDB),
+PostgresSQL and Oracle are all supported. SQLite might work for smaller
 installations, where simplicity is preferred over performance. The only
 requirement for an Sqlite database would be access to write a file in the
 filesystem. However, if performance is required, a dedicated RDMS (Relational
@@ -52,7 +46,7 @@ systems, as the only difference is the dependency list. In the Debian version,
 the dependency to {\em python-django} is omitted, as debian-stable currently
 does not delivere this package in a new enough version. Snowman requires Django
 version 1.6 or newer, which is available in the ubuntu-repositories. For debian,
-{\em python-pip} is recommended to install Django, as the pip repositories
+{\em python-pip} is recommended to install \django{}, as the pip repositories
 supplies version 1.6.
 
 \subsubsection{Configuration}
@@ -75,7 +69,7 @@ updated in the file is:
 To configure the web server, an \apache{} configuration file is provided in
 ``/etc/apache2/sites-available/snowman.conf''. For \apache{} to work as the
 web server for \snowman{}, an ``apache2 wsgi-gateway'' needs to be installed. This
-is also widely available in most linux repositories under the name
+is also widely available in most Linux repositories under the name
 ``libapache2-mod-wsgi''. A symlink to the configuration-file should be created
 in ``/etc/apache2/sites-enabled/'', after which \apache{} needs to be restarted
 to finalize the webserver setup.

@@ -4,15 +4,16 @@
 The overall strategy of the project when it comes to testing has, first and
 foremost, been to have regular meetings from Avdeling BKI where we conducted
 demonstrations of the software. This has lead us to either confirm elements as
-feature complete or to create a list of elements to either fix or improve.
-
-We have also not had any specific regimes when it comes to bug fixing, we have
-mostly just handled them when they have been discovered them. We could describe our software testing strategy as ad-hoc based, as it is quite
-common in agile projects. Our main focus was on the performance testing.
+feature complete or to create a list of elements to either fix or improve. We
+have also not had any specific regimes when it comes to bug fixing, we have
+mostly just handled them when they have been discovered them. We could describe
+our software testing strategy as ad-hoc based, as it is quite common in agile
+projects. Our main focus was on the performance testing.
 
 Unit testing has not been used extensively in this project, except to test that
-data from an update is correctly inserted into the database. Source code listings of all unit tests in this
-project can be found in Appendix \ref{app:}.
+data from an update is correctly inserted into the database and for some of the
+functionality in the web interface. Source code listings of all unit tests in
+this project can be found in Appendix \ref{app:unit_tests}.
 
 \section{Description of Problems}
 
@@ -22,9 +23,11 @@ this into the database in different tables. Since an update can contain
 thousands of rules, it proved to be very difficult to effectively verify that
 all rules were correctly inserted into the database. To address this, a test suite was set
 up executing a dummy update with an example rule string containing all
-possible options.
+possible options. These tests were also very useful during the refactoring of
+the \pythoninline{update} module, as the new code could be quickly verified.
+Listing \ref{lst:test_case} demonstrates a test case for rule insertion.
 
-\begin{python}
+\begin{python}[caption=Example test case,label=lst:test_case]
 def test_updateRule(self):
   # Insert the rule
   self.update.updateRule(self.rulestring, "example.rules")
@@ -44,10 +47,6 @@ def test_updateRule(self):
   self.assertTrue(int(rule.priority)==10)
   self.assertTrue(generator.GID==1)
 \end{python}
-
-
- These tests were also very
-useful during the refactoring of the Update module.
 
 \subsection{List Pagination}
 One problem that has plagued the software throughout the development has been

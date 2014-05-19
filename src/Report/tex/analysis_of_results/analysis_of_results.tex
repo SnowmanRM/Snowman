@@ -29,7 +29,7 @@ that it is very simple.
 \begin{table}[h!]
   \centering
   \begin{tabular}{r|r|r|r|r}
-Test & System & Snowman 05 & Snortmanager & BHTB \\
+Test & System & \snowman{} v 0.5 & \snortmanager{} & \bhtb{} \\
 \hline
 SYN-10000 & S1 & 1.4179 & 9.2429 & 0.3606 \\
  & S2 & 0.5762 & 0.5105 & 0.0919 \\
@@ -49,7 +49,13 @@ SF-28064 & S1 & 6.3962 & 4.3392 & 0.5638 \\
 tests. As it can be seen in Table \ref{tab:comparefiles}, there is a great
 difference between tests \textit{SYN-1000} and \textit{SYN-1000-B}, where we have the same number of rules, but spread over
 more files. This problem does not seem to exist in either \snowman{} or
-\bhtb{}.
+\bhtb{}. None the less, both \snortmanager{} and \bhtb{} was much better than \snowman{}
+v0.4 in these tests, which led us to completely rework our update program
+workflow. Our problem was that for every rule, we were writing its data to the
+database and then moving on to the next rule. This caused a lot of busy-waiting
+for the database. We can see that the times accelerated a lot on the machine
+with the lower-end hard drives, so the problem also manifests itself more when
+the hard drives cannot keep up.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
@@ -57,7 +63,8 @@ more files. This problem does not seem to exist in either \snowman{} or
 \begin{table}[h!]
   \centering
   \begin{tabular}{r|r|r|r|r}
-Test & System & Snowman 05 & Snortmanager & BHTB \\
+Test & System & \snowman{} v 0.5 & \snortmanager{} & \bhtb{} \\
+\hline
 SYN-1000 & S1 & 2568.235 & \textbf{9470.460} & 568.333 \\
 SYN-1000-B & S1 & 2508.530 & 1836.396 & 445.476 \\
 \hline
@@ -73,18 +80,10 @@ SYN-1000-B & S3 & 404.022 & 228.044 & 49.908 \\
   \label{tab:comparefiles}
 \end{table}
 
-None the less, both \snortmanager{} and \bhtb{} was much better than \snowman{}
-v0.4 in these tests, which led us to completely rework our update program
-workflow. Our problem was that for every rule, we were writing its data to the
-database and then moving on to the next rule. This caused a lot of busy-waiting
-for the database. We can see that the times accelerated a lot on the machine
-with the lower-end hard drives, so the problem also manifests itself more when
-the hard drives cannot keep up.
-
 We proceeded to rewrite the code so that all the rules are parsed into
 memory first and then is committed into the database in one big query. As we
 can see in table \ref{tab:compareversions} we improved \snowman{}'s performance
-in v0.5 significantly. 
+in v 0.5 significantly. 
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
@@ -114,9 +113,9 @@ SYN-10000 & S1 & 1795175.128 & \textbf{14179.095}  \\
  & S2 & 1162468.835 & \textbf{5761.811}  \\
  & S3 & 228038.066 & \textbf{16804.950}  \\
 \hline
-\multicolumn{5}{l}{\textit{Note: All times in milliseconds.}}
+\multicolumn{4}{l}{\textit{Note: All times in milliseconds.}}
   \end{tabular}
-  \caption{Comparison of \snowman{} v0.4 and v0.5.}
+  \caption{Comparison of \snowman{} v 0.4 and v 0.5.}
   \label{tab:compareversions}
 \end{table}
 
@@ -216,7 +215,7 @@ for all software across all systems.
 \begin{table}[h!]
   \centering
   \begin{tabular}{r|r|r|r}
-System & Snowman 05 & Snortmanager & BHTB \\
+System & \snowman{} v 0.5 & \snortmanager{} & \bhtb{} \\
 \hline
 S1 & 0.999945 & 0.999999 & 0.999695 \\
 S2 & 0.993996 & 0.999627 & 0.999931 \\

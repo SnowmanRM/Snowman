@@ -6,27 +6,23 @@ web browser on the user's computer.
 \subsubsection{URLs}
 \label{sect:django_urls}
 
-The first step of serving a page to a user is an HTTP request for a specific
+The first step of serving a page to a user is an HTTP-request for a specific
 page. The pages are uniquely identified by URLs, such as '<server
-address>/web/rules/'.
-
-The URLs are structured in a logical manner, where everything in the
-web interface is found under /web/, everything regarding the administration of
-rules is found under /web/rules/ and so on. The URLs might contain dynamic
-data, such as page numbers (e.g. /web/rules/rules/page/3/ which will give you
-the third page of the rule-list), so that dynamic content can be loaded when
-needed.
-
-\django{} uses the URLs to identify which view the requested url corresponds to.
-When a view is identified the request is passed to the corresponding view.
+address>/web/rules/'. The URLs are structured in a logical manner, where
+everything in the web interface is found under /web/, everything regarding the
+administration of rules is found under /web/rules/ and so on. The URLs might
+contain dynamic data, such as page numbers (e.g. /web/rules/rules/page/3/ which
+will give you the third page of the rule-list), so that dynamic content can be
+loaded when needed. \django{} uses the URLs to identify which view the requested
+url corresponds to. When a view is identified the request is passed to the
+corresponding view.
 
 \subsubsection{Views}
 
 The views constitute the part of the user interface that collect the required
 data from the models-layer and then generate a response to the web client. The
-response can contain a full web page, or just a small subset of one.
-
-The typical steps a view makes to generate a response would be:
+response can contain a full web page, or just a small subset of one. The typical
+steps a view makes to generate a response would be:
 \begin{enumerate}
   \item Collect the required data from the database(s) using the \django{}
   models.
@@ -34,17 +30,12 @@ The typical steps a view makes to generate a response would be:
   generate the HTML representing the webpage the user requests.
   \item Send the created web page as a response to the user.
 \end{enumerate}
-
 The view system decides what to show and then lets the template system decide
 how to show it. The view system by itself does not create any HTML or
-similar. It solely creates data structures.
-
-If the request was for raw data and not a webpage, step 2 in the list above
-might be skipped, and instead return the data as some form of recognizable data
-structure in step 3.
-
-If errors occur in the view system, appropriate exceptions can be raised that
-tell \django{} to return an error code or an error page to the user instead of
+similar; It solely creates data structures. If the request was for raw data and
+not a webpage, step 2 in the list above might be skipped, and instead return the data as some form of recognizable data
+structure in step 3. If errors occur in the view system, appropriate exceptions
+can be raised that tell \django{} to return an error code or an error page to the user instead of
 what the user requested.
 
 \subsubsection{Templates}

@@ -69,10 +69,8 @@ for, and parse {\em only}, the following files:
   \item An arbitrary number of files containing rulestrings.
 \end{enumerate}
 The whitelist provides the most effective update parsing, as only the files
-specified are parsed.
-
-If a blacklist is used, \snowman{} will parse every file in the update except
-files with extensions specified in the blacklist (e.g. ``.c'' and ``.so'' files
+specified are parsed. If a blacklist is used, \snowman{} will parse every file
+in the update except files with extensions specified in the blacklist (e.g. ``.c'' and ``.so'' files
 are skipped). This will slow down the parsing, as \snowman{} has to check if
 each line in each parsed file matches a known entity, such as a classification
 or a rulestring.

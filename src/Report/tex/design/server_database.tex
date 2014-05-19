@@ -1,68 +1,60 @@
 \subsection{Database}
 
-As the database of the server is quite complex, we have divided the drawings, so
-that we have one drawing per module.
+As the database of the server is quite complex, this section contains one figure per module.
 
 \subsubsection{Core}
 \label{sect:database_design_core}
-
-The core database architecture used for storing the rules is described in
-figure \ref{fig:server_database_core}. 
-
-\begin{figure}[h]
-        \includegraphics[width=200mm,angle=90]{./img/Server-DB-Core.png}
-        \caption{Core server-database}
-        \label{fig:server_database_core}
-\end{figure}
 
 The most central part of our system is the representation of a
 \pythoninline{Rule}. A single \pythoninline{Rule} might have several
 \pythoninline{Revisions}, as we might want to keep some history when they get
 updated. Each \pythoninline{Revision} has its own set of
-\pythoninline{References} attached.
+\pythoninline{References} attached. A single \pythoninline{Rule} also has a lot
+of other properties which it might share with other \pythoninline{Rules}. A
+\pythoninline{Generator}, a \pythoninline{Classification} and a
+\pythoninline{Ruleset} are examples of such. Finally, the \pythoninline{Rules}
+are assigned to a \pythoninline{Sensor} by attaching \pythoninline{Rulesets} to
+the \pythoninline{Sensor}. The core database architecture used for storing the
+rules is described in Figure \ref{fig:server_database_core}.
 
-A single \pythoninline{Rule} also has a lot of other properties which it might
-share with other \pythoninline{Rules}. A \pythoninline{Generator},
-a \pythoninline{Classification} and a \pythoninline{Ruleset} are examples of
-such.
-
-Finally, the \pythoninline{Rules} are assigned to a \pythoninline{Sensor} by
-attaching \pythoninline{Rulesets} to the \pythoninline{Sensor}.
+\begin{figure}[!p]
+        \includegraphics[width=200mm,angle=90]{./img/Server-DB-Core.png}
+        \caption{Core server-database}
+        \label{fig:server_database_core}
+\end{figure}
 
 \subsubsection{Tuning}
 
-In addition to storing the raw rules, we would like to be able to store
-tuning parameters on the rules. As sensors might have different
-tuning parameters, we cannot attach the tuning directly to the rules. Separate
-tables (as described in Figure \ref{fig:server_database_tuning}) are thus needed
-to model the tuning parameters.
+In addition to storing the raw rules, we would like to be able to store tuning
+parameters on the rules. As sensors might have different tuning parameters, we
+cannot attach the tuning directly to the rules. Separate tables (as described in
+Figure \ref{fig:server_database_tuning}) are thus needed to model the tuning
+parameters. Both types of filters and the suppressions are connected to a
+\pythoninline{Rule} and a \pythoninline{Sensor}. This way, we let the user
+specify filters for the individual sensors. If a sensor does not have a filter
+applied, but any parent sensor of that sensor has one, the closest parent's
+filter will be applied.
 
-\begin{figure}[h]
+\begin{figure}[!p]
         \includegraphics[width=200mm,angle=90]{./img/Server-DB-Tuning.png}
         \caption{Tuning server-database}
         \label{fig:server_database_tuning}
 \end{figure}
 
-Both types of filters and the suppressions are connected to a
-\pythoninline{Rule} and a \pythoninline{Sensor}. This way, we let the user specify filters for the
-individual sensors.
-If a sensor does not have a filter applied, but any parent sensor of that sensor
-has one, the closest parent's filter will be applied.
-
 \subsubsection{Update}
 
 When rules are inserted into the database, we would like to have some
-traceability to be able to determine where and when a rule has entered our system. To be
-able to do this, we have the update object (Figure
-\ref{fig:server_database_update}).
+traceability to be able to determine where and when a rule has entered our
+system. To be able to do this, we have the update object (Figure
+\ref{fig:server_database_update}). The structure of the \pythoninline{update}
+module allows us to store the update sources, and adds a new Update object to
+each update executed from a given source. These \pythoninline{Update} objects
+can in turn have relations to \pythoninline{Rule}s, \pythoninline{RuleSet}s and
+\pythoninline{RuleRevision}s, so that we can track changes for each update.
 
-\begin{figure}[h]
+\begin{figure}[!p]
         \includegraphics[width=200mm,angle=90]{./img/Server-DB-Update.png}
         \caption{Update server-database}
         \label{fig:server_database_update}
 \end{figure}
 
-The structure of the \pythoninline{Update} module allows us to store the update
-sources, and adds a new Update object to each update executed from a given source. These
-\pythoninline{Update} objects can in turn have relations to
-\pythoninline{Rules}, \pythoninline{RuleSets} and \pythoninline{Rule Revisions}, so that we can track changes for each update.

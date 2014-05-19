@@ -32,13 +32,14 @@ updates, i.e. updates containing only a small number of changes. It is
 important to measure performance for incremenal updates, as most real-life
 updates usually contain between 10 and 100 changes. For example, ten updates
 from 20.03.2014 to 17.04.2014 contained on average 36.8 new and 53.9 updated
-rules\cite{vrt_advisories}. \snowman{} will
+rules \cite{vrt_advisories}. \snowman{} will
 effectively handle these updates, as it stores the checksum of the files in the
 update. Storing the checksum for every individual file\footnote{Checksum is
 stored only for files that are parsed.} is unique for \snowman{}. It allows
 \snowman{} to completely ignore files without changes, which means that only
 the files with rule changes are parsed. This is particularly useful as the
-current official \snort{} rules contain over 100 files\footnote{As of May 2014}.
+current official \snort{} rules contain over 100 files\footnote{As of May
+2014.}.
 It is therefore expected that \snowman{} will efficiently process updates that
 contain relatively few changes.
 
@@ -59,8 +60,8 @@ of this, a longer processing time for setting up the connection is expected.
 \subsection{GUI Latency}
 A major complaint from Avdeling BKI was that they experienced a high latency in
 BHTB's web component, that they had to wait long periods for it to load data.
-We've attempted to remedy this problem in Snowman by not loading absolutely
-everything into the GUI every time, like BHTB does. It is expected that this
+We have attempted to remedy this problem in \snowman{} by not loading absolutely
+everything into the GUI every time, like \bhtb{} does. It is expected that this
 will reduce the latency in the GUI, as we would be processing and displaying
 only 100/28000 rules as opposed to all 28000 rules.
 

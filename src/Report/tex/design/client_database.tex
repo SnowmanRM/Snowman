@@ -3,15 +3,13 @@
 The database on the client can be significantly simpler than the one on the
 server, as we only care about the rules which should be present on a given
 sensor. The full database schema is available in Figure
-\ref{fig:client_database}
+\ref{fig:client_database}. The central part of the data structure is the rule
+table. This table contains all the parameters directly related to the rule. In
+addition, we have separate tables for all the meta parameters surrounding the
+rule, such as rulesets or filters.
 
 \begin{figure}[h]
 	\includegraphics[width=200mm,angle=90]{./img/Client_Database.png}
 	\caption{Client Database}
 	\label{fig:client_database}
 \end{figure}
-
-The central part of the data structure is the rule table. This table contains
-all the parameters directly related to the rule. In addition, we have separate
-tables for all the meta parameters surrounding the rule, such as rulesets
-or filters.

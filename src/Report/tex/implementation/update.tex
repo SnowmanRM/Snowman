@@ -1,5 +1,5 @@
 \section{Update Module}
-The purpose of the \pythoninline{Update} module is to fetch and read rules and
+The purpose of the \pythoninline{update} module is to fetch and read rules and
 configuration files from external sources, and populate the database with this information.
 Effectiveness in updates is a key issue, and a number of deliberate
 optimizations for performing updates, with the goal of saving time by omitting
@@ -36,13 +36,13 @@ from. This section describes the files supported by \snowman{}. Note that
 file names and extensions used in this report follows the {\em de facto} names
 used in the official \snort{} rules, but are subject to change. The names and
 extensions can therefore be manually specified by \snowman{} users in a
-configuration file (section \ref{sec:configuration_files}).
+configuration file (Section \ref{sec:configuration_files}).
 
 \subsubsection{Rule files}
 A rule file is any file carrying the {\em .rules} file extension. These
 files contain raw rule strings to be processed by Snort. A rule string is
 basically a semicolon-separated list of rule options. Specific rule options used
-in \snowman{} are listed in table \ref{tab:ruleFormat}.
+in \snowman{} are listed in Table \ref{tab:ruleFormat}.
 
 %Set row spacing:
 \renewcommand{\arraystretch}{1.5}
@@ -69,7 +69,7 @@ in \snowman{} are listed in table \ref{tab:ruleFormat}.
 	    \hline
 		\multicolumn{3}{p{12cm}}{Note: The \em presence \em column indicates whether a
 		field is required or not by the parser in this system. Information is gathered from the
-		Snort Users Manual \cite{SnortManual}(ch 3.4).
+		Snort Users Manual \cite{SnortManual}.
 		}
   \end{tabular}
   \caption{Rule options used in this system.}
@@ -81,7 +81,7 @@ The classification files are identified by their name {\em
 classification.config} and contain rule classification strings that are used by
 Snort to categorize event data. A classification file will normally appear once
 per update-package, and rarely changes between
-updates\cite{snort_conf_configurations}.
+updates \cite{snort_conf_configurations}.
 Generator ({\em gen-msg.map}) and reference configuration ({\em
 reference.config}) files contain strings that specify generator messages
 and rule reference types, respectively.
@@ -134,8 +134,8 @@ the respective entity.
 \subsection{Rule Parsing}
 A rule file is read line by line, and each rulestring found is sent to the rule
 parsing method. The rule string is then matched to a predefined pattern that
-will verify that the rule is valid and extract the data fields (table
-\ref{tab:ruleFormat}.
+will verify that the rule is valid and extract the data fields (Table
+\ref{tab:ruleFormat}).
 
 \subsubsection{Rulesets}
 A rule always belongs to a ruleset, which can be specified in the raw
@@ -178,7 +178,7 @@ range 0.0.0.0/0 - 255.255.255.255/32. There is currently no support for IPv6,
 but this can easily be added in future work.
 
 \subsection{Classification, Generator and Reference Type Parsing}
-These files contain a sequence of their respective entities (section
+These files contain a sequence of their respective entities (Section
 \ref{sec:update.files}), and are all parsed in the same manner. If a given entity is
 not already present in the database, it is created and stored. If the database
 already contains the entity, the existing entry in the database is overwritten.
