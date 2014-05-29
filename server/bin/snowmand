@@ -146,10 +146,24 @@ class RPCInterface():
 		The SID/rev information is then returned to the sensor."""
 		sensor = cache['session'][token]['sensor']
 		
+		# Get the rulesets applied to this sensor:
+		sets = {x.name: x for x in sensor.ruleSets.filter(active=True).all()}
+
+		# Get the rulesets applied to any parent sensor:
+		s = sensor.parent
+		while s != None:
+			sets.update({x.name: x for x in s.ruleSets.filter(active=True).all()})
+			s = s.parent
+
+		# Get all child-rulesets of the rulesets we already have found.
+		ruleSets = {}
+		for s in sets:
+			ruleSets.update({x.name: x for x in sets[s].getChildSets()})
+			ruleSets[s] = sets[s]
+
 		activeRules = {}
-		for ruleSet in sensor.ruleSets.all():
-			if(ruleSet.active):
-				activeRules.update(ruleSet.getRuleRevisions(True))
+		for ruleSet in ruleSets:
+			activeRules.update(ruleSets[ruleSet].getRuleRevisions(True))
 		
 		rulerevisions = {}
 		for sid in activeRules:
@@ -165,17 +179,26 @@ class RPCInterface():
 		"""This method collects a list over the RuleSets a sensor should have, and returns to the sensor."""
 		sensor = cache['session'][token]['sensor']
 
-		sets = []
 		rulesets = {}
 
-		# Collect all the rulesets.
-		for rs in sensor.ruleSets.all():
-			if(rs.active):
-				sets.append(rs)
-				sets.extend(rs.getChildSets())
+		# Get the rulesets applied to this sensor:
+		sets = {x.name: x for x in sensor.ruleSets.filter(active=True).all()}
+
+		# Get the rulesets applied to any parent sensor:
+		s = sensor.parent
+		while s != None:
+			sets.update({x.name: x for x in s.ruleSets.filter(active=True).all()})
+			s = s.parent
+
+		# Get all child-rulesets of the rulesets we already have found.
+		ruleSets = {}
+		for s in sets:
+			ruleSets.update({x.name: x for x in sets[s].getChildSets()})
+			ruleSets[s] = sets[s]
 		
 		# Structure them in a dict (hashmap, so duplicates are removed )
-		for rs in sets:
+		for rsname in ruleSets:
+			rs = ruleSets[rsname]
 			ruleset = {}
 			ruleset['name'] = rs.name
 			ruleset['description'] = rs.description 
