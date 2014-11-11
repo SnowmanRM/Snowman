@@ -1,0 +1,19 @@
+Name: 				Update the sensors ruleset.
+Actors: 			ScheduledTask, or external signal
+Purpose: 			Get the updated ruleset installed the local sensor.
+Description:		When a sensor is ordered to update its local set of rules, it will contact the sentral server, and get the latest updates of the ruleset. The sensor should then create new configuration-files for snort, and Sig-HUP/restart the snort-process, to load the latest set of rules.
+Pre Conditionals: 	Rules, rulesets, sensors and sensorgroups should already exist in the database.
+Post Conditionals: 	The sensor's rulesets are updated.
+
+Sensor:			Server:
+1. Request a list over lately changed rules from the server.
+				2. Check which rules have changed since last sync, and return these rules to the Sensor.
+3. Recieve the list of changes, and apply them to the local rule-database.
+4. Re-generate the snort configuration-files, and store them to disk.
+5. Send signal to SNORT, to reload the configuration.
+6. Send an acknowledgement to the server, to say which rules the sensor currently posess.
+				7. Store the ack from the sensor.
+
+
+Name: User request an update of several sensors
+Description: When a user requests an update of the sensors from the central server, we would send a signal to the sensors, indicating that each sensor should now request the latest sets of updates.

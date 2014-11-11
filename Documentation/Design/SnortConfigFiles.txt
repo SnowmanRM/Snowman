@@ -1,0 +1,10 @@
+File to be auto-generated
+*.rules 		- Regelsettene
+sid-msg.map		- Mapping mellom SID og Regelnavn
+classification.conf 	- RuleClasses
+threshold.conf		- Supress/Threshold
+reference.config	- RuleReferenceType
+
+Static files
+gen-msg.map	- What to do with this file
+unicode.map
