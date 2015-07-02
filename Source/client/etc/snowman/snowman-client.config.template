@@ -9,6 +9,8 @@ binarydir: /usr/bin
 # This option is to find the snort-process, and reload it when the config is updated.
 # If you want snowman to reload snort, make sure that snortpid contains the full path
 # to the pid-file used by your snort-instanse.
+#restart: default
+restart: sudo nsm_sensor_ps-restart --only-barnyard2 --only-snort-alert
 snortpid: /var/run/snort.pid
 
 [configfiles]

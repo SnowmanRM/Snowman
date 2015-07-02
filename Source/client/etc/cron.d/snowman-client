@@ -2,4 +2,4 @@
 # Auto-update for the snowman-client.
 # 	Default: Every night at 2:00
 #
-0 2 * * * snort /usr/bin/snowmanclient-update reloadconfig
+0 2 * * * root /usr/bin/snowmanclient-update reloadconfig

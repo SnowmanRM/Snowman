@@ -9,7 +9,7 @@ start() {
         echo "Error! $PROG is currently running!" 1>&2
         exit 1
     else
-        sudo -u snort $PROG_PATH/$PROG &> /var/log/snowmanclientd.log &
+        sudo $PROG_PATH/$PROG &> /var/log/snowmanclientd.log &
         echo "$PROG started"
     fi
 }

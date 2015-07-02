@@ -42,20 +42,37 @@ def main():
 	
 	# Try to open the snort pid-file, and grab the pid.
 	try:
-		pidfile = Config.get("general", "snortpid")
-		pfile = open(pidfile, "r")
-		pid = int(pfile.readline())
-		pfile.close()
-	except IOError:
-		logger.debug("Snowman could not find snorts pid-file at '%s'. Snort is therfore not restarted.")
-		pid = 0
-	
-	# If a pid was found, send a SIGHUP to it, to reload its config.
-	if(pid):
+		restartMethod = Config.get("general", "restart")
+	except:
+		logger.error("Could not find restart parameter in config.")
+
+	# By default we restart snort by sending a SIGHUP kill signal.
+	if(restartMethod=="default"):
 		try:
-			os.kill(pid, signal.SIGHUP)
+			pidfile = Config.get("general", "snortpid")
+			pfile = open(pidfile, "r")
+			pid = int(pfile.readline())
+			pfile.close()
+		except IOError:
+			logger.debug("Snowman could not find snorts pid-file at '%s'. Snort is therfore not restarted.")
+			pid = 0
+
+		# If a pid was found, send a SIGHUP to it, to reload its config.
+		if(pid):
+			try:
+				os.kill(pid, signal.SIGHUP)
+			except OSError as e:
+				logger.error("Could not reload snort:\n\t%s", str(e))
+				
+	# There is the option to define another command to restart snort in the config.
+	else:
+		logger.debug("Attempting to restart Snort.")
+		try:
+			subprocess.call(restartMethod.split())
+			if(restart):
+				logger.info("Snort has been restarted.")
 		except OSError as e:
-			logger.error("Could not reload snort:\n\t%s", str(e))
+			logger.error("Failed to restart Snort using the custom command: %s", str(e))
 	
 if __name__ == "__main__":
 	main()
